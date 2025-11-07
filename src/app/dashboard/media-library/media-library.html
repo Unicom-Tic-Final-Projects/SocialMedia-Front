@@ -1,1 +1,31 @@
-<p>media-library works!</p>
+<div class="min-h-screen bg-[#1B1B1B] text-[#F2F2F2] p-6">
+    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium">📁 Media Library</h2>
+  
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+      <input
+        type="text"
+        placeholder="Search media..."
+        class="bg-[#161616] border border-gray-700 rounded-lg px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-[#00B78E] text-[#F2F2F2]"
+      />
+      <button class="bg-[#00B78E] text-black font-semibold px-4 py-2 rounded-lg hover:bg-[#004C3F] transition font-medium">
+        + Upload Media
+      </button>
+    </div>
+  
+    <div class="bg-[#161616] rounded-2xl shadow-md p-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="bg-[#1B1B1B] rounded-lg p-4 aspect-square flex items-center justify-center border border-gray-700 hover:bg-[#004C3F]/40 transition cursor-pointer">
+          <div class="text-center">
+            <i class="fa-solid fa-image text-4xl text-gray-400 mb-2"></i>
+            <p class="text-sm text-gray-400">Image Placeholder</p>
+          </div>
+        </div>
+        <div class="bg-[#1B1B1B] rounded-lg p-4 aspect-square flex items-center justify-center border border-gray-700 hover:bg-[#004C3F]/40 transition cursor-pointer">
+          <div class="text-center">
+            <i class="fa-solid fa-video text-4xl text-gray-400 mb-2"></i>
+            <p class="text-sm text-gray-400">Video Placeholder</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

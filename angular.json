@@ -5,7 +5,11 @@
   "projects": {
     "nexuspost": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+          "@schematics/angular:component": {
+           "path": "src"
+         }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -25,6 +29,7 @@
               "src/styles.css"
             ]
           },
+          
           "configurations": {
             "production": {
               "budgets": [
@@ -77,9 +82,13 @@
             "styles": [
               "src/styles.css"
             ]
+            
           }
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "a7d1ac2a-ab79-4f35-a456-db46230b6cd5"
   }
 }

@@ -1,1 +1,77 @@
-<p>notifications-page works!</p>
+<div class="min-h-screen bg-[#1B1B1B] text-[#F2F2F2] p-6">
+    <!-- Page Title -->
+    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium">🔔 Notifications</h2>
+  
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3 mb-6">
+      <button class="bg-[#00B78E] text-black px-4 py-2 rounded-lg font-semibold hover:bg-[#004C3F] transition font-medium">
+        All
+      </button>
+      <button class="bg-[#161616] px-4 py-2 rounded-lg hover:bg-[#004C3F]/40 transition text-[#F2F2F2] font-medium">
+        Unread
+      </button>
+      <button class="bg-[#161616] px-4 py-2 rounded-lg hover:bg-[#004C3F]/40 transition text-[#F2F2F2] font-medium">
+        Read
+      </button>
+    </div>
+  
+    <!-- Notification List -->
+    <div class="space-y-4">
+      <!-- Card 1 -->
+      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
+        <div class="text-[#00B78E] text-xl">
+          <i class="fa-solid fa-check-circle"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-[#F2F2F2]">Post "Black Friday Offer" has been approved 🎉</p>
+          <p class="text-sm text-gray-400">2 hours ago</p>
+        </div>
+        <button class="text-gray-400 hover:text-[#00B78E] transition">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+  
+      <!-- Card 2 -->
+      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
+        <div class="text-yellow-400 text-xl">
+          <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-[#F2F2F2]">Your scheduled post "Holiday Giveaway" is pending approval.</p>
+          <p class="text-sm text-gray-400">Yesterday</p>
+        </div>
+        <button class="text-gray-400 hover:text-[#00B78E] transition">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+  
+      <!-- Card 3 -->
+      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
+        <div class="text-green-400 text-xl">
+          <i class="fa-solid fa-bullhorn"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-[#F2F2F2]">New campaign "Winter Sale" has been published successfully ✅</p>
+          <p class="text-sm text-gray-400">3 days ago</p>
+        </div>
+        <button class="text-gray-400 hover:text-[#00B78E] transition">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+  
+      <!-- Card 4 -->
+      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
+        <div class="text-blue-400 text-xl">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <div class="flex-1">
+          <p class="font-semibold text-[#F2F2F2]">Your analytics report for October is ready 📈</p>
+          <p class="text-sm text-gray-400">1 week ago</p>
+        </div>
+        <button class="text-gray-400 hover:text-[#00B78E] transition">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+  

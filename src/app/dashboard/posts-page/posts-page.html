@@ -1,1 +1,95 @@
-<p>posts-page works!</p>
+<div class="min-h-screen bg-[#1B1B1B] text-[#F2F2F2] p-6">
+    <!-- Page Title -->
+    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium">📰 My Posts</h2>
+  
+    <!-- Search + Button -->
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+      <input
+        type="text"
+        placeholder="Search posts..."
+        class="bg-[#161616] border border-gray-700 rounded-lg px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-[#00B78E] text-[#F2F2F2]"
+      />
+      <button
+        class="bg-[#00B78E] text-black font-semibold px-4 py-2 rounded-lg hover:bg-[#004C3F] transition font-medium"
+      >
+        + New Post
+      </button>
+    </div>
+  
+    <!-- Posts Table -->
+    <div class="bg-[#161616] rounded-2xl shadow-md overflow-x-auto">
+      <table class="min-w-full border-collapse">
+        <thead class="bg-[#00B78E] text-black">
+          <tr>
+            <th class="p-3 text-left font-medium">Title</th>
+            <th class="p-3 text-left font-medium">Platform</th>
+            <th class="p-3 text-left font-medium">Status</th>
+            <th class="p-3 text-left font-medium">Scheduled Date</th>
+            <th class="p-3 text-left font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Row 1 -->
+          <tr class="border-b border-gray-700 hover:bg-[#004C3F]/40 transition">
+            <td class="p-3 text-[#F2F2F2]">Black Friday Offer</td>
+            <td class="p-3 text-[#F2F2F2]">Facebook</td>
+            <td class="p-3">
+              <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm"
+                >Scheduled</span
+              >
+            </td>
+            <td class="p-3 text-[#F2F2F2]">Nov 5, 2025</td>
+            <td class="p-3 flex gap-3 text-lg text-gray-400">
+              <i
+                class="fa-solid fa-pen-to-square hover:text-blue-400 cursor-pointer"
+              ></i>
+              <i
+                class="fa-solid fa-trash hover:text-red-400 cursor-pointer"
+              ></i>
+            </td>
+          </tr>
+  
+          <!-- Row 2 -->
+          <tr class="border-b border-gray-700 hover:bg-[#004C3F]/40 transition">
+            <td class="p-3 text-[#F2F2F2]">Holiday Giveaway</td>
+            <td class="p-3 text-[#F2F2F2]">Instagram</td>
+            <td class="p-3">
+              <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm"
+                >Published</span
+              >
+            </td>
+            <td class="p-3 text-[#F2F2F2]">Nov 3, 2025</td>
+            <td class="p-3 flex gap-3 text-lg text-gray-400">
+              <i
+                class="fa-solid fa-pen-to-square hover:text-blue-400 cursor-pointer"
+              ></i>
+              <i
+                class="fa-solid fa-trash hover:text-red-400 cursor-pointer"
+              ></i>
+            </td>
+          </tr>
+  
+          <!-- Row 3 -->
+          <tr class="hover:bg-[#004C3F]/40 transition">
+            <td class="p-3 text-[#F2F2F2]">New Year Promo</td>
+            <td class="p-3 text-[#F2F2F2]">LinkedIn</td>
+            <td class="p-3">
+              <span class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm"
+                >Draft</span
+              >
+            </td>
+            <td class="p-3 text-[#F2F2F2]">Nov 1, 2025</td>
+            <td class="p-3 flex gap-3 text-lg text-gray-400">
+              <i
+                class="fa-solid fa-pen-to-square hover:text-blue-400 cursor-pointer"
+              ></i>
+              <i
+                class="fa-solid fa-trash hover:text-red-400 cursor-pointer"
+              ></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
