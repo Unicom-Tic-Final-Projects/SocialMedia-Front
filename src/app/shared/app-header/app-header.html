@@ -1,1 +1,60 @@
-<p>app-header works!</p>
+<header class="bg-[#1B1B1B] text-[#F2F2F2] shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <!-- Logo -->
+    <div class="text-2xl font-bold text-[#00B78E]">
+      Nexus<span class="text-[#F2F2F2]">Post</span>
+    </div>
+
+    <!-- Desktop Menu -->
+    <nav class="hidden md:flex space-x-8 font-medium">
+      <a routerLink="/" class="hover:text-[#00B78E] transition">Home</a>
+      <a routerLink="/about" class="hover:text-[#00B78E] transition">About</a>
+      <a routerLink="/features" class="hover:text-[#00B78E] transition">Features</a>
+      <a routerLink="/pricing" class="hover:text-[#00B78E] transition">Pricing</a>
+    </nav>
+
+    <!-- Buttons -->
+    <div class="hidden md:flex items-center space-x-4">
+      <a routerLink="/auth/login"
+         class="border border-[#00B78E] text-[#00B78E] hover:bg-[#00B78E] hover:text-[#1B1B1B] px-4 py-2 rounded-md transition">
+        Login
+      </a>
+      <a routerLink="/auth/register"
+         class="bg-[#00B78E] hover:bg-[#004C3F] text-white px-4 py-2 rounded-md transition">
+        Sign Up
+      </a>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button (click)="toggleMenu()" class="md:hidden text-[#00B78E] focus:outline-none">
+      <svg *ngIf="!menuOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke="currentColor" class="w-7 h-7">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7" />
+      </svg>
+      <svg *ngIf="menuOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke="currentColor" class="w-7 h-7">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div *ngIf="menuOpen" class="md:hidden bg-[#121212] text-[#F2F2F2] px-6 py-4 space-y-4">
+    <a routerLink="/" class="block hover:text-[#00B78E]">Home</a>
+    <a routerLink="/about" class="block hover:text-[#00B78E]">About</a>
+    <a routerLink="/features" class="block hover:text-[#00B78E]">Features</a>
+    <a routerLink="/pricing" class="block hover:text-[#00B78E]">Pricing</a>
+    <div class="pt-4 border-t border-[#2a2a2a]">
+      <a routerLink="/auth/login"
+         class="block border border-[#00B78E] text-center text-[#00B78E] hover:bg-[#00B78E] hover:text-[#1B1B1B] py-2 rounded-md">
+        Login
+      </a>
+      <a routerLink="/auth/register"
+         class="block mt-2 bg-[#00B78E] hover:bg-[#004C3F] text-center text-white py-2 rounded-md">
+        Sign Up
+      </a>
+    </div>
+  </div>
+</header>

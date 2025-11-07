@@ -8,4 +8,11 @@ import { Component } from '@angular/core';
 })
 export class AppHeader {
 
+   menuOpen = false;
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+
 }
+
