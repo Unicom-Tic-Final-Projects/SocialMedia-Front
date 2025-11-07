@@ -1,5 +1,7 @@
 <div class="min-h-screen bg-[#1B1B1B] text-[#F2F2F2] p-6">
-    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium">👤 Profile</h2>
+    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium flex items-center gap-2">
+      <i class="fa-solid fa-user"></i> Profile
+    </h2>
   
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <div class="bg-[#161616] p-6 rounded-2xl shadow-md flex flex-col items-center">
@@ -9,9 +11,17 @@
       </div>
       <div class="lg:col-span-2 bg-[#161616] p-6 rounded-2xl shadow-md">
         <form class="space-y-4">
-          <input type="text" placeholder="Full Name" class="w-full bg-[#1B1B1B] border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00B78E] text-[#F2F2F2]" />
-          <input type="email" placeholder="Email" class="w-full bg-[#1B1B1B] border border-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00B78E] text-[#F2F2F2]" />
-          <button type="button" class="bg-[#00B78E] text-black px-5 py-2 rounded-lg hover:bg-[#004C3F] transition font-medium">Save</button>
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="text" placeholder="Full Name" class="w-full bg-[#1B1B1B] border border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00B78E] text-[#F2F2F2]" />
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            <input type="email" placeholder="Email" class="w-full bg-[#1B1B1B] border border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#00B78E] text-[#F2F2F2]" />
+          </div>
+          <button type="button" class="bg-[#00B78E] text-black px-5 py-2 rounded-lg hover:bg-[#004C3F] transition font-medium flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i> Save
+          </button>
         </form>
       </div>
     </div>

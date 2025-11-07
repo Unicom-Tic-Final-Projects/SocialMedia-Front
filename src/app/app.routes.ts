@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', loadComponent: () => import('./pages/landing').then(m => m.Landing) },
-  { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then(m => m.LoginPage) },
-  { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then(m => m.RegisterPage) },
-  { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPassword) },
-  { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout), 
+  // { path: '', loadComponent: () => import('./pages/landing').then(m => m.Landing) },
+  // { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then(m => m.LoginPage) },
+  // { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then(m => m.RegisterPage) },
+  // { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then(m => m.ForgotPassword) },
+  { path: '', loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout), 
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then(m => m.DashboardHome) },
       { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then(m => m.PostsPage) },
