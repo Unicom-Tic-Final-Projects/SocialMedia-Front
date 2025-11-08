@@ -1,41 +1,117 @@
-<section class="bg-[#121212] text-[#F2F2F2] py-20 px-6 md:px-12 text-center">
-  <h2 class="text-3xl md:text-4xl font-semibold mb-12 text-[#00B78E]">Simple Pricing</h2>
+<section class="bg-[#1B1B1B] text-[#F2F2F2] py-20 md:py-28 px-6 md:px-12">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-16 text-[#00B78E]" data-aos="fade-in">
+      Choose Your Plan
+    </h2>
 
-  <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
-    <div class="bg-[#1E1E1E] p-8 rounded-xl shadow-lg">
-      <h3 class="text-xl font-bold mb-3 text-[#00B78E]">Starter</h3>
-      <p class="text-gray-400 mb-6">Perfect for individuals</p>
-      <p class="text-4xl font-extrabold mb-6">$0<span class="text-lg font-medium">/mo</span></p>
-      <ul class="text-gray-400 mb-6 space-y-2">
-        <li>✔ 3 connected accounts</li>
-        <li>✔ Basic analytics</li>
-        <li>✔ 10 scheduled posts</li>
+    <div class="grid md:grid-cols-3 gap-8">
+      <!-- Free Plan -->
+      <div class="bg-[#1E1E1E] rounded-xl shadow-lg overflow-hidden border-2 border-transparent hover:bg-gradient-to-br hover:from-[#004C3F] hover:to-[#00B78E] transition-all duration-500 group"
+           data-aos="fade-right" data-aos-delay="0">
+        <div class="bg-gradient-to-r from-[#004C3F] to-[#00B78E] p-6 text-center">
+          <h3 class="text-2xl font-bold text-[#F2F2F2]">Free</h3>
+        </div>
+        <div class="p-8">
+          <div class="text-4xl font-extrabold mb-2 text-[#00B78E] group-hover:text-[#F2F2F2] transition-colors">$0</div>
+          <p class="text-gray-400 mb-6 group-hover:text-[#F2F2F2]/80 transition-colors">Perfect for getting started</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>3 connected accounts</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>10 scheduled posts/month</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Basic analytics</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Community support</span>
+            </li>
       </ul>
-      <button class="bg-[#00B78E] hover:bg-[#004C3F] text-white w-full py-3 rounded-lg font-semibold">Start Free</button>
+          <button class="w-full bg-[#00B78E] hover:bg-[#004C3F] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105">
+            Get Started
+          </button>
+        </div>
     </div>
 
-    <div class="bg-[#1E1E1E] p-8 rounded-xl shadow-lg border border-[#00B78E]">
-      <h3 class="text-xl font-bold mb-3 text-[#00B78E]">Pro</h3>
-      <p class="text-gray-400 mb-6">For professionals & teams</p>
-      <p class="text-4xl font-extrabold mb-6">$19<span class="text-lg font-medium">/mo</span></p>
-      <ul class="text-gray-400 mb-6 space-y-2">
-        <li>✔ Unlimited accounts</li>
-        <li>✔ Advanced analytics</li>
-        <li>✔ Team collaboration</li>
+      <!-- Pro Plan -->
+      <div class="bg-[#1E1E1E] rounded-xl shadow-lg overflow-hidden border-2 border-[#00B78E] hover:bg-gradient-to-br hover:from-[#004C3F] hover:to-[#00B78E] transition-all duration-500 transform scale-105 group"
+           data-aos="fade-up" data-aos-delay="100">
+        <div class="bg-gradient-to-r from-[#00B78E] to-[#004C3F] p-6 text-center relative">
+          <span class="absolute top-4 right-4 bg-[#1B1B1B] text-[#00B78E] px-3 py-1 rounded-full text-xs font-bold">POPULAR</span>
+          <h3 class="text-2xl font-bold text-[#F2F2F2]">Pro</h3>
+        </div>
+        <div class="p-8">
+          <div class="text-4xl font-extrabold mb-2 text-[#00B78E] group-hover:text-[#F2F2F2] transition-colors">$19<span class="text-lg text-gray-400">/mo</span></div>
+          <p class="text-gray-400 mb-6 group-hover:text-[#F2F2F2]/80 transition-colors">For professionals & teams</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Unlimited accounts</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Unlimited posts</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Advanced analytics</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Team collaboration</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Priority support</span>
+            </li>
       </ul>
-      <button class="bg-[#00B78E] hover:bg-[#004C3F] text-white w-full py-3 rounded-lg font-semibold">Get Pro</button>
+          <button class="w-full bg-gradient-to-r from-[#00B78E] to-[#004C3F] hover:from-[#004C3F] hover:to-[#00B78E] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105">
+            Get Pro
+          </button>
+        </div>
     </div>
 
-    <div class="bg-[#1E1E1E] p-8 rounded-xl shadow-lg">
-      <h3 class="text-xl font-bold mb-3 text-[#00B78E]">Enterprise</h3>
-      <p class="text-gray-400 mb-6">For large organizations</p>
-      <p class="text-4xl font-extrabold mb-6">Custom</p>
-      <ul class="text-gray-400 mb-6 space-y-2">
-        <li>✔ Dedicated support</li>
-        <li>✔ API Access</li>
-        <li>✔ Custom integrations</li>
+      <!-- Enterprise Plan -->
+      <div class="bg-[#1E1E1E] rounded-xl shadow-lg overflow-hidden border-2 border-transparent hover:bg-gradient-to-br hover:from-[#004C3F] hover:to-[#00B78E] transition-all duration-500 group"
+           data-aos="fade-left" data-aos-delay="200">
+        <div class="bg-gradient-to-r from-[#004C3F] to-[#00B78E] p-6 text-center">
+          <h3 class="text-2xl font-bold text-[#F2F2F2]">Enterprise</h3>
+        </div>
+        <div class="p-8">
+          <div class="text-4xl font-extrabold mb-2 text-[#00B78E] group-hover:text-[#F2F2F2] transition-colors">Custom</div>
+          <p class="text-gray-400 mb-6 group-hover:text-[#F2F2F2]/80 transition-colors">For large organizations</p>
+          <ul class="space-y-3 mb-8">
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Everything in Pro</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Dedicated account manager</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>Custom integrations</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>API access</span>
+            </li>
+            <li class="flex items-center text-gray-300 group-hover:text-[#F2F2F2] transition-colors">
+              <i class="fas fa-check text-[#00B78E] mr-3"></i>
+              <span>24/7 phone support</span>
+            </li>
       </ul>
-      <button class="bg-[#00B78E] hover:bg-[#004C3F] text-white w-full py-3 rounded-lg font-semibold">Contact Sales</button>
+          <button class="w-full bg-[#00B78E] hover:bg-[#004C3F] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105">
+            Contact Sales
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </section>

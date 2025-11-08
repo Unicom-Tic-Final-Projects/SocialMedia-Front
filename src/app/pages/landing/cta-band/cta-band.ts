@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AosService } from '../../../shared/services/aos.service';
 
 @Component({
   selector: 'app-cta-band',
@@ -7,6 +8,12 @@ import { RouterLink } from '@angular/router';
   templateUrl: './cta-band.html',
   styleUrl: './cta-band.css',
 })
-export class CtaBand {
+export class CtaBand implements AfterViewInit {
+  constructor(private aosService: AosService) {}
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.aosService.refreshAos();
+    }, 50);
+  }
 }

@@ -1,19 +1,26 @@
-<section class="bg-[#1B1B1B] text-[#F2F2F2] text-center py-28 px-6 md:px-12">
-  <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight">
-    Manage Your <span class="text-[#00B78E]">Social Media</span> Smarter 🚀
-  </h1>
-  <p class="text-gray-300 text-lg max-w-2xl mx-auto mb-8">
-    Schedule, analyze, and optimize your social presence with one unified dashboard.
-  </p>
-  <div class="flex flex-col sm:flex-row gap-4 justify-center">
-    <a routerLink="/auth/register"
-       class="bg-[#00B78E] hover:bg-[#004C3F] text-white px-8 py-3 rounded-lg font-semibold transition-all">
-       Get Started
-    </a>
-    <a routerLink="/auth/login"
-       class="border border-[#00B78E] text-[#00B78E] hover:bg-[#004C3F] hover:text-white px-8 py-3 rounded-lg font-semibold transition-all">
-       Learn More
-    </a>
+<section class="relative bg-gradient-to-r from-[#004C3F] to-[#00B78E] text-[#F2F2F2] py-20 md:py-32 px-6 md:px-12 text-center overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <div class="absolute top-0 left-0 w-full h-full" style="background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px);"></div>
   </div>
-  <img src="assets/hero-dashboard.png" alt="Dashboard preview" class="mt-12 mx-auto w-full md:w-2/3 rounded-lg shadow-lg" />
+  
+  <div class="relative z-10 max-w-4xl mx-auto">
+    <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight" data-aos="fade-up">
+      Manage All Your Socials Effortlessly
+    </h1>
+    <p class="text-lg md:text-xl text-[#F2F2F2]/90 mb-10 max-w-2xl mx-auto" data-aos="slide-up" data-aos-delay="200">
+      Schedule, publish, and analyze — all from one dashboard.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a routerLink="/auth/register"
+         class="bg-[#1B1B1B] hover:bg-[#004C3F] text-[#F2F2F2] px-8 py-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(0,183,142,0.6)]"
+         data-aos="zoom-in" data-aos-delay="400">
+         Get Started
+      </a>
+      <a routerLink="/auth/login"
+         class="border-2 border-[#F2F2F2] text-[#F2F2F2] hover:bg-[#F2F2F2] hover:text-[#004C3F] px-8 py-4 rounded-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(0,183,142,0.6)]"
+         data-aos="zoom-in" data-aos-delay="500">
+         Learn More
+      </a>
+    </div>
+  </div>
 </section>

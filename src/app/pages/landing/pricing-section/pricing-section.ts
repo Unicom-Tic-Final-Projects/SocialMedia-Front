@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
+import { AosService } from '../../../shared/services/aos.service';
 
 @Component({
   selector: 'app-pricing-section',
@@ -6,6 +7,12 @@ import { Component } from '@angular/core';
   templateUrl: './pricing-section.html',
   styleUrl: './pricing-section.css',
 })
-export class PricingSection {
+export class PricingSection implements AfterViewInit {
+  constructor(private aosService: AosService) {}
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.aosService.refreshAos();
+    }, 50);
+  }
 }
