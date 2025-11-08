@@ -1,19 +1,107 @@
-<div class="min-h-screen bg-[#1B1B1B] text-[#F2F2F2] p-6">
-    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium flex items-center gap-2">
-      <i class="fa-solid fa-gear"></i> Settings
-    </h2>
-    <div class="bg-[#161616] p-6 rounded-2xl shadow-md">
-      <div class="space-y-6">
-        <div>
-          <p class="font-medium mb-2 text-[#F2F2F2]">Dark Mode</p>
-          <div class="w-10 h-5 bg-gray-700 rounded-full flex items-center justify-start pl-1 cursor-pointer">
-            <div class="w-4 h-4 bg-[#00B78E] rounded-full"></div>
+<div class="min-h-screen bg-[#0F0F0F] text-[#F2F2F2]">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-[#F2F2F2] mb-2 flex items-center gap-3">
+        <i class="fa-solid fa-gear text-[#00B78E]"></i> Settings
+      </h1>
+      <p class="text-gray-400 text-sm">Manage your account preferences and appearance</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-[#161616] rounded-xl shadow-lg p-8 border border-gray-800/50">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h3 class="text-xl font-bold text-[#F2F2F2] mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-palette text-[#00B78E]"></i> Theme Settings
+              </h3>
+              <p class="text-sm text-gray-400">Customize your dashboard appearance</p>
+            </div>
+          </div>
+
+          <div class="space-y-8">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <p class="font-semibold text-[#F2F2F2] mb-1">Theme Mode</p>
+                  <p class="text-sm text-gray-400">Switch between dark and light mode</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm" [class.text-gray-400]="isDarkMode" [class.text-[#00B78E]]="!isDarkMode" [class.font-semibold]="!isDarkMode">Light</span>
+                  <div (click)="toggleTheme()" class="relative w-14 h-7 rounded-full cursor-pointer border-2 transition-all duration-300" [class.bg-gray-800]="isDarkMode" [class.bg-gray-300]="!isDarkMode" [class.border-gray-700]="isDarkMode" [class.border-gray-400]="!isDarkMode">
+                    <div class="absolute left-1 top-1 w-5 h-5 rounded-full transition-transform duration-300" [class.bg-[#00B78E]]="isDarkMode" [class.bg-white]="!isDarkMode" [class.transform]="isDarkMode" [class.translate-x-7]="isDarkMode"></div>
+                  </div>
+                  <span class="text-sm" [class.text-gray-400]="!isDarkMode" [class.text-[#00B78E]]="isDarkMode" [class.font-semibold]="isDarkMode">Dark</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-6 border-t border-gray-800">
+              <div class="mb-4">
+                <p class="font-semibold text-[#F2F2F2] mb-2">Color Theme</p>
+                <p class="text-sm text-gray-400 mb-4">Choose your preferred accent color</p>
+              </div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="relative">
+                  <input type="radio" name="colorTheme" id="color-teal" value="teal" class="peer hidden" [checked]="selectedColor === 'teal'" (change)="selectColorTheme('teal')">
+                  <label for="color-teal" class="flex flex-col items-center p-4 rounded-xl border-2 border-gray-800 cursor-pointer hover:border-[#00B78E]/50 transition-all duration-200 peer-checked:border-[#00B78E] peer-checked:bg-[#00B78E]/10 peer-checked:shadow-lg">
+                    <div class="w-12 h-12 rounded-full bg-[#00B78E] mb-2 shadow-lg"></div>
+                    <span class="text-sm font-medium text-[#F2F2F2]">Teal</span>
+                  </label>
+                </div>
+                <div class="relative">
+                  <input type="radio" name="colorTheme" id="color-blue" value="blue" class="peer hidden" [checked]="selectedColor === 'blue'" (change)="selectColorTheme('blue')">
+                  <label for="color-blue" class="flex flex-col items-center p-4 rounded-xl border-2 border-gray-800 cursor-pointer hover:border-blue-500/50 transition-all duration-200 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 peer-checked:shadow-lg">
+                    <div class="w-12 h-12 rounded-full bg-blue-500 mb-2 shadow-lg"></div>
+                    <span class="text-sm font-medium text-[#F2F2F2]">Blue</span>
+                  </label>
+                </div>
+                <div class="relative">
+                  <input type="radio" name="colorTheme" id="color-purple" value="purple" class="peer hidden" [checked]="selectedColor === 'purple'" (change)="selectColorTheme('purple')">
+                  <label for="color-purple" class="flex flex-col items-center p-4 rounded-xl border-2 border-gray-800 cursor-pointer hover:border-purple-500/50 transition-all duration-200 peer-checked:border-purple-500 peer-checked:bg-purple-500/10 peer-checked:shadow-lg">
+                    <div class="w-12 h-12 rounded-full bg-purple-500 mb-2 shadow-lg"></div>
+                    <span class="text-sm font-medium text-[#F2F2F2]">Purple</span>
+                  </label>
+                </div>
+                <div class="relative">
+                  <input type="radio" name="colorTheme" id="color-pink" value="pink" class="peer hidden" [checked]="selectedColor === 'pink'" (change)="selectColorTheme('pink')">
+                  <label for="color-pink" class="flex flex-col items-center p-4 rounded-xl border-2 border-gray-800 cursor-pointer hover:border-pink-500/50 transition-all duration-200 peer-checked:border-pink-500 peer-checked:bg-pink-500/10 peer-checked:shadow-lg">
+                    <div class="w-12 h-12 rounded-full bg-pink-500 mb-2 shadow-lg"></div>
+                    <span class="text-sm font-medium text-[#F2F2F2]">Pink</span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-          <p class="font-medium mb-2 text-[#F2F2F2]">Notifications</p>
-          <div class="w-10 h-5 bg-gray-700 rounded-full flex items-center justify-start pl-1 cursor-pointer">
-            <div class="w-4 h-4 bg-[#00B78E] rounded-full"></div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="bg-[#161616] rounded-xl shadow-lg p-8 border border-gray-800/50">
+          <h3 class="text-xl font-bold text-[#F2F2F2] mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-user text-[#00B78E]"></i> Account
+          </h3>
+          <div class="space-y-4">
+            <button routerLink="/profile" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-[#004C3F]/30 transition-all duration-200 border border-transparent hover:border-[#00B78E]/20 group">
+              <div class="w-10 h-10 bg-[#00B78E]/10 rounded-lg flex items-center justify-center border border-[#00B78E]/20 group-hover:bg-[#00B78E]/20 transition-colors">
+                <i class="fa-solid fa-user text-[#00B78E]"></i>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-semibold text-[#F2F2F2]">Profile</p>
+                <p class="text-xs text-gray-400">View and edit your profile</p>
+              </div>
+              <i class="fa-solid fa-chevron-right text-gray-600"></i>
+            </button>
+
+            <button (click)="logout()" class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-red-500/10 transition-all duration-200 border border-transparent hover:border-red-500/20 group">
+              <div class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors">
+                <i class="fa-solid fa-sign-out-alt text-red-400"></i>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-semibold text-[#F2F2F2]">Logout</p>
+                <p class="text-xs text-gray-400">Sign out of your account</p>
+              </div>
+              <i class="fa-solid fa-chevron-right text-gray-600"></i>
+            </button>
           </div>
         </div>
       </div>
