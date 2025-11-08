@@ -1,0 +1,6 @@
+/* Navbar styles */
+header {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
