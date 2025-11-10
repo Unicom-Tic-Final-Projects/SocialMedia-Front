@@ -1,38 +1,131 @@
 <div class="flex min-h-screen bg-[#0F0F0F] text-[#F2F2F2]">
-    <aside class="w-72 bg-[#161616] p-6 hidden md:block border-r border-gray-800/50 shadow-xl">
-      <div class="mb-10">
-        <h2 class="text-2xl font-bold text-[#00B78E] tracking-tight">NexusPost</h2>
-        <p class="text-xs text-gray-500 mt-1">Social Media Management</p>
-      </div>
-      <nav class="flex flex-col gap-1">
-        <a routerLink="/dashboard" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-home w-5 text-center group-hover:scale-110 transition-transform"></i> Dashboard
-        </a>
-        <a routerLink="/dashboard/posts" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-file-alt w-5 text-center group-hover:scale-110 transition-transform"></i> My Posts
-        </a>
-        <a routerLink="/dashboard/approvals" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+  <!-- Sidebar -->
+  <aside class="w-72 bg-[#161616] p-6 hidden md:block border-r border-gray-800/50 shadow-xl flex flex-col">
+    <!-- Logo -->
+    <div class="mb-10">
+      <h2 class="text-2xl font-bold text-[#00B78E] tracking-tight">NexusPost</h2>
+      <p class="text-xs text-gray-500 mt-1">Social Media Management</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex flex-col gap-1 flex-1">
+      <a routerLink="/dashboard" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-home w-5 text-center group-hover:scale-110 transition-transform"></i> Dashboard
+      </a>
+      <a routerLink="/dashboard/posts" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-file-alt w-5 text-center group-hover:scale-110 transition-transform"></i> My Posts
+      </a>
+      
+      <!-- Agency-only features -->
+      @if (isAgency()) {
+        <a routerLink="/dashboard/approvals" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
           <i class="fa-solid fa-check-circle w-5 text-center group-hover:scale-110 transition-transform"></i> Approvals
         </a>
-        <a routerLink="/dashboard/analytics" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-chart-bar w-5 text-center group-hover:scale-110 transition-transform"></i> Analytics
-        </a>
-        <a routerLink="/dashboard/social-account" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-link w-5 text-center group-hover:scale-110 transition-transform"></i> Social Accounts
-        </a>
-        <a routerLink="/dashboard/notifications" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i> Notifications
-        </a>
-        <a routerLink="/dashboard/settings" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-gear w-5 text-center group-hover:scale-110 transition-transform"></i> Settings
-        </a>
-        <a routerLink="/dashboard/profile" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
-          <i class="fa-solid fa-user w-5 text-center group-hover:scale-110 transition-transform"></i> Profile
-        </a>
-      </nav>
-    </aside>
-    <main class="flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
+        <!-- TODO: Add Clients link when client management is implemented -->
+        <!-- <a routerLink="/dashboard/clients" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-users w-5 text-center group-hover:scale-110 transition-transform"></i> Clients
+        </a> -->
+      }
+      
+      <a routerLink="/dashboard/analytics" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-chart-bar w-5 text-center group-hover:scale-110 transition-transform"></i> Analytics
+      </a>
+      <a routerLink="/dashboard/social-account" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-link w-5 text-center group-hover:scale-110 transition-transform"></i> Social Accounts
+      </a>
+      <a routerLink="/dashboard/notifications" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i> Notifications
+      </a>
+      <a routerLink="/dashboard/settings" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-gear w-5 text-center group-hover:scale-110 transition-transform"></i> Settings
+      </a>
+      <a routerLink="/dashboard/profile" routerLinkActive="bg-[#00B78E] text-black shadow-lg" 
+         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+        <i class="fa-solid fa-user w-5 text-center group-hover:scale-110 transition-transform"></i> Profile
+      </a>
+    </nav>
+
+    <!-- User Info Section at Bottom -->
+    <div class="mt-auto pt-6 border-t border-gray-800/50">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-[#00B78E] flex items-center justify-center text-black font-semibold text-sm">
+          {{ getUserInitials() }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-[#F2F2F2] truncate">{{ getUserDisplayName() }}</p>
+          <p class="text-xs text-gray-500 truncate">{{ user()?.email }}</p>
+          @if (user()?.tenantType) {
+            <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-[#00B78E]/20 text-[#00B78E]">
+              {{ user()?.tenantType }}
+            </span>
+          }
+        </div>
+      </div>
+      <button 
+        (click)="logout()"
+        class="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-colors text-sm font-medium">
+        <i class="fa-solid fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col">
+    <!-- Top Header (Mobile) -->
+    <header class="md:hidden bg-[#161616] border-b border-gray-800/50 p-4 flex items-center justify-between">
+      <h2 class="text-xl font-bold text-[#00B78E]">NexusPost</h2>
+      <div class="relative">
+        <button 
+          (click)="toggleUserMenu()"
+          class="w-10 h-10 rounded-full bg-[#00B78E] flex items-center justify-center text-black font-semibold text-sm">
+          {{ getUserInitials() }}
+        </button>
+        
+        <!-- Mobile User Menu Dropdown -->
+        @if (showUserMenu()) {
+          <div class="absolute right-0 mt-2 w-56 bg-[#1B1B1B] border border-gray-800 rounded-lg shadow-xl z-50">
+            <div class="p-4 border-b border-gray-800">
+              <p class="text-sm font-medium text-[#F2F2F2]">{{ getUserDisplayName() }}</p>
+              <p class="text-xs text-gray-500 mt-1">{{ user()?.email }}</p>
+              @if (user()?.tenantType) {
+                <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded bg-[#00B78E]/20 text-[#00B78E]">
+                  {{ user()?.tenantType }}
+                </span>
+              }
+            </div>
+            <div class="p-2">
+              <a routerLink="/dashboard/profile" 
+                 (click)="showUserMenu.set(false)"
+                 class="block px-4 py-2 text-sm text-[#F2F2F2] hover:bg-[#00B78E]/10 rounded-lg transition">
+                <i class="fa-solid fa-user mr-2"></i> Profile
+              </a>
+              <a routerLink="/dashboard/settings" 
+                 (click)="showUserMenu.set(false)"
+                 class="block px-4 py-2 text-sm text-[#F2F2F2] hover:bg-[#00B78E]/10 rounded-lg transition">
+                <i class="fa-solid fa-gear mr-2"></i> Settings
+              </a>
+              <button 
+                (click)="logout(); showUserMenu.set(false)"
+                class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition">
+                <i class="fa-solid fa-sign-out-alt mr-2"></i> Logout
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-[#0F0F0F]">
       <router-outlet></router-outlet>
     </main>
   </div>
-  
+</div>

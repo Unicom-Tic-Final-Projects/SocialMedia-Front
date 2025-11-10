@@ -46,13 +46,13 @@ export class ConnectedAccounts {
   reconnect(account: SocialAccount): void {
     this.socialAccounts
       .reconnect(account.id)
-      .subscribe({ error: (error) => console.error('Reconnect failed', error) });
+      .subscribe({ error: (error: any) => console.error('Reconnect failed', error) });
   }
 
   disconnect(account: SocialAccount): void {
     this.socialAccounts
       .disconnect(account.id)
-      .subscribe({ error: (error) => console.error('Disconnect failed', error) });
+      .subscribe({ error: (error: any) => console.error('Disconnect failed', error) });
   }
 
   goToSettings(account: SocialAccount): void {

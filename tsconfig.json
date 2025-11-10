@@ -9,7 +9,6 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "moduleResolution": "node",
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,

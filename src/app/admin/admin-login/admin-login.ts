@@ -6,13 +6,13 @@ import { AuthService } from '../../core/services/auth.service';
 import { LoginRequest } from '../../models/auth.models';
 
 @Component({
-  selector: 'app-login-page',
+  selector: 'app-admin-login',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, RouterLink],
-  templateUrl: './login-page.html',
-  styleUrl: './login-page.css',
+  templateUrl: './admin-login.html',
+  styleUrl: './admin-login.css',
 })
-export class LoginPage {
+export class AdminLogin {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
@@ -46,9 +46,20 @@ export class LoginPage {
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
         if (response.success) {
-          // Get return URL from query params or default to dashboard
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigate([returnUrl]);
+          // Check if user is admin
+          const user = this.authService.user();
+          const isAdmin = user?.role?.toLowerCase().includes('admin') || 
+                         user?.role?.toLowerCase() === 'owner' ||
+                         user?.role?.toLowerCase() === 'administrator';
+          
+          if (isAdmin) {
+            // Get return URL from query params or default to admin overview
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin/overview';
+            this.router.navigate([returnUrl]);
+          } else {
+            this.errorMessage.set('Access denied. Admin access required.');
+            this.authService.logout();
+          }
         } else {
           this.errorMessage.set(response.message || 'Login failed. Please try again.');
         }
@@ -77,3 +88,4 @@ export class LoginPage {
     return this.loginForm.get('password');
   }
 }
+

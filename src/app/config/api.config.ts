@@ -7,7 +7,7 @@ export function provideApiBaseUrl(url?: string): Provider {
     url ||
     // @ts-ignore allow optional global at runtime
     (typeof window !== 'undefined' && (window as any).ENV?.API_BASE_URL) ||
-    'https://dummyjson.com';
+    'http://localhost:5000'; // API Gateway URL
   return { provide: API_BASE_URL, useValue: resolved };
 }
 

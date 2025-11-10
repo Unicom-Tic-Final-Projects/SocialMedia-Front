@@ -1,0 +1,14 @@
+/* Dashboard Layout Styles */
+
+/* Close dropdown when clicking outside */
+@media (max-width: 768px) {
+  .user-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+  }
+}
+
