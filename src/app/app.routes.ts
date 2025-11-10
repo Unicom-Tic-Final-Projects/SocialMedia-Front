@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then((m) => m.DashboardLayout),
@@ -32,5 +32,5 @@ export const routes: Routes = [
       { path: 'settings', loadComponent: () => import('./admin/settings-page/settings-page').then(m => m.AdminSettingsPage) },
     ]
   },
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: '' }
 ];
