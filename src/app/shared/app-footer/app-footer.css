@@ -1,0 +1,10 @@
+/* Smooth fade-in animation for footer */
+[data-aos="fade-in"] {
+  opacity: 0;
+  transition: opacity 0.8s ease-out-cubic;
+}
+
+[data-aos="fade-in"].aos-animate {
+  opacity: 1;
+}
+

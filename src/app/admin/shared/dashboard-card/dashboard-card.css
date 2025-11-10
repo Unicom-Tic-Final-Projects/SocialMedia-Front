@@ -1,0 +1,5 @@
+/* Dashboard card hover effects */
+.group:hover {
+  transform: translateY(-2px);
+}
+

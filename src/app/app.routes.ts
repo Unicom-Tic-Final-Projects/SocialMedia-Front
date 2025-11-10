@@ -21,5 +21,16 @@ export const routes: Routes = [
       { path: 'social-account/connected', loadComponent: () => import('./dashboard/social-account-page/connected-accounts/connected-accounts').then((m) => m.ConnectedAccounts) },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  { path: 'admin', loadComponent: () => import('./admin/admin-layout/admin-layout').then(m => m.AdminLayout),
+    children: [
+      { path: 'adminpage', loadComponent: () => import('./admin/overview-page/overview-page').then(m => m.AdminOverviewPage) },
+      { path: 'overview', loadComponent: () => import('./admin/overview-page/overview-page').then(m => m.AdminOverviewPage) },
+      { path: 'analytics', loadComponent: () => import('./admin/analytics-page/analytics-page').then(m => m.AdminAnalyticsPage) },
+      { path: 'users', loadComponent: () => import('./admin/users-page/users-page').then(m => m.AdminUsersPage) },
+      { path: 'posts', loadComponent: () => import('./admin/posts-page/posts-page').then(m => m.AdminPostsPage) },
+      { path: 'reports', loadComponent: () => import('./admin/reports-page/reports-page').then(m => m.AdminReportsPage) },
+      { path: 'settings', loadComponent: () => import('./admin/settings-page/settings-page').then(m => m.AdminSettingsPage) },
+    ]
+  },
+  { path: '**', redirectTo: 'dashboard' }
 ];
