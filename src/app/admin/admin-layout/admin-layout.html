@@ -1,0 +1,18 @@
+<div class="flex h-screen bg-[#121212] overflow-hidden">
+  <!-- Sidebar -->
+  <app-admin-sidebar [isCollapsed]="isSidebarCollapsed" (toggleCollapse)="toggleSidebar()"></app-admin-sidebar>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col overflow-hidden"
+       [class.ml-64]="!isSidebarCollapsed"
+       [class.ml-20]="isSidebarCollapsed">
+    <!-- Navbar -->
+    <app-admin-navbar [isSidebarCollapsed]="isSidebarCollapsed" (toggleSidebar)="toggleSidebar()"></app-admin-navbar>
+
+    <!-- Page Content -->
+    <main class="flex-1 overflow-y-auto p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
