@@ -6,7 +6,11 @@
 
   <!-- Analytics Cards -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a]">
+    <div *ngIf="loading" class="col-span-3 text-center py-8 text-gray-400">
+      <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+      <p>Loading analytics...</p>
+    </div>
+    <div *ngIf="!loading" class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a]">
       <div class="flex items-center justify-between mb-4">
         <div class="p-3 rounded-lg bg-gradient-to-r from-[#004C3F] to-[#00B78E]">
           <i class="fas fa-eye text-white"></i>
@@ -14,10 +18,10 @@
         <span class="text-sm text-[#00B78E]">+15%</span>
       </div>
       <h3 class="text-gray-400 text-sm mb-2">Total Views</h3>
-      <p class="text-3xl font-bold text-[#F2F2F2]">245,832</p>
+      <p class="text-3xl font-bold text-[#F2F2F2]">{{ totalViews.toLocaleString() }}</p>
     </div>
 
-    <div class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a]">
+    <div *ngIf="!loading" class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a]">
       <div class="flex items-center justify-between mb-4">
         <div class="p-3 rounded-lg bg-gradient-to-r from-[#004C3F] to-[#00B78E]">
           <i class="fas fa-users text-white"></i>
@@ -25,10 +29,10 @@
         <span class="text-sm text-[#00B78E]">+8%</span>
       </div>
       <h3 class="text-gray-400 text-sm mb-2">Active Users</h3>
-      <p class="text-3xl font-bold text-[#F2F2F2]">12,543</p>
+      <p class="text-3xl font-bold text-[#F2F2F2]">{{ activeUsers.toLocaleString() }}</p>
     </div>
 
-    <div class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a]">
+    <div *ngIf="!loading" class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a]">
       <div class="flex items-center justify-between mb-4">
         <div class="p-3 rounded-lg bg-gradient-to-r from-[#004C3F] to-[#00B78E]">
           <i class="fas fa-chart-line text-white"></i>
@@ -36,7 +40,7 @@
         <span class="text-sm text-[#00B78E]">+23%</span>
       </div>
       <h3 class="text-gray-400 text-sm mb-2">Engagement</h3>
-      <p class="text-3xl font-bold text-[#F2F2F2]">68.5%</p>
+      <p class="text-3xl font-bold text-[#F2F2F2]">{{ engagement.toFixed(1) }}%</p>
     </div>
   </div>
 

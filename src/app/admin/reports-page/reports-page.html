@@ -11,6 +11,10 @@
 
   <!-- Reports List -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div *ngIf="loading" class="col-span-3 text-center py-8 text-gray-400">
+      <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+      <p>Loading reports...</p>
+    </div>
     <div *ngFor="let report of reports" 
          class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a] hover:border-[#00B78E]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[#00B78E]/10">
       <div class="flex items-start justify-between mb-4">
@@ -31,7 +35,7 @@
         <button class="flex-1 bg-[#00B78E] hover:bg-[#004C3F] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all">
           View
         </button>
-        <button class="px-4 py-2 border border-[#2a2a2a] hover:border-[#00B78E] text-gray-400 hover:text-[#00B78E] rounded-lg transition-all">
+        <button class="px-4 py-2 border border-[#2a2a2a] hover:border-[#00B78E] text-gray-400 hover:text-[#00B78E] rounded-lg transition-all" (click)="downloadReport(report.id)">
           <i class="fas fa-download"></i>
         </button>
       </div>

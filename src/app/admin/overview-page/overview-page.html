@@ -6,6 +6,10 @@
 
   <!-- Metrics Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div *ngIf="loading" class="col-span-4 text-center py-8 text-gray-400">
+      <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+      <p>Loading metrics...</p>
+    </div>
     <app-admin-dashboard-card *ngFor="let metric of metrics"
                         [title]="metric.title"
                         [value]="metric.value"

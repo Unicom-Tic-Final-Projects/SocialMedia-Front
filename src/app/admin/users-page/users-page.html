@@ -24,6 +24,12 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-[#2a2a2a]">
+          <tr *ngIf="loading" class="text-center">
+            <td colspan="6" class="px-6 py-8 text-gray-400">
+              <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+              <p>Loading users...</p>
+            </td>
+          </tr>
           <tr *ngFor="let user of users" class="hover:bg-[#2a2a2a]/50 transition-colors">
             <td class="px-6 py-4 text-[#F2F2F2] font-medium">{{ user.name }}</td>
             <td class="px-6 py-4 text-gray-400">{{ user.email }}</td>
@@ -51,7 +57,7 @@
                 <button class="text-[#00B78E] hover:text-[#00E5B3] transition-colors p-2">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button class="text-red-400 hover:text-red-300 transition-colors p-2">
+                <button class="text-red-400 hover:text-red-300 transition-colors p-2" (click)="deleteUser(user.id)">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>

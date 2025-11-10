@@ -11,21 +11,25 @@
 
   <!-- Posts Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <div *ngFor="let i of [1,2,3,4,5,6]" 
+    <div *ngIf="loading" class="col-span-3 text-center py-8 text-gray-400">
+      <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+      <p>Loading posts...</p>
+    </div>
+    <div *ngFor="let post of posts" 
          class="bg-[#1E1E1E] rounded-xl border border-[#2a2a2a] overflow-hidden hover:border-[#00B78E]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[#00B78E]/10">
       <div class="h-48 bg-[#2a2a2a] flex items-center justify-center">
         <i class="fas fa-image text-4xl text-gray-600"></i>
       </div>
       <div class="p-6">
-        <h3 class="text-lg font-semibold text-[#F2F2F2] mb-2">Sample Post Title {{ i }}</h3>
-        <p class="text-sm text-gray-400 mb-4 line-clamp-2">This is a sample post description that demonstrates the post card layout.</p>
+        <h3 class="text-lg font-semibold text-[#F2F2F2] mb-2">{{ post.title }}</h3>
+        <p class="text-sm text-gray-400 mb-4 line-clamp-2">{{ post.body }}</p>
         <div class="flex items-center justify-between">
-          <span class="text-xs text-gray-500">2 hours ago</span>
+          <span class="text-xs text-gray-500">Post ID: {{ post.id }}</span>
           <div class="flex gap-2">
             <button class="text-[#00B78E] hover:text-[#00E5B3] transition-colors p-2">
               <i class="fas fa-edit"></i>
             </button>
-            <button class="text-red-400 hover:text-red-300 transition-colors p-2">
+            <button class="text-red-400 hover:text-red-300 transition-colors p-2" (click)="deletePost(post.id)">
               <i class="fas fa-trash"></i>
             </button>
           </div>
