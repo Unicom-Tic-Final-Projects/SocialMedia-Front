@@ -1,0 +1,223 @@
+<div *ngIf="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" (click)="closeModal()">
+  <div class="bg-[#161616] rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden border border-gray-800/50" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-800/50">
+      <h2 class="text-2xl font-bold text-[#F2F2F2] flex items-center gap-2">
+        <i class="fa-solid fa-eye text-[#00B78E]"></i>
+        Preview & Crop
+      </h2>
+      <button 
+        (click)="closeModal()" 
+        class="text-gray-400 hover:text-[#F2F2F2] transition-colors p-2 hover:bg-gray-800/50 rounded-lg">
+        <i class="fa-solid fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="flex flex-col lg:flex-row h-[calc(90vh-80px)]">
+      <!-- Left: Platform Tabs -->
+      <div class="lg:w-64 border-r border-gray-800/50 bg-[#1B1B1B] overflow-y-auto">
+        <div class="p-4">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Platforms</h3>
+          <div class="space-y-2">
+            <button
+              *ngFor="let platform of targets"
+              (click)="selectPlatform(platform)"
+              [class.bg-[#00B78E]]="selectedPlatform === platform"
+              [class.text-black]="selectedPlatform === platform"
+              [class.text-[#F2F2F2]]="selectedPlatform !== platform"
+              [class.bg-[#004C3F]30]="selectedPlatform !== platform"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 hover:bg-[#004C3F]/50 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00B78E]/70">
+              <i [class]="getPlatformIcon(platform) + ' text-lg'"></i>
+              <span class="font-medium">{{ getPlatformName(platform) }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Preview Area -->
+      <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <!-- Image Preview -->
+        <div class="lg:w-1/2 p-6 flex items-center justify-center bg-[#0F0F0F] border-b lg:border-b-0 lg:border-r border-gray-800/50">
+          <div *ngIf="selectedPlatform" class="w-full max-w-xl">
+            <div class="mb-4 text-center">
+              <p class="text-sm text-gray-400 mb-1">Aspect Ratio</p>
+              <p class="text-lg font-semibold text-[#00B78E]">
+                {{ platformAspects.get(selectedPlatform)?.label }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                {{ platformAspects.get(selectedPlatform)?.description }}
+              </p>
+              <div class="mt-4">
+                <label class="text-xs text-gray-400 block mb-2">Preview Size (px)</label>
+                <div class="flex items-center gap-3 justify-center">
+                  <input type="range" min="200" max="800" step="10" [(ngModel)]="displayMaxWidth" class="w-64 accent-[#00B78E]">
+                  <input type="number" min="200" max="800" step="10" [(ngModel)]="displayMaxWidth"
+                         class="w-20 bg-[#1B1B1B] border border-gray-700 rounded-lg px-3 py-1 text-sm text-[#F2F2F2] focus:outline-none focus:border-[#00B78E]">
+                </div>
+              </div>
+            </div>
+            <div 
+              class="relative bg-[#161616] rounded-xl overflow-hidden border border-gray-800/70 shadow-[0_10px_30px_rgba(0,0,0,0.45)] mx-auto"
+              [style.width.px]="getDisplayDimensions(selectedPlatform).width"
+              [style.height.px]="getDisplayDimensions(selectedPlatform).height">
+              <!-- skeleton while image loads -->
+              <div *ngIf="!imageLoaded" class="absolute inset-0 bg-[#0F0F0F]">
+                <div class="h-full w-full animate-pulse bg-gradient-to-br from-gray-800/40 via-gray-700/30 to-gray-800/40"></div>
+              </div>
+              <img 
+                *ngIf="mediaUrl" 
+                [src]="mediaUrl" 
+                [alt]="'Preview for ' + getPlatformName(selectedPlatform)"
+                class="w-full h-full"
+                [ngStyle]="imageStyle(selectedPlatform)"
+                style="object-fit: cover;"
+                (load)="onImageLoad()">
+              <div *ngIf="!mediaUrl" class="w-full h-full flex items-center justify-center bg-gray-800/30">
+                <i class="fa-solid fa-image text-gray-600 text-4xl"></i>
+              </div>
+              <!-- subtle gradient overlay for polish -->
+              <div class="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/30 to-transparent"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Caption Preview -->
+        <div class="lg:w-1/2 p-6 overflow-y-auto bg-[#1B1B1B]">
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-[#F2F2F2] mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-comment text-[#00B78E]"></i>
+              Caption Preview
+            </h3>
+            <p class="text-sm text-gray-400 mb-4">How your caption will appear on {{ selectedPlatform ? getPlatformName(selectedPlatform) : 'platform' }}</p>
+          </div>
+          
+          <div class="bg-[#161616] rounded-lg p-4 border border-gray-800/50 min-h-[200px]">
+            <div *ngIf="caption" class="text-[#F2F2F2] whitespace-pre-wrap">
+              {{ caption }}
+            </div>
+            <div *ngIf="!caption" class="text-gray-500 italic">
+              No caption provided
+            </div>
+          </div>
+
+          <div class="mt-6 p-4 bg-[#161616] rounded-lg border border-gray-800/50">
+            <h4 class="text-sm font-semibold text-[#F2F2F2] mb-2">Post Details</h4>
+            <div class="space-y-2 text-sm">
+              <!-- Crop controls -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3" *ngIf="selectedPlatform as plat">
+                <div class="p-6 bg-[#161616] rounded-2xl border border-gray-800/60 shadow-inner transition-all duration-300">
+                  <h4 class="text-sm font-semibold text-[#F2F2F2] mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-[#00B78E]"></i>
+                    Crop Controls
+                  </h4>
+                
+                  <div class="space-y-5" *ngIf="selectedPlatform as plat">
+                    <!-- Zoom Control -->
+                    <div>
+                      <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs text-gray-400">Zoom</label>
+                        <span class="text-xs font-medium text-[#00B78E]">
+                          {{ getCrop(plat).zoom | number : '1.1-1' }}x
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-magnifying-glass-minus text-gray-500 text-xs"></i>
+                        <input
+                          type="range"
+                          min="1"
+                          max="3"
+                          step="0.1"
+                          [ngModel]="getCrop(plat).zoom"
+                          (ngModelChange)="setZoom(plat, $event)"
+                          class="flex-1 accent-[#00B78E] h-2 rounded-lg appearance-none cursor-pointer bg-gray-700/50 hover:accent-[#00D09F] transition-all"
+                        />
+                        <i class="fa-solid fa-magnifying-glass-plus text-gray-500 text-xs"></i>
+                      </div>
+                    </div>
+                
+                    <!-- Pan X Control -->
+                    <div>
+                      <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs text-gray-400">Pan X</label>
+                        <span class="text-xs font-medium text-[#00B78E]">
+                          {{ getCrop(plat).offsetX }}%
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-arrow-left-long text-gray-500 text-xs"></i>
+                        <input
+                          type="range"
+                          min="-100"
+                          max="100"
+                          step="1"
+                          [ngModel]="getCrop(plat).offsetX"
+                          (ngModelChange)="setOffset(plat, 'offsetX', $event)"
+                          class="flex-1 accent-[#00B78E] h-2 rounded-lg appearance-none cursor-pointer bg-gray-700/50 hover:accent-[#00D09F] transition-all"
+                        />
+                        <i class="fa-solid fa-arrow-right-long text-gray-500 text-xs"></i>
+                      </div>
+                    </div>
+                
+                    <!-- Pan Y Control -->
+                    <div>
+                      <div class="flex justify-between items-center mb-1">
+                        <label class="text-xs text-gray-400">Pan Y</label>
+                        <span class="text-xs font-medium text-[#00B78E]">
+                          {{ getCrop(plat).offsetY }}%
+                        </span>
+                      </div>
+                      <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-arrow-down-long text-gray-500 text-xs rotate-90"></i>
+                        <input
+                          type="range"
+                          min="-100"
+                          max="100"
+                          step="1"
+                          [ngModel]="getCrop(plat).offsetY"
+                          (ngModelChange)="setOffset(plat, 'offsetY', $event)"
+                          class="flex-1 accent-[#00B78E] h-2 rounded-lg appearance-none cursor-pointer bg-gray-700/50 hover:accent-[#00D09F] transition-all"
+                        />
+                        <i class="fa-solid fa-arrow-up-long text-gray-500 text-xs rotate-90"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Platform:</span>
+                <span class="text-[#F2F2F2] font-medium">{{ selectedPlatform ? getPlatformName(selectedPlatform) : 'N/A' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Aspect Ratio:</span>
+                <span class="text-[#00B78E] font-medium">{{ selectedPlatform ? platformAspects.get(selectedPlatform)?.label : 'N/A' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-400">Dimensions:</span>
+                <span class="text-[#F2F2F2] font-medium">
+                  {{ selectedPlatform ? (platformAspects.get(selectedPlatform)?.width + 'x' + platformAspects.get(selectedPlatform)?.height) : 'N/A' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-end gap-3 p-6 border-t border-gray-800/50 bg-[#1B1B1B]">
+      <button 
+        (click)="closeModal()" 
+        class="px-6 py-2 rounded-lg border border-gray-700 text-[#F2F2F2] hover:bg-gray-800/50 transition-all duration-200">
+        Close
+      </button>
+      <button 
+        class="px-6 py-2 rounded-lg bg-[#00B78E] text-black font-semibold hover:bg-[#004C3F] transition-all duration-200">
+        <i class="fa-solid fa-crop mr-2"></i>
+        Crop Image
+      </button>
+    </div>
+  </div>
+</div>
+
