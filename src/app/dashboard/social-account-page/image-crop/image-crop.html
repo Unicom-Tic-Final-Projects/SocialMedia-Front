@@ -1,0 +1,83 @@
+<!-- <div class="flex flex-col lg:flex-row gap-6">
+    <div class="w-full lg:w-1/4 bg-[#1B1B1B] p-4 rounded-xl border border-gray-800">
+      <h3 class="text-sm font-semibold text-gray-400 uppercase mb-3">Platforms</h3>
+      <div class="space-y-2">
+        <button
+          *ngFor="let p of platformPreviewService.getAll()"
+          (click)="changePlatform(p.platform)"
+          [class.bg-[#00B78E]]="selectedPlatform === p.platform"
+          [class.text-black]="selectedPlatform === p.platform"
+          [class.text-[#F2F2F2]]="selectedPlatform !== p.platform"
+          class="w-full px-4 py-2 rounded-lg hover:bg-[#004C3F]/50 transition-all duration-200 text-left"
+        >
+          {{ p.platform | titlecase }}
+        </button>
+      </div>
+    </div>
+  
+    <div class="flex-1 bg-[#161616] p-6 rounded-xl border border-gray-800/70">
+      <h2 class="text-lg font-semibold text-[#F2F2F2] mb-3 flex items-center gap-2">
+        <i class="fa-solid fa-crop-simple text-[#00B78E]"></i>
+        {{ aspect.platform | titlecase }} Crop
+        <span class="ml-auto text-xs text-gray-500">
+          {{ aspect.label }} ({{ aspect.width }}×{{ aspect.height }})
+        </span>
+      </h2>
+  
+      <div class="mb-4">
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onFileChange($event)"
+          class="block w-full text-sm text-gray-400 bg-[#0F0F0F] border border-gray-700 rounded-lg p-2 cursor-pointer"
+        />
+      </div>
+  
+      <image-cropper
+        [imageChangedEvent]="imageChangedEvent"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="getAspectRatio()"
+        [resizeToWidth]="aspect.width"
+        format="png"
+        [onlyScaleDown]="true"
+        [containWithinAspectRatio]="true"
+        (imageCropped)="onImageCropped($event)"
+        (imageLoaded)="onImageLoaded()"
+        (cropperReady)="onCropperReady()"
+        (loadImageFailed)="onLoadImageFailed()"
+        class="w-full h-[400px] bg-[#0F0F0F] rounded-lg border border-gray-700/60"
+      ></image-cropper>
+  
+      <div class="mt-6 text-center">
+        <h3 class="text-sm font-medium text-[#F2F2F2] mb-2">Cropped Preview</h3>
+        <div
+          *ngIf="croppedImage"
+          class="inline-block border border-gray-700 rounded-lg overflow-hidden"
+        >
+          <img
+            [src]="croppedImage"
+            [alt]="aspect.platform + ' cropped preview'"
+            class="max-h-[300px] rounded-lg object-cover"
+          />
+        </div>
+        <div *ngIf="!croppedImage" class="text-gray-500 italic">
+          No crop preview yet
+        </div>
+      </div>
+  
+      <div class="mt-6 flex justify-end gap-3">
+        <button
+          class="px-5 py-2 rounded-lg border border-gray-700 text-[#F2F2F2] hover:bg-gray-800/50"
+          (click)="imageChangedEvent = ''"
+        >
+          Reset
+        </button>
+        <button
+          class="px-6 py-2 rounded-lg bg-[#00B78E] text-black font-semibold hover:bg-[#00D09F]"
+          (click)="saveCrop()"
+        >
+          <i class="fa-solid fa-check mr-2"></i>Save Crop
+        </button>
+      </div>
+    </div>
+  </div> -->

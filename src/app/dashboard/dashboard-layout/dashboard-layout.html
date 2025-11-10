@@ -1,3 +1,38 @@
-<p>dashboard-layout works!</p>
-<router-outlet />
-
+<div class="flex min-h-screen bg-[#0F0F0F] text-[#F2F2F2]">
+    <aside class="w-72 bg-[#161616] p-6 hidden md:block border-r border-gray-800/50 shadow-xl">
+      <div class="mb-10">
+        <h2 class="text-2xl font-bold text-[#00B78E] tracking-tight">NexusPost</h2>
+        <p class="text-xs text-gray-500 mt-1">Social Media Management</p>
+      </div>
+      <nav class="flex flex-col gap-1">
+        <a routerLink="/dashboard" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-home w-5 text-center group-hover:scale-110 transition-transform"></i> Dashboard
+        </a>
+        <a routerLink="/dashboard/posts" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-file-alt w-5 text-center group-hover:scale-110 transition-transform"></i> My Posts
+        </a>
+        <a routerLink="/dashboard/approvals" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-check-circle w-5 text-center group-hover:scale-110 transition-transform"></i> Approvals
+        </a>
+        <a routerLink="/dashboard/analytics" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-chart-bar w-5 text-center group-hover:scale-110 transition-transform"></i> Analytics
+        </a>
+        <a routerLink="/dashboard/social-account" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-link w-5 text-center group-hover:scale-110 transition-transform"></i> Social Accounts
+        </a>
+        <a routerLink="/dashboard/notifications" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-bell w-5 text-center group-hover:scale-110 transition-transform"></i> Notifications
+        </a>
+        <a routerLink="/dashboard/settings" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-gear w-5 text-center group-hover:scale-110 transition-transform"></i> Settings
+        </a>
+        <a routerLink="/dashboard/profile" routerLinkActive="bg-[#00B78E] text-black shadow-lg" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#004C3F]/50 transition-all duration-200 text-[#F2F2F2] font-medium text-sm group">
+          <i class="fa-solid fa-user w-5 text-center group-hover:scale-110 transition-transform"></i> Profile
+        </a>
+      </nav>
+    </aside>
+    <main class="flex-1 p-8 overflow-y-auto bg-[#0F0F0F]">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+  
