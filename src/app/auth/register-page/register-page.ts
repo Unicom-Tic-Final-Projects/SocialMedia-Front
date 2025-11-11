@@ -20,16 +20,13 @@ export class RegisterPage {
   registerForm: FormGroup;
   loading = signal(false);
   errorMessage = signal<string | null>(null);
-  selectedTenantType = signal<'Individual' | 'Agency'>('Individual');
 
   constructor() {
     this.registerForm = this.fb.group({
-      userName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
       tenantName: ['', [Validators.required, Validators.minLength(2)]],
-      tenantType: ['Individual', [Validators.required]],
       acceptTerms: [false, [Validators.requiredTrue]],
     }, {
       validators: [this.passwordMatchValidator]
@@ -50,19 +47,6 @@ export class RegisterPage {
     return password.value === confirmPassword.value ? null : { passwordMismatch: true };
   }
 
-  /**
-   * Handle tenant type change
-   */
-  onTenantTypeChange(type: 'Individual' | 'Agency'): void {
-    this.selectedTenantType.set(type);
-    this.registerForm.patchValue({ tenantType: type });
-    
-    // Update tenant name placeholder based on type
-    const tenantNameControl = this.registerForm.get('tenantName');
-    if (tenantNameControl) {
-      tenantNameControl.updateValueAndValidity();
-    }
-  }
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
@@ -78,33 +62,43 @@ export class RegisterPage {
       email: formValue.email,
       password: formValue.password,
       tenantName: formValue.tenantName,
-      tenantType: formValue.tenantType,
-      userName: formValue.userName,
+      // tenantType is optional - backend will default to 'Individual' for end users
     };
+
+    console.log('Registering with request:', registerRequest);
 
     this.authService.register(registerRequest).subscribe({
       next: (response) => {
-        if (response.success) {
+        this.loading.set(false);
+        if (response.success && response.data) {
           // Registration successful, redirect to dashboard
           this.router.navigate(['/dashboard']);
         } else {
+          // Registration failed - show error and stay on page
           this.errorMessage.set(response.message || 'Registration failed. Please try again.');
         }
-        this.loading.set(false);
       },
       error: (error) => {
+        this.loading.set(false);
+        console.error('Registration error details:', error);
+        
         let message = 'An error occurred during registration.';
         
-        if (error?.userMessage) {
-          message = error.userMessage;
+        // Extract error message from API response
+        if (error?.error?.message) {
+          message = error.error.message;
+        } else if (error?.error?.errors && Array.isArray(error.error.errors)) {
+          message = error.error.errors.join(', ');
+        } else if (error?.error?.data?.message) {
+          message = error.error.data.message;
         } else if (error?.message) {
           message = error.message;
-        } else if (error?.errors && Array.isArray(error.errors)) {
-          message = error.errors.join(', ');
+        } else if (error?.userMessage) {
+          message = error.userMessage;
         }
         
         this.errorMessage.set(message);
-        this.loading.set(false);
+        // Do NOT navigate - stay on registration page to show error
       },
     });
   }
@@ -117,10 +111,6 @@ export class RegisterPage {
   }
 
   // Getters for form controls
-  get userName() {
-    return this.registerForm.get('userName');
-  }
-
   get email() {
     return this.registerForm.get('email');
   }
@@ -135,10 +125,6 @@ export class RegisterPage {
 
   get tenantName() {
     return this.registerForm.get('tenantName');
-  }
-
-  get tenantType() {
-    return this.registerForm.get('tenantType');
   }
 
   get acceptTerms() {

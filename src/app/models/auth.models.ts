@@ -9,8 +9,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   tenantName: string;
-  tenantType: 'Agency' | 'Individual';
-  userName: string;
+  tenantType?: 'Agency' | 'Individual'; // Optional - defaults to 'Individual' on backend
 }
 
 export interface AuthResponse {

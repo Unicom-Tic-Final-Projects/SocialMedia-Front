@@ -21,62 +21,6 @@
 
       <!-- Register Form -->
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
-        <!-- Tenant Type Selection -->
-        <div>
-          <label class="block text-sm font-medium text-[#F2F2F2] mb-3">
-            Account Type
-          </label>
-          <div class="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              (click)="onTenantTypeChange('Individual')"
-              [class.bg-[#00B78E]]="selectedTenantType() === 'Individual'"
-              [class.bg-[#121212]]="selectedTenantType() !== 'Individual'"
-              [class.border-[#00B78E]]="selectedTenantType() === 'Individual'"
-              [class.border-[#2a2a2a]]="selectedTenantType() !== 'Individual'"
-              class="p-4 border rounded-md text-center transition cursor-pointer"
-            >
-              <div class="text-[#F2F2F2] font-medium">Individual</div>
-              <div class="text-xs text-[#888] mt-1">Personal use</div>
-            </button>
-            <button
-              type="button"
-              (click)="onTenantTypeChange('Agency')"
-              [class.bg-[#00B78E]]="selectedTenantType() === 'Agency'"
-              [class.bg-[#121212]]="selectedTenantType() !== 'Agency'"
-              [class.border-[#00B78E]]="selectedTenantType() === 'Agency'"
-              [class.border-[#2a2a2a]]="selectedTenantType() !== 'Agency'"
-              class="p-4 border rounded-md text-center transition cursor-pointer"
-            >
-              <div class="text-[#F2F2F2] font-medium">Agency</div>
-              <div class="text-xs text-[#888] mt-1">Manage clients</div>
-            </button>
-          </div>
-        </div>
-
-        <!-- User Name Field -->
-        <div>
-          <label for="userName" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Full Name
-          </label>
-          <input
-            id="userName"
-            type="text"
-            formControlName="userName"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
-            placeholder="John Doe"
-            [class.border-red-500]="userName?.invalid && userName?.touched"
-          />
-          @if (userName?.invalid && userName?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (userName?.errors?.['required']) {
-                Full name is required
-              } @else if (userName?.errors?.['minlength']) {
-                Name must be at least 2 characters
-              }
-            </p>
-          }
-        </div>
 
         <!-- Email Field -->
         <div>
@@ -102,27 +46,23 @@
           }
         </div>
 
-        <!-- Tenant Name Field -->
+        <!-- Display Name Field -->
         <div>
           <label for="tenantName" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            @if (selectedTenantType() === 'Individual') {
-              Display Name
-            } @else {
-              Agency Name
-            }
+            Display Name
           </label>
           <input
             id="tenantName"
             type="text"
             formControlName="tenantName"
             class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
-            [placeholder]="selectedTenantType() === 'Individual' ? 'My Account' : 'My Marketing Agency'"
+            placeholder="My Account"
             [class.border-red-500]="tenantName?.invalid && tenantName?.touched"
           />
           @if (tenantName?.invalid && tenantName?.touched) {
             <p class="mt-1 text-sm text-red-400">
               @if (tenantName?.errors?.['required']) {
-                {{ selectedTenantType() === 'Individual' ? 'Display name' : 'Agency name' }} is required
+                Display name is required
               } @else if (tenantName?.errors?.['minlength']) {
                 Name must be at least 2 characters
               }
