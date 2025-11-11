@@ -1,38 +1,101 @@
-<section class="bg-[#1B1B1B] text-[#F2F2F2] py-20 md:py-28 px-6 md:px-12">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-16 text-[#00B78E]" data-aos="fade-down">
-    Powerful Features
-  </h2>
+<section
+  class="bg-[#FFFFFF] text-[#1A1A1A] py-28 md:py-36 px-6 md:px-12 relative overflow-hidden"
+>
+  <!-- Background gradient -->
+  <div
+    class="absolute inset-0 opacity-40"
+    style="background: radial-gradient(circle at 25% 30%, #BFC9FF40 0%, transparent 60%), radial-gradient(circle at 80% 70%, #BFC9FF40 0%, transparent 60%);"
+  ></div>
 
-    <div class="grid md:grid-cols-3 gap-8">
-      <!-- Feature 1 -->
-      <div class="bg-[#1E1E1E] p-8 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-[#00B78E] hover:shadow-[0_0_30px_rgba(0,183,142,0.4)]"
-           data-aos="fade-right" data-aos-delay="0">
-        <div class="text-5xl mb-4 text-[#00B78E]">
-          <i class="fas fa-calendar-alt"></i>
-        </div>
-        <h3 class="text-xl font-bold mb-3 text-[#00B78E]">Smart Scheduling</h3>
-        <p class="text-gray-400">Schedule posts across all platforms with intelligent timing recommendations.</p>
-    </div>
+  <div class="max-w-7xl mx-auto relative z-10">
+    <h2 class="text-4xl md:text-5xl font-extrabold text-center mb-16">
+      Power Meets <span class="text-[#4C6FFF]">Simplicity</span>
+    </h2>
 
-      <!-- Feature 2 -->
-      <div class="bg-[#1E1E1E] p-8 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-[#00B78E] hover:shadow-[0_0_30px_rgba(0,183,142,0.4)]"
-           data-aos="fade-up" data-aos-delay="100">
-        <div class="text-5xl mb-4 text-[#00B78E]">
-          <i class="fas fa-chart-line"></i>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-10">
+      <!-- Card 1 -->
+      <div
+        class="group relative bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all duration-500 hover:bg-[#4C6FFF] hover:border-[#4C6FFF] hover:shadow-none hover:-translate-y-2"
+      >
+        <div
+          class="flex flex-col items-start gap-4 transition-all duration-500 group-hover:text-white"
+        >
+          <i
+            class="fa-solid fa-calendar-check text-3xl text-[#4C6FFF] transition-all duration-500 group-hover:text-white"
+          ></i>
+          <h3 class="text-2xl font-bold">Smart Scheduling</h3>
+          <p class="text-[#222222] group-hover:text-gray-100 transition-all duration-500">
+            Schedule posts across platforms with AI timing recommendations.
+          </p>
         </div>
-        <h3 class="text-xl font-bold mb-3 text-[#00B78E]">Real-Time Analytics</h3>
-        <p class="text-gray-400">Track performance metrics and engagement in real-time across all channels.</p>
-    </div>
+      </div>
 
-      <!-- Feature 3 -->
-      <div class="bg-[#1E1E1E] p-8 rounded-xl shadow-lg hover:scale-105 transition-all duration-300 border-2 border-transparent hover:border-[#00B78E] hover:shadow-[0_0_30px_rgba(0,183,142,0.4)]"
-           data-aos="fade-left" data-aos-delay="200">
-        <div class="text-5xl mb-4 text-[#00B78E]">
-          <i class="fas fa-users"></i>
+      <!-- Card 2 -->
+      <div
+        class="group relative bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all duration-500 hover:bg-[#4C6FFF] hover:border-[#4C6FFF] hover:shadow-none hover:-translate-y-2"
+      >
+        <div
+          class="flex flex-col items-start gap-4 transition-all duration-500 group-hover:text-white"
+        >
+          <i
+            class="fa-solid fa-chart-line text-3xl text-[#4C6FFF] transition-all duration-500 group-hover:text-white"
+          ></i>
+          <h3 class="text-2xl font-bold">Real-Time Analytics</h3>
+          <p class="text-[#222222] group-hover:text-gray-100 transition-all duration-500">
+            Track engagement, growth, and performance instantly.
+          </p>
         </div>
-        <h3 class="text-xl font-bold mb-3 text-[#00B78E]">Team Collaboration</h3>
-        <p class="text-gray-400">Work seamlessly with your team on content creation and approval workflows.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div
+        class="group relative bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all duration-500 hover:bg-[#4C6FFF] hover:border-[#4C6FFF] hover:shadow-none hover:-translate-y-2"
+      >
+        <div
+          class="flex flex-col items-start gap-4 transition-all duration-500 group-hover:text-white"
+        >
+          <i
+            class="fa-solid fa-users text-3xl text-[#4C6FFF] transition-all duration-500 group-hover:text-white"
+          ></i>
+          <h3 class="text-2xl font-bold">Team Collaboration</h3>
+          <p class="text-[#222222] group-hover:text-gray-100 transition-all duration-500">
+            Manage approvals and content strategy together.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 4 -->
+      <div
+        class="group relative bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all duration-500 hover:bg-[#4C6FFF] hover:border-[#4C6FFF] hover:shadow-none hover:-translate-y-2"
+      >
+        <div
+          class="flex flex-col items-start gap-4 transition-all duration-500 group-hover:text-white"
+        >
+          <i
+            class="fa-solid fa-lightbulb text-3xl text-[#4C6FFF] transition-all duration-500 group-hover:text-white"
+          ></i>
+          <h3 class="text-2xl font-bold">AI-Powered Insights</h3>
+          <p class="text-[#222222] group-hover:text-gray-100 transition-all duration-500">
+            Receive smart suggestions to optimize content and engagement.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 5 -->
+      <div
+        class="group relative bg-white border-2 border-gray-300 rounded-3xl p-8 shadow-[0_0_25px_rgba(255,215,0,0.4)] transition-all duration-500 hover:bg-[#4C6FFF] hover:border-[#4C6FFF] hover:shadow-none hover:-translate-y-2"
+      >
+        <div
+          class="flex flex-col items-start gap-4 transition-all duration-500 group-hover:text-white"
+        >
+          <i
+            class="fa-solid fa-layer-group text-3xl text-[#4C6FFF] transition-all duration-500 group-hover:text-white"
+          ></i>
+          <h3 class="text-2xl font-bold">Unified Dashboard</h3>
+          <p class="text-[#222222] group-hover:text-gray-100 transition-all duration-500">
+            Control every connected account from one simple interface.
+          </p>
+        </div>
       </div>
     </div>
   </div>
