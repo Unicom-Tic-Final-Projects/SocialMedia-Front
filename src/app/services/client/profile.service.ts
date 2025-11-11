@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap } from 'rxjs';
-import { AccountSettings, UserProfile } from '../models/social.models';
-import { API_BASE_URL } from '../config/api.config';
+import { AccountSettings, UserProfile } from '../../models/social.models';
+import { API_BASE_URL } from '../../config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {

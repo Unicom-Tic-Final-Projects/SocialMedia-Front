@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Platform, PlatformPreviewConfig } from '../models/social.models';
+import { Platform, PlatformPreviewConfig } from '../../models/social.models';
 
 @Injectable({
   providedIn: 'root'

@@ -1,74 +1,96 @@
-<div class="min-h-screen bg-[#0F0F0F] text-[#F2F2F2]">
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-[#F2F2F2] mb-2 flex items-center gap-3">
-      <i class="fa-solid fa-chart-bar text-[#00B78E]"></i> Analytics
+    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <i class="fa-solid fa-chart-bar text-[#4C6FFF]"></i> Analytics
     </h1>
-    <p class="text-gray-400 text-sm">Track performance and engagement metrics</p>
+    <p class="text-gray-600 text-sm">Track performance and engagement metrics</p>
   </div>
 
   <ng-container *ngIf="!loading; else loadingState">
+
+    <!-- Summary Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-[#161616] rounded-xl p-6 border border-gray-800/50 shadow-lg" *ngIf="summary() as s">
-        <p class="text-sm text-gray-400">Total Posts</p>
-        <p class="text-3xl font-bold text-[#00B78E]">{{ s.totalPosts }}</p>
+
+      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
+        <p class="text-sm text-gray-600">Total Posts</p>
+        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.totalPosts }}</p>
       </div>
-      <div class="bg-[#161616] rounded-xl p-6 border border-gray-800/50 shadow-lg" *ngIf="summary() as s">
-        <p class="text-sm text-gray-400">Total Engagement</p>
-        <p class="text-3xl font-bold text-[#00B78E]">{{ s.totalEngagement | number }}</p>
+
+      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
+        <p class="text-sm text-gray-600">Total Engagement</p>
+        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.totalEngagement | number }}</p>
       </div>
-      <div class="bg-[#161616] rounded-xl p-6 border border-gray-800/50 shadow-lg" *ngIf="summary() as s">
-        <p class="text-sm text-gray-400">Follower Growth</p>
-        <p class="text-3xl font-bold text-[#00B78E]">{{ s.followerGrowth }}%</p>
+
+      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
+        <p class="text-sm text-gray-600">Follower Growth</p>
+        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.followerGrowth }}%</p>
       </div>
-      <div class="bg-[#161616] rounded-xl p-6 border border-gray-800/50 shadow-lg" *ngIf="summary() as s">
-        <p class="text-sm text-gray-400">Conversion Rate</p>
-        <p class="text-3xl font-bold text-[#00B78E]">{{ s.conversionRate }}%</p>
+
+      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
+        <p class="text-sm text-gray-600">Conversion Rate</p>
+        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.conversionRate }}%</p>
       </div>
+
     </div>
 
+    <!-- Two Column -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-      <div class="bg-[#161616] rounded-xl p-6 border border-gray-800/50 shadow-lg">
+
+      <!-- Engagement Overview -->
+      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold">Engagement Overview</h3>
-          <i class="fa-solid fa-chart-line text-[#00B78E]"></i>
+          <h3 class="text-lg font-semibold text-[#1A1A1A]">Engagement Overview</h3>
+          <i class="fa-solid fa-chart-line text-[#4C6FFF]"></i>
         </div>
+
         <div class="space-y-4">
-          <div *ngFor="let metric of engagement()" class="p-4 bg-[#1B1B1B] rounded-lg border border-gray-800/60">
+          <div *ngFor="let metric of engagement()" class="p-4 bg-[#FFFFFF] rounded-lg border border-[#D9E1FF]">
             <div class="flex justify-between items-center">
-              <h4 class="font-semibold text-[#F2F2F2]">{{ metric.title }}</h4>
-              <span class="text-sm text-[#00B78E]">{{ metric.engagementRate }}%</span>
+              <h4 class="font-semibold text-[#1A1A1A]">{{ metric.title }}</h4>
+              <span class="text-sm text-[#4C6FFF]">{{ metric.engagementRate }}%</span>
             </div>
-            <div class="text-xs text-gray-400 mt-2">{{ metric.impressions | number }} impressions • {{ metric.clicks | number }} clicks</div>
+            <div class="text-xs text-gray-600 mt-2">
+              {{ metric.impressions | number }} impressions • {{ metric.clicks | number }} clicks
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="bg-[#161616] rounded-xl p-6 border border-gray-800/50 shadow-lg">
+      <!-- Platform Performance -->
+      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold">Platform Performance</h3>
-          <i class="fa-solid fa-chart-pie text-[#00B78E]"></i>
+          <h3 class="text-lg font-semibold text-[#1A1A1A]">Platform Performance</h3>
+          <i class="fa-solid fa-chart-pie text-[#4C6FFF]"></i>
         </div>
+
         <div class="space-y-4">
-          <div *ngFor="let platform of platformPerformance()" class="p-4 bg-[#1B1B1B] rounded-lg border border-gray-800/60">
-            <div class="flex justify-between items-center text-sm text-gray-400">
+          <div *ngFor="let platform of platformPerformance()" class="p-4 bg-[#FFFFFF] rounded-lg border border-[#D9E1FF]">
+            <div class="flex justify-between items-center text-sm text-gray-600">
               <span>{{ platform.platform | titlecase }}</span>
-              <span>Scheduled: <span class="text-[#F2F2F2]">{{ platform.scheduled }}</span></span>
+              <span>
+                Scheduled: 
+                <span class="text-[#1A1A1A]">{{ platform.scheduled }}</span>
+              </span>
             </div>
+
             <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
-              <span>Published: <span class="text-[#F2F2F2]">{{ platform.published }}</span></span>
-              <span>Drafts: <span class="text-[#F2F2F2]">{{ platform.drafts }}</span></span>
+              <span>Published: <span class="text-[#1A1A1A]">{{ platform.published }}</span></span>
+              <span>Drafts: <span class="text-[#1A1A1A]">{{ platform.drafts }}</span></span>
             </div>
           </div>
         </div>
       </div>
+
     </div>
+
   </ng-container>
 
+  <!-- Loading -->
   <ng-template #loadingState>
     <div class="flex items-center justify-center py-20">
       <div class="text-center">
-        <i class="fa-solid fa-circle-notch animate-spin text-3xl text-[#00B78E] mb-3"></i>
-        <p class="text-gray-400">Fetching analytics data...</p>
+        <i class="fa-solid fa-circle-notch animate-spin text-3xl text-[#4C6FFF] mb-3"></i>
+        <p class="text-gray-600">Fetching analytics data...</p>
       </div>
     </div>
   </ng-template>

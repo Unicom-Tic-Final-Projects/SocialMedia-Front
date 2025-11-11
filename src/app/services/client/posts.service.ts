@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, tap, catchError, throwError } from 'rxjs';
-import { API_BASE_URL } from '../config/api.config';
-import { AuthService } from '../core/services/auth.service';
+import { API_BASE_URL } from '../../config/api.config';
+import { AuthService } from '../../core/services/auth.service';
 import { 
   PostResponse, 
   CreatePostRequest, 
@@ -10,8 +10,8 @@ import {
   SchedulePostRequest,
   SocialPost,
   PostStatus 
-} from '../models/post.models';
-import { PostDraft } from '../models/social.models';
+} from '../../models/post.models';
+import { PostDraft } from '../../models/social.models';
 
 @Injectable({
   providedIn: 'root'
