@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Platform, SocialAccount } from '../../../models/social.models';
-import { SocialAccountsService } from '../../../services/social-accounts.service';
+import { SocialAccountsService } from '../../../services/client/social-accounts.service';
 
 interface PlatformMeta {
   icon: string;

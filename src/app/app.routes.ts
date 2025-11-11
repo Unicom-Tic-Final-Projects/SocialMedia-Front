@@ -4,19 +4,19 @@ import { guestGuard } from './core/guards/guest.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
-  {
-    path: 'auth',
-    canActivate: [guestGuard],
-    children: [
-      { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
-      { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
-      { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
-    ]
-  },
+  // { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
+  // {
+  //   path: 'auth',
+  //   canActivate: [guestGuard],
+  //   children: [
+  //     { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
+  //     { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
+  //     { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
+  //   ]
+  // },
   {
     path: 'dashboard',
-    canActivate: [authGuard],
+    //canActivate: [authGuard],
     loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then((m) => m.DashboardLayout),
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },

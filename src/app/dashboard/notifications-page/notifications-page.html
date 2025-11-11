@@ -1,71 +1,103 @@
-<div class="min-h-screen bg-[#1B1B1B] text-[#F2F2F2] p-6">
-    <h2 class="text-2xl font-semibold mb-6 text-[#00B78E] font-medium flex items-center gap-2">
-      <i class="fa-solid fa-bell"></i> Notifications
-    </h2>
-    <div class="flex flex-wrap gap-3 mb-6">
-      <button class="bg-[#00B78E] text-black px-4 py-2 rounded-lg font-semibold hover:bg-[#004C3F] transition font-medium">
-        All
-      </button>
-      <button class="bg-[#161616] px-4 py-2 rounded-lg hover:bg-[#004C3F]/40 transition text-[#F2F2F2] font-medium">
-        Unread
-      </button>
-      <button class="bg-[#161616] px-4 py-2 rounded-lg hover:bg-[#004C3F]/40 transition text-[#F2F2F2] font-medium">
-        Read
-      </button>
-    </div>
-  
-    <div class="space-y-4">
-      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
-        <div class="text-[#00B78E] text-xl">
-          <i class="fa-solid fa-check-circle"></i>
-        </div>
-        <div class="flex-1">
-          <p class="font-semibold text-[#F2F2F2]">Post "Black Friday Offer" has been approved <i class="fa-solid fa-star text-yellow-400"></i></p>
-          <p class="text-sm text-gray-400">2 hours ago</p>
-        </div>
-        <button class="text-gray-400 hover:text-[#00B78E] transition">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-  
-      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
-        <div class="text-yellow-400 text-xl">
-          <i class="fa-solid fa-hourglass-half"></i>
-        </div>
-        <div class="flex-1">
-          <p class="font-semibold text-[#F2F2F2]">Your scheduled post "Holiday Giveaway" is pending approval.</p>
-          <p class="text-sm text-gray-400">Yesterday</p>
-        </div>
-        <button class="text-gray-400 hover:text-[#00B78E] transition">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-  
-      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
-        <div class="text-green-400 text-xl">
-          <i class="fa-solid fa-bullhorn"></i>
-        </div>
-        <div class="flex-1">
-          <p class="font-semibold text-[#F2F2F2]">New campaign "Winter Sale" has been published successfully <i class="fa-solid fa-check-circle text-green-400"></i></p>
-          <p class="text-sm text-gray-400">3 days ago</p>
-        </div>
-        <button class="text-gray-400 hover:text-[#00B78E] transition">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-  
-      <div class="bg-[#161616] rounded-2xl p-5 flex items-start gap-4 shadow-md hover:bg-[#004C3F]/40 transition">
-        <div class="text-blue-400 text-xl">
-          <i class="fa-solid fa-bell"></i>
-        </div>
-        <div class="flex-1">
-          <p class="font-semibold text-[#F2F2F2]">Your analytics report for October is ready <i class="fa-solid fa-chart-line text-blue-400"></i></p>
-          <p class="text-sm text-gray-400">1 week ago</p>
-        </div>
-        <button class="text-gray-400 hover:text-[#00B78E] transition">
-          <i class="fa-solid fa-trash"></i>
-        </button>
-      </div>
-    </div>
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
+
+  <h2 class="text-2xl font-semibold mb-6 text-[#4C6FFF] flex items-center gap-2">
+    <i class="fa-solid fa-bell"></i> Notifications
+  </h2>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-3 mb-6">
+
+    <button class="bg-[#4C6FFF] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#3A56CC] transition">
+      All
+    </button>
+
+    <button class="bg-[#F5F7FF] px-4 py-2 rounded-lg border border-[#D9E1FF] hover:bg-[#BFC9FF]/40 transition text-[#1A1A1A] font-medium">
+      Unread
+    </button>
+
+    <button class="bg-[#F5F7FF] px-4 py-2 rounded-lg border border-[#D9E1FF] hover:bg-[#BFC9FF]/40 transition text-[#1A1A1A] font-medium">
+      Read
+    </button>
+
   </div>
-  
+
+  <!-- Notification List -->
+  <div class="space-y-4">
+
+    <!-- Notification 1 -->
+    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
+      <div class="text-[#4C6FFF] text-xl">
+        <i class="fa-solid fa-check-circle"></i>
+      </div>
+
+      <div class="flex-1">
+        <p class="font-semibold text-[#1A1A1A]">
+          Post "Black Friday Offer" has been approved 
+          <i class="fa-solid fa-star text-[#4C6FFF]"></i>
+        </p>
+        <p class="text-sm text-gray-600">2 hours ago</p>
+      </div>
+
+      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+    <!-- Notification 2 -->
+    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
+      <div class="text-[#4C6FFF] text-xl">
+        <i class="fa-solid fa-hourglass-half"></i>
+      </div>
+
+      <div class="flex-1">
+        <p class="font-semibold text-[#1A1A1A]">
+          Your scheduled post "Holiday Giveaway" is pending approval.
+        </p>
+        <p class="text-sm text-gray-600">Yesterday</p>
+      </div>
+
+      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+    <!-- Notification 3 -->
+    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
+      <div class="text-[#4C6FFF] text-xl">
+        <i class="fa-solid fa-bullhorn"></i>
+      </div>
+
+      <div class="flex-1">
+        <p class="font-semibold text-[#1A1A1A]">
+          New campaign "Winter Sale" has been published successfully 
+          <i class="fa-solid fa-check-circle text-[#4C6FFF]"></i>
+        </p>
+        <p class="text-sm text-gray-600">3 days ago</p>
+      </div>
+
+      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+    <!-- Notification 4 -->
+    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
+      <div class="text-[#4C6FFF] text-xl">
+        <i class="fa-solid fa-bell"></i>
+      </div>
+
+      <div class="flex-1">
+        <p class="font-semibold text-[#1A1A1A]">
+          Your analytics report for October is ready 
+          <i class="fa-solid fa-chart-line text-[#4C6FFF]"></i>
+        </p>
+        <p class="text-sm text-gray-600">1 week ago</p>
+      </div>
+
+      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Platform } from '../../models/social.models';
-import { PostsService } from '../../services/posts.service';
-import { SocialAccountsService } from '../../services/social-accounts.service';
+import { PostsService } from '../../services/client/posts.service';
+import { SocialAccountsService } from '../../services/client/social-accounts.service';
 import { PostPreviewModal } from './post-preview/post-preview-modal';
 
 @Component({

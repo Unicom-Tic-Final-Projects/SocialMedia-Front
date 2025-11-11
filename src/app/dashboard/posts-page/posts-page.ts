@@ -1,7 +1,7 @@
 import { DatePipe, DecimalPipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { PostsService } from '../../services/posts.service';
+import { PostsService } from '../../services/client/posts.service';
 import { SocialPost, PostStatus } from '../../models/post.models';
 
 @Component({

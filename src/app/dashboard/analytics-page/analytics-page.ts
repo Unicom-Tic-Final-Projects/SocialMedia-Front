@@ -1,6 +1,6 @@
 import { DecimalPipe, NgFor, NgIf, TitleCasePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { AnalyticsService } from '../../services/analytics.service';
+import { AnalyticsService } from '../../services/client/analytics.service';
 import { AnalyticsSummary, EngagementMetric, PlatformPerformance } from '../../models/social.models';
 
 @Component({

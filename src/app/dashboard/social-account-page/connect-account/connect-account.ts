@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Platform } from '../../../models/social.models';
-import { SocialAccountsService } from '../../../services/social-accounts.service';
+import { SocialAccountsService } from '../../../services/client/social-accounts.service';
 import { finalize } from 'rxjs/operators';
 
 type AccountType = 'business' | 'personal' | 'creator';

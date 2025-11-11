@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
-import { AccountSettings } from '../models/social.models';
-import { API_BASE_URL } from '../config/api.config';
+import { AccountSettings } from '../../models/social.models';
+import { API_BASE_URL } from '../../config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class SettingsService {

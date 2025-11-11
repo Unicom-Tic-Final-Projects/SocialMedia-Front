@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CropAdjustment, Platform } from '../../../models/social.models';
-import { PlatformPreviewService } from '../../../services/platform-preview.service';
+import { PlatformPreviewService } from '../../../services/client/platform-preview.service';
 
 interface PlatformMeta {
   icon: string;

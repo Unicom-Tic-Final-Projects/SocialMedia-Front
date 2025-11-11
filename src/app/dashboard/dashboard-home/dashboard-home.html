@@ -1,83 +1,95 @@
-<div class="min-h-screen bg-[#0F0F0F] text-[#F2F2F2]">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-[#F2F2F2] mb-2 flex items-center gap-3">
-        <i class="fa-solid fa-home text-[#00B78E]"></i> Dashboard
-      </h1>
-      <p class="text-gray-400 text-sm">Welcome back! Here's what's happening with your posts.</p>
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <i class="fa-solid fa-home text-[#4C6FFF]"></i> Dashboard
+    </h1>
+    <p class="text-gray-600 text-sm">Welcome back! Here's what's happening with your posts.</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Total Posts</p>
+        <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i>
+        </div>
+      </div>
+      <p class="text-4xl font-bold text-[#1A1A1A] mb-1">24</p>
+      <p class="text-xs text-gray-600">+12% from last month</p>
     </div>
-  
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-[#161616] rounded-xl p-6 shadow-lg border border-gray-800/50 hover:border-[#00B78E]/30 transition-all duration-300 hover:shadow-xl hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Total Posts</p>
-          <div class="w-10 h-10 bg-[#00B78E]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-file-alt text-[#00B78E]"></i>
-          </div>
+
+    <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Published</p>
+        <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-check-circle text-[#4C6FFF]"></i>
         </div>
-        <p class="text-4xl font-bold text-[#F2F2F2] mb-1">24</p>
-        <p class="text-xs text-gray-500">+12% from last month</p>
       </div>
-      <div class="bg-[#161616] rounded-xl p-6 shadow-lg border border-gray-800/50 hover:border-green-400/30 transition-all duration-300 hover:shadow-xl hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Published</p>
-          <div class="w-10 h-10 bg-green-400/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-check-circle text-green-400"></i>
-          </div>
+      <p class="text-4xl font-bold text-[#1A1A1A] mb-1">18</p>
+      <p class="text-xs text-gray-600">75% success rate</p>
+    </div>
+
+    <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Pending</p>
+        <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-clock text-[#4C6FFF]"></i>
         </div>
-        <p class="text-4xl font-bold text-[#F2F2F2] mb-1">18</p>
-        <p class="text-xs text-gray-500">75% success rate</p>
       </div>
-      <div class="bg-[#161616] rounded-xl p-6 shadow-lg border border-gray-800/50 hover:border-yellow-400/30 transition-all duration-300 hover:shadow-xl hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Pending</p>
-          <div class="w-10 h-10 bg-yellow-400/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-clock text-yellow-400"></i>
-          </div>
+      <p class="text-4xl font-bold text-[#1A1A1A] mb-1">4</p>
+      <p class="text-xs text-gray-600">Awaiting approval</p>
+    </div>
+
+    <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+      <div class="flex items-center justify-between mb-3">
+        <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Drafts</p>
+        <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-file-pen text-[#4C6FFF]"></i>
         </div>
-        <p class="text-4xl font-bold text-[#F2F2F2] mb-1">4</p>
-        <p class="text-xs text-gray-500">Awaiting approval</p>
       </div>
-      <div class="bg-[#161616] rounded-xl p-6 shadow-lg border border-gray-800/50 hover:border-gray-400/30 transition-all duration-300 hover:shadow-xl hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Drafts</p>
-          <div class="w-10 h-10 bg-gray-400/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-file-pen text-gray-400"></i>
-          </div>
-        </div>
-        <p class="text-4xl font-bold text-[#F2F2F2] mb-1">2</p>
-        <p class="text-xs text-gray-500">In progress</p>
+      <p class="text-4xl font-bold text-[#1A1A1A] mb-1">2</p>
+      <p class="text-xs text-gray-600">In progress</p>
+    </div>
+
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h3 class="text-xl font-bold text-[#1A1A1A] mb-1">Recent Activity</h3>
+        <p class="text-sm text-gray-600">Latest updates from your account</p>
       </div>
     </div>
-  
-    <div class="bg-[#161616] rounded-xl shadow-lg p-8 border border-gray-800/50">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h3 class="text-xl font-bold text-[#F2F2F2] mb-1">Recent Activity</h3>
-          <p class="text-sm text-gray-400">Latest updates from your account</p>
+
+    <div class="space-y-3">
+
+      <div class="flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-200 border border-[#D9E1FF] hover:border-[#4C6FFF]/40">
+        <div class="w-12 h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30">
+          <i class="fa-solid fa-check text-[#4C6FFF]"></i>
         </div>
+        <div class="flex-1">
+          <p class="text-[#1A1A1A] font-semibold">New post published</p>
+          <p class="text-sm text-gray-600">2 hours ago</p>
+        </div>
+        <i class="fa-solid fa-chevron-right text-gray-500"></i>
       </div>
-      <div class="space-y-3">
-        <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-[#004C3F]/30 transition-all duration-200 border border-transparent hover:border-[#00B78E]/20">
-          <div class="w-12 h-12 bg-[#00B78E]/10 rounded-xl flex items-center justify-center border border-[#00B78E]/20">
-            <i class="fa-solid fa-check text-[#00B78E]"></i>
-          </div>
-          <div class="flex-1">
-            <p class="text-[#F2F2F2] font-semibold">New post published</p>
-            <p class="text-sm text-gray-400">2 hours ago</p>
-          </div>
-          <i class="fa-solid fa-chevron-right text-gray-600"></i>
+
+      <div class="flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-200 border border-[#D9E1FF] hover:border-[#4C6FFF]/40">
+        <div class="w-12 h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30">
+          <i class="fa-solid fa-clock text-[#4C6FFF]"></i>
         </div>
-        <div class="flex items-center gap-4 p-4 rounded-xl hover:bg-[#004C3F]/30 transition-all duration-200 border border-transparent hover:border-[#00B78E]/20">
-          <div class="w-12 h-12 bg-[#004C3F]/20 rounded-xl flex items-center justify-center border border-[#004C3F]/30">
-            <i class="fa-solid fa-clock text-[#00B78E]"></i>
-          </div>
-          <div class="flex-1">
-            <p class="text-[#F2F2F2] font-semibold">Post scheduled</p>
-            <p class="text-sm text-gray-400">Yesterday</p>
-          </div>
-          <i class="fa-solid fa-chevron-right text-gray-600"></i>
+        <div class="flex-1">
+          <p class="text-[#1A1A1A] font-semibold">Post scheduled</p>
+          <p class="text-sm text-gray-600">Yesterday</p>
         </div>
+        <i class="fa-solid fa-chevron-right text-gray-500"></i>
       </div>
+
     </div>
   </div>
-  
+
+</div>

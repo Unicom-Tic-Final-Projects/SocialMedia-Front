@@ -1,9 +1,9 @@
 import { Injectable, inject, signal, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap, catchError, throwError, switchMap, BehaviorSubject } from 'rxjs';
-import { API_BASE_URL } from '../config/api.config';
-import { AuthService } from '../core/services/auth.service';
-import { Platform, SocialAccount } from '../models/social.models';
+import { API_BASE_URL } from '../../config/api.config';
+import { AuthService } from '../../core/services/auth.service';
+import { Platform, SocialAccount } from '../../models/social.models';
 
 export interface SocialAccountResponse {
   id: string; // GUID as string
