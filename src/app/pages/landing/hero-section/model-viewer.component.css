@@ -1,0 +1,10 @@
+:host ::ng-deep canvas {
+  mask-image: radial-gradient(circle at center, black 75%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 75%, transparent 100%);
+  filter: blur(0.2px) saturate(1.1);
+  transition: filter 0.6s ease-in-out;
+}
+
+:host ::ng-deep canvas:hover {
+  filter: blur(0px) saturate(1.2);
+}
