@@ -4,16 +4,16 @@ import { guestGuard } from './core/guards/guest.guard';
 import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
-  // { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
-  // {
-  //   path: 'auth',
-  //   canActivate: [guestGuard],
-  //   children: [
-  //     { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
-  //     { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
-  //     { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
-  //   ]
-  // },
+  { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
+  {
+    path: 'auth',
+    //canActivate: [guestGuard],
+    children: [
+      { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
+      { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
+      { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
+    ]
+  },
   {
     path: 'dashboard',
     //canActivate: [authGuard],
@@ -40,7 +40,7 @@ export const routes: Routes = [
       // Admin login (public, no auth required)
       { 
         path: 'login', 
-        canActivate: [guestGuard],
+        //canActivate: [guestGuard],
         loadComponent: () => import('./admin/admin-login/admin-login').then(m => m.AdminLogin) 
       },
       // Admin dashboard (protected, requires auth and admin role)
