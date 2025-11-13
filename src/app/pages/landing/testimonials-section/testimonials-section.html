@@ -1,10 +1,16 @@
 <section
-  class="relative bg-[#FFFFFF] text-[#1A1A1A] py-28 md:py-40 px-6 md:px-12 overflow-hidden"
+  class="relative bg-[#FFFFFF] text-[#1A1A1A] py-28 md:py-36 px-6 md:px-12 overflow-hidden"
   data-aos="fade-in"
 >
-  <!-- Background glow accents -->
-  <div class="absolute top-[-150px] left-[-100px] w-[500px] h-[500px] bg-[#BFC9FF] opacity-40 blur-3xl rounded-full"></div>
-  <div class="absolute bottom-[-200px] right-[-150px] w-[600px] h-[600px] bg-[#4C6FFF] opacity-20 blur-3xl rounded-full"></div>
+  <!-- ✨ Soft mid-glow only (top & bottom pure white) -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 25%, transparent 45%, transparent 60%, #FFFFFF 85%, #FFFFFF 100%),
+        radial-gradient(circle at 50% 50%, rgba(191,201,255,0.35) 0%, rgba(255,214,232,0.25) 35%, transparent 70%);
+    ">
+  </div>
 
   <div class="max-w-7xl mx-auto relative z-10">
     <h2
@@ -14,19 +20,19 @@
       What Our Users Say
     </h2>
 
+    <!-- Testimonials Grid -->
     <div class="grid md:grid-cols-3 gap-10">
       <!-- Testimonial 1 -->
       <div
-        class="group bg-white border-2 border-[#E5E7EB] p-10 rounded-3xl shadow-[0_0_35px_rgba(255,215,0,0.55)] transition-all duration-700 ease-out hover:-translate-y-3 hover:border-[#4C6FFF] hover:shadow-[0_0_45px_rgba(76,111,255,0.35)]"
+        class="group bg-white border-2 border-[#E5E7EB] p-10 rounded-3xl shadow-[0_8px_30px_rgba(191,201,255,0.25)] hover:shadow-[0_10px_40px_rgba(76,111,255,0.35)] hover:-translate-y-3 transition-all duration-700 ease-out"
         data-aos="fade-up"
         data-aos-delay="0"
-        data-aos-duration="1000"
       >
         <div class="text-5xl text-[#4C6FFF] mb-6 transition-transform duration-300 group-hover:scale-110">
           <i class="fas fa-quote-left"></i>
         </div>
         <p class="text-lg text-[#222222]/80 italic mb-8 leading-relaxed group-hover:text-[#1A1A1A] transition-colors duration-300">
-          "Onevo transformed how we manage our social media. The scheduling feature alone saved us 10+ hours per week!”
+          “Onevo transformed how we manage our social media. The scheduling feature alone saved us 10+ hours per week!”
         </p>
         <div class="flex items-center">
           <div
@@ -45,16 +51,15 @@
 
       <!-- Testimonial 2 -->
       <div
-        class="group bg-white border-2 border-[#E5E7EB] p-10 rounded-3xl shadow-[0_0_35px_rgba(255,215,0,0.55)] transition-all duration-700 ease-out hover:-translate-y-3 hover:border-[#4C6FFF] hover:shadow-[0_0_45px_rgba(76,111,255,0.35)]"
+        class="group bg-white border-2 border-[#E5E7EB] p-10 rounded-3xl shadow-[0_8px_30px_rgba(255,214,232,0.25)] hover:shadow-[0_10px_40px_rgba(76,111,255,0.35)] hover:-translate-y-3 transition-all duration-700 ease-out"
         data-aos="fade-up"
         data-aos-delay="150"
-        data-aos-duration="1000"
       >
         <div class="text-5xl text-[#4C6FFF] mb-6 transition-transform duration-300 group-hover:scale-110">
           <i class="fas fa-quote-left"></i>
         </div>
         <p class="text-lg text-[#222222]/80 italic mb-8 leading-relaxed group-hover:text-[#1A1A1A] transition-colors duration-300">
-          “The analytics dashboard is incredible. We’ve increased engagement by 40% since switching to NexusPost.”
+          “The analytics dashboard is incredible. We’ve increased engagement by 40% since switching to Onevo.”
         </p>
         <div class="flex items-center">
           <div
@@ -73,10 +78,9 @@
 
       <!-- Testimonial 3 -->
       <div
-        class="group bg-white border-2 border-[#E5E7EB] p-10 rounded-3xl shadow-[0_0_35px_rgba(255,215,0,0.55)] transition-all duration-700 ease-out hover:-translate-y-3 hover:border-[#4C6FFF] hover:shadow-[0_0_45px_rgba(76,111,255,0.35)]"
+        class="group bg-white border-2 border-[#E5E7EB] p-10 rounded-3xl shadow-[0_8px_30px_rgba(191,201,255,0.25)] hover:shadow-[0_10px_40px_rgba(76,111,255,0.35)] hover:-translate-y-3 transition-all duration-700 ease-out"
         data-aos="fade-up"
         data-aos-delay="300"
-        data-aos-duration="1000"
       >
         <div class="text-5xl text-[#4C6FFF] mb-6 transition-transform duration-300 group-hover:scale-110">
           <i class="fas fa-quote-left"></i>
@@ -100,4 +104,10 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ Clean white fade at the bottom for seamless transition -->
+  <div
+    class="absolute bottom-0 left-0 w-full h-[180px] pointer-events-none"
+    style="background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);"
+  ></div>
 </section>
