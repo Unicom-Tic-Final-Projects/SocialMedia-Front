@@ -1,16 +1,8 @@
-/* Smooth AOS animation integration with Tailwind */
-[data-aos="fade-up"] {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+@keyframes vscroll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-50%); } 
 }
 
-[data-aos="fade-up"].aos-animate {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Ensure smooth transitions for testimonial cards */
-section [data-aos] {
-  will-change: transform, opacity;
+.animate-vscroll {
+  animation: vscroll 15s linear infinite;
 }
