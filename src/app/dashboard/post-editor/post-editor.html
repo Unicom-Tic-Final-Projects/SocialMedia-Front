@@ -30,6 +30,50 @@
     <!-- MAIN EDITOR -->
     <div class="lg:col-span-2 space-y-6">
 
+      <!-- Client Selector for Agencies -->
+      @if (isAgency()) {
+        <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex-1">
+              <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+                Select Client
+              </label>
+              @if (loadingClients()) {
+                <div class="flex items-center gap-2 text-gray-600">
+                  <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
+                  Loading clients...
+                </div>
+              } @else if (clients().length === 0) {
+                <p class="text-gray-600 text-sm">No clients found. Create your first client to get started.</p>
+              } @else {
+                <select
+                  class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                  [value]="selectedClientId() ?? clients()[0]?.id"
+                  (change)="selectClient($any($event.target).value)"
+                >
+                  @for (client of clients(); track client.id) {
+                    <option [value]="client.id">{{ client.name }}</option>
+                  }
+                </select>
+              }
+              @if (clientsError()) {
+                <p class="mt-2 text-sm text-red-500">{{ clientsError() }}</p>
+              }
+            </div>
+            <div>
+              <button
+                type="button"
+                (click)="createClient()"
+                class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-3 rounded-lg transition"
+              >
+                <i class="fa-solid fa-user-plus"></i>
+                Add Client
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Content Editor -->
       <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
 

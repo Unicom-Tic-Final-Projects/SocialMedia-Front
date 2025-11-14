@@ -46,9 +46,32 @@ export class LoginPage {
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
         if (response.success) {
-          // Get return URL from query params or default to dashboard
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-          this.router.navigate([returnUrl]);
+          const returnUrl: string | undefined = this.route.snapshot.queryParams['returnUrl'];
+          const responseTenantType = response.data?.user?.tenantType;
+
+          const handleNavigation = (tenantType?: 'Agency' | 'Individual' | 'System') => {
+            if (tenantType === 'System') {
+              this.router.navigateByUrl('/admin');
+              return;
+            }
+
+            const isAgency = tenantType === 'Agency';
+            let targetRoute = returnUrl ?? (isAgency ? '/agency' : '/dashboard');
+
+            if (isAgency && (!returnUrl || returnUrl.startsWith('/dashboard'))) {
+              targetRoute = '/agency';
+            }
+
+            this.router.navigateByUrl(targetRoute);
+          };
+
+          if (responseTenantType) {
+            handleNavigation(responseTenantType);
+          } else {
+            this.authService.loadCurrentUser().subscribe((user) => {
+              handleNavigation(user?.tenantType);
+            });
+          }
         } else {
           this.errorMessage.set(response.message || 'Login failed. Please try again.');
         }

@@ -45,16 +45,6 @@ export class PostPreviewModal implements OnChanges {
     twitter: { icon: 'fa-brands fa-x-twitter', label: 'X (Twitter)' },
     linkedin: { icon: 'fa-brands fa-linkedin-in', label: 'LinkedIn' },
     youtube: { icon: 'fa-brands fa-youtube', label: 'YouTube' },
-    tiktok: { icon: 'fa-brands fa-tiktok', label: 'TikTok' },
-    pinterest: { icon: 'fa-brands fa-pinterest-p', label: 'Pinterest' },
-    snapchat: { icon: 'fa-brands fa-snapchat-ghost', label: 'Snapchat' },
-    reddit: { icon: 'fa-brands fa-reddit-alien', label: 'Reddit' },
-    threads: { icon: 'fa-brands fa-threads', label: 'Threads' },
-    telegram: { icon: 'fa-brands fa-telegram-plane', label: 'Telegram' },
-    whatsapp: { icon: 'fa-brands fa-whatsapp', label: 'WhatsApp' },
-    discord: { icon: 'fa-brands fa-discord', label: 'Discord' },
-    tumblr: { icon: 'fa-brands fa-tumblr', label: 'Tumblr' },
-    twitch: { icon: 'fa-brands fa-twitch', label: 'Twitch' },
   };
 
   constructor(private readonly platformPreview: PlatformPreviewService) {}

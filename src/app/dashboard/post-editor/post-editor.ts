@@ -7,9 +7,11 @@ import { switchMap, tap, catchError } from 'rxjs/operators';
 import { PostsService } from '../../services/client/posts.service';
 import { MediaService } from '../../services/client/media.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
+import { ClientsService } from '../../services/client/clients.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CreatePostRequest, UpdatePostRequest, SocialPost } from '../../models/post.models';
 import { Platform, SocialAccount } from '../../models/social.models';
+import { Client } from '../../models/client.models';
 
 @Component({
   selector: 'app-post-editor',
@@ -23,6 +25,7 @@ export class PostEditor implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly mediaService = inject(MediaService);
   private readonly socialAccountsService = inject(SocialAccountsService);
+  private readonly clientsService = inject(ClientsService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -42,6 +45,13 @@ export class PostEditor implements OnInit {
   socialAccounts = signal<SocialAccount[]>([]);
   selectedAccountIds = signal<string[]>([]);
   loadingAccounts = signal(false);
+
+  // Clients
+  readonly clients = this.clientsService.clients;
+  readonly selectedClientId = this.clientsService.selectedClientId;
+  readonly loadingClients = this.clientsService.loading;
+  readonly clientsError = this.clientsService.error;
+  readonly isAgency = this.authService.isAgency;
 
   // Post editing
   postId = signal<string | null>(null);
@@ -68,6 +78,12 @@ export class PostEditor implements OnInit {
 
     // Load social accounts
     this.loadSocialAccounts();
+
+    if (!this.clientsService.clients().length) {
+      this.clientsService.loadClients().subscribe({
+        error: (error) => console.error('Failed to load clients', error),
+      });
+    }
   }
 
   /**
@@ -208,6 +224,34 @@ export class PostEditor implements OnInit {
   }
 
   /**
+   * Select client
+   */
+  selectClient(clientId: string): void {
+    this.clientsService.setSelectedClient(clientId);
+  }
+
+  createClient(): void {
+    const name = prompt('Enter client name');
+    if (!name || !name.trim()) {
+      return;
+    }
+
+    this.clientsService.createClient({ name: name.trim() }).subscribe({
+      next: () => {
+        this.errorMessage.set(null);
+      },
+      error: (error) => {
+        console.error('Failed to create client', error);
+        this.errorMessage.set('Failed to create client');
+      },
+    });
+  }
+
+  get activeClient(): Client | undefined {
+    return this.clientsService.getSelectedClient();
+  }
+
+  /**
    * Save as draft
    */
   saveDraft(): void {
@@ -340,11 +384,10 @@ export class PostEditor implements OnInit {
     return mediaUpload$.pipe(
       switchMap((mediaId) => {
         const formValue = this.postForm.value;
-        const clientId = user.tenantId || user.userId; // For Individual users, use TenantId as ClientId
-        // TODO: For Agencies, use selected ClientId
+        const activeClient = this.clientsService.getSelectedClient();
 
-        if (!clientId) {
-          return throwError(() => new Error('Client ID is required'));
+        if (!activeClient) {
+          return throwError(() => new Error('Client selection is required'));
         }
 
         if (this.isEditMode()) {
@@ -361,7 +404,7 @@ export class PostEditor implements OnInit {
           // Create new post
           const scheduledAt = isScheduled ? this.scheduledDateTime() : undefined;
           const createRequest: CreatePostRequest = {
-            clientId: clientId,
+            clientId: activeClient.id,
             createdByTeamMemberId: user.userId, // Using userId as teamMemberId for now
             content: formValue.content,
             mediaId: mediaId || undefined,

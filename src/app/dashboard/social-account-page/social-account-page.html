@@ -34,12 +34,17 @@
 
         <div class="flex gap-2">
           <button
-            routerLink="/dashboard/social-account/connect"
-            [queryParams]="{ platform: platform.value }"
+            type="button"
+            (click)="connectOrManage(platform.value)"
             class="flex-1 bg-[#4C6FFF] text-white py-2 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
+            [disabled]="isConnecting(platform.value)"
+            [class.opacity-60]="isConnecting(platform.value)"
+            [class.cursor-not-allowed]="isConnecting(platform.value)"
           >
-            <i class="fa-solid fa-link"></i>
-            {{ isConnected(platform.value) ? 'Manage' : 'Connect' }}
+            <i class="fa-solid" [ngClass]="isConnected(platform.value) ? 'fa-gear' : 'fa-link'"></i>
+            <span *ngIf="!isConnecting(platform.value); else connectingTpl">
+              {{ isConnected(platform.value) ? 'Manage' : 'Connect' }}
+            </span>
           </button>
 
           <button
@@ -54,6 +59,9 @@
     </div>
   </div>
 
+<ng-template #connectingTpl>
+  <span>Connecting…</span>
+</ng-template>
   <!-- Post Preview Modal -->
   <app-post-preview-modal
     [open]="previewOpen"

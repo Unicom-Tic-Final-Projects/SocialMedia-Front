@@ -1,19 +1,4 @@
-export type Platform =
-  | 'facebook'
-  | 'instagram'
-  | 'twitter'
-  | 'linkedin'
-  | 'youtube'
-  | 'tiktok'
-  | 'pinterest'
-  | 'snapchat'
-  | 'reddit'
-  | 'threads'
-  | 'telegram'
-  | 'whatsapp'
-  | 'discord'
-  | 'tumblr'
-  | 'twitch';
+export type Platform = 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'youtube';
 
 export interface SocialAccount {
   id: string;

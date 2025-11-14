@@ -24,11 +24,15 @@ export class AdminPostsPage implements OnInit {
       next: (posts) => {
         // Limit to 6 posts for display
         this.posts = posts.slice(0, 6);
-        this.loading = false;
+        Promise.resolve().then(() => {
+          this.loading = false;
+        });
       },
       error: (error) => {
         console.error('Error loading posts:', error);
-        this.loading = false;
+        Promise.resolve().then(() => {
+          this.loading = false;
+        });
       }
     });
   }

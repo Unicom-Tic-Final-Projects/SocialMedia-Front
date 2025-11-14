@@ -30,6 +30,49 @@
 
   </div>
 
+  @if (isAgency()) {
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF] mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2 uppercase tracking-wider">
+            Active Client
+          </label>
+
+          @if (loadingClients()) {
+            <div class="flex items-center gap-2 text-gray-600 text-sm">
+              <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
+              Loading clients...
+            </div>
+          } @else if (clients().length === 0) {
+            <p class="text-gray-600 text-sm">
+              No clients found. Create your first client to manage posts for your customers.
+            </p>
+          } @else {
+            <select
+              class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              [value]="selectedClientId() ?? clients()[0]?.id"
+              (change)="selectClient($any($event.target).value)"
+            >
+              @for (client of clients(); track client.id) {
+                <option [value]="client.id">{{ client.name }}</option>
+              }
+            </select>
+          }
+
+          @if (clientsError()) {
+            <p class="mt-2 text-sm text-red-500">{{ clientsError() }}</p>
+          }
+        </div>
+
+        <button type="button" (click)="addClient()"
+          class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-3 rounded-lg transition">
+          <i class="fa-solid fa-user-plus"></i>
+          Add Client
+        </button>
+      </div>
+    </div>
+  }
+
   <!-- Table -->
   <ng-container *ngIf="!loading(); else loadingState">
 

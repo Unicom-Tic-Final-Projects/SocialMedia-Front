@@ -70,6 +70,47 @@
           }
         </div>
 
+        <!-- Tenant Type Selection -->
+        <div>
+          <label class="block text-sm font-medium text-[#F2F2F2] mb-2">
+            Account Type
+          </label>
+          <div class="grid grid-cols-2 gap-3">
+            <label
+              class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
+              [class.border-[#00B78E]]="tenantType?.value === 'Individual'"
+              [class.bg-[#00B78E]/10]="tenantType?.value === 'Individual'"
+              [class.border-[#2a2a2a]]="tenantType?.value !== 'Individual'"
+            >
+              <input
+                type="radio"
+                class="hidden"
+                value="Individual"
+                formControlName="tenantType"
+                checked
+              />
+              <span class="text-sm font-semibold text-[#F2F2F2]">Individual</span>
+              <span class="text-xs text-[#888]">For solo creators managing their own channels.</span>
+            </label>
+
+            <label
+              class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
+              [class.border-[#00B78E]]="tenantType?.value === 'Agency'"
+              [class.bg-[#00B78E]/10]="tenantType?.value === 'Agency'"
+              [class.border-[#2a2a2a]]="tenantType?.value !== 'Agency'"
+            >
+              <input
+                type="radio"
+                class="hidden"
+                value="Agency"
+                formControlName="tenantType"
+              />
+              <span class="text-sm font-semibold text-[#F2F2F2]">Agency</span>
+              <span class="text-xs text-[#888]">For marketing teams managing multiple clients.</span>
+            </label>
+          </div>
+        </div>
+
         <!-- Password Field -->
         <div>
           <label for="password" class="block text-sm font-medium text-[#F2F2F2] mb-2">
