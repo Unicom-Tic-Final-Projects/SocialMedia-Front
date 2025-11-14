@@ -1,24 +1,31 @@
 <section 
-  id="cta"
-  class="relative overflow-hidden bg-[#FFFFFF] text-[#222222] py-20 md:py-24 px-6 md:px-12 text-center"
+  class="relative overflow-hidden bg-[#FFFFFF] text-[#1A1A1A] py-20 md:py-24 px-6 md:px-12 text-center"
   data-aos="fade-in">
 
-  <!-- Soft radial highlight (light blue background accent) -->
+  <!-- ✅ Gentle blue-pink center glow only (top & bottom remain pure white) -->
   <div 
-    class="absolute inset-0"
-    style="background: radial-gradient(circle at 60% 40%, #BFC9FF40 0%, transparent 60%);">
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 20%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
+        radial-gradient(circle at 50% 60%, rgba(191,201,255,0.35) 0%, rgba(255,214,232,0.3) 35%, transparent 70%);
+    ">
   </div>
 
-  <!-- Floating circular accents -->
-  <div class="absolute w-[300px] h-[300px] bg-[#4C6FFF] rounded-full blur-3xl opacity-30 top-[-100px] left-[-100px]"></div>
-  <div class="absolute w-[400px] h-[400px] bg-[#4C6FFF] rounded-full blur-3xl opacity-20 bottom-[-150px] right-[-150px]"></div>
+  <!-- Minimal circular lights for depth -->
+  <div class="absolute w-[300px] h-[300px] bg-[#BFC9FF] rounded-full blur-[120px] opacity-20 bottom-[100px] left-[-150px]"></div>
+  <div class="absolute w-[350px] h-[350px] bg-[#FFD6E8] rounded-full blur-[120px] opacity-20 bottom-[-150px] right-[-150px]"></div>
 
+  <!-- Content -->
   <div class="relative z-10 max-w-4xl mx-auto">
-    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-[#1A1A1A]">
+    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
       Ready to Grow Your Social Presence?
     </h2>
+
     <p class="text-lg md:text-xl mb-10 text-[#222222]/80">
-      Join thousands of creators and businesses using <span class="bg-[#BFC9FF] px-2 py-1 rounded-md font-semibold">Onevo</span> to manage their social media smarter.
+      Join thousands of creators and businesses using 
+      <span class="bg-[#BFC9FF]/40 px-2 py-1 rounded-md font-semibold text-[#1A1A1A]">Onevo</span>
+      to manage their social media smarter.
     </p>
     <button 
       type="button"
@@ -26,5 +33,11 @@
       class="inline-block bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white px-10 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-110 shadow-[0_0_25px_rgba(76,111,255,0.5)] hover:shadow-[0_0_40px_rgba(76,111,255,0.7)]">
       Join Now
     </button>
+  </div>
+
+  <!-- ✅ White fade for seamless join below -->
+  <div 
+    class="absolute bottom-0 left-0 w-full h-[200px] pointer-events-none"
+    style="background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);">
   </div>
 </section>

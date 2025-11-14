@@ -11,7 +11,7 @@ import { AosService } from './shared/services/aos.service';
   styleUrl: './app.css'
 })
 export class App implements OnInit, OnDestroy {
-  protected readonly title = signal('nexuspost');
+  protected readonly title = signal('onevo');
   private routerSubscription?: Subscription;
 
   constructor(

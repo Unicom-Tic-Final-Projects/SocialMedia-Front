@@ -52,7 +52,7 @@ export const routes: Routes = [
       // Admin login (public, no auth required)
       { 
         path: 'login', 
-        canActivate: [guestGuard],
+        //canActivate: [guestGuard],
         loadComponent: () => import('./admin/admin-login/admin-login').then(m => m.AdminLogin) 
       },
       // Admin dashboard (protected, requires auth and admin role)
