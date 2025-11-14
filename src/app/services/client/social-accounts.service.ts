@@ -1,9 +1,9 @@
 import { Injectable, inject, signal, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap, catchError, throwError, switchMap, BehaviorSubject } from 'rxjs';
-import { API_BASE_URL } from '../config/api.config';
-import { AuthService } from '../core/services/auth.service';
-import { Platform, SocialAccount } from '../models/social.models';
+import { API_BASE_URL } from '../../config/api.config';
+import { AuthService } from '../../core/services/auth.service';
+import { Platform, SocialAccount } from '../../models/social.models';
 
 export interface SocialAccountResponse {
   id: string; // GUID as string
@@ -165,12 +165,27 @@ export class SocialAccountsService {
 
     // Call backend to get authorization URL
     // Response interceptor unwraps ApiResponse<T>, so we get the string directly
-    return this.http.post<string>(`${this.baseUrl}/api/socialaccount/connect`, request).pipe(
-      switchMap((authUrl: string) => {
-        // Backend returns authorization URL (unwrapped by response interceptor)
+    return this.http.post<unknown>(`${this.baseUrl}/api/socialaccount/connect`, request).pipe(
+      switchMap((response) => {
+        const authUrl =
+          typeof response === 'string'
+            ? response
+            : typeof response === 'object' && response !== null && 'data' in response
+              ? (response as { data: string }).data
+              : null;
         
-        // Redirect user to OAuth authorization page
-        window.location.href = authUrl;
+        if (!authUrl || typeof authUrl !== 'string') {
+          console.error('Unexpected connect response format', response);
+          return throwError(() => new Error('Failed to initiate social account connection'));
+        }
+
+        // Open OAuth authorization in a new tab/window so the app stays on the dashboard
+        const oauthWindow = window.open(authUrl, '_blank', 'noopener,noreferrer');
+
+        // Fallback: if the browser blocks popups, fall back to full-page redirect
+        if (!oauthWindow) {
+          window.location.href = authUrl;
+        }
         
         // Return a placeholder observable that never completes
         // The actual account will be created after OAuth callback

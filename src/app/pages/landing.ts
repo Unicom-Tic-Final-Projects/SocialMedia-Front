@@ -5,12 +5,13 @@ import { FeaturesSection } from './landing/features-section/features-section';
 import { TestimonialsSection } from './landing/testimonials-section/testimonials-section';
 import { PricingSection } from './landing/pricing-section/pricing-section';
 import { CtaBand } from './landing/cta-band/cta-band';
+import { WhyOnevo } from './landing/why-onevo/why-onevo'
 import { AppFooter } from '../shared/app-footer/app-footer';
 import { AosService } from '../shared/services/aos.service';
 
 @Component({
   selector: 'app-landing',
-  imports: [AppHeader, HeroSection, FeaturesSection, TestimonialsSection, PricingSection, CtaBand, AppFooter],
+  imports: [AppHeader, HeroSection, FeaturesSection, TestimonialsSection, PricingSection, CtaBand, WhyOnevo, AppFooter],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })

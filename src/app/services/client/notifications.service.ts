@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, tap } from 'rxjs';
-import { NotificationItem } from '../models/social.models';
-import { API_BASE_URL } from '../config/api.config';
+import { NotificationItem } from '../../models/social.models';
+import { API_BASE_URL } from '../../config/api.config';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {

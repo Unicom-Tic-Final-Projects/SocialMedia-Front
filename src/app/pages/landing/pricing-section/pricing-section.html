@@ -1,25 +1,32 @@
 <section
+  id="pricing"
   class="relative bg-[#FFFFFF] text-[#222222] py-20 md:py-28 px-6 md:px-12 overflow-hidden"
-  data-aos="fade-in">
-
-  <!-- Soft blue gradient background -->
+  data-aos="fade-in"
+>
+  <!-- ✨ Soft mid glow only (top & bottom remain pure white) -->
   <div
-    class="absolute inset-0 opacity-40"
-    style="background: radial-gradient(circle at 50% 20%, #BFC9FF40 0%, transparent 70%);">
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 25%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
+        radial-gradient(circle at 50% 45%, rgba(191,201,255,0.35) 0%, rgba(255,214,232,0.3) 35%, transparent 70%);
+    ">
   </div>
 
   <div class="max-w-6xl mx-auto relative z-10">
     <h2
       class="text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-16 text-[#1A1A1A]"
-      data-aos="fade-down">
+      data-aos="fade-down"
+    >
       Choose Your Plan
     </h2>
 
     <div class="grid md:grid-cols-3 gap-8">
       <!-- Free Plan -->
       <div
-        class="group bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-md hover:shadow-[0_10px_30px_rgba(76,111,255,0.15)] hover:scale-[1.03] transition-all duration-500"
-        data-aos="fade-right" data-aos-delay="0">
+        class="group bg-white border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-md hover:shadow-[0_10px_30px_rgba(76,111,255,0.15)] hover:scale-[1.03] transition-all duration-500"
+        data-aos="fade-right"
+      >
         <h3 class="text-2xl font-bold mb-2 text-[#1A1A1A]">Free</h3>
         <div class="text-5xl font-extrabold mb-2 text-[#4C6FFF]">$0</div>
         <p class="text-[#222222]/70 mb-6">Perfect for getting started</p>
@@ -40,7 +47,8 @@
         </ul>
 
         <button
-          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-[0_0_20px_rgba(76,111,255,0.4)]">
+          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-[0_0_20px_rgba(76,111,255,0.4)]"
+        >
           Get Started
         </button>
       </div>
@@ -48,9 +56,11 @@
       <!-- Pro Plan -->
       <div
         class="group bg-[#F8FAFF] border-2 border-[#4C6FFF] rounded-2xl p-10 text-center shadow-lg hover:shadow-[0_10px_40px_rgba(76,111,255,0.2)] transform scale-105 transition-all duration-500 relative overflow-hidden"
-        data-aos="fade-up" data-aos-delay="100">
+        data-aos="fade-up"
+      >
         <span
-          class="absolute top-4 right-4 bg-[#4C6FFF] text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+          class="absolute top-4 right-4 bg-[#4C6FFF] text-white px-3 py-1 rounded-full text-xs font-bold shadow-md"
+        >
           POPULAR
         </span>
         <h3 class="text-2xl font-bold mb-2 text-[#1A1A1A]">Pro</h3>
@@ -78,15 +88,17 @@
         </ul>
 
         <button
-          class="w-full bg-gradient-to-r from-[#4C6FFF] to-[#BFC9FF] hover:from-[#3B5BFF] hover:to-[#AAB8FF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-[0_0_25px_rgba(76,111,255,0.4)]">
+          class="w-full bg-gradient-to-r from-[#4C6FFF] to-[#BFC9FF] hover:from-[#3B5BFF] hover:to-[#AAB8FF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-[0_0_25px_rgba(76,111,255,0.4)]"
+        >
           Get Pro
         </button>
       </div>
 
       <!-- Enterprise Plan -->
       <div
-        class="group bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-md hover:shadow-[0_10px_30px_rgba(76,111,255,0.15)] hover:scale-[1.03] transition-all duration-500"
-        data-aos="fade-left" data-aos-delay="200">
+        class="group bg-white border border-[#E5E7EB] rounded-2xl p-10 text-center shadow-md hover:shadow-[0_10px_30px_rgba(76,111,255,0.15)] hover:scale-[1.03] transition-all duration-500"
+        data-aos="fade-left"
+      >
         <h3 class="text-2xl font-bold mb-2 text-[#1A1A1A]">Enterprise</h3>
         <div class="text-5xl font-extrabold mb-2 text-[#4C6FFF]">Custom</div>
         <p class="text-[#222222]/70 mb-6">For large organizations</p>
@@ -110,10 +122,17 @@
         </ul>
 
         <button
-          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-[0_0_20px_rgba(76,111,255,0.4)]">
+          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-105 shadow-[0_0_20px_rgba(76,111,255,0.4)]"
+        >
           Contact Sales
         </button>
       </div>
     </div>
   </div>
+
+  <!-- ✅ White fade bottom for perfect component join -->
+  <div
+    class="absolute bottom-0 left-0 w-full h-[180px] pointer-events-none"
+    style="background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);"
+  ></div>
 </section>

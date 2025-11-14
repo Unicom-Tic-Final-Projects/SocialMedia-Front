@@ -1,8 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
-import { AnalyticsSummary, EngagementMetric, PlatformPerformance } from '../models/social.models';
-import { API_BASE_URL } from '../config/api.config';
+import { AnalyticsSummary, EngagementMetric, PlatformPerformance } from '../../models/social.models';
+import { API_BASE_URL } from '../../config/api.config';
 
 @Injectable({
   providedIn: 'root'

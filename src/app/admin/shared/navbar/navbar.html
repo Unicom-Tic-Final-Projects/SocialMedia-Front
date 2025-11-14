@@ -29,12 +29,19 @@
       <!-- User Menu -->
       <div class="flex items-center gap-3">
         <div class="text-right hidden sm:block">
-          <p class="text-sm font-semibold text-[#F2F2F2]">Admin User</p>
-          <p class="text-xs text-gray-400">Administrator</p>
+          <p class="text-sm font-semibold text-[#F2F2F2]">{{ displayName() }}</p>
+          <p class="text-xs text-gray-400">{{ displayRole() }}</p>
         </div>
         <div class="w-10 h-10 rounded-full bg-gradient-to-r from-[#004C3F] to-[#00B78E] flex items-center justify-center text-white font-bold cursor-pointer hover:scale-105 transition-transform">
-          A
+          {{ avatarInitials() }}
         </div>
+        <button
+          type="button"
+          (click)="logout()"
+          class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#2a2a2a] text-sm font-medium text-[#F2F2F2] hover:bg-[#00B78E] hover:text-[#0B1522] transition-colors">
+          <i class="fas fa-sign-out-alt text-base"></i>
+          Logout
+        </button>
       </div>
     </div>
   </div>

@@ -1,0 +1,48 @@
+<section class="flex flex-col gap-8">
+  <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="space-y-2">
+      <h1 class="text-3xl font-semibold text-slate-900">Agency Clients</h1>
+      <p class="text-sm text-slate-500 md:text-base">
+        Centralize client profiles, branding assets, and collaboration preferences.
+      </p>
+    </div>
+    <button class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600">
+      <i class="fa-solid fa-user-plus"></i>
+      Add Client
+    </button>
+  </header>
+
+  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <table class="min-w-full divide-y divide-slate-200">
+      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <tr>
+          <th class="px-6 py-4">Name</th>
+          <th class="px-6 py-4">Industry</th>
+          <th class="px-6 py-4">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 text-sm">
+        <tr class="hover:bg-slate-50/70" *ngFor="let client of placeholderClients">
+          <td class="px-6 py-4 font-medium text-slate-900">{{ client.name }}</td>
+          <td class="px-6 py-4 text-slate-600">{{ client.industry }}</td>
+          <td class="px-6 py-4">
+            <span
+              class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="{
+                'bg-primary-50 text-primary-600': client.status === 'Active',
+                'bg-amber-50 text-amber-600': client.status !== 'Active'
+              }"
+            >
+              {{ client.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="px-6 py-10 text-center text-sm font-semibold text-slate-400" *ngIf="!placeholderClients.length">
+      No clients yet. Start by adding your first client profile.
+    </div>
+  </div>
+</section>
+

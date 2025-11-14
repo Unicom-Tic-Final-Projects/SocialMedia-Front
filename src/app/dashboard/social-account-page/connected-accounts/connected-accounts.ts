@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Platform, SocialAccount } from '../../../models/social.models';
-import { SocialAccountsService } from '../../../services/social-accounts.service';
+import { SocialAccountsService } from '../../../services/client/social-accounts.service';
 
 interface PlatformMeta {
   icon: string;
@@ -27,16 +27,6 @@ export class ConnectedAccounts {
     twitter: { icon: 'fa-brands fa-x-twitter', name: 'X (Twitter)', color: '#F2F2F2' },
     linkedin: { icon: 'fa-brands fa-linkedin-in', name: 'LinkedIn', color: '#0A66C2' },
     youtube: { icon: 'fa-brands fa-youtube', name: 'YouTube', color: '#FF0000' },
-    tiktok: { icon: 'fa-brands fa-tiktok', name: 'TikTok', color: '#FFFFFF' },
-    pinterest: { icon: 'fa-brands fa-pinterest-p', name: 'Pinterest', color: '#E60023' },
-    snapchat: { icon: 'fa-brands fa-snapchat-ghost', name: 'Snapchat', color: '#FFFC00' },
-    reddit: { icon: 'fa-brands fa-reddit-alien', name: 'Reddit', color: '#FF4500' },
-    threads: { icon: 'fa-brands fa-threads', name: 'Threads', color: '#F2F2F2' },
-    telegram: { icon: 'fa-brands fa-telegram-plane', name: 'Telegram', color: '#229ED9' },
-    whatsapp: { icon: 'fa-brands fa-whatsapp', name: 'WhatsApp', color: '#25D366' },
-    discord: { icon: 'fa-brands fa-discord', name: 'Discord', color: '#5865F2' },
-    tumblr: { icon: 'fa-brands fa-tumblr', name: 'Tumblr', color: '#34526F' },
-    twitch: { icon: 'fa-brands fa-twitch', name: 'Twitch', color: '#9146FF' },
   };
 
   constructor(private readonly socialAccounts: SocialAccountsService, private readonly router: Router) {

@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Platform } from '../../models/social.models';
-import { PostsService } from '../../services/posts.service';
-import { SocialAccountsService } from '../../services/social-accounts.service';
+import { PostsService } from '../../services/client/posts.service';
+import { SocialAccountsService } from '../../services/client/social-accounts.service';
 import { PostPreviewModal } from './post-preview/post-preview-modal';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-social-account-page',
@@ -21,6 +22,7 @@ export class SocialAccountPage {
   previewMediaUrl = '';
   previewCaption = '';
   previewTargets: Platform[] = [];
+  connectingPlatform: Platform | null = null;
 
   readonly platforms: Array<{ value: Platform; name: string; icon: string; color: string }> = [
     { value: 'facebook', name: 'Facebook', icon: 'fa-brands fa-facebook-f', color: '#1877F2' },
@@ -28,16 +30,6 @@ export class SocialAccountPage {
     { value: 'twitter', name: 'X (Twitter)', icon: 'fa-brands fa-x-twitter', color: '#F2F2F2' },
     { value: 'linkedin', name: 'LinkedIn', icon: 'fa-brands fa-linkedin-in', color: '#0A66C2' },
     { value: 'youtube', name: 'YouTube', icon: 'fa-brands fa-youtube', color: '#FF0000' },
-    { value: 'tiktok', name: 'TikTok', icon: 'fa-brands fa-tiktok', color: '#FFFFFF' },
-    { value: 'pinterest', name: 'Pinterest', icon: 'fa-brands fa-pinterest-p', color: '#E60023' },
-    { value: 'snapchat', name: 'Snapchat', icon: 'fa-brands fa-snapchat-ghost', color: '#FFFC00' },
-    { value: 'reddit', name: 'Reddit', icon: 'fa-brands fa-reddit-alien', color: '#FF4500' },
-    { value: 'threads', name: 'Threads', icon: 'fa-brands fa-threads', color: '#F2F2F2' },
-    { value: 'telegram', name: 'Telegram', icon: 'fa-brands fa-telegram-plane', color: '#229ED9' },
-    { value: 'whatsapp', name: 'WhatsApp', icon: 'fa-brands fa-whatsapp', color: '#25D366' },
-    { value: 'discord', name: 'Discord', icon: 'fa-brands fa-discord', color: '#5865F2' },
-    { value: 'tumblr', name: 'Tumblr', icon: 'fa-brands fa-tumblr', color: '#34526F' },
-    { value: 'twitch', name: 'Twitch', icon: 'fa-brands fa-twitch', color: '#9146FF' },
   ];
 
   constructor(
@@ -64,6 +56,34 @@ export class SocialAccountPage {
 
   isConnected(platform: Platform): boolean {
     return this.socialAccountsService.isConnected(platform);
+  }
+
+  isConnecting(platform: Platform): boolean {
+    return this.connectingPlatform === platform;
+  }
+
+  connectOrManage(platform: Platform): void {
+    if (this.isConnected(platform)) {
+      this.router.navigate(['/dashboard/social-account/connected'], {
+        queryParams: { platform }
+      });
+      return;
+    }
+
+    if (this.isConnecting(platform)) {
+      return;
+    }
+
+    const definition = this.platforms.find((item) => item.value === platform);
+    const accountName = definition ? `${definition.name} Account` : `${platform} Account`;
+
+    this.connectingPlatform = platform;
+    this.socialAccountsService
+      .connect(platform, accountName, 'business')
+      .pipe(finalize(() => (this.connectingPlatform = null)))
+      .subscribe({
+        error: (error) => console.error('Failed to start connection flow', error),
+      });
   }
 
   private updateShowGrid(): void {

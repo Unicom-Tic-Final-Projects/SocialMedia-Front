@@ -9,23 +9,25 @@
 
     <!-- Desktop Menu -->
     <nav class="hidden md:flex space-x-8 font-medium">
-      <a routerLink="/" class="hover:text-[#4C6FFF] transition-colors duration-300">Home</a>
-      <a routerLink="/about" class="hover:text-[#4C6FFF] transition-colors duration-300">About</a>
-      <a routerLink="/features" class="hover:text-[#4C6FFF] transition-colors duration-300">Features</a>
-      <a routerLink="/pricing" class="hover:text-[#4C6FFF] transition-colors duration-300">Pricing</a>
+      <button (click)="scrollToSection('hero', $event)" class="hover:text-[#4C6FFF] transition-colors duration-300">Home</button>
+      <button (click)="scrollToSection('features', $event)" class="hover:text-[#4C6FFF] transition-colors duration-300">Features</button>
+      <button (click)="scrollToSection('testimonials', $event)" class="hover:text-[#4C6FFF] transition-colors duration-300">Testimonials</button>
+      <button (click)="scrollToSection('pricing', $event)" class="hover:text-[#4C6FFF] transition-colors duration-300">Pricing</button>
     </nav>
 
     <!-- Buttons -->
     <div class="hidden md:flex items-center space-x-4">
       <a
-        routerLink="/auth/login"
-        class="border border-[#4C6FFF] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white px-5 py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_15px_rgba(76,111,255,0.4)]"
+        [routerLink]="['/auth/login']"
+        (click)="closeMenu()"
+        class="border border-[#4C6FFF] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white px-5 py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_15px_rgba(76,111,255,0.4)] cursor-pointer"
       >
         Login
       </a>
       <a
-        routerLink="/auth/register"
-        class="bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white px-5 py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_20px_rgba(76,111,255,0.5)]"
+        [routerLink]="['/auth/register']"
+        (click)="closeMenu()"
+        class="bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white px-5 py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_20px_rgba(76,111,255,0.5)] cursor-pointer"
       >
         Sign Up
       </a>
@@ -64,21 +66,23 @@
     *ngIf="menuOpen"
     class="md:hidden bg-[#F8FAFF] text-[#1A1A1A] px-6 py-5 space-y-4 shadow-inner border-t border-[#E5E7EB] transition-all duration-500"
   >
-    <a routerLink="/" class="block hover:text-[#4C6FFF] font-medium transition-colors">Home</a>
-    <a routerLink="/about" class="block hover:text-[#4C6FFF] font-medium transition-colors">About</a>
-    <a routerLink="/features" class="block hover:text-[#4C6FFF] font-medium transition-colors">Features</a>
-    <a routerLink="/pricing" class="block hover:text-[#4C6FFF] font-medium transition-colors">Pricing</a>
+    <button (click)="scrollToSection('hero')" class="block hover:text-[#4C6FFF] font-medium transition-colors text-left w-full">Home</button>
+    <button (click)="scrollToSection('features')" class="block hover:text-[#4C6FFF] font-medium transition-colors text-left w-full">Features</button>
+    <button (click)="scrollToSection('testimonials')" class="block hover:text-[#4C6FFF] font-medium transition-colors text-left w-full">Testimonials</button>
+    <button (click)="scrollToSection('pricing')" class="block hover:text-[#4C6FFF] font-medium transition-colors text-left w-full">Pricing</button>
 
     <div class="pt-4 border-t border-[#E5E7EB]">
       <a
-        routerLink="/auth/login"
-        class="block border border-[#4C6FFF] text-center text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_15px_rgba(76,111,255,0.4)]"
+        [routerLink]="['/auth/login']"
+        (click)="closeMenu()"
+        class="block border border-[#4C6FFF] text-center text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_15px_rgba(76,111,255,0.4)] cursor-pointer"
       >
         Login
       </a>
       <a
-        routerLink="/auth/register"
-        class="block mt-2 bg-[#4C6FFF] hover:bg-[#3B5BFF] text-center text-white py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_20px_rgba(76,111,255,0.5)]"
+        [routerLink]="['/auth/register']"
+        (click)="closeMenu()"
+        class="block mt-2 bg-[#4C6FFF] hover:bg-[#3B5BFF] text-center text-white py-2 rounded-md font-medium transition-all duration-300 hover:shadow-[0_0_20px_rgba(76,111,255,0.5)] cursor-pointer"
       >
         Sign Up
       </a>

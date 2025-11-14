@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { agencyGuard } from './core/guards/agency.guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
@@ -16,11 +17,12 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    canActivate: [authGuard],
+    //canActivate: [authGuard],
     loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then((m) => m.DashboardLayout),
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
       { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
+      { path: 'clients', loadComponent: () => import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage) },
       { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
       { path: 'media', loadComponent: () => import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary) },
       { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
@@ -35,12 +37,22 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'agency',
+    canActivate: [authGuard, agencyGuard],
+    loadComponent: () => import('./agency/agency-layout/agency-layout').then((m) => m.AgencyLayout),
+    children: [
+      { path: '', loadComponent: () => import('./agency/overview-page/overview-page').then((m) => m.AgencyOverviewPage) },
+      { path: 'clients', loadComponent: () => import('./agency/clients-page/clients-page').then((m) => m.AgencyClientsPage) },
+      { path: 'tasks', loadComponent: () => import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage) },
+    ],
+  },
+  {
     path: 'admin',
     children: [
       // Admin login (public, no auth required)
       { 
         path: 'login', 
-        canActivate: [guestGuard],
+        //canActivate: [guestGuard],
         loadComponent: () => import('./admin/admin-login/admin-login').then(m => m.AdminLogin) 
       },
       // Admin dashboard (protected, requires auth and admin role)

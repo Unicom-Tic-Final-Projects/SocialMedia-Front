@@ -1,58 +1,134 @@
 <footer
-  class="relative bg-[#FFFFFF] text-[#222222] py-16 px-6 md:px-12 border-t border-[#E5E7EB] overflow-hidden"
-  data-aos="fade-in" data-aos-duration="800" data-aos-easing="ease-out-cubic">
+  class="relative bg-[#FFFFFF] text-[#222222] py-20 px-6 md:px-12 overflow-hidden border-t border-[#E5E7EB]"
+  data-aos="fade-in"
+  data-aos-duration="800"
+  data-aos-easing="ease-out-cubic"
+>
+  <!-- ✨ Mid soft glow, pure white top and bottom -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 20%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
+        radial-gradient(circle at 50% 50%, rgba(191,201,255,0.35) 0%, rgba(255,214,232,0.25) 35%, transparent 70%);
+    ">
+  </div>
 
-  <!-- Soft glowing background circles -->
-  <div class="absolute top-[-150px] left-[-100px] w-[400px] h-[400px] bg-[#BFC9FF] opacity-40 blur-3xl rounded-full"></div>
-  <div class="absolute bottom-[-200px] right-[-150px] w-[500px] h-[500px] bg-[#4C6FFF] opacity-20 blur-3xl rounded-full"></div>
-
-  <div class="max-w-7xl mx-auto relative z-10 grid md:grid-cols-3 gap-10 text-center md:text-left">
-    <!-- Column 1: Brand -->
-    <div data-aos="fade-in" data-aos-delay="0" data-aos-duration="800">
-      <h2 class="text-2xl font-bold text-[#4C6FFF] mb-3">
-        One<span class="text-[#1A1A1A]">vo</span>
+  <!-- Content -->
+  <div
+    class="max-w-7xl mx-auto relative z-10 grid md:grid-cols-3 gap-10 text-center md:text-left"
+  >
+    <!-- Brand -->
+    <div data-aos="fade-up" data-aos-delay="0">
+      <h2 class="text-2xl font-bold mb-3">
+        <span class="text-[#4C6FFF]">One</span
+        ><span class="text-[#1A1A1A]">vo</span>
       </h2>
-      <p class="text-[#222222]/70 text-sm leading-relaxed">
-        Simplify your social media workflow. Schedule, publish, and analyze your posts — all in one intuitive platform.
+      <p
+        class="text-[#222222]/70 text-sm leading-relaxed max-w-xs mx-auto md:mx-0"
+      >
+        Simplify your social media workflow — schedule, publish, and analyze
+        your posts all in one intuitive platform built for creators and brands.
       </p>
     </div>
 
-    <!-- Column 2: Quick Links -->
-    <div data-aos="fade-in" data-aos-delay="100" data-aos-duration="800">
-      <h3 class="text-lg font-semibold mb-4 text-[#4C6FFF]">Quick Links</h3>
+    <!-- Quick Links -->
+    <div data-aos="fade-up" data-aos-delay="100">
+      <h3
+        class="text-lg font-semibold mb-4 bg-gradient-to-r from-[#4C6FFF] via-[#BFC9FF] to-[#FFD6E8] bg-clip-text text-transparent"
+      >
+        Quick Links
+      </h3>
       <ul class="space-y-2 text-[#222222]/70 font-medium">
-        <li><a routerLink="/" class="hover:text-[#4C6FFF] transition-colors duration-300">Home</a></li>
-        <li><a routerLink="/features" class="hover:text-[#4C6FFF] transition-colors duration-300">Features</a></li>
-        <li><a routerLink="/pricing" class="hover:text-[#4C6FFF] transition-colors duration-300">Pricing</a></li>
-        <li><a routerLink="/about" class="hover:text-[#4C6FFF] transition-colors duration-300">About</a></li>
-        <li><a routerLink="/auth/login" class="hover:text-[#4C6FFF] transition-colors duration-300">Login</a></li>
+        <li>
+          <a
+            routerLink="/"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Home</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/features"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Features</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/pricing"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Pricing</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/about"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >About</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/auth/login"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Login</a
+          >
+        </li>
       </ul>
     </div>
 
-    <!-- Column 3: Social Media -->
-    <div data-aos="fade-in" data-aos-delay="200" data-aos-duration="800">
-      <h3 class="text-lg font-semibold mb-4 text-[#4C6FFF]">Follow Us</h3>
-      <div class="flex justify-center md:justify-start space-x-6 text-2xl">
-        <a href="#" class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(76,111,255,0.5)]">
-          <i class="fa-brands fa-facebook"></i>
+    <!-- Social Links -->
+    <div data-aos="fade-up" data-aos-delay="200">
+      <h3
+        class="text-lg font-semibold mb-4 bg-gradient-to-r from-[#4C6FFF] via-[#BFC9FF] to-[#FFD6E8] bg-clip-text text-transparent"
+      >
+        Follow Us
+      </h3>
+      <div
+        class="flex justify-center md:justify-start space-x-6 text-2xl"
+      >
+        <a
+          href="#"
+          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
+        >
+          <i class="fa-brands fa-facebook-f"></i>
         </a>
-        <a href="#" class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(76,111,255,0.5)]">
+        <a
+          href="#"
+          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
+        >
           <i class="fa-brands fa-twitter"></i>
         </a>
-        <a href="#" class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(76,111,255,0.5)]">
+        <a
+          href="#"
+          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
+        >
           <i class="fa-brands fa-instagram"></i>
         </a>
-        <a href="#" class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(76,111,255,0.5)]">
-          <i class="fa-brands fa-linkedin"></i>
+        <a
+          href="#"
+          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
+        >
+          <i class="fa-brands fa-linkedin-in"></i>
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Section -->
+  <!-- Bottom bar -->
   <div
-    class="border-t border-[#E5E7EB] mt-10 pt-6 text-center text-sm text-[#222222]/60 font-medium relative z-10"
-    data-aos="fade-in" data-aos-delay="300" data-aos-duration="800">
-    © 2025 <span class="text-[#4C6FFF] font-semibold">NexusPost</span>. All rights reserved.
+    class="mt-12 pt-6 border-t border-[#E5E7EB]/70 text-center text-sm text-[#222222]/70 font-medium relative z-10"
+    data-aos="fade-up"
+    data-aos-delay="300"
+  >
+    © 2025 <span class="text-[#4C6FFF] font-semibold">Onevo</span>. All rights
+    reserved.
   </div>
+
+  <!-- ✅ Pure white fade bottom for smooth join -->
+  <div
+    class="absolute bottom-0 left-0 w-full h-[160px] pointer-events-none"
+    style="background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);"
+  ></div>
 </footer>

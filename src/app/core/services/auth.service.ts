@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map, of } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { LoginRequest, RegisterRequest, AuthResponse, UserDto, ApiResponse } from '../../models/auth.models';
 
@@ -72,18 +72,21 @@ export class AuthService {
    * Logout user
    */
   logout(): void {
+    const currentRole = this.userSignal()?.role?.toLowerCase() ?? '';
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     
     if (refreshToken) {
-      // Call logout endpoint (optional - fire and forget)
-      this.http.post<ApiResponse<boolean>>(`${this.baseUrl}/api/auth/logout`, { refreshToken })
-        .subscribe({
-          error: (err) => console.error('Logout API error:', err)
-        });
+      this.http
+        .post<ApiResponse<boolean>>(`${this.baseUrl}/api/auth/logout`, { refreshToken })
+        .pipe(
+          catchError(() => of(null))
+        )
+        .subscribe();
     }
 
     this.clearAuthData();
-    this.router.navigate(['/auth/login']);
+    const isAdmin = currentRole.includes('admin');
+    this.router.navigate([isAdmin ? '/admin/login' : '/auth/login']);
   }
 
   /**
@@ -121,22 +124,23 @@ export class AuthService {
   /**
    * Load current user from API
    */
-  loadCurrentUser(): void {
-    this.getCurrentUser().subscribe({
-      next: (response) => {
+  loadCurrentUser(): Observable<UserDto | null> {
+    return this.getCurrentUser().pipe(
+      map((response) => {
         if (response.success && response.data) {
           this.userSignal.set(response.data);
           localStorage.setItem(USER_KEY, JSON.stringify(response.data));
+          return response.data;
         }
-      },
-      error: (error) => {
-        console.error('Failed to load current user:', error);
-        // If unauthorized, clear auth data
+        return null;
+      }),
+      catchError((error) => {
         if (error.status === 401) {
           this.clearAuthData();
         }
-      }
-    });
+        return of(null);
+      })
+    );
   }
 
   /**
@@ -156,7 +160,7 @@ export class AuthService {
   /**
    * Get user type
    */
-  getUserType(): 'Agency' | 'Individual' | null {
+  getUserType(): 'Agency' | 'Individual' | 'System' | null {
     return this.userSignal()?.tenantType || null;
   }
 
