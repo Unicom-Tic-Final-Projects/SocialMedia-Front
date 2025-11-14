@@ -1,21 +1,18 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
-import { AuthService } from '../services/auth.service';
 
 /**
  * Guard to prevent authenticated users from accessing auth pages (login/register)
  * Redirects to dashboard if user is already logged in
  */
-export const guestGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
+export const guestGuard: CanActivateFn = () => {
   const router = inject(Router);
+  const token = localStorage.getItem('access_token');
 
-  if (!authService.isLoggedIn()) {
+  if (!token) {
     return true;
   }
 
-  // User is already logged in, redirect to dashboard
   router.navigate(['/dashboard']);
   return false;
 };
-

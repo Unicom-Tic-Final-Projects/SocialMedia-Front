@@ -26,7 +26,7 @@ export interface UserDto {
   createdAt: string;
   tenantId?: string;
   tenantName?: string;
-  tenantType?: 'Agency' | 'Individual';
+  tenantType?: 'Agency' | 'Individual' | 'System';
 }
 
 export interface RefreshTokenRequest {

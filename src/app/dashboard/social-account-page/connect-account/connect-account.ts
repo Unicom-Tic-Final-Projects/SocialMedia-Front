@@ -32,16 +32,6 @@ export class ConnectAccount {
     { value: 'twitter', name: 'X (Twitter)', icon: 'fa-brands fa-x-twitter', color: '#F2F2F2' },
     { value: 'linkedin', name: 'LinkedIn', icon: 'fa-brands fa-linkedin-in', color: '#0A66C2' },
     { value: 'youtube', name: 'YouTube', icon: 'fa-brands fa-youtube', color: '#FF0000' },
-    { value: 'tiktok', name: 'TikTok', icon: 'fa-brands fa-tiktok', color: '#FFFFFF' },
-    { value: 'pinterest', name: 'Pinterest', icon: 'fa-brands fa-pinterest-p', color: '#E60023' },
-    { value: 'snapchat', name: 'Snapchat', icon: 'fa-brands fa-snapchat-ghost', color: '#FFFC00' },
-    { value: 'reddit', name: 'Reddit', icon: 'fa-brands fa-reddit-alien', color: '#FF4500' },
-    { value: 'threads', name: 'Threads', icon: 'fa-brands fa-threads', color: '#F2F2F2' },
-    { value: 'telegram', name: 'Telegram', icon: 'fa-brands fa-telegram-plane', color: '#229ED9' },
-    { value: 'whatsapp', name: 'WhatsApp', icon: 'fa-brands fa-whatsapp', color: '#25D366' },
-    { value: 'discord', name: 'Discord', icon: 'fa-brands fa-discord', color: '#5865F2' },
-    { value: 'tumblr', name: 'Tumblr', icon: 'fa-brands fa-tumblr', color: '#34526F' },
-    { value: 'twitch', name: 'Twitch', icon: 'fa-brands fa-twitch', color: '#9146FF' },
   ];
 
   constructor(

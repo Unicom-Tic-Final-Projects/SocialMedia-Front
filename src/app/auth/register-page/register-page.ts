@@ -27,6 +27,7 @@ export class RegisterPage {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
       tenantName: ['', [Validators.required, Validators.minLength(2)]],
+      tenantType: ['Individual', [Validators.required]],
       acceptTerms: [false, [Validators.requiredTrue]],
     }, {
       validators: [this.passwordMatchValidator]
@@ -62,7 +63,7 @@ export class RegisterPage {
       email: formValue.email,
       password: formValue.password,
       tenantName: formValue.tenantName,
-      // tenantType is optional - backend will default to 'Individual' for end users
+      tenantType: formValue.tenantType,
     };
 
     console.log('Registering with request:', registerRequest);
@@ -71,8 +72,27 @@ export class RegisterPage {
       next: (response) => {
         this.loading.set(false);
         if (response.success && response.data) {
-          // Registration successful, redirect to dashboard
-          this.router.navigate(['/dashboard']);
+          const responseTenantType = response.data.user?.tenantType;
+
+          const navigateForTenant = (tenantType?: 'Agency' | 'Individual' | 'System') => {
+            let targetRoute = '/dashboard';
+
+            if (tenantType === 'Agency') {
+              targetRoute = '/agency';
+            } else if (tenantType === 'System') {
+              targetRoute = '/admin';
+            }
+
+            this.router.navigateByUrl(targetRoute);
+          };
+
+          if (responseTenantType) {
+            navigateForTenant(responseTenantType);
+          } else {
+            this.authService.loadCurrentUser().subscribe((user) => {
+              navigateForTenant(user?.tenantType);
+            });
+          }
         } else {
           // Registration failed - show error and stay on page
           this.errorMessage.set(response.message || 'Registration failed. Please try again.');
@@ -125,6 +145,10 @@ export class RegisterPage {
 
   get tenantName() {
     return this.registerForm.get('tenantName');
+  }
+
+  get tenantType() {
+    return this.registerForm.get('tenantType');
   }
 
   get acceptTerms() {

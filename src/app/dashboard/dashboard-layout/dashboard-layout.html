@@ -26,6 +26,11 @@
 
       <!-- Agency only -->
       @if (isAgency()) {
+        <a routerLink="/dashboard/clients" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
+          <i class="fa-solid fa-briefcase w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
+          Clients
+        </a>
         <a routerLink="/dashboard/approvals" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
           <i class="fa-solid fa-check-circle w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>

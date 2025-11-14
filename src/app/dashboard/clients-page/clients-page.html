@@ -1,0 +1,120 @@
+<div class="min-h-screen bg-white text-[#222222] p-6 space-y-6">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+        <i class="fa-solid fa-users text-[#4C6FFF]"></i>
+        Clients
+      </h1>
+      <p class="text-gray-600 text-sm">Manage the brands and customers your agency works with.</p>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700 text-sm">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (error()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
+      {{ error() }}
+    </div>
+  }
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md border border-[#D9E1FF] p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-[#1A1A1A]">Add New Client</h2>
+
+      <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Client Name</label>
+          <input formControlName="name" type="text"
+                 class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222]
+                        focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]">
+          @if (clientForm.controls.name.invalid && clientForm.controls.name.touched) {
+            <p class="mt-1 text-sm text-red-500">Client name is required (min 2 characters).</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Description (optional)</label>
+          <textarea formControlName="description" rows="3"
+                    class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222]
+                           focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] resize-none"></textarea>
+        </div>
+
+        <button type="submit"
+                class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 rounded-lg transition disabled:opacity-50"
+                [disabled]="clientForm.invalid || loading()">
+          @if (loading()) {
+            <i class="fa-solid fa-circle-notch animate-spin mr-2"></i> Saving...
+          } @else {
+            <i class="fa-solid fa-user-plus mr-2"></i> Add Client
+          }
+        </button>
+      </form>
+    </div>
+
+    <div class="lg:col-span-2 bg-[#F5F7FF] rounded-xl shadow-md border border-[#D9E1FF] p-6">
+      <div class="flex items-center justify-between mb-4 gap-4 flex-wrap">
+        <h2 class="text-lg font-semibold text-[#1A1A1A]">Client List</h2>
+      </div>
+
+      @if (loading()) {
+        <div class="py-12 text-center text-gray-600 text-sm">
+          <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-2xl mb-2"></i>
+          Loading clients...
+        </div>
+      } @else if (clients().length === 0) {
+        <div class="py-12 text-center text-gray-600 text-sm border border-dashed border-[#D9E1FF] rounded-xl">
+          <i class="fa-solid fa-users-slash text-3xl text-gray-500 mb-3"></i>
+          <p>No clients yet. Add a client to get started.</p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-left bg-[#4C6FFF] text-white uppercase text-xs tracking-wide">
+              <tr>
+                <th class="px-4 py-3">Name</th>
+                <th class="px-4 py-3">Description</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#D9E1FF] bg-white">
+              @for (client of clients(); track trackClientById($index, client)) {
+                <tr class="hover:bg-[#E8EDFF] transition">
+                  <td class="px-4 py-3 font-medium text-[#1A1A1A] flex items-center gap-2">
+                    @if (selectedClientId() === client.id) {
+                      <span class="inline-flex items-center justify-center w-2 h-2 rounded-full bg-[#4C6FFF]"></span>
+                    }
+                    {{ client.name }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-600">{{ client.description || '—' }}</td>
+                  <td class="px-4 py-3 text-gray-600 capitalize">{{ client.status.toLowerCase() }}</td>
+                  <td class="px-4 py-3 text-right space-x-2">
+                    <button type="button" (click)="setActiveClient(client.id)"
+                            class="text-xs font-semibold px-3 py-2 rounded-lg border border-[#4C6FFF] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white transition">
+                      Set Active
+                    </button>
+                    <button type="button" (click)="editClient(client)"
+                            class="text-xs font-semibold px-3 py-2 rounded-lg border border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#E8EDFF] transition">
+                      Edit
+                    </button>
+                    <button type="button" (click)="deleteClient(client)"
+                            class="text-xs font-semibold px-3 py-2 rounded-lg border border-red-200 text-red-600 hover:bg-red-100 transition">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>
+

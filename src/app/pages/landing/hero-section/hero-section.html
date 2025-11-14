@@ -1,4 +1,5 @@
 <section
+  id="hero"
   class="relative bg-[#FFFFFF] text-[#1A1A1A] py-24 md:py-32 px-6 md:px-12 overflow-hidden"
   data-aos="fade-in"
 >
@@ -36,24 +37,26 @@
           class="flex flex-col sm:flex-row gap-4 lg:justify-start justify-center"
         >
           <!-- Primary Button -->
-          <a
-            routerLink="/auth/register"
+          <button
+            type="button"
+            (click)="navigateTo('/auth/register')"
             class="bg-[#4C6FFF] hover:bg-[#3755FF] text-white px-8 py-4 rounded-lg font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)]"
             data-aos="zoom-in"
             data-aos-delay="400"
           >
             Get Started
-          </a>
+          </button>
 
           <!-- Secondary Button -->
-          <a
-            routerLink="/auth/login"
+          <button
+            type="button"
+            (click)="navigateTo('/auth/login')"
             class="border-2 border-[#4C6FFF] text-[#1A1A1A] hover:bg-[#BFC9FF] hover:text-[#1A1A1A] px-8 py-4 rounded-lg font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_8px_25px_rgba(76,111,255,0.3)]"
             data-aos="zoom-in"
             data-aos-delay="500"
           >
             Learn More
-          </a>
+          </button>
         </div>
       </div>
 

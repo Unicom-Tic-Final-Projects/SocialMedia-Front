@@ -2,18 +2,19 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { agencyGuard } from './core/guards/agency.guard';
 
 export const routes: Routes = [
-  // { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
-  // {
-  //   path: 'auth',
-  //   canActivate: [guestGuard],
-  //   children: [
-  //     { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
-  //     { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
-  //     { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
-  //   ]
-  // },
+  { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
+  {
+    path: 'auth',
+    canActivate: [guestGuard],
+    children: [
+      { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
+      { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
+      { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
+    ]
+  },
   {
     path: 'dashboard',
     //canActivate: [authGuard],
@@ -21,6 +22,7 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
       { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
+      { path: 'clients', loadComponent: () => import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage) },
       { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
       { path: 'media', loadComponent: () => import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary) },
       { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
@@ -32,6 +34,16 @@ export const routes: Routes = [
       { path: 'social-account/connect', loadComponent: () => import('./dashboard/social-account-page/connect-account/connect-account').then((m) => m.ConnectAccount) },
       { path: 'social-account/success', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
       { path: 'social-account/connected', loadComponent: () => import('./dashboard/social-account-page/connected-accounts/connected-accounts').then((m) => m.ConnectedAccounts) },
+    ],
+  },
+  {
+    path: 'agency',
+    canActivate: [authGuard, agencyGuard],
+    loadComponent: () => import('./agency/agency-layout/agency-layout').then((m) => m.AgencyLayout),
+    children: [
+      { path: '', loadComponent: () => import('./agency/overview-page/overview-page').then((m) => m.AgencyOverviewPage) },
+      { path: 'clients', loadComponent: () => import('./agency/clients-page/clients-page').then((m) => m.AgencyClientsPage) },
+      { path: 'tasks', loadComponent: () => import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage) },
     ],
   },
   {

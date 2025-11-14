@@ -28,7 +28,7 @@ export class DashboardLayout implements OnInit {
       const currentUser = this.authService.user();
       if (!currentUser) {
         // If no user, try to load from API
-        this.authService.loadCurrentUser();
+        this.authService.loadCurrentUser().subscribe();
       }
     });
   }
@@ -37,7 +37,7 @@ export class DashboardLayout implements OnInit {
     // Load current user if not already loaded
     const currentUser = this.authService.user();
     if (!currentUser) {
-      this.authService.loadCurrentUser();
+      this.authService.loadCurrentUser().subscribe();
     }
   }
 
