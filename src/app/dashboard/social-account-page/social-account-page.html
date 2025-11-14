@@ -17,23 +17,58 @@
         class="bg-[#F5F7FF] p-6 rounded-xl shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300"
       >
         <div class="flex items-start justify-between mb-4">
-          <div>
+          <div class="flex-1">
             <span class="text-3xl block mb-3" [style.color]="platform.color">
               <i [class]="platform.icon"></i>
             </span>
             <p class="font-semibold text-[#1A1A1A]">{{ platform.name }}</p>
+            
+            <!-- Connected Account Profile -->
+            <ng-container *ngIf="isConnected(platform.value)">
+              <div class="mt-3 flex items-center gap-2 pt-3 border-t border-[#D9E1FF]">
+                <!-- Profile Picture -->
+                <div class="w-8 h-8 rounded-full overflow-hidden bg-[#E2E7FF] flex-shrink-0 flex items-center justify-center relative">
+                  <!-- Profile Image -->
+                  <img
+                    *ngIf="shouldShowProfilePicture(platform.value)"
+                    [src]="getConnectedAccount(platform.value)?.profilePictureUrl"
+                    [alt]="getConnectedAccount(platform.value)?.displayName || platform.name"
+                    class="w-full h-full object-cover absolute inset-0"
+                    (error)="onProfileImageError($event, platform.value)"
+                  />
+                  <!-- Icon Fallback -->
+                  <i
+                    *ngIf="shouldShowIconFallback(platform.value)"
+                    [class]="platform.icon + ' text-xs'"
+                    [style.color]="platform.color"
+                    class="absolute inset-0 flex items-center justify-center"
+                  ></i>
+                </div>
+                <!-- Account Name -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-medium text-[#1A1A1A] truncate">
+                    {{ getConnectedAccount(platform.value)?.displayName || getConnectedAccount(platform.value)?.accountName || 'Connected Account' }}
+                  </p>
+                  <p *ngIf="getConnectedAccount(platform.value)?.platformUsername" class="text-xs text-gray-500 truncate">
+                    @{{ getConnectedAccount(platform.value)?.platformUsername }}
+                  </p>
+                </div>
+              </div>
+            </ng-container>
           </div>
 
           <span
             *ngIf="isConnected(platform.value)"
-            class="text-xs px-3 py-1 rounded-full border border-[#4C6FFF] text-[#4C6FFF] bg-[#4C6FFF]/10 font-semibold"
+            class="text-xs px-3 py-1 rounded-full border border-[#4C6FFF] text-[#4C6FFF] bg-[#4C6FFF]/10 font-semibold ml-2 flex-shrink-0"
           >
             Connected
           </span>
         </div>
 
         <div class="flex gap-2">
+          <!-- Connect/Connected Button -->
           <button
+            *ngIf="!isConnected(platform.value)"
             type="button"
             (click)="connectOrManage(platform.value)"
             class="flex-1 bg-[#4C6FFF] text-white py-2 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
@@ -41,16 +76,40 @@
             [class.opacity-60]="isConnecting(platform.value)"
             [class.cursor-not-allowed]="isConnecting(platform.value)"
           >
-            <i class="fa-solid" [ngClass]="isConnected(platform.value) ? 'fa-gear' : 'fa-link'"></i>
+            <i class="fa-solid fa-link"></i>
             <span *ngIf="!isConnecting(platform.value); else connectingTpl">
-              {{ isConnected(platform.value) ? 'Manage' : 'Connect' }}
+              Connect
             </span>
           </button>
 
+          <!-- Connected State Button -->
+          <button
+            *ngIf="isConnected(platform.value)"
+            type="button"
+            disabled
+            class="flex-1 bg-green-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md text-sm cursor-default opacity-90"
+          >
+            <i class="fa-solid fa-check-circle"></i>
+            <span>Connected</span>
+          </button>
+
+          <!-- Manage Button (only when connected) -->
+          <button
+            *ngIf="isConnected(platform.value)"
+            type="button"
+            (click)="connectOrManage(platform.value)"
+            class="px-4 bg-white border border-[#D9E1FF] text-[#1A1A1A] py-2 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF] transition-all duration-200"
+            title="Manage Account"
+          >
+            <i class="fa-solid fa-gear"></i>
+          </button>
+
+          <!-- Preview Button -->
           <button
             type="button"
             (click)="openPreview(platform.value)"
             class="px-4 bg-white border border-[#D9E1FF] text-[#1A1A1A] py-2 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF] transition-all duration-200"
+            title="Preview Post"
           >
             <i class="fa-solid fa-eye"></i>
           </button>
@@ -70,5 +129,147 @@
     [targets]="previewTargets"
     (close)="closePreview()"
   ></app-post-preview-modal>
+
+  <!-- Manual Connect Modal (for Instagram) -->
+  @if (manualConnectModalOpen) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" (click)="closeManualConnectModal()">
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-bold text-[#1A1A1A]">
+            <i [class]="manualConnectPlatform === 'instagram' ? 'fa-brands fa-instagram' : ''" 
+               [style.color]="manualConnectPlatform === 'instagram' ? '#E1306C' : ''" 
+               class="mr-2"></i>
+            Connect {{ manualConnectPlatform === 'instagram' ? 'Instagram' : manualConnectPlatform }}
+          </h2>
+          <button 
+            (click)="closeManualConnectModal()" 
+            class="text-gray-500 hover:text-gray-700 transition-colors">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Info Message -->
+        <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p class="text-sm text-yellow-800">
+            <i class="fa-solid fa-info-circle mr-2"></i>
+            Instagram Basic Display API is deprecated. Please provide your Instagram Account ID and Access Token manually.
+          </p>
+        </div>
+
+        <!-- Error Message -->
+        @if (manualConnectError) {
+          <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-800">
+              <i class="fa-solid fa-exclamation-circle mr-2"></i>
+              {{ manualConnectError }}
+            </p>
+          </div>
+        }
+
+        <!-- Form -->
+        <form (ngSubmit)="submitManualConnect()" class="space-y-4">
+          <!-- Account ID -->
+          <div>
+            <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+              Account ID <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="manualAccountId"
+              name="accountId"
+              placeholder="e.g., 17841430790903097"
+              class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+              required
+            />
+          </div>
+
+          <!-- Access Token -->
+          <div>
+            <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+              Access Token <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              [(ngModel)]="manualAccessToken"
+              name="accessToken"
+              placeholder="Paste your Instagram access token here..."
+              rows="3"
+              class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+              required
+            ></textarea>
+          </div>
+
+          <!-- Username (Optional) -->
+          <div>
+            <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+              Username (Optional)
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="manualUsername"
+              name="username"
+              placeholder="e.g., your_instagram_username"
+              class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+            />
+          </div>
+
+          <!-- Account Name (Optional) -->
+          <div>
+            <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+              Display Name (Optional)
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="manualAccountName"
+              name="accountName"
+              placeholder="e.g., My Instagram Account"
+              class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+            />
+          </div>
+
+          <!-- Profile Picture URL (Optional) -->
+          <div>
+            <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+              Profile Picture URL (Optional)
+            </label>
+            <input
+              type="url"
+              [(ngModel)]="manualProfilePictureUrl"
+              name="profilePictureUrl"
+              placeholder="https://..."
+              class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+            />
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex gap-3 pt-4">
+            <button
+              type="button"
+              (click)="closeManualConnectModal()"
+              class="flex-1 px-4 py-2 border border-[#D9E1FF] text-[#1A1A1A] rounded-lg hover:bg-[#E2E7FF] transition-colors"
+              [disabled]="manualConnectLoading"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 px-4 py-2 bg-[#4C6FFF] text-white rounded-lg hover:bg-[#3A56CC] transition-colors font-semibold"
+              [disabled]="manualConnectLoading || !manualAccountId || !manualAccessToken"
+              [class.opacity-60]="manualConnectLoading || !manualAccountId || !manualAccessToken"
+              [class.cursor-not-allowed]="manualConnectLoading || !manualAccountId || !manualAccessToken"
+            >
+              @if (manualConnectLoading) {
+                <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                Connecting...
+              } @else {
+                <i class="fa-solid fa-link mr-2"></i>
+                Connect
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 
 </div>

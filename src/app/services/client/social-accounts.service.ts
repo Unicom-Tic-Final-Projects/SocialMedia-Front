@@ -66,14 +66,49 @@ export class SocialAccountsService {
   getSocialAccounts(): Observable<SocialAccount[]> {
     this.loadingSignal.set(true);
 
-    return this.http.get<SocialAccountResponse[]>(`${this.baseUrl}/api/socialaccount`).pipe(
-      map((accounts) => accounts.map((acc) => this.mapToSocialAccount(acc))),
+    return this.http.get<unknown>(`${this.baseUrl}/api/socialaccount`).pipe(
+      map((response) => {
+        // Handle both unwrapped array and ApiResponse structure
+        let accounts: SocialAccountResponse[] = [];
+        
+        if (Array.isArray(response)) {
+          // Direct array response (already unwrapped by interceptor)
+          accounts = response as SocialAccountResponse[];
+        } else if (response && typeof response === 'object') {
+          // Check if it's still wrapped in ApiResponse structure
+          if ('data' in response) {
+            const data = (response as { data: unknown }).data;
+            if (Array.isArray(data)) {
+              accounts = data as SocialAccountResponse[];
+            } else if (data === null || data === undefined) {
+              // Empty response
+              accounts = [];
+            } else {
+              console.error('Unexpected data format (not an array):', data);
+              accounts = [];
+            }
+          } else if ('success' in response) {
+            // ApiResponse structure but no data property
+            accounts = [];
+          } else {
+            console.error('Unexpected response format:', response);
+            accounts = [];
+          }
+        } else {
+          // Not an object or array
+          console.error('Unexpected response type:', typeof response, response);
+          accounts = [];
+        }
+        
+        return accounts.map((acc) => this.mapToSocialAccount(acc));
+      }),
       tap((accounts) => {
         this.accountsSignal.set(accounts);
         this.loadingSignal.set(false);
       }),
       catchError((error) => {
         this.loadingSignal.set(false);
+        console.error('Error loading social accounts:', error);
         return throwError(() => error);
       })
     );
@@ -136,6 +171,9 @@ export class SocialAccountsService {
       accountType: 'business', // Default, could be determined from response
       connectedAt: response.lastConnectedAt || response.createdAt,
       status: response.isActive ? 'connected' : 'disconnected',
+      displayName: response.displayName,
+      profilePictureUrl: response.profilePictureUrl,
+      platformUsername: response.platformUsername,
     };
   }
 
@@ -143,7 +181,7 @@ export class SocialAccountsService {
    * Connect a social account (initiates OAuth flow)
    * Returns the authorization URL that the user should be redirected to
    */
-  connect(
+    connect(
     platform: Platform,
     accountName?: string,
     accountType: 'business' | 'personal' | 'creator' = 'business'
@@ -153,12 +191,16 @@ export class SocialAccountsService {
       return throwError(() => new Error('User not authenticated'));
     }
 
-    // Get the current origin for redirect URL
-    const redirectUrl = `${window.location.origin}/dashboard/social-account/callback`;
+    // Backend OAuth callback URL (where OAuth provider redirects)
+    const backendCallbackUrl = `${this.baseUrl}/api/socialaccount/callback`;
+    
+    // Frontend redirect URL (where user is redirected after callback processing)
+    const frontendRedirectUrl = `${window.location.origin}/dashboard/social-account/callback`;
     
     const request = {
       platform: platform.charAt(0).toUpperCase() + platform.slice(1), // Capitalize first letter
-      redirectUrl: redirectUrl,
+      redirectUrl: backendCallbackUrl, // OAuth provider callback URL
+      frontendRedirectUrl: frontendRedirectUrl, // Frontend redirect URL after callback
       scope: undefined, // Use default scope from backend
       state: undefined, // Backend will generate state
     };
@@ -263,6 +305,44 @@ export class SocialAccountsService {
         this.accountsSignal.update((accounts) => accounts.filter((acc) => acc.id !== accountId));
       }),
       catchError((error) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Manual connect Instagram (or other platform) using access token and account ID
+   */
+  manualConnect(
+    platform: Platform,
+    accountId: string,
+    accessToken: string,
+    username?: string,
+    accountName?: string,
+    profilePictureUrl?: string,
+    refreshToken?: string,
+    tokenExpiresAt?: string
+  ): Observable<SocialAccount> {
+    const request = {
+      platform: platform.charAt(0).toUpperCase() + platform.slice(1), // Capitalize first letter
+      accountId: accountId,
+      accessToken: accessToken,
+      username: username,
+      accountName: accountName,
+      profilePictureUrl: profilePictureUrl,
+      refreshToken: refreshToken,
+      tokenExpiresAt: tokenExpiresAt ? new Date(tokenExpiresAt).toISOString() : undefined,
+      scope: undefined, // Optional
+    };
+
+    return this.http.post<SocialAccountResponse>(`${this.baseUrl}/api/socialaccount/manual-connect`, request).pipe(
+      map((response) => this.mapToSocialAccount(response)),
+      tap((account) => {
+        // Refresh accounts list after successful connection
+        this.getSocialAccounts().subscribe();
+      }),
+      catchError((error) => {
+        console.error('Failed to manually connect account:', error);
         return throwError(() => error);
       })
     );

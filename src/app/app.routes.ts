@@ -32,6 +32,7 @@ export const routes: Routes = [
       { path: 'approvals', loadComponent: () => import('./dashboard/approvals-page/approvals-page').then((m) => m.ApprovalsPage) },
       { path: 'social-account', loadComponent: () => import('./dashboard/social-account-page/social-account-page').then((m) => m.SocialAccountPage) },
       { path: 'social-account/connect', loadComponent: () => import('./dashboard/social-account-page/connect-account/connect-account').then((m) => m.ConnectAccount) },
+      { path: 'social-account/callback', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
       { path: 'social-account/success', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
       { path: 'social-account/connected', loadComponent: () => import('./dashboard/social-account-page/connected-accounts/connected-accounts').then((m) => m.ConnectedAccounts) },
     ],

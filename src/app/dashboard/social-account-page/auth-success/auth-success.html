@@ -1,39 +1,71 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222] flex flex-col items-center justify-center p-6">
-
   <div class="bg-[#F5F7FF] p-8 rounded-xl shadow-md text-center w-full max-w-md border border-[#D9E1FF]">
+    <!-- Loading State -->
+    @if (loading) {
+      <div class="py-8">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C6FFF] mx-auto mb-4"></div>
+        <p class="text-gray-600">Processing connection...</p>
+      </div>
+    }
 
-    <!-- Back Link -->
-    <div class="mb-6">
-      <a
-        routerLink="/dashboard/social-account"
-        class="inline-flex items-center gap-2 text-gray-600 hover:text-[#4C6FFF] transition-colors mb-4"
+    <!-- Success State -->
+    @if (!loading && success) {
+      <!-- Success Icon -->
+      <i class="fa-solid fa-circle-check text-[#4C6FFF] text-6xl mb-4"></i>
+
+      <!-- Title -->
+      <h2 class="text-2xl font-bold text-[#1A1A1A] mb-3">Account Connected!</h2>
+
+      <!-- Message -->
+      <p class="text-gray-600 mb-2">
+        @if (platform) {
+          Your {{ platform }} account was successfully linked to NexusPost.
+        } @else {
+          Your account was successfully linked to NexusPost.
+        }
+      </p>
+      <p class="text-sm text-gray-500 mb-6">Redirecting you back in a few seconds...</p>
+
+      <!-- CTA Button -->
+      <button
+        (click)="goToSocialAccounts()"
+        class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl
+               hover:bg-[#3A56CC] transition-all duration-200 font-semibold
+               shadow-sm hover:shadow-md cursor-pointer"
       >
-        <i class="fa-solid fa-arrow-left"></i>
-        <span class="text-sm">Back to Social Accounts</span>
-      </a>
-    </div>
+        Go to Social Accounts
+      </button>
+    }
 
-    <!-- Success Icon -->
-    <i class="fa-solid fa-circle-check text-[#4C6FFF] text-6xl mb-4"></i>
+    <!-- Error State -->
+    @if (!loading && error) {
+      <!-- Error Icon -->
+      <i class="fa-solid fa-circle-xmark text-red-500 text-6xl mb-4"></i>
 
-    <!-- Title -->
-    <h2 class="text-2xl font-bold text-[#1A1A1A] mb-3">Account Connected!</h2>
+      <!-- Title -->
+      <h2 class="text-2xl font-bold text-[#1A1A1A] mb-3">Connection Failed</h2>
 
-    <!-- Message -->
-    <p class="text-gray-600 mb-6">
-      Your account was successfully linked to NexusPost.
-    </p>
+      <!-- Error Message -->
+      <p class="text-gray-600 mb-2">
+        @if (errorDescription) {
+          {{ errorDescription }}
+        } @else {
+          Failed to connect your account. Please try again.
+        }
+      </p>
+      <p class="text-sm text-gray-500 mb-6">
+        Error: {{ error }}
+      </p>
 
-    <!-- CTA Button -->
-    <a
-      routerLink="/dashboard/social-account/connected"
-      class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl
-             hover:bg-[#3A56CC] transition-all duration-200 font-semibold
-             shadow-sm hover:shadow-md"
-    >
-      Go to Connected Accounts
-    </a>
-
+      <!-- CTA Button -->
+      <button
+        (click)="goToSocialAccounts()"
+        class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl
+               hover:bg-[#3A56CC] transition-all duration-200 font-semibold
+               shadow-sm hover:shadow-md cursor-pointer"
+      >
+        Back to Social Accounts
+      </button>
+    }
   </div>
-
 </div>

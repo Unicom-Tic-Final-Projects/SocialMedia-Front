@@ -10,6 +10,9 @@ export interface SocialAccount {
   status: 'connected' | 'disconnected' | 'reconnecting' | 'error';
   accessToken?: string;
   refreshToken?: string;
+  displayName?: string;
+  profilePictureUrl?: string;
+  platformUsername?: string;
 }
 
 export interface PlatformAspect {

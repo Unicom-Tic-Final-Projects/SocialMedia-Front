@@ -13,6 +13,7 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     map((response: any) => {
       // Check if response matches ApiResponse structure
+      // Backend returns: { success: boolean, data: T, message?: string }
       if (response && typeof response === 'object' && 'success' in response) {
         // If success is false, throw error (will be caught by error interceptor)
         if (!response.success) {
@@ -20,7 +21,11 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
         }
         // Return the data directly for successful responses (if data exists)
         // Some endpoints might return success: true without data
-        return 'data' in response ? response.data : response;
+        if ('data' in response) {
+          return response.data;
+        }
+        // If no data property, return the response as-is
+        return response;
       }
       // If not ApiResponse format, return as-is
       return response;
