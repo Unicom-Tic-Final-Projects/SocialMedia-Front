@@ -56,7 +56,7 @@ jobs:
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/" # App source code path (repo root)
           api_location: "" # Api source code path - optional
-          output_location: "dist/nexuspost" # Built app content directory - optional
+          output_location: "dist/nexuspost/browser" # Built app content directory (Angular outputs to browser subfolder)
           github_id_token: ${{ steps.idtoken.outputs.result }}
           skip_app_build: true # We build manually above
           ###### End of Repository/Build Configurations ######
