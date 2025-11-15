@@ -1,126 +1,149 @@
-<div class="min-h-screen bg-gradient-to-br from-[#1B1B1B] via-[#121212] to-[#0a0a0a] flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-md">
-    <!-- Logo -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-[#00B78E] mb-2">
-        Nexus<span class="text-[#F2F2F2]">Post</span>
-      </h1>
-      <p class="text-[#888] text-sm">Welcome back! Sign in to your account</p>
-    </div>
+<div 
+  class="relative min-h-screen flex items-center justify-center px-6 py-16 bg-[#FFFFFF] overflow-hidden"
+>
 
-    <!-- Login Card -->
-    <div class="bg-[#1B1B1B] border border-[#2a2a2a] rounded-lg shadow-2xl p-8">
-      <h2 class="text-2xl font-semibold text-[#F2F2F2] mb-6">Sign In</h2>
+  <!-- 🌈 GLOBAL ONEVO BACKGROUND THEME -->
+  <div 
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        /* Top & bottom remain CLEAN white */
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 25%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
 
-      <!-- Error Message -->
+        /* Light Blue Glow */
+        radial-gradient(circle at 30% 40%, rgba(191,201,255,0.45) 0%, transparent 60%),
+
+        /* Light Pink Glow */
+        radial-gradient(circle at 70% 60%, rgba(255,214,232,0.35) 0%, transparent 65%),
+
+        /* Deep Blue Glow */
+        radial-gradient(circle at 50% 80%, rgba(76,111,255,0.25) 0%, transparent 70%);
+    ">
+  </div>
+
+
+  <!-- ================================
+       MAIN GRID LAYOUT
+  ================================= -->
+  <div class="relative z-10 max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+
+    <!-- ================================
+         LEFT — LOGIN CARD (THEMED)
+    ================================= -->
+    <div class="bg-white p-10 rounded-3xl shadow-[0_0_50px_rgba(191,201,255,0.35)] border border-[#E5E7EB]">
+
+      <!-- Logo -->
+      <div class="mb-6">
+        <h1 class="text-4xl font-extrabold">
+          <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
+        </h1>
+        <p class="text-[#222222]/70 text-sm mt-1">Welcome back! Sign in to continue</p>
+      </div>
+
+      <!-- Title -->
+      <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Sign In</h2>
+
+      <!-- Error -->
       @if (errorMessage()) {
-        <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm">
+        <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-500 text-sm">
           {{ errorMessage() }}
         </div>
       }
 
-      <!-- Login Form -->
+      <!-- FORM -->
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Email Field -->
+
+        <!-- Email -->
         <div>
-          <label for="email" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Email Address
-          </label>
-          <input
-            id="email"
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Email Address</label>
+          <input 
             type="email"
             formControlName="email"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
             placeholder="you@example.com"
-            [class.border-red-500]="email?.invalid && email?.touched"
+            class="w-full px-4 py-3 bg-white border border-[#DADCE0] rounded-lg text-[#1A1A1A] placeholder-[#888]
+                   focus:ring-2 focus:ring-[#4C6FFF] transition"
           />
-          @if (email?.invalid && email?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (email?.errors?.['required']) {
-                Email is required
-              } @else if (email?.errors?.['email']) {
-                Please enter a valid email
-              }
-            </p>
-          }
         </div>
 
-        <!-- Password Field -->
+        <!-- Password -->
         <div>
-          <label for="password" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Password
-          </label>
-          <input
-            id="password"
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Password</label>
+          <input 
             type="password"
             formControlName="password"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
             placeholder="Enter your password"
-            [class.border-red-500]="password?.invalid && password?.touched"
+            class="w-full px-4 py-3 bg-white border border-[#DADCE0] rounded-lg text-[#1A1A1A] placeholder-[#888]
+                   focus:ring-2 focus:ring-[#4C6FFF] transition"
           />
-          @if (password?.invalid && password?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (password?.errors?.['required']) {
-                Password is required
-              } @else if (password?.errors?.['minlength']) {
-                Password must be at least 6 characters
-              }
-            </p>
-          }
         </div>
 
-        <!-- Forgot Password Link -->
+        <!-- Remember + Forgot -->
         <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              class="h-4 w-4 text-[#00B78E] focus:ring-[#00B78E] border-[#2a2a2a] rounded bg-[#121212]"
-            />
-            <label for="remember-me" class="ml-2 block text-sm text-[#888]">
-              Remember me
-            </label>
-          </div>
-          <a routerLink="/auth/forgot-password" class="text-sm text-[#00B78E] hover:underline">
+          <label class="flex items-center text-[#222222]/80 text-sm">
+            <input type="checkbox" class="mr-2 border-[#4C6FFF] text-[#4C6FFF]" />
+            Remember me
+          </label>
+
+          <a routerLink="/auth/forgot-password" class="text-[#4C6FFF] hover:underline text-sm font-semibold">
             Forgot password?
           </a>
         </div>
 
-        <!-- Submit Button -->
+        <!-- Submit -->
         <button
           type="submit"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-[1.02] shadow-[0_0_25px_rgba(76,111,255,0.4)]"
           [disabled]="loading() || loginForm.invalid"
-          class="w-full bg-[#00B78E] hover:bg-[#004C3F] text-white font-semibold py-3 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           @if (loading()) {
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Signing in...
+            <span class="animate-pulse">Signing in...</span>
           } @else {
             Sign In
           }
         </button>
+
       </form>
 
-      <!-- Sign Up Link -->
-      <div class="mt-6 text-center">
-        <p class="text-sm text-[#888]">
-          Don't have an account?
-          <a routerLink="/auth/register" class="text-[#00B78E] hover:underline font-medium">
-            Sign up
-          </a>
-        </p>
-      </div>
+      <!-- Sign up -->
+      <p class="mt-6 text-center text-sm text-[#222222]/70">
+        Don’t have an account?
+        <a routerLink="/auth/register" class="text-[#4C6FFF] font-semibold hover:underline">
+          Sign up
+        </a>
+      </p>
+
     </div>
 
-    <!-- Back to Home -->
-    <div class="mt-6 text-center">
-      <a routerLink="/" class="text-[#888] hover:text-[#00B78E] text-sm transition">
-        ← Back to Home
-      </a>
+
+    <!-- ================================
+         RIGHT — BRAND / LOGO AREA
+    ================================= -->
+    <div class="hidden lg:flex flex-col items-center justify-center text-center px-6">
+
+      <!-- Big Logo -->
+      <h1 class="text-7xl font-extrabold mb-6">
+        <span class="text-[#4C6FFF] drop-shadow-[0_0_20px_rgba(76,111,255,0.45)]">One</span>
+        <span class="text-[#1A1A1A] drop-shadow-[0_0_10px_rgba(191,201,255,0.3)]">vo</span>
+      </h1>
+
+      <!-- Tagline -->
+      <p class="text-[#222222]/80 text-xl max-w-md leading-relaxed">
+        The all-in-one platform to schedule, publish and analyze your social content.
+      </p>
+
+      <!-- Themed Glow Circle Behind Logo -->
+      <div 
+        class="w-[350px] h-[350px] rounded-full mt-12 blur-3xl opacity-70"
+        style="
+          background:
+            radial-gradient(circle at 40% 40%, rgba(191,201,255,0.45) 0%, transparent 60%),
+            radial-gradient(circle at 70% 60%, rgba(255,214,232,0.35) 0%, transparent 70%),
+            radial-gradient(circle at 50% 50%, rgba(76,111,255,0.25) 0%, transparent 75%);
+        ">
+      </div>
+
     </div>
+
   </div>
 </div>

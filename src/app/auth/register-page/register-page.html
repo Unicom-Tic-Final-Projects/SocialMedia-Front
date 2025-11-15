@@ -1,220 +1,168 @@
-<div class="min-h-screen bg-gradient-to-br from-[#1B1B1B] via-[#121212] to-[#0a0a0a] flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-md">
+<div 
+  class="relative min-h-screen flex items-center justify-center px-6 py-16 bg-[#FFFFFF] overflow-hidden"
+>
+
+  <!-- 🌈 GLOBAL ONEVO BACKGROUND (Blue + Light Pink Glow) -->
+  <div 
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        /* Clean white top & bottom */
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 25%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
+
+        /* Light Blue Glow */
+        radial-gradient(circle at 30% 40%, rgba(191,201,255,0.45) 0%, transparent 60%),
+
+        /* Light Pink Glow */
+        radial-gradient(circle at 70% 60%, rgba(255,214,232,0.35) 0%, transparent 65%),
+
+        /* Medium Blue Glow */
+        radial-gradient(circle at 50% 80%, rgba(76,111,255,0.25) 0%, transparent 70%);
+    ">
+  </div>
+
+
+  <div class="relative z-10 w-full max-w-3xl mx-auto">
+
     <!-- Logo -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-[#00B78E] mb-2">
-        Nexus<span class="text-[#F2F2F2]">Post</span>
+    <div class="text-center mb-10">
+      <h1 class="text-5xl font-extrabold">
+        <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
       </h1>
-      <p class="text-[#888] text-sm">Create your account to get started</p>
+      <p class="text-[#222222]/70 text-sm mt-1">Create your account to get started</p>
     </div>
 
     <!-- Register Card -->
-    <div class="bg-[#1B1B1B] border border-[#2a2a2a] rounded-lg shadow-2xl p-8">
-      <h2 class="text-2xl font-semibold text-[#F2F2F2] mb-6">Create Account</h2>
+    <div class="bg-white border border-[#E5E7EB] rounded-3xl shadow-[0_0_45px_rgba(191,201,255,0.35)] p-10">
+      <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6">Create Account</h2>
 
       <!-- Error Message -->
       @if (errorMessage()) {
-        <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm">
+        <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-600 text-sm">
           {{ errorMessage() }}
         </div>
       }
 
       <!-- Register Form -->
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-        <!-- Email Field -->
+        <!-- Email -->
         <div>
-          <label for="email" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Email Address
-          </label>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Email Address</label>
           <input
-            id="email"
             type="email"
             formControlName="email"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
             placeholder="you@example.com"
-            [class.border-red-500]="email?.invalid && email?.touched"
+            class="w-full px-4 py-3 bg-white border border-[#DADCE0] rounded-lg text-[#1A1A1A]
+                   placeholder-[#888] focus:ring-2 focus:ring-[#4C6FFF] transition"
           />
-          @if (email?.invalid && email?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (email?.errors?.['required']) {
-                Email is required
-              } @else if (email?.errors?.['email']) {
-                Please enter a valid email
-              }
-            </p>
-          }
         </div>
 
-        <!-- Display Name Field -->
+        <!-- Display Name -->
         <div>
-          <label for="tenantName" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Display Name
-          </label>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Display Name</label>
           <input
-            id="tenantName"
             type="text"
             formControlName="tenantName"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
-            placeholder="My Account"
-            [class.border-red-500]="tenantName?.invalid && tenantName?.touched"
+            placeholder="My Workspace"
+            class="w-full px-4 py-3 bg-white border border-[#DADCE0] rounded-lg text-[#1A1A1A]
+                   placeholder-[#888] focus:ring-2 focus:ring-[#4C6FFF] transition"
           />
-          @if (tenantName?.invalid && tenantName?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (tenantName?.errors?.['required']) {
-                Display name is required
-              } @else if (tenantName?.errors?.['minlength']) {
-                Name must be at least 2 characters
-              }
-            </p>
-          }
         </div>
 
-        <!-- Tenant Type Selection -->
+        <!-- Tenant Type -->
         <div>
-          <label class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Account Type
-          </label>
-          <div class="grid grid-cols-2 gap-3">
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-3">Account Type</label>
+
+          <div class="grid grid-cols-2 gap-4">
+
+            <!-- Individual -->
             <label
-              class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
-              [class.border-[#00B78E]]="tenantType?.value === 'Individual'"
-              [class.bg-[#00B78E]/10]="tenantType?.value === 'Individual'"
-              [class.border-[#2a2a2a]]="tenantType?.value !== 'Individual'"
+              class="flex flex-col items-start gap-2 px-4 py-4 border rounded-xl cursor-pointer transition
+                     bg-white"
+              [class.border-[#4C6FFF]]="tenantType?.value === 'Individual'"
+              [class.bg-[#BFC9FF]/20]="tenantType?.value === 'Individual'"
             >
-              <input
-                type="radio"
-                class="hidden"
-                value="Individual"
-                formControlName="tenantType"
-                checked
-              />
-              <span class="text-sm font-semibold text-[#F2F2F2]">Individual</span>
-              <span class="text-xs text-[#888]">For solo creators managing their own channels.</span>
+              <input type="radio" value="Individual" formControlName="tenantType" class="hidden" />
+              <span class="text-sm font-semibold text-[#1A1A1A]">Individual</span>
+              <span class="text-xs text-[#222]">For personal content creators.</span>
             </label>
 
+            <!-- Agency -->
             <label
-              class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
-              [class.border-[#00B78E]]="tenantType?.value === 'Agency'"
-              [class.bg-[#00B78E]/10]="tenantType?.value === 'Agency'"
-              [class.border-[#2a2a2a]]="tenantType?.value !== 'Agency'"
+              class="flex flex-col items-start gap-2 px-4 py-4 border rounded-xl cursor-pointer transition
+                     bg-white"
+              [class.border-[#4C6FFF]]="tenantType?.value === 'Agency'"
+              [class.bg-[#BFC9FF]/20]="tenantType?.value === 'Agency'"
             >
-              <input
-                type="radio"
-                class="hidden"
-                value="Agency"
-                formControlName="tenantType"
-              />
-              <span class="text-sm font-semibold text-[#F2F2F2]">Agency</span>
-              <span class="text-xs text-[#888]">For marketing teams managing multiple clients.</span>
+              <input type="radio" value="Agency" formControlName="tenantType" class="hidden" />
+              <span class="text-sm font-semibold text-[#1A1A1A]">Agency</span>
+              <span class="text-xs text-[#222]">For teams managing clients.</span>
             </label>
+
           </div>
         </div>
 
-        <!-- Password Field -->
+        <!-- Password -->
         <div>
-          <label for="password" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Password
-          </label>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Password</label>
           <input
-            id="password"
             type="password"
             formControlName="password"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
             placeholder="At least 6 characters"
-            [class.border-red-500]="password?.invalid && password?.touched"
+            class="w-full px-4 py-3 bg-white border border-[#DADCE0] rounded-lg text-[#1A1A1A]
+                   placeholder-[#888] focus:ring-2 focus:ring-[#4C6FFF] transition"
           />
-          @if (password?.invalid && password?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (password?.errors?.['required']) {
-                Password is required
-              } @else if (password?.errors?.['minlength']) {
-                Password must be at least 6 characters
-              }
-            </p>
-          }
         </div>
 
-        <!-- Confirm Password Field -->
+        <!-- Confirm Password -->
         <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-[#F2F2F2] mb-2">
-            Confirm Password
-          </label>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">Confirm Password</label>
           <input
-            id="confirmPassword"
             type="password"
             formControlName="confirmPassword"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
             placeholder="Re-enter your password"
-            [class.border-red-500]="(confirmPassword?.invalid || passwordMismatch) && confirmPassword?.touched"
+            class="w-full px-4 py-3 bg-white border border-[#DADCE0] rounded-lg text-[#1A1A1A]
+                   placeholder-[#888] focus:ring-2 focus:ring-[#4C6FFF] transition"
           />
-          @if (confirmPassword?.invalid && confirmPassword?.touched) {
-            <p class="mt-1 text-sm text-red-400">
-              @if (confirmPassword?.errors?.['required']) {
-                Please confirm your password
-              }
-            </p>
-          }
-          @if (passwordMismatch) {
-            <p class="mt-1 text-sm text-red-400">
-              Passwords do not match
-            </p>
-          }
         </div>
 
-        <!-- Terms and Conditions -->
+        <!-- Terms -->
         <div class="flex items-start">
-          <input
-            id="acceptTerms"
-            type="checkbox"
-            formControlName="acceptTerms"
-            class="mt-1 h-4 w-4 text-[#00B78E] focus:ring-[#00B78E] border-[#2a2a2a] rounded bg-[#121212]"
-          />
-          <label for="acceptTerms" class="ml-2 block text-sm text-[#888]">
-            I agree to the
-            <a href="#" class="text-[#00B78E] hover:underline">Terms of Service</a>
-            and
-            <a href="#" class="text-[#00B78E] hover:underline">Privacy Policy</a>
+          <input type="checkbox" formControlName="acceptTerms" class="mt-1 h-4 w-4 text-[#4C6FFF]" />
+          <label class="ml-2 text-sm text-[#222222]/80">
+            I agree to the  
+            <a class="text-[#4C6FFF] hover:underline">Terms of Service</a> and  
+            <a class="text-[#4C6FFF] hover:underline">Privacy Policy</a>.
           </label>
         </div>
-        @if (acceptTerms?.invalid && acceptTerms?.touched) {
-          <p class="text-sm text-red-400">You must accept the terms and conditions</p>
-        }
 
         <!-- Submit Button -->
         <button
           type="submit"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white font-semibold py-3 rounded-lg transition
+                 shadow-[0_0_25px_rgba(76,111,255,0.4)]"
           [disabled]="loading() || registerForm.invalid"
-          class="w-full bg-[#00B78E] hover:bg-[#004C3F] text-white font-semibold py-3 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           @if (loading()) {
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
             Creating account...
           } @else {
             Create Account
           }
         </button>
+
       </form>
 
-      <!-- Sign In Link -->
-      <div class="mt-6 text-center">
-        <p class="text-sm text-[#888]">
-          Already have an account?
-          <a routerLink="/auth/login" class="text-[#00B78E] hover:underline font-medium">
-            Sign in
-          </a>
-        </p>
-      </div>
+      <!-- Sign In -->
+      <p class="mt-6 text-center text-sm text-[#222222]/70">
+        Already have an account?
+        <a routerLink="/auth/login" class="text-[#4C6FFF] hover:underline font-semibold">
+          Sign in
+        </a>
+      </p>
+
     </div>
 
-    <!-- Back to Home -->
-    <div class="mt-6 text-center">
-      <a routerLink="/" class="text-[#888] hover:text-[#00B78E] text-sm transition">
-        ← Back to Home
-      </a>
-    </div>
   </div>
+
 </div>

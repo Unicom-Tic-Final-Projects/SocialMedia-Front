@@ -6,7 +6,7 @@ import { filter, Subscription } from 'rxjs';
 import { Platform, SocialAccount } from '../../models/social.models';
 import { PostsService } from '../../services/client/posts.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
-import { PostPreviewModal } from './post-preview/post-preview-modal';
+import { PostPreviewModal } from '../posts-page/post-preview/post-preview-modal';
 import { finalize } from 'rxjs/operators';
 
 @Component({
