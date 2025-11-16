@@ -1,8 +1,10 @@
 import { Injectable, inject, signal, effect } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable, map, tap, catchError, throwError, switchMap, BehaviorSubject } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { AuthService } from '../../core/services/auth.service';
+import { ClientContextService } from './client-context.service';
 import { Platform, SocialAccount } from '../../models/social.models';
 
 export interface SocialAccountResponse {
@@ -42,6 +44,8 @@ export class SocialAccountsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
   private readonly authService = inject(AuthService);
+  private readonly clientContextService = inject(ClientContextService);
+  private readonly router = inject(Router);
 
   private readonly accountsSignal = signal<SocialAccount[]>([]);
   readonly accounts = this.accountsSignal.asReadonly();
@@ -62,11 +66,21 @@ export class SocialAccountsService {
 
   /**
    * Get all social accounts for current user/tenant
+   * If viewing a client dashboard, will attempt to get client's accounts
    */
   getSocialAccounts(): Observable<SocialAccount[]> {
     this.loadingSignal.set(true);
 
-    return this.http.get<unknown>(`${this.baseUrl}/api/socialaccount`).pipe(
+    // If viewing a client dashboard (agency or team context), load accounts for that client
+    const isViewingClient = this.clientContextService.isViewingClientDashboard();
+    const clientId = this.clientContextService.getCurrentClientId();
+
+    let url = `${this.baseUrl}/api/socialaccount`;
+    if (isViewingClient && clientId) {
+      url = `${this.baseUrl}/api/socialaccount/client/${clientId}`;
+    }
+
+    return this.http.get<unknown>(url).pipe(
       map((response) => {
         console.log('[SocialAccountsService] Raw API response:', response);
         console.log('[SocialAccountsService] Response type:', typeof response);
@@ -212,7 +226,28 @@ export class SocialAccountsService {
     const backendCallbackUrl = `${this.baseUrl}/api/socialaccount/callback`;
     
     // Frontend redirect URL (where user is redirected after callback processing)
-    const frontendRedirectUrl = `${window.location.origin}/dashboard/social-account/callback`;
+    // Detect if we're in an agency or team client dashboard route
+    const currentUrl = this.router.url;
+    const isAgencyClientRoute = currentUrl.includes('/agency/client/');
+    const isTeamClientRoute = currentUrl.includes('/team/client/');
+    let frontendRedirectUrl: string;
+    
+    if (isAgencyClientRoute || isTeamClientRoute) {
+      // Extract clientId from current route
+      const clientMatch = currentUrl.match(/\/(?:agency|team)\/client\/([^\/]+)/);
+      if (clientMatch) {
+        const clientId = clientMatch[1];
+        const basePath = isAgencyClientRoute ? 'agency' : 'team';
+        frontendRedirectUrl = `${window.location.origin}/${basePath}/client/${clientId}/social-account/callback`;
+      } else {
+        // Fallback to agency social-account
+        const basePath = isAgencyClientRoute ? 'agency' : 'team';
+        frontendRedirectUrl = `${window.location.origin}/${basePath}/social-account/callback`;
+      }
+    } else {
+      // Individual dashboard route
+      frontendRedirectUrl = `${window.location.origin}/dashboard/social-account/callback`;
+    }
     
     const request = {
       platform: platform.charAt(0).toUpperCase() + platform.slice(1), // Capitalize first letter
@@ -223,8 +258,16 @@ export class SocialAccountsService {
     };
 
     // Call backend to get authorization URL
+    // If we're in an agency or team client dashboard, initiate connect for that clientId
+    let connectUrl = `${this.baseUrl}/api/socialaccount/connect`;
+    const clientIdForConnectMatch = currentUrl.match(/\/(?:agency|team)\/client\/([^\/]+)/);
+    if (clientIdForConnectMatch) {
+      const clientIdForConnect = clientIdForConnectMatch[1];
+      connectUrl = `${this.baseUrl}/api/socialaccount/client/${clientIdForConnect}/connect`;
+    }
+
     // Response interceptor unwraps ApiResponse<T>, so we get the string directly
-    return this.http.post<unknown>(`${this.baseUrl}/api/socialaccount/connect`, request).pipe(
+    return this.http.post<unknown>(connectUrl, request).pipe(
       switchMap((response) => {
         const authUrl =
           typeof response === 'string'

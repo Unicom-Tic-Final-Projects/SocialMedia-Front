@@ -3,6 +3,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { guestGuard } from './core/guards/guest.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { agencyGuard } from './core/guards/agency.guard';
+import { teamMemberGuard } from './core/guards/team-member.guard';
+import { individualGuard } from './core/guards/individual.guard';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./pages/landing').then((m) => m.Landing) },
@@ -17,7 +19,7 @@ export const routes: Routes = [
   },
   {
     path: 'dashboard',
-    //canActivate: [authGuard],
+    canActivate: [authGuard, individualGuard],
     loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then((m) => m.DashboardLayout),
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
@@ -44,7 +46,45 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./agency/overview-page/overview-page').then((m) => m.AgencyOverviewPage) },
       { path: 'clients', loadComponent: () => import('./agency/clients-page/clients-page').then((m) => m.AgencyClientsPage) },
+      { path: 'team-members', loadComponent: () => import('./agency/team-members-page/team-members-page').then((m) => m.AgencyTeamMembersPage) },
       { path: 'tasks', loadComponent: () => import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage) },
+      // Client dashboard routes (individual user features within agency context)
+      {
+        path: 'client/:clientId',
+        children: [
+          { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
+          { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
+          { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
+          { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
+          { path: 'social-account', loadComponent: () => import('./dashboard/social-account-page/social-account-page').then((m) => m.SocialAccountPage) },
+          { path: 'social-account/callback', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
+          { path: 'notifications', loadComponent: () => import('./dashboard/notifications-page/notifications-page').then((m) => m.NotificationsPage) },
+          { path: 'settings', loadComponent: () => import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage) },
+          { path: 'profile', loadComponent: () => import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage) },
+        ],
+      },
+    ],
+  },
+  {
+    path: 'team',
+    canActivate: [authGuard, teamMemberGuard],
+    loadComponent: () => import('./team/team-layout/team-layout').then((m) => m.TeamLayout),
+    children: [
+      { path: '', loadComponent: () => import('./team/tasks-page/tasks-page').then((m) => m.TeamTasksPage) },
+      { path: 'approvals', loadComponent: () => import('./team/approvals-page/approvals-page').then((m) => m.TeamApprovalsPage) },
+      // Client dashboard routes for team members (viewing client dashboards in team context)
+      {
+        path: 'client/:clientId',
+        children: [
+          { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
+          { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
+          { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
+          { path: 'social-account', loadComponent: () => import('./dashboard/social-account-page/social-account-page').then((m) => m.SocialAccountPage) },
+          { path: 'notifications', loadComponent: () => import('./dashboard/notifications-page/notifications-page').then((m) => m.NotificationsPage) },
+          { path: 'settings', loadComponent: () => import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage) },
+          { path: 'profile', loadComponent: () => import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage) },
+        ],
+      },
     ],
   },
   {

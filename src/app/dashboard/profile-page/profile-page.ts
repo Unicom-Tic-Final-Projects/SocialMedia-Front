@@ -1,8 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ProfileService } from '../../services/client/profile.service';
+import { ClientContextService } from '../../services/client/client-context.service';
 import { UserProfile } from '../../models/social.models';
 
 @Component({
@@ -14,30 +16,66 @@ import { UserProfile } from '../../models/social.models';
 export class ProfilePage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly profileService = inject(ProfileService);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  readonly clientContextService = inject(ClientContextService);
 
-  profileForm!: FormGroup;
+  // Initialize form immediately to avoid template errors
+  profileForm = this.fb.group({
+    fullName: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
+  });
+  
   loading = signal(false);
   saving = signal(false);
   profile = signal<UserProfile | null>(null);
   user = this.authService.user;
+  
+  // Client context
+  readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
+  readonly selectedClient = this.clientContextService.selectedClient;
+  readonly clientUser = this.clientContextService.clientUser;
 
-  ngOnInit(): void {
-    this.initializeForm();
+  async ngOnInit(): Promise<void> {
+    // Extract clientId from route if available
+    let route = this.route;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    
+    // Check parent routes for clientId
+    let parentRoute = this.route.parent;
+    while (parentRoute) {
+      const clientId = parentRoute.snapshot.params['clientId'];
+      if (clientId) {
+        await this.clientContextService.initializeFromRoute(clientId);
+        break;
+      }
+      parentRoute = parentRoute.parent;
+    }
+
     this.loadProfile();
-  }
-
-  private initializeForm(): void {
-    this.profileForm = this.fb.group({
-      fullName: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-    });
   }
 
   private loadProfile(): void {
     this.loading.set(true);
     
-    // Get user from auth service
+    // Check if viewing client dashboard
+    const isViewingClient = this.isViewingClient();
+    const client = this.selectedClient();
+    const clientUser = this.clientUser();
+    
+    if (isViewingClient && client && clientUser) {
+      // Show client's information
+      this.profileForm.patchValue({
+        fullName: client.name || '',
+        email: clientUser.email || '',
+      });
+      this.loading.set(false);
+      return;
+    }
+    
+    // Get user from auth service (agency owner or individual user)
     const currentUser = this.authService.user();
     
     if (currentUser) {
@@ -87,13 +125,19 @@ export class ProfilePage implements OnInit {
       return;
     }
 
+    // If viewing client dashboard, don't allow saving (read-only view)
+    if (this.isViewingClient()) {
+      alert('Cannot edit client profile from agency dashboard. This is a read-only view.');
+      return;
+    }
+
     this.saving.set(true);
     const formValue = this.profileForm.value;
     const userId = this.profile()?.id || 0;
 
     this.profileService.updateProfile(userId, {
-      fullName: formValue.fullName,
-      email: formValue.email,
+      fullName: formValue.fullName ?? undefined,
+      email: formValue.email ?? undefined,
     }).subscribe({
       next: (updatedProfile) => {
         this.profile.set(updatedProfile);
@@ -110,12 +154,22 @@ export class ProfilePage implements OnInit {
   }
 
   getDisplayName(): string {
+    // If viewing client dashboard, show client name
+    if (this.isViewingClient() && this.selectedClient()) {
+      return this.selectedClient()!.name;
+    }
+    
     const profile = this.profile();
     const user = this.user();
     return profile?.fullName || user?.tenantName || user?.email?.split('@')[0] || 'User';
   }
 
   getRole(): string {
+    // If viewing client dashboard, show client role
+    if (this.isViewingClient() && this.clientUser()) {
+      return this.clientUser()!.role || 'Client';
+    }
+    
     const user = this.user();
     if (user?.tenantType === 'Agency') {
       return 'Agency Owner';

@@ -34,16 +34,25 @@ export class MediaService {
     const formData = new FormData();
     formData.append('file', file);
 
-    // Backend wraps response in ApiResponse<MediaAssetResponse>
+    // Response interceptor unwraps ApiResponse<T>, so response is already MediaAssetResponse
+    // But we need to handle both cases: unwrapped (from interceptor) and wrapped (if interceptor fails)
     return this.http.post<any>(`${this.baseUrl}/api/media/upload`, formData).pipe(
       map(response => {
         if (!response) {
           throw new Error('Media upload returned undefined response');
         }
-        if (!response.data) {
-          throw new Error('Media upload response missing data field');
+        
+        // Check if response is already unwrapped (has MediaAssetResponse properties)
+        if (response.mediaId || response.url) {
+          return response as MediaAssetResponse;
         }
-        return response.data as MediaAssetResponse;
+        
+        // Check if response is wrapped in ApiResponse structure
+        if (response.data) {
+          return response.data as MediaAssetResponse;
+        }
+        
+        throw new Error('Media upload response missing data field');
       }),
       tap(() => this.uploadingSignal.set(false)),
       catchError((error) => {

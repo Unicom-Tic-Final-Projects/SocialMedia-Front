@@ -19,7 +19,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             errorMessage = error.error.message;
           } else if (error.error.errors && Array.isArray(error.error.errors)) {
             errorMessage = error.error.errors.join(', ');
+          } else if (error.error.data && typeof error.error.data === 'string') {
+            // Some errors might have data as a string message
+            errorMessage = error.error.data;
           }
+        } else if (typeof error.error === 'string') {
+          // Error might be a plain string
+          errorMessage = error.error;
         } else if (error.message) {
           errorMessage = error.message;
         }
@@ -53,11 +59,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         }
       }
 
+      // Log detailed error information for debugging
       console.error('HTTP Error:', {
         url: req.url,
         status: error.status,
         message: errorMessage,
-        error: error.error
+        error: error.error,
+        errorKeys: error.error && typeof error.error === 'object' ? Object.keys(error.error) : 'N/A',
+        fullError: error
       });
 
       // You can inject a toast service here to show error messages

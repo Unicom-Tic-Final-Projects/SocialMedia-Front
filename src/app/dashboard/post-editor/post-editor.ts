@@ -8,6 +8,7 @@ import { PostsService } from '../../services/client/posts.service';
 import { MediaService } from '../../services/client/media.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
 import { ClientsService } from '../../services/client/clients.service';
+import { ClientContextService } from '../../services/client/client-context.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CreatePostRequest, UpdatePostRequest, SocialPost } from '../../models/post.models';
 import { Platform, SocialAccount } from '../../models/social.models';
@@ -27,6 +28,7 @@ export class PostEditor implements OnInit {
   private readonly mediaService = inject(MediaService);
   private readonly socialAccountsService = inject(SocialAccountsService);
   private readonly clientsService = inject(ClientsService);
+  readonly clientContextService = inject(ClientContextService); // Public for template access
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -56,6 +58,10 @@ export class PostEditor implements OnInit {
   readonly loadingClients = this.clientsService.loading;
   readonly clientsError = this.clientsService.error;
   readonly isAgency = this.authService.isAgency;
+  
+  // Client context
+  readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
+  readonly selectedClient = this.clientContextService.selectedClient;
 
   // Post editing
   postId = signal<string | null>(null);
@@ -100,7 +106,23 @@ export class PostEditor implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    // Extract clientId from route if available (agency client dashboard)
+    let parentRoute = this.route.parent;
+    while (parentRoute) {
+      const clientId = parentRoute.snapshot.params['clientId'];
+      if (clientId) {
+        await this.clientContextService.initializeFromRoute(clientId);
+        // Auto-select the client for post creation
+        const client = this.clientContextService.selectedClient();
+        if (client) {
+          this.clientsService.setSelectedClient(client.id);
+        }
+        break;
+      }
+      parentRoute = parentRoute.parent;
+    }
+
     // Check if editing existing post
     const postId = this.route.snapshot.paramMap.get('id');
     if (postId) {

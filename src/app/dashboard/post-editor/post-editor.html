@@ -88,13 +88,28 @@
       </div>
     </div>
 
-    <!-- Client Selector for Agencies (Always visible at top) -->
-    @if (isAgency()) {
+    <!-- Client Context Banner (when viewing from agency client dashboard) -->
+    @if (isViewingClient() && selectedClient()) {
+      <div class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-user text-blue-600"></i>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-blue-900">Creating Post for Client</p>
+            <p class="text-xs text-blue-700">{{ selectedClient()?.name }} - {{ clientContextService.clientUser()?.email }}</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Client Selector for Agencies (only show if NOT viewing a specific client dashboard) -->
+    @if (isAgency() && !isViewingClient()) {
       <div class="mb-6 bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF]">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div class="flex-1">
             <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
-              Select Client
+              Client
             </label>
             @if (loadingClients()) {
               <div class="flex items-center gap-2 text-gray-600">

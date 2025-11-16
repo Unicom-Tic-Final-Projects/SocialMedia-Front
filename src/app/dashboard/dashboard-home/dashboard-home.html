@@ -1,10 +1,31 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
 
+  <!-- Client Context Banner -->
+  @if (isViewingClient() && selectedClient()) {
+    <div class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-user text-blue-600"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-blue-900">Viewing Client Dashboard</p>
+          <p class="text-xs text-blue-700">{{ selectedClient()?.name }} - {{ clientContextService.clientUser()?.email }}</p>
+        </div>
+      </div>
+    </div>
+  }
+
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
       <i class="fa-solid fa-home text-[#4C6FFF]"></i> Dashboard
     </h1>
-    <p class="text-gray-600 text-sm">Welcome back! Here's what's happening with your posts.</p>
+    <p class="text-gray-600 text-sm">
+      @if (isViewingClient() && selectedClient()) {
+        Viewing dashboard for {{ selectedClient()?.name }}
+      } @else {
+        Welcome back! Here's what's happening with your posts.
+      }
+    </p>
   </div>
 
   @if (loading()) {

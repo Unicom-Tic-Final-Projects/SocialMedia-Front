@@ -1,9 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, delay } from 'rxjs/operators';
 import { PostsService } from '../../services/client/posts.service';
 import { NotificationsService } from '../../services/client/notifications.service';
+import { ClientContextService } from '../../services/client/client-context.service';
 import { SocialPost, PostStatus } from '../../models/post.models';
 import { NotificationItem } from '../../models/social.models';
 
@@ -23,6 +25,8 @@ interface DashboardStats {
 export class DashboardHome implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly notificationsService = inject(NotificationsService);
+  private readonly route = inject(ActivatedRoute);
+  readonly clientContextService = inject(ClientContextService);
 
   loading = signal(false);
   stats = signal<DashboardStats>({
@@ -32,9 +36,52 @@ export class DashboardHome implements OnInit {
     drafts: 0,
   });
   recentActivity = signal<NotificationItem[]>([]);
+  
+  // Client context
+  readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
+  readonly selectedClient = this.clientContextService.selectedClient;
 
-  ngOnInit(): void {
-    this.loadDashboardData();
+  constructor() {
+    // Wait for client context to be ready before loading data
+    effect(() => {
+      const isViewing = this.isViewingClient();
+      const client = this.selectedClient();
+      
+      // If viewing client dashboard, wait a bit for context to be fully set
+      if (isViewing && client) {
+        // Small delay to ensure context is ready
+        setTimeout(() => {
+          this.loadDashboardData();
+        }, 100);
+      } else if (!isViewing) {
+        // Not viewing client, load immediately
+        this.loadDashboardData();
+      }
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    // Extract clientId from route if available
+    let route = this.route;
+    while (route.firstChild) {
+      route = route.firstChild;
+    }
+    
+    // Check parent routes for clientId
+    let parentRoute = this.route.parent;
+    while (parentRoute) {
+      const clientId = parentRoute.snapshot.params['clientId'];
+      if (clientId) {
+        await this.clientContextService.initializeFromRoute(clientId);
+        break;
+      }
+      parentRoute = parentRoute.parent;
+    }
+
+    // If not viewing client, load immediately
+    if (!this.isViewingClient()) {
+      this.loadDashboardData();
+    }
   }
 
   loadDashboardData(): void {

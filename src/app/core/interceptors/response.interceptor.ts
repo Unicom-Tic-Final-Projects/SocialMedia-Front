@@ -8,10 +8,13 @@ import { filter, map } from 'rxjs';
  */
 export const responseInterceptor: HttpInterceptorFn = (req, next) => {
   // Skip unwrapping for auth endpoints - they need the full ApiResponse structure
+  // Client user creation endpoint needs full ApiResponse to extract password from message
+  // Client user access endpoint should be unwrapped to get AuthResponse
   const isAuthEndpoint = req.url.includes('/api/auth/login') || 
                          req.url.includes('/api/auth/register') || 
                          req.url.includes('/api/auth/refresh') ||
-                         req.url.includes('/api/auth/logout');
+                         req.url.includes('/api/auth/logout') ||
+                         (req.url.includes('/api/auth/client-user') && !req.url.includes('/access'));
 
   return next(req).pipe(
     // Filter for HttpResponse events only (ignore HttpSentEvent, HttpHeaderResponse, etc.)

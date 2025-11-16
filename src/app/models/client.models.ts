@@ -10,6 +10,8 @@ export interface Client {
   status: 'Active' | 'Inactive' | 'Archived';
   createdAt: string;
   updatedAt?: string;
+  hasUserAccount?: boolean; // Indicates if client has a user account
+  userAccountId?: string; // User account ID if exists
 }
 
 export interface CreateClientRequest {

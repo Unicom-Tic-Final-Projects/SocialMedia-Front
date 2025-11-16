@@ -3,11 +3,11 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Guard that ensures the current user belongs to an agency tenant and is NOT a team member.
- * Team members (Editor/Admin) should use the /team dashboard instead.
- * Redirects unauthenticated users to login and individual users to the standard dashboard.
+ * Guard that ensures the current user is an individual user (not an agency).
+ * Agency users are redirected to the agency dashboard.
+ * Team members are redirected to the team dashboard.
  */
-export const agencyGuard: CanActivateFn = (route, state) => {
+export const individualGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -32,12 +32,13 @@ export const agencyGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
+  // If user is an agency owner, redirect to agency dashboard
   if (authService.isAgency()) {
-    return true;
+    router.navigate(['/agency']);
+    return false;
   }
 
-  // Non-agency users are sent to their default dashboard
-  router.navigate(['/dashboard']);
-  return false;
+  // Individual users can access the dashboard
+  return true;
 };
 

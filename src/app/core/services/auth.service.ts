@@ -169,9 +169,9 @@ export class AuthService {
   }
 
   /**
-   * Set authentication data
+   * Set authentication data (public for impersonation/access scenarios)
    */
-  private setAuthData(authResponse: AuthResponse): void {
+  setAuthData(authResponse: AuthResponse): void {
     localStorage.setItem(TOKEN_KEY, authResponse.accessToken);
     localStorage.setItem(REFRESH_TOKEN_KEY, authResponse.refreshToken);
     localStorage.setItem(USER_KEY, JSON.stringify(authResponse.user));

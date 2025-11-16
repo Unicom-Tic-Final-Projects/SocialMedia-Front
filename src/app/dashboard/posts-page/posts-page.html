@@ -1,10 +1,36 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
 
+  <!-- Client Context Banner -->
+  @if (isViewingClient() && selectedClient()) {
+    <div class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-user text-blue-600"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-blue-900">Viewing Client Dashboard</p>
+          <p class="text-xs text-blue-700">{{ selectedClient()?.name }} - {{ clientContextService.clientUser()?.email }}</p>
+        </div>
+      </div>
+    </div>
+  }
+
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-      <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i> My Posts
+      <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i> 
+      @if (isViewingClient() && selectedClient()) {
+        {{ selectedClient()?.name }}'s Posts
+      } @else {
+        My Posts
+      }
     </h1>
-    <p class="text-gray-600 text-sm">Manage and track all your social media posts</p>
+    <p class="text-gray-600 text-sm">
+      @if (isViewingClient() && selectedClient()) {
+        Managing posts for {{ selectedClient()?.name }}
+      } @else {
+        Manage and track all your social media posts
+      }
+    </p>
   </div>
 
   <!-- Search + New Post -->
@@ -20,22 +46,23 @@
       />
     </div>
 
-    <a
-      routerLink="/dashboard/post-editor"
+    <button
+      (click)="navigateToPostEditor()"
       class="bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#3A56CC]
              transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105"
     >
       <i class="fa-solid fa-plus"></i> New Post
-    </a>
+    </button>
 
   </div>
 
-  @if (isAgency()) {
+  <!-- Only show client selector if agency user but NOT viewing a specific client dashboard -->
+  @if (isAgency() && !isViewingClient()) {
     <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF] mb-6">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex-1">
           <label class="block text-sm font-medium text-[#1A1A1A] mb-2 uppercase tracking-wider">
-            Active Client
+            Client
           </label>
 
           @if (loadingClients()) {
@@ -197,13 +224,13 @@
       <p class="text-gray-700 text-lg mb-2">No posts yet</p>
       <p class="text-gray-500 text-sm mb-6">Create your first post to get started</p>
 
-      <a
-        routerLink="/dashboard/post-editor"
+      <button
+        (click)="navigateToPostEditor()"
         class="inline-flex items-center gap-2 bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-xl
                hover:bg-[#3A56CC] transition duration-200 shadow-md hover:shadow-lg"
       >
         <i class="fa-solid fa-plus"></i> Create Post
-      </a>
+      </button>
 
     </div>
   }

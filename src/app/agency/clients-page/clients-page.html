@@ -6,43 +6,404 @@
         Centralize client profiles, branding assets, and collaboration preferences.
       </p>
     </div>
-    <button class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600">
+    <button 
+      (click)="openCreateModal()"
+      class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600">
       <i class="fa-solid fa-user-plus"></i>
       Add Client
     </button>
   </header>
 
-  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-    <table class="min-w-full divide-y divide-slate-200">
-      <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-        <tr>
-          <th class="px-6 py-4">Name</th>
-          <th class="px-6 py-4">Industry</th>
-          <th class="px-6 py-4">Status</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100 text-sm">
-        <tr class="hover:bg-slate-50/70" *ngFor="let client of placeholderClients">
-          <td class="px-6 py-4 font-medium text-slate-900">{{ client.name }}</td>
-          <td class="px-6 py-4 text-slate-600">{{ client.industry }}</td>
-          <td class="px-6 py-4">
-            <span
-              class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-              [ngClass]="{
-                'bg-primary-50 text-primary-600': client.status === 'Active',
-                'bg-amber-50 text-amber-600': client.status !== 'Active'
-              }"
-            >
-              {{ client.status }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="px-6 py-10 text-center text-sm font-semibold text-slate-400" *ngIf="!placeholderClients.length">
-      No clients yet. Start by adding your first client profile.
+  @if (successMessage()) {
+    <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700 text-sm">
+      <i class="fa-solid fa-check-circle mr-2"></i>
+      {{ successMessage() }}
     </div>
+  }
+
+  @if (error() || errorMessage()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
+      <i class="fa-solid fa-exclamation-circle mr-2"></i>
+      {{ error() || errorMessage() }}
+    </div>
+  }
+
+  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    @if (loading()) {
+      <div class="px-6 py-12 text-center text-sm text-slate-500">
+        <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-2 text-primary-500"></i>
+        <p>Loading clients...</p>
+      </div>
+    } @else if (clients().length === 0) {
+      <div class="px-6 py-10 text-center text-sm font-semibold text-slate-400">
+        <i class="fa-solid fa-users-slash text-3xl mb-3 text-slate-300"></i>
+        <p>No clients yet. Start by adding your first client profile.</p>
+      </div>
+    } @else {
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-6 py-4">Name</th>
+            <th class="px-6 py-4">Industry</th>
+            <th class="px-6 py-4">Contact</th>
+            <th class="px-6 py-4">Status</th>
+            <th class="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-sm">
+          @for (client of clients(); track trackClientById($index, client)) {
+            <tr class="hover:bg-slate-50/70 transition">
+              <td class="px-6 py-4 font-medium text-slate-900">{{ client.name }}</td>
+              <td class="px-6 py-4 text-slate-600">{{ client.industry || '—' }}</td>
+              <td class="px-6 py-4 text-slate-600">
+                @if (client.primaryContactName || client.primaryContactEmail) {
+                  <div class="flex flex-col">
+                    @if (client.primaryContactName) {
+                      <span class="font-medium">{{ client.primaryContactName }}</span>
+                    }
+                    @if (client.primaryContactEmail) {
+                      <span class="text-xs text-slate-500">{{ client.primaryContactEmail }}</span>
+                    }
+                  </div>
+                } @else {
+                  <span class="text-slate-400">—</span>
+                }
+              </td>
+              <td class="px-6 py-4">
+                <span
+                  class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+                  [ngClass]="{
+                    'bg-green-50 text-green-600': client.status === 'Active',
+                    'bg-amber-50 text-amber-600': client.status === 'Inactive',
+                    'bg-slate-50 text-slate-600': client.status === 'Archived'
+                  }"
+                >
+                  {{ client.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end gap-2">
+                  @if (hasUserAccount(client.id)) {
+                    <span
+                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded-lg"
+                      title="Account created">
+                      <i class="fa-solid fa-check-circle"></i>
+                      Account Created
+                    </span>
+                    <button
+                      (click)="accessClientDashboard(client)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition"
+                      title="Access client dashboard">
+                      <i class="fa-solid fa-external-link-alt"></i>
+                      Access Dashboard
+                    </button>
+                  } @else {
+                    <button
+                      (click)="openCreateClientUserModal(client)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition"
+                      title="Create account for client">
+                      <i class="fa-solid fa-user-plus"></i>
+                      Create Account
+                    </button>
+                  }
+                  <button
+                    (click)="openEditModal(client)"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
+                    title="Edit client">
+                    <i class="fa-solid fa-edit"></i>
+                    Edit
+                  </button>
+                  <button
+                    (click)="deleteClient(client)"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
+                    title="Delete client">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
   </div>
+
+  <!-- Client Creation/Edit Modal -->
+  @if (showModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" (click)="closeModal()">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-900">
+            {{ isEditing() ? 'Edit Client' : 'Add New Client' }}
+          </h2>
+          <button
+            (click)="closeModal()"
+            class="text-slate-400 hover:text-slate-600 transition">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="p-6 space-y-5">
+          @if (errorMessage()) {
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
+              <i class="fa-solid fa-exclamation-circle mr-2"></i>
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div>
+            <label for="name" class="block text-sm font-medium text-slate-700 mb-2">
+              Client Name <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              placeholder="Enter client name">
+            @if (clientForm.controls.name.invalid && clientForm.controls.name.touched) {
+              <p class="mt-1 text-sm text-red-500">
+                @if (clientForm.controls.name.errors?.['required']) {
+                  Client name is required.
+                } @else if (clientForm.controls.name.errors?.['minlength']) {
+                  Client name must be at least 2 characters.
+                } @else if (clientForm.controls.name.errors?.['maxlength']) {
+                  Client name must not exceed 200 characters.
+                }
+              </p>
+            }
+          </div>
+
+          <div>
+            <label for="description" class="block text-sm font-medium text-slate-700 mb-2">
+              Description
+            </label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="3"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
+              placeholder="Enter client description"></textarea>
+            @if (clientForm.controls.description.invalid && clientForm.controls.description.touched) {
+              <p class="mt-1 text-sm text-red-500">Description must not exceed 1000 characters.</p>
+            }
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label for="industry" class="block text-sm font-medium text-slate-700 mb-2">
+                Industry
+              </label>
+              <input
+                id="industry"
+                type="text"
+                formControlName="industry"
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="e.g., Retail, Technology">
+              @if (clientForm.controls.industry.invalid && clientForm.controls.industry.touched) {
+                <p class="mt-1 text-sm text-red-500">Industry must not exceed 100 characters.</p>
+              }
+            </div>
+
+            <div>
+              <label for="website" class="block text-sm font-medium text-slate-700 mb-2">
+                Website
+              </label>
+              <input
+                id="website"
+                type="url"
+                formControlName="website"
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="https://example.com">
+              @if (clientForm.controls.website.invalid && clientForm.controls.website.touched) {
+                <p class="mt-1 text-sm text-red-500">
+                  @if (clientForm.controls.website.errors?.['invalidUrl']) {
+                    Please enter a valid URL (e.g., https://example.com).
+                  } @else {
+                    Website URL must not exceed 200 characters.
+                  }
+                </p>
+              }
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label for="primaryContactName" class="block text-sm font-medium text-slate-700 mb-2">
+                Primary Contact Name
+              </label>
+              <input
+                id="primaryContactName"
+                type="text"
+                formControlName="primaryContactName"
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="John Doe">
+              @if (clientForm.controls.primaryContactName.invalid && clientForm.controls.primaryContactName.touched) {
+                <p class="mt-1 text-sm text-red-500">Contact name must not exceed 100 characters.</p>
+              }
+            </div>
+
+            <div>
+              <label for="primaryContactEmail" class="block text-sm font-medium text-slate-700 mb-2">
+                Primary Contact Email
+              </label>
+              <input
+                id="primaryContactEmail"
+                type="email"
+                formControlName="primaryContactEmail"
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="john@example.com">
+              @if (clientForm.controls.primaryContactEmail.invalid && clientForm.controls.primaryContactEmail.touched) {
+                <p class="mt-1 text-sm text-red-500">
+                  @if (clientForm.controls.primaryContactEmail.errors?.['email']) {
+                    Please enter a valid email address.
+                  } @else {
+                    Email must not exceed 255 characters.
+                  }
+                </p>
+              }
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+            <button
+              type="button"
+              (click)="closeModal()"
+              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="clientForm.invalid || loading()"
+              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              @if (loading()) {
+                <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+                Saving...
+              } @else {
+                <i class="fa-solid fa-check mr-2"></i>
+                {{ isEditing() ? 'Update Client' : 'Create Client' }}
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Client User Account Creation Modal -->
+  @if (showClientUserModal()) {
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" (click)="closeClientUserModal()">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4" (click)="$event.stopPropagation()">
+        <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-900">
+            Create Account for {{ selectedClientForUser()?.name }}
+          </h2>
+          <button
+            (click)="closeClientUserModal()"
+            class="text-slate-400 hover:text-slate-600 transition">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <form [formGroup]="clientUserForm" (ngSubmit)="createClientUser()" class="p-6 space-y-5">
+          @if (errorMessage()) {
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
+              <i class="fa-solid fa-exclamation-circle mr-2"></i>
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700 text-sm">
+            <i class="fa-solid fa-info-circle mr-2"></i>
+            This will create an individual user account for the client under your agency. The account will be linked to this client.
+          </div>
+
+          <div>
+            <label for="clientUserEmail" class="block text-sm font-medium text-slate-700 mb-2">
+              Email Address <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="clientUserEmail"
+              type="email"
+              formControlName="email"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              placeholder="client@example.com">
+            @if (clientUserForm.controls.email.invalid && clientUserForm.controls.email.touched) {
+              <p class="mt-1 text-sm text-red-500">
+                @if (clientUserForm.controls.email.errors?.['required']) {
+                  Email is required.
+                } @else if (clientUserForm.controls.email.errors?.['email']) {
+                  Please enter a valid email address.
+                }
+              </p>
+            }
+          </div>
+
+          <div>
+            <label for="clientUserPassword" class="block text-sm font-medium text-slate-700 mb-2">
+              Password <span class="text-gray-400 text-xs">(optional - will be auto-generated if left blank)</span>
+            </label>
+            <input
+              id="clientUserPassword"
+              type="password"
+              formControlName="password"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              placeholder="Leave blank to auto-generate">
+            <p class="mt-1 text-xs text-slate-500">
+              If left blank, a secure password will be automatically generated and shown after creation.
+            </p>
+          </div>
+
+          @if (generatedPassword()) {
+            <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+              <p class="text-sm font-semibold text-green-700 mb-2">
+                <i class="fa-solid fa-key mr-2"></i>
+                Generated Password:
+              </p>
+              <div class="flex items-center gap-2">
+                <code class="flex-1 px-3 py-2 bg-white border border-green-200 rounded text-sm font-mono text-green-800 break-all">
+                  {{ generatedPassword() }}
+                </code>
+                <button
+                  type="button"
+                  (click)="copyPasswordToClipboard()"
+                  class="px-3 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition"
+                  title="Copy password">
+                  <i class="fa-solid fa-copy"></i>
+                </button>
+              </div>
+              <p class="mt-2 text-xs text-green-600">
+                <i class="fa-solid fa-exclamation-triangle mr-1"></i>
+                Please save this password securely. It will not be shown again.
+              </p>
+              <button
+                type="button"
+                (click)="closeClientUserModal()"
+                class="mt-3 w-full px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-lg hover:bg-green-200 transition">
+                Done
+              </button>
+            </div>
+          }
+
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+            <button
+              type="button"
+              (click)="closeClientUserModal()"
+              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              [disabled]="clientUserForm.invalid || loading()"
+              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fa-solid fa-user-plus mr-2"></i>
+              Create Account
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
 </section>
 
