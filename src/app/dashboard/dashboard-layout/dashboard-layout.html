@@ -1,7 +1,20 @@
-<div class="flex min-h-screen bg-[#FFFFFF] text-[#222222]">
+<div class="flex min-h-screen bg-[#FFFFFF] text-[#222222] relative overflow-x-hidden">
+
+  <!-- Mobile Menu Overlay -->
+  @if (showMobileMenu()) {
+    <div 
+      class="fixed inset-0 bg-black/50 z-40 md:hidden"
+      (click)="closeMobileMenu()"
+    ></div>
+  }
 
   <!-- Sidebar -->
-  <aside class="w-72 bg-[#F5F7FF] p-6 hidden md:block border-r border-[#D9E1FF] shadow-md flex flex-col">
+  <aside 
+    class="fixed md:static inset-y-0 left-0 w-72 bg-[#F5F7FF] p-6 border-r border-[#D9E1FF] shadow-md flex flex-col z-50 transform transition-transform duration-300 ease-in-out
+           md:translate-x-0"
+    [class.translate-x-0]="showMobileMenu()"
+    [class.-translate-x-full]="!showMobileMenu()"
+  >
 
     <!-- Logo -->
     <div class="mb-10">
@@ -13,12 +26,14 @@
     <nav class="flex flex-col gap-1 flex-1">
 
       <a routerLink="/dashboard" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-home w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         Dashboard
       </a>
 
       <a routerLink="/dashboard/posts" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-file-alt w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         My Posts
@@ -27,11 +42,13 @@
       <!-- Agency only -->
       @if (isAgency()) {
         <a routerLink="/dashboard/clients" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          (click)="closeMobileMenu()"
           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
           <i class="fa-solid fa-briefcase w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
           Clients
         </a>
         <a routerLink="/dashboard/approvals" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          (click)="closeMobileMenu()"
           class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
           <i class="fa-solid fa-check-circle w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
           Approvals
@@ -39,30 +56,35 @@
       }
 
       <a routerLink="/dashboard/analytics" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-chart-bar w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         Analytics
       </a>
 
       <a routerLink="/dashboard/social-account" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-link w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         Social Accounts
       </a>
 
       <a routerLink="/dashboard/notifications" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-bell w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         Notifications
       </a>
 
       <a routerLink="/dashboard/settings" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-gear w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         Settings
       </a>
 
       <a routerLink="/dashboard/profile" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
         <i class="fa-solid fa-user w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
         Profile
@@ -101,7 +123,15 @@
   <div class="flex-1 flex flex-col">
 
     <!-- Mobile Header -->
-    <header class="md:hidden bg-[#F5F7FF] border-b border-[#D9E1FF] p-4 flex items-center justify-between shadow-sm">
+    <header class="md:hidden bg-[#F5F7FF] border-b border-[#D9E1FF] p-4 flex items-center justify-between shadow-sm sticky top-0 z-30">
+      <button 
+        (click)="toggleMobileMenu()"
+        class="p-2 rounded-lg hover:bg-[#BFC9FF]/50 transition"
+        aria-label="Toggle menu"
+      >
+        <i class="fa-solid fa-bars text-[#4C6FFF] text-xl"></i>
+      </button>
+      
       <h2 class="text-xl font-bold text-[#4C6FFF]">One<span class="text-[#1A1A1A]">vo</span></h2>
 
       <div class="relative">
@@ -147,8 +177,10 @@
     </header>
 
     <!-- Main Router Area -->
-    <main class="flex-1 p-4 md:p-8 bg-[#FFFFFF] overflow-y-auto">
-      <router-outlet></router-outlet>
+    <main class="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 bg-[#FFFFFF] overflow-y-auto">
+      <div class="dashboard-content">
+        <router-outlet></router-outlet>
+      </div>
     </main>
 
   </div>

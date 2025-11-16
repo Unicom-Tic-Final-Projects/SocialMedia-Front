@@ -1,5 +1,5 @@
 <!-- Landing Page Theme with Soft Glow Background -->
-<div class="relative min-h-screen bg-[#FFFFFF] text-[#222222] p-6 overflow-hidden">
+<div class="relative min-h-screen bg-[#FFFFFF] text-[#222222] p-3 sm:p-4 md:p-6 overflow-hidden">
   <!-- Soft Blue Glow Background -->
   <div
     class="absolute inset-0 pointer-events-none"
@@ -12,17 +12,17 @@
 
   <div class="relative z-10">
     <!-- Header -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+    <div class="mb-4 sm:mb-6 md:mb-8">
+      <div class="flex items-start sm:items-center justify-between gap-2">
+        <div class="flex-1 min-w-0">
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
             <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
-            {{ isEditMode() ? 'Edit Post' : 'Create Post' }}
+            <span class="truncate">{{ isEditMode() ? 'Edit Post' : 'Create Post' }}</span>
           </h1>
-          <p class="text-gray-600 text-sm">Follow the steps below to create and schedule your social media posts</p>
+          <p class="text-gray-600 text-xs sm:text-sm hidden sm:block">Follow the steps below to create and schedule your social media posts</p>
         </div>
-        <a routerLink="/dashboard/posts" class="text-gray-500 hover:text-[#4C6FFF] transition">
-          <i class="fa-solid fa-times text-2xl"></i>
+        <a routerLink="/dashboard/posts" class="text-gray-500 hover:text-[#4C6FFF] transition flex-shrink-0 p-1">
+          <i class="fa-solid fa-times text-xl sm:text-2xl"></i>
         </a>
       </div>
     </div>
@@ -35,8 +35,8 @@
     }
 
     <!-- Step Progress Indicator -->
-    <div class="mb-8 bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF]">
-      <div class="flex items-center justify-between">
+    <div class="mb-4 sm:mb-6 md:mb-8 bg-[#F5F7FF] rounded-xl shadow-md p-3 sm:p-4 md:p-6 border border-[#D9E1FF] overflow-x-auto">
+      <div class="flex items-center justify-between min-w-max sm:min-w-0">
         @for (step of [1, 2, 3, 4]; track step) {
           <div class="flex items-center flex-1">
             <!-- Step Circle -->
@@ -45,7 +45,7 @@
                 type="button"
                 (click)="goToStep(step)"
                 [disabled]="!canGoToStep(step)"
-                class="relative flex items-center justify-center w-12 h-12 rounded-full font-bold text-sm transition-all disabled:cursor-not-allowed"
+                class="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full font-bold text-xs sm:text-sm transition-all disabled:cursor-not-allowed"
                 [class.bg-[#4C6FFF]]="currentStep() === step"
                 [class.text-white]="currentStep() === step"
                 [class.bg-white]="currentStep() !== step && isStepComplete(step)"
@@ -64,14 +64,14 @@
               </button>
               
               <!-- Step Label -->
-              <span class="mt-2 text-xs font-medium text-center"
+              <span class="mt-1 sm:mt-2 text-[10px] sm:text-xs font-medium text-center whitespace-nowrap"
                     [class.text-[#4C6FFF]]="currentStep() === step"
                     [class.text-gray-600]="currentStep() !== step">
                 @switch (step) {
-                  @case (1) { Content & Media }
-                  @case (2) { Select Platforms }
+                  @case (1) { <span class="hidden sm:inline">Content & Media</span><span class="sm:hidden">Content</span> }
+                  @case (2) { <span class="hidden sm:inline">Select Platforms</span><span class="sm:hidden">Platforms</span> }
                   @case (3) { Preview }
-                  @case (4) { Publish/Schedule }
+                  @case (4) { <span class="hidden sm:inline">Publish/Schedule</span><span class="sm:hidden">Publish</span> }
                 }
               </span>
             </div>
@@ -148,14 +148,14 @@
     }
 
     <!-- Step Content -->
-    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
       
       <!-- STEP 1: Content & Media -->
       @if (currentStep() === 1) {
-        <div class="space-y-6" [formGroup]="postForm">
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 1: Write Your Post</h2>
-            <p class="text-gray-600 text-sm">Create your content and add media (optional)</p>
+        <div class="space-y-4 sm:space-y-6" [formGroup]="postForm">
+          <div class="mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 1: Write Your Post</h2>
+            <p class="text-gray-600 text-xs sm:text-sm">Create your content and add media (optional)</p>
           </div>
 
           <!-- Content Editor -->
@@ -167,9 +167,10 @@
             <textarea
               formControlName="content"
               placeholder="What's on your mind? Write your post here..."
-              rows="10"
-              class="w-full bg-[#FFFFFF] border border-[#D9E1FF] rounded-xl px-4 py-3 
-                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222] transition resize-none"
+              rows="8"
+              class="w-full bg-[#FFFFFF] border border-[#D9E1FF] rounded-xl px-3 sm:px-4 py-2 sm:py-3 
+                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222] text-sm sm:text-base transition resize-none"
+              style="min-height: 200px;"
               [class.border-red-500]="content?.invalid && content?.touched"
               (input)="onContentInput($event)"
             ></textarea>
@@ -202,7 +203,7 @@
 
             @if (mediaPreview()) {
               <div class="relative mb-4">
-                <img [src]="mediaPreview()!" class="w-full h-64 object-cover rounded-xl" />
+                <img [src]="mediaPreview()!" class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl" />
                 <button
                   (click)="removeMedia()"
                   class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition"
@@ -244,10 +245,10 @@
 
       <!-- STEP 2: Select Platforms -->
       @if (currentStep() === 2) {
-        <div class="space-y-6">
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 2: Choose Platforms</h2>
-            <p class="text-gray-600 text-sm">Select which social media accounts to publish to</p>
+        <div class="space-y-4 sm:space-y-6">
+          <div class="mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 2: Choose Platforms</h2>
+            <p class="text-gray-600 text-xs sm:text-sm">Select which social media accounts to publish to</p>
           </div>
 
           @if (loadingAccounts()) {
@@ -342,10 +343,10 @@
 
       <!-- STEP 3: Preview -->
       @if (currentStep() === 3) {
-        <div class="space-y-6">
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 3: Preview Your Post</h2>
-            <p class="text-gray-600 text-sm">See how your post will look on each selected platform</p>
+        <div class="space-y-4 sm:space-y-6">
+          <div class="mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 3: Preview Your Post</h2>
+            <p class="text-gray-600 text-xs sm:text-sm">See how your post will look on each selected platform</p>
           </div>
 
           @if (selectedAccountIds().length === 0) {
@@ -373,10 +374,10 @@
 
       <!-- STEP 4: Publish/Schedule -->
       @if (currentStep() === 4) {
-        <div class="space-y-6">
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 4: Publish or Schedule</h2>
-            <p class="text-gray-600 text-sm">Choose when to publish your post</p>
+        <div class="space-y-4 sm:space-y-6">
+          <div class="mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 4: Publish or Schedule</h2>
+            <p class="text-gray-600 text-xs sm:text-sm">Choose when to publish your post</p>
           </div>
 
           <!-- Publish Mode Toggle -->
@@ -466,7 +467,7 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex gap-4">
+          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <!-- Save Draft -->
             <button
               type="button"
@@ -532,7 +533,7 @@
       }
 
       <!-- Navigation Buttons -->
-      <div class="mt-8 pt-6 border-t border-[#D9E1FF] flex justify-between items-center">
+      <div class="mt-4 sm:mt-6 md:mt-8 pt-4 sm:pt-6 border-t border-[#D9E1FF] flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
         <button
           type="button"
           (click)="previousStep()"

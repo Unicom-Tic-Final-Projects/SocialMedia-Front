@@ -9,6 +9,7 @@ body {
   background-color: #ffffff;
   color: #222222;
   font-family: 'Inter', ui-sans-serif, system-ui;
+  overflow-x: hidden;
 }
 
 h1,
@@ -18,4 +19,30 @@ h4,
 h5,
 h6 {
   color: #1a1a1a;
+}
+
+/* Mobile Responsive Utilities */
+@media (max-width: 768px) {
+  /* Prevent text overflow on mobile */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Ensure buttons are touch-friendly */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Improve form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }

@@ -55,8 +55,12 @@ export class ClientContextService {
   loadClientUserAccounts(clients: Client[]): void {
     const checks = clients.map(client =>
       this.clientUserService.getClientUser(client.id).pipe(
-        map((user) => ({ client, user, hasAccount: true })),
-        catchError(() => of({ client, user: null, hasAccount: false }))
+        map((user) => ({ client, user, hasAccount: user !== null })),
+        catchError((error) => {
+          // Log error but don't fail the entire operation
+          console.warn(`Failed to load user account for client ${client.id}:`, error);
+          return of({ client, user: null, hasAccount: false });
+        })
       )
     );
 
@@ -66,7 +70,7 @@ export class ClientContextService {
         const clientsWithAccounts: Client[] = [];
 
         results.forEach(result => {
-          if (result.hasAccount && result.user) {
+          if (result.hasAccount && result.user !== null) {
             accountMap.set(result.client.id, result.user);
             clientsWithAccounts.push(result.client);
           }

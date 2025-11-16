@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { catchError, throwError } from 'rxjs';
+import { catchError, throwError, map } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { ClientUser, CreateClientUserRequest } from '../../models/client-user.models';
 import { AuthResponse } from '../../models/auth.models';
@@ -30,9 +30,18 @@ export class ClientUserService {
 
   /**
    * Get user account for a client
+   * Returns ApiResponse<ClientUser> - success=false if client doesn't have a user account (expected)
    */
   getClientUser(clientId: string) {
-    return this.http.get<ClientUser>(`${this.baseUrl}/api/auth/client-user/${clientId}`).pipe(
+    return this.http.get<{ success: boolean; data: ClientUser | null; message?: string }>(`${this.baseUrl}/api/auth/client-user/${clientId}`).pipe(
+      map((response) => {
+        // If success is false, it means the client doesn't have a user account yet (expected)
+        // Return null to indicate no account exists
+        if (!response.success || !response.data) {
+          return null;
+        }
+        return response.data;
+      }),
       catchError((error) => {
         return throwError(() => error);
       })

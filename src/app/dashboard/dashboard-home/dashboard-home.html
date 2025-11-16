@@ -2,7 +2,7 @@
 
   <!-- Client Context Banner -->
   @if (isViewingClient() && selectedClient()) {
-    <div class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+    <div class="mb-4 sm:mb-6 rounded-xl bg-blue-50 border border-blue-200 px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
           <i class="fa-solid fa-user text-blue-600"></i>
@@ -15,11 +15,11 @@
     </div>
   }
 
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+  <div class="mb-4 sm:mb-6 md:mb-8">
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
       <i class="fa-solid fa-home text-[#4C6FFF]"></i> Dashboard
     </h1>
-    <p class="text-gray-600 text-sm">
+    <p class="text-gray-600 text-xs sm:text-sm">
       @if (isViewingClient() && selectedClient()) {
         Viewing dashboard for {{ selectedClient()?.name }}
       } @else {
@@ -37,60 +37,60 @@
     </div>
   } @else {
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Total Posts</p>
-          <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i>
+      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Total Posts</p>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-file-alt text-[#4C6FFF] text-sm sm:text-base"></i>
           </div>
         </div>
-        <p class="text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().totalPosts }}</p>
-        <p class="text-xs text-gray-600">All your posts</p>
+        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().totalPosts }}</p>
+        <p class="text-[10px] sm:text-xs text-gray-600">All your posts</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Published</p>
-          <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-check-circle text-[#4C6FFF]"></i>
+      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Published</p>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-check-circle text-[#4C6FFF] text-sm sm:text-base"></i>
           </div>
         </div>
-        <p class="text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().published }}</p>
-        <p class="text-xs text-gray-600">{{ getSuccessRate() }}% success rate</p>
+        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().published }}</p>
+        <p class="text-[10px] sm:text-xs text-gray-600">{{ getSuccessRate() }}% success rate</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Pending</p>
-          <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-clock text-[#4C6FFF]"></i>
+      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Pending</p>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-clock text-[#4C6FFF] text-sm sm:text-base"></i>
           </div>
         </div>
-        <p class="text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().pending }}</p>
-        <p class="text-xs text-gray-600">Awaiting approval</p>
+        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().pending }}</p>
+        <p class="text-[10px] sm:text-xs text-gray-600">Awaiting approval</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Drafts</p>
-          <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-file-pen text-[#4C6FFF]"></i>
+      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
+        <div class="flex items-center justify-between mb-2 sm:mb-3">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Drafts</p>
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-file-pen text-[#4C6FFF] text-sm sm:text-base"></i>
           </div>
         </div>
-        <p class="text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().drafts }}</p>
-        <p class="text-xs text-gray-600">In progress</p>
+        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().drafts }}</p>
+        <p class="text-[10px] sm:text-xs text-gray-600">In progress</p>
       </div>
 
     </div>
 
     <!-- Recent Activity -->
-    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-      <div class="flex items-center justify-between mb-6">
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
         <div>
-          <h3 class="text-xl font-bold text-[#1A1A1A] mb-1">Recent Activity</h3>
-          <p class="text-sm text-gray-600">Latest updates from your account</p>
+          <h3 class="text-lg sm:text-xl font-bold text-[#1A1A1A] mb-1">Recent Activity</h3>
+          <p class="text-xs sm:text-sm text-gray-600">Latest updates from your account</p>
         </div>
       </div>
 
@@ -102,15 +102,15 @@
       } @else {
         <div class="space-y-3">
           @for (activity of recentActivity(); track activity.id) {
-            <div class="flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-200 border border-[#D9E1FF] hover:border-[#4C6FFF]/40">
-              <div class="w-12 h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30">
-                <i class="fa-solid text-[#4C6FFF]" [ngClass]="getActivityIcon(activity.type)"></i>
+            <div class="flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-200 border border-[#D9E1FF] hover:border-[#4C6FFF]/40">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30 flex-shrink-0">
+                <i class="fa-solid text-[#4C6FFF] text-sm sm:text-base" [ngClass]="getActivityIcon(activity.type)"></i>
               </div>
-              <div class="flex-1">
-                <p class="text-[#1A1A1A] font-semibold">{{ getActivityMessage(activity) }}</p>
-                <p class="text-sm text-gray-600">{{ getTimeAgo(activity.createdAt) }}</p>
+              <div class="flex-1 min-w-0">
+                <p class="text-[#1A1A1A] font-semibold text-sm sm:text-base truncate">{{ getActivityMessage(activity) }}</p>
+                <p class="text-xs sm:text-sm text-gray-600">{{ getTimeAgo(activity.createdAt) }}</p>
               </div>
-              <i class="fa-solid fa-chevron-right text-gray-500"></i>
+              <i class="fa-solid fa-chevron-right text-gray-500 text-xs sm:text-sm flex-shrink-0"></i>
             </div>
           }
         </div>
