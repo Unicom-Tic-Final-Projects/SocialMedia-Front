@@ -68,20 +68,28 @@ export class SocialAccountsService {
 
     return this.http.get<unknown>(`${this.baseUrl}/api/socialaccount`).pipe(
       map((response) => {
+        console.log('[SocialAccountsService] Raw API response:', response);
+        console.log('[SocialAccountsService] Response type:', typeof response);
+        console.log('[SocialAccountsService] Is array?', Array.isArray(response));
+        
         // Handle both unwrapped array and ApiResponse structure
         let accounts: SocialAccountResponse[] = [];
         
         if (Array.isArray(response)) {
           // Direct array response (already unwrapped by interceptor)
+          console.log('[SocialAccountsService] Response is direct array, length:', response.length);
           accounts = response as SocialAccountResponse[];
         } else if (response && typeof response === 'object') {
+          console.log('[SocialAccountsService] Response is object, keys:', Object.keys(response));
           // Check if it's still wrapped in ApiResponse structure
           if ('data' in response) {
             const data = (response as { data: unknown }).data;
+            console.log('[SocialAccountsService] Response has data property:', data);
             if (Array.isArray(data)) {
               accounts = data as SocialAccountResponse[];
             } else if (data === null || data === undefined) {
               // Empty response
+              console.warn('[SocialAccountsService] Response data is null/undefined');
               accounts = [];
             } else {
               console.error('Unexpected data format (not an array):', data);
@@ -89,6 +97,7 @@ export class SocialAccountsService {
             }
           } else if ('success' in response) {
             // ApiResponse structure but no data property
+            console.warn('[SocialAccountsService] Response has success but no data property:', response);
             accounts = [];
           } else {
             console.error('Unexpected response format:', response);
@@ -100,15 +109,23 @@ export class SocialAccountsService {
           accounts = [];
         }
         
+        console.log('[SocialAccountsService] Mapped accounts array length:', accounts.length);
         return accounts.map((acc) => this.mapToSocialAccount(acc));
       }),
       tap((accounts) => {
+        console.log('[SocialAccountsService] Setting accounts signal with', accounts.length, 'accounts');
         this.accountsSignal.set(accounts);
         this.loadingSignal.set(false);
       }),
       catchError((error) => {
         this.loadingSignal.set(false);
-        console.error('Error loading social accounts:', error);
+        console.error('[SocialAccountsService] Error loading social accounts:', error);
+        console.error('[SocialAccountsService] Error details:', {
+          status: error?.status,
+          statusText: error?.statusText,
+          message: error?.message,
+          error: error?.error
+        });
         return throwError(() => error);
       })
     );

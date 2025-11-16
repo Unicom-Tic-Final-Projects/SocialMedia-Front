@@ -7,97 +7,95 @@
   <!-- Filters -->
   <div class="flex flex-wrap gap-3 mb-6">
 
-    <button class="bg-[#4C6FFF] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#3A56CC] transition">
+    <button 
+      (click)="setFilter('all')"
+      [class.bg-[#4C6FFF]]="filter() === 'all'"
+      [class.text-white]="filter() === 'all'"
+      [class.bg-[#F5F7FF]]="filter() !== 'all'"
+      [class.text-[#1A1A1A]]="filter() !== 'all'"
+      class="px-4 py-2 rounded-lg font-semibold hover:bg-[#3A56CC] hover:text-white transition border border-[#D9E1FF]">
       All
     </button>
 
-    <button class="bg-[#F5F7FF] px-4 py-2 rounded-lg border border-[#D9E1FF] hover:bg-[#BFC9FF]/40 transition text-[#1A1A1A] font-medium">
+    <button 
+      (click)="setFilter('unread')"
+      [class.bg-[#4C6FFF]]="filter() === 'unread'"
+      [class.text-white]="filter() === 'unread'"
+      [class.bg-[#F5F7FF]]="filter() !== 'unread'"
+      [class.text-[#1A1A1A]]="filter() !== 'unread'"
+      class="px-4 py-2 rounded-lg border border-[#D9E1FF] hover:bg-[#BFC9FF]/40 transition font-medium">
       Unread
     </button>
 
-    <button class="bg-[#F5F7FF] px-4 py-2 rounded-lg border border-[#D9E1FF] hover:bg-[#BFC9FF]/40 transition text-[#1A1A1A] font-medium">
+    <button 
+      (click)="setFilter('read')"
+      [class.bg-[#4C6FFF]]="filter() === 'read'"
+      [class.text-white]="filter() === 'read'"
+      [class.bg-[#F5F7FF]]="filter() !== 'read'"
+      [class.text-[#1A1A1A]]="filter() !== 'read'"
+      class="px-4 py-2 rounded-lg border border-[#D9E1FF] hover:bg-[#BFC9FF]/40 transition font-medium">
       Read
     </button>
 
   </div>
 
-  <!-- Notification List -->
-  <div class="space-y-4">
-
-    <!-- Notification 1 -->
-    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
-      <div class="text-[#4C6FFF] text-xl">
-        <i class="fa-solid fa-check-circle"></i>
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex items-center gap-3 text-[#4C6FFF]">
+        <i class="fa-solid fa-circle-notch animate-spin text-xl"></i>
+        <span>Loading notifications...</span>
       </div>
-
-      <div class="flex-1">
-        <p class="font-semibold text-[#1A1A1A]">
-          Post "Black Friday Offer" has been approved 
-          <i class="fa-solid fa-star text-[#4C6FFF]"></i>
-        </p>
-        <p class="text-sm text-gray-600">2 hours ago</p>
-      </div>
-
-      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
-        <i class="fa-solid fa-trash"></i>
-      </button>
     </div>
-
-    <!-- Notification 2 -->
-    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
-      <div class="text-[#4C6FFF] text-xl">
-        <i class="fa-solid fa-hourglass-half"></i>
-      </div>
-
-      <div class="flex-1">
-        <p class="font-semibold text-[#1A1A1A]">
-          Your scheduled post "Holiday Giveaway" is pending approval.
-        </p>
-        <p class="text-sm text-gray-600">Yesterday</p>
-      </div>
-
-      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+  } @else if (notifications().length === 0) {
+    <!-- Empty State -->
+    <div class="bg-[#F5F7FF] rounded-2xl p-12 text-center border border-[#D9E1FF]">
+      <i class="fa-solid fa-bell-slash text-4xl text-gray-400 mb-4"></i>
+      <p class="text-lg font-semibold text-[#1A1A1A] mb-2">No notifications</p>
+      <p class="text-gray-600">You're all caught up! No {{ filter() === 'all' ? '' : filter() }} notifications to display.</p>
     </div>
+  } @else {
+    <!-- Notification List -->
+    <div class="space-y-4">
 
-    <!-- Notification 3 -->
-    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
-      <div class="text-[#4C6FFF] text-xl">
-        <i class="fa-solid fa-bullhorn"></i>
-      </div>
+      @for (notification of notifications(); track notification.id) {
+        <div 
+          [class.bg-white]="!notification.read"
+          [class.bg-[#F5F7FF]/50]="notification.read"
+          class="rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition cursor-pointer"
+          (click)="markAsRead(notification)">
+          
+          <div class="text-[#4C6FFF] text-xl flex-shrink-0">
+            <i class="fa-solid" [ngClass]="getNotificationIcon(notification.type)"></i>
+          </div>
 
-      <div class="flex-1">
-        <p class="font-semibold text-[#1A1A1A]">
-          New campaign "Winter Sale" has been published successfully 
-          <i class="fa-solid fa-check-circle text-[#4C6FFF]"></i>
-        </p>
-        <p class="text-sm text-gray-600">3 days ago</p>
-      </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-[#1A1A1A] mb-1">
+              {{ notification.source }}
+            </p>
+            <p class="text-sm text-gray-600 mb-1">
+              {{ notification.message }}
+            </p>
+            <p class="text-xs text-gray-500">
+              {{ getTimeAgo(notification.createdAt) }}
+            </p>
+          </div>
 
-      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            @if (!notification.read) {
+              <span class="w-2 h-2 bg-[#4C6FFF] rounded-full"></span>
+            }
+            <button 
+              (click)="deleteNotification(notification); $event.stopPropagation()"
+              class="text-gray-500 hover:text-red-600 transition p-2 rounded-lg hover:bg-red-50">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+
+        </div>
+      }
+
     </div>
+  }
 
-    <!-- Notification 4 -->
-    <div class="bg-white rounded-2xl p-5 flex items-start gap-4 shadow-md border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition">
-      <div class="text-[#4C6FFF] text-xl">
-        <i class="fa-solid fa-bell"></i>
-      </div>
-
-      <div class="flex-1">
-        <p class="font-semibold text-[#1A1A1A]">
-          Your analytics report for October is ready 
-          <i class="fa-solid fa-chart-line text-[#4C6FFF]"></i>
-        </p>
-        <p class="text-sm text-gray-600">1 week ago</p>
-      </div>
-
-      <button class="text-gray-500 hover:text-[#4C6FFF] transition">
-        <i class="fa-solid fa-trash"></i>
-      </button>
-    </div>
-
-  </div>
 </div>

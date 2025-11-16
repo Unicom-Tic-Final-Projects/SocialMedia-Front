@@ -160,7 +160,18 @@ export class ClientsService {
 
   getSelectedClient(): Client | undefined {
     const selectedId = this.selectedClientIdSignal();
-    return this.clientsSignal().find((client) => client.id === selectedId);
+    if (!selectedId) {
+      return undefined;
+    }
+    
+    const clients = this.clientsSignal();
+    // Ensure clients is an array before calling find
+    if (!Array.isArray(clients)) {
+      console.warn('ClientsService: clientsSignal is not an array:', clients);
+      return undefined;
+    }
+    
+    return clients.find((client) => client.id === selectedId);
   }
 
   private getStoredSelectedClientId(): string | null {

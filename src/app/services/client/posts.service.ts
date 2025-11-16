@@ -43,16 +43,19 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PostResponse[]>(`${this.baseUrl}/api/content/posts/status/${status}`).pipe(
-      map((posts) => posts.map((post) => this.mapPostResponse(post))),
+    return this.http.get<any>(`${this.baseUrl}/api/posts/status/${status}`).pipe(
+      map((response) => {
+        // Handle ApiResponse structure
+        const posts = response?.data || response || [];
+        return Array.isArray(posts) ? posts.map((post: PostResponse) => this.mapPostResponse(post)) : [];
+      }),
       tap((posts) => {
-        this.postsSignal.set(posts);
         this.loadingSignal.set(false);
       }),
       catchError((error) => {
         this.errorSignal.set(error?.userMessage || 'Failed to load posts');
         this.loadingSignal.set(false);
-        return throwError(() => error);
+        return of([] as SocialPost[]);
       })
     );
   }
@@ -64,7 +67,7 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.get<PostResponse[]>(`${this.baseUrl}/api/content/posts/client/${clientId}`).pipe(
+    return this.http.get<PostResponse[]>(`${this.baseUrl}/api/posts/client/${clientId}`).pipe(
       map((posts) => posts.map((post) => this.mapPostResponse(post))),
       tap((posts) => {
         this.postsSignal.set(posts);
@@ -142,7 +145,7 @@ export class PostsService {
    * Get a single post by ID
    */
   getPost(id: string): Observable<SocialPost> {
-    return this.http.get<PostResponse>(`${this.baseUrl}/api/content/posts/${id}`).pipe(
+    return this.http.get<PostResponse>(`${this.baseUrl}/api/posts/${id}`).pipe(
       map((post) => this.mapPostResponse(post))
     );
   }
@@ -154,13 +157,29 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<PostResponse>(`${this.baseUrl}/api/content/posts`, request).pipe(
-      map((post) => this.mapPostResponse(post)),
+    return this.http.post<PostResponse>(`${this.baseUrl}/api/posts`, request).pipe(
+      tap((response) => {
+        console.log('CreatePost raw response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Response keys:', Object.keys(response || {}));
+      }),
+      map((post) => {
+        console.log('Mapping post response:', post);
+        if (!post) {
+          throw new Error('Post response is null or undefined');
+        }
+        if (!post.id) {
+          throw new Error('Post response missing id field');
+        }
+        return this.mapPostResponse(post);
+      }),
       tap((post) => {
+        console.log('Mapped post:', post);
         this.postsSignal.update((posts) => [post, ...posts]);
         this.loadingSignal.set(false);
       }),
       catchError((error) => {
+        console.error('Error creating post:', error);
         this.errorSignal.set(error?.userMessage || 'Failed to create post');
         this.loadingSignal.set(false);
         return throwError(() => error);
@@ -175,7 +194,7 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.put<PostResponse>(`${this.baseUrl}/api/content/posts/${postId}`, request).pipe(
+    return this.http.put<PostResponse>(`${this.baseUrl}/api/posts/${postId}`, request).pipe(
       map((post) => this.mapPostResponse(post)),
       tap((post) => {
         this.postsSignal.update((posts) =>
@@ -198,7 +217,7 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.delete<void>(`${this.baseUrl}/api/content/posts/${postId}`).pipe(
+    return this.http.delete<void>(`${this.baseUrl}/api/posts/${postId}`).pipe(
       tap(() => {
         this.postsSignal.update((posts) => posts.filter((p) => p.id !== postId));
         this.loadingSignal.set(false);
@@ -218,7 +237,7 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<void>(`${this.baseUrl}/api/content/posts/${postId}/schedule`, request).pipe(
+    return this.http.post<void>(`${this.baseUrl}/api/posts/${postId}/schedule`, request).pipe(
       tap(() => {
         // Refresh posts after scheduling
         this.refreshPosts().subscribe();
@@ -239,16 +258,29 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<void>(`${this.baseUrl}/api/content/posts/${postId}/publish`, {}).pipe(
-      tap(() => {
+    console.log('Publishing post:', postId, 'to:', `${this.baseUrl}/api/posts/${postId}/publish`);
+
+    return this.http.post<any>(`${this.baseUrl}/api/posts/${postId}/publish`, {}).pipe(
+      tap((response) => {
+        console.log('Publish response:', response);
         // Refresh posts after publishing
         this.refreshPosts().subscribe();
         this.loadingSignal.set(false);
       }),
+      map(() => void 0), // Convert to void Observable
       catchError((error) => {
-        this.errorSignal.set(error?.userMessage || 'Failed to publish post');
+        console.error('Publish error:', error);
+        const errorMessage = error?.error?.message || error?.userMessage || error?.message || 'Failed to publish post';
+        console.error('Publish error details:', {
+          error,
+          errorMessage,
+          status: error?.status,
+          url: error?.url,
+          errorBody: error?.error
+        });
+        this.errorSignal.set(errorMessage);
         this.loadingSignal.set(false);
-        return throwError(() => error);
+        return throwError(() => ({ ...error, userMessage: errorMessage }));
       })
     );
   }
@@ -260,7 +292,7 @@ export class PostsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.post<void>(`${this.baseUrl}/api/content/posts/${postId}/cancel-schedule`, {}).pipe(
+    return this.http.post<void>(`${this.baseUrl}/api/posts/${postId}/cancel-schedule`, {}).pipe(
       tap(() => {
         // Refresh posts after canceling
         this.refreshPosts().subscribe();
@@ -321,11 +353,13 @@ export class PostsService {
    */
   private mapPostResponse(post: PostResponse): SocialPost {
     // Extract title from content (first line or first 50 chars)
-    const contentLines = post.content.split('\n');
+    // Handle case where content might be undefined or null
+    const content = post.content || '';
+    const contentLines = content.split('\n');
     const title = contentLines[0]?.substring(0, 50) || 'Untitled Post';
     
-    // Get platforms from postTargets
-    const platforms = post.postTargets.map((target) => target.platform.toLowerCase());
+    // Get platforms from postTargets (handle undefined/null)
+    const platforms = (post.postTargets || []).map((target) => target.platform.toLowerCase());
     
     // Get media URL if available
     const mediaUrl = post.media?.url;
@@ -335,7 +369,7 @@ export class PostsService {
     return {
       id: post.id,
       clientId: post.clientId,
-      content: post.content,
+      content: content, // Use the safe content variable
       status: post.status,
       scheduledAt: post.scheduledAt,
       createdAt: post.createdAt,

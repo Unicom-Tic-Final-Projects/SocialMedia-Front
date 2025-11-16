@@ -27,6 +27,7 @@ export class ConnectedAccounts {
     twitter: { icon: 'fa-brands fa-x-twitter', name: 'X (Twitter)', color: '#F2F2F2' },
     linkedin: { icon: 'fa-brands fa-linkedin-in', name: 'LinkedIn', color: '#0A66C2' },
     youtube: { icon: 'fa-brands fa-youtube', name: 'YouTube', color: '#FF0000' },
+    tiktok: { icon: 'fa-brands fa-tiktok', name: 'TikTok', color: '#000000' },
   };
 
   constructor(private readonly socialAccounts: SocialAccountsService, private readonly router: Router) {

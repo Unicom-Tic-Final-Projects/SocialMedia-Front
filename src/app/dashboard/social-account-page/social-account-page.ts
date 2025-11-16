@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router, RouterModule, ActivatedRoute } from '@angular/router';
@@ -20,7 +20,8 @@ export class SocialAccountPage implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly postsService = inject(PostsService);
-  private readonly socialAccountsService = inject(SocialAccountsService);
+  readonly socialAccountsService = inject(SocialAccountsService); // Made public for template access
+  private readonly cdr = inject(ChangeDetectorRef);
   private routeSubscription?: Subscription;
 
   showGrid = true;
@@ -50,6 +51,7 @@ export class SocialAccountPage implements OnInit, OnDestroy {
     { value: 'twitter', name: 'X (Twitter)', icon: 'fa-brands fa-x-twitter', color: '#F2F2F2' },
     { value: 'linkedin', name: 'LinkedIn', icon: 'fa-brands fa-linkedin-in', color: '#0A66C2' },
     { value: 'youtube', name: 'YouTube', icon: 'fa-brands fa-youtube', color: '#FF0000' },
+    { value: 'tiktok', name: 'TikTok', icon: 'fa-brands fa-tiktok', color: '#000000' },
   ];
 
   ngOnInit(): void {
@@ -61,14 +63,30 @@ export class SocialAccountPage implements OnInit, OnDestroy {
     
     // Check query params for successful connection and refresh accounts
     this.route.queryParams.subscribe((params) => {
-      if (params['connected']) {
-        // Refresh accounts when coming back from successful connection
-        // Use a small delay to ensure backend has processed the connection
+      if (params['connected'] === 'true' || params['connected']) {
+        const platform = params['platform'] as string | undefined;
+        console.log('OAuth callback detected - refreshing accounts for platform:', platform);
+        
+        // Refresh accounts immediately, then again after delay to ensure backend has processed
+        this.loadAccounts();
+        
+        // Also refresh after a delay to catch any delayed backend processing
         setTimeout(() => {
+          console.log('Refreshing accounts again after delay');
           this.loadAccounts();
           // Reset profile image errors when refreshing
           this.profileImageErrors.clear();
-        }, 500);
+          
+          // Clear the query parameter after refreshing to avoid refreshing again on navigation
+          setTimeout(() => {
+            this.router.navigate([], {
+              relativeTo: this.route,
+              queryParams: { ...this.route.snapshot.queryParams, connected: null, platform: null },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+          }, 100);
+        }, 1000); // Increased delay to 1 second to ensure backend has processed
       }
     });
     
@@ -89,9 +107,17 @@ export class SocialAccountPage implements OnInit, OnDestroy {
       next: (accounts) => {
         // Accounts loaded successfully - UI will update automatically via signals
         console.log('Loaded social accounts:', accounts.length);
+        // Log connected accounts for debugging
+        const connectedAccounts = accounts.filter(acc => acc.status === 'connected');
+        console.log('Connected accounts:', connectedAccounts.map(acc => `${acc.platform}: ${acc.accountName}`));
+        
+        // Trigger change detection to ensure UI updates immediately
+        // Signals should update automatically, but this ensures Angular detects the change
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Failed to load social accounts:', error);
+        this.cdr.markForCheck();
       },
     });
   }

@@ -45,6 +45,7 @@ export class PostPreviewModal implements OnChanges {
     twitter: { icon: 'fa-brands fa-x-twitter', label: 'X (Twitter)' },
     linkedin: { icon: 'fa-brands fa-linkedin-in', label: 'LinkedIn' },
     youtube: { icon: 'fa-brands fa-youtube', label: 'YouTube' },
+    tiktok: { icon: 'fa-brands fa-tiktok', label: 'TikTok' },
   };
 
   constructor(private readonly platformPreview: PlatformPreviewService) {}

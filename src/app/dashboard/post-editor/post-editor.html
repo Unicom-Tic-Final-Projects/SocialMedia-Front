@@ -1,398 +1,553 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
+<!-- Landing Page Theme with Soft Glow Background -->
+<div class="relative min-h-screen bg-[#FFFFFF] text-[#222222] p-6 overflow-hidden">
+  <!-- Soft Blue Glow Background -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="
+      background:
+        radial-gradient(circle at 20% 30%, rgba(191, 201, 255, 0.1) 0%, transparent 60%),
+        radial-gradient(circle at 80% 70%, rgba(255, 214, 232, 0.1) 0%, transparent 60%);
+    "
+  ></div>
 
-  <div class="mb-8">
-    <div class="flex items-center justify-between">
-
-      <div>
-        <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-          <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
-          {{ isEditMode() ? 'Edit Post' : 'Create Post' }}
-        </h1>
-        <p class="text-gray-600 text-sm">Create and schedule your social media posts</p>
+  <div class="relative z-10">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+            <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
+            {{ isEditMode() ? 'Edit Post' : 'Create Post' }}
+          </h1>
+          <p class="text-gray-600 text-sm">Follow the steps below to create and schedule your social media posts</p>
+        </div>
+        <a routerLink="/dashboard/posts" class="text-gray-500 hover:text-[#4C6FFF] transition">
+          <i class="fa-solid fa-times text-2xl"></i>
+        </a>
       </div>
-
-      <a routerLink="/dashboard/posts" class="text-gray-500 hover:text-[#4C6FFF] transition">
-        <i class="fa-solid fa-times text-2xl"></i>
-      </a>
-
     </div>
-  </div>
 
-  <!-- Error Message -->
-  @if (errorMessage()) {
-    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
-      {{ errorMessage() }}
-    </div>
-  }
+    <!-- Error Message -->
+    @if (errorMessage()) {
+      <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
+        {{ errorMessage() }}
+      </div>
+    }
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-    <!-- MAIN EDITOR -->
-    <div class="lg:col-span-2 space-y-6">
-
-      <!-- Client Selector for Agencies -->
-      @if (isAgency()) {
-        <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div class="flex-1">
-              <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
-                Select Client
-              </label>
-              @if (loadingClients()) {
-                <div class="flex items-center gap-2 text-gray-600">
-                  <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
-                  Loading clients...
-                </div>
-              } @else if (clients().length === 0) {
-                <p class="text-gray-600 text-sm">No clients found. Create your first client to get started.</p>
-              } @else {
-                <select
-                  class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
-                  [value]="selectedClientId() ?? clients()[0]?.id"
-                  (change)="selectClient($any($event.target).value)"
-                >
-                  @for (client of clients(); track client.id) {
-                    <option [value]="client.id">{{ client.name }}</option>
-                  }
-                </select>
-              }
-              @if (clientsError()) {
-                <p class="mt-2 text-sm text-red-500">{{ clientsError() }}</p>
-              }
-            </div>
-            <div>
+    <!-- Step Progress Indicator -->
+    <div class="mb-8 bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF]">
+      <div class="flex items-center justify-between">
+        @for (step of [1, 2, 3, 4]; track step) {
+          <div class="flex items-center flex-1">
+            <!-- Step Circle -->
+            <div class="flex flex-col items-center flex-1">
               <button
                 type="button"
-                (click)="createClient()"
-                class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-3 rounded-lg transition"
+                (click)="goToStep(step)"
+                [disabled]="!canGoToStep(step)"
+                class="relative flex items-center justify-center w-12 h-12 rounded-full font-bold text-sm transition-all disabled:cursor-not-allowed"
+                [class.bg-[#4C6FFF]]="currentStep() === step"
+                [class.text-white]="currentStep() === step"
+                [class.bg-white]="currentStep() !== step && isStepComplete(step)"
+                [class.text-[#4C6FFF]]="currentStep() !== step && isStepComplete(step)"
+                [class.bg-gray-200]="currentStep() !== step && !isStepComplete(step)"
+                [class.text-gray-500]="currentStep() !== step && !isStepComplete(step)"
+                [class.border-2]="true"
+                [class.border-[#4C6FFF]]="currentStep() === step || isStepComplete(step)"
+                [class.border-gray-300]="currentStep() !== step && !isStepComplete(step)"
               >
-                <i class="fa-solid fa-user-plus"></i>
-                Add Client
+                @if (isStepComplete(step) && currentStep() !== step) {
+                  <i class="fa-solid fa-check"></i>
+                } @else {
+                  {{ step }}
+                }
               </button>
+              
+              <!-- Step Label -->
+              <span class="mt-2 text-xs font-medium text-center"
+                    [class.text-[#4C6FFF]]="currentStep() === step"
+                    [class.text-gray-600]="currentStep() !== step">
+                @switch (step) {
+                  @case (1) { Content & Media }
+                  @case (2) { Select Platforms }
+                  @case (3) { Preview }
+                  @case (4) { Publish/Schedule }
+                }
+              </span>
             </div>
+
+            <!-- Connector Line -->
+            @if (step < 4) {
+              <div class="flex-1 h-0.5 mx-2 -mt-6"
+                   [class.bg-[#4C6FFF]]="currentStep() > step"
+                   [class.bg-gray-300]="currentStep() <= step">
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Client Selector for Agencies (Always visible at top) -->
+    @if (isAgency()) {
+      <div class="mb-6 bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF]">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="flex-1">
+            <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+              Select Client
+            </label>
+            @if (loadingClients()) {
+              <div class="flex items-center gap-2 text-gray-600">
+                <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
+                Loading clients...
+              </div>
+            } @else if (clients().length === 0) {
+              <p class="text-gray-600 text-sm">No clients found. Create your first client to get started.</p>
+            } @else {
+              <select
+                class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                [value]="selectedClientId() ?? clients()[0]?.id"
+                (change)="selectClient($any($event.target).value)"
+              >
+                @for (client of clients(); track client.id) {
+                  <option [value]="client.id">{{ client.name }}</option>
+                }
+              </select>
+            }
+            @if (clientsError()) {
+              <p class="mt-2 text-sm text-red-500">{{ clientsError() }}</p>
+            }
+          </div>
+          <div>
+            <button
+              type="button"
+              (click)="createClient()"
+              class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-3 rounded-lg transition"
+            >
+              <i class="fa-solid fa-user-plus"></i>
+              Add Client
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Step Content -->
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
+      
+      <!-- STEP 1: Content & Media -->
+      @if (currentStep() === 1) {
+        <div class="space-y-6" [formGroup]="postForm">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 1: Write Your Post</h2>
+            <p class="text-gray-600 text-sm">Create your content and add media (optional)</p>
+          </div>
+
+          <!-- Content Editor -->
+          <div>
+            <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+              Post Content <span class="text-red-500">*</span>
+            </label>
+
+            <textarea
+              formControlName="content"
+              placeholder="What's on your mind? Write your post here..."
+              rows="10"
+              class="w-full bg-[#FFFFFF] border border-[#D9E1FF] rounded-xl px-4 py-3 
+                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222] transition resize-none"
+              [class.border-red-500]="content?.invalid && content?.touched"
+              (input)="onContentInput($event)"
+            ></textarea>
+
+            @if (content?.invalid && content?.touched) {
+              <p class="mt-2 text-sm text-red-600">
+                @if (content?.errors?.['required']) {
+                  Content is required
+                } @else if (content?.errors?.['maxlength']) {
+                  Content must be less than 4000 characters
+                }
+              </p>
+            }
+
+            <div class="mt-2 flex justify-between items-center">
+              <p class="text-xs text-gray-500">
+                {{ characterCount() }} / {{ maxCharacters }} characters
+              </p>
+              @if (characterCount() > maxCharacters * 0.9) {
+                <p class="text-xs text-amber-500">Approaching character limit</p>
+              }
+            </div>
+          </div>
+
+          <!-- Media Upload -->
+          <div>
+            <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+              Add Media (Optional)
+            </label>
+
+            @if (mediaPreview()) {
+              <div class="relative mb-4">
+                <img [src]="mediaPreview()!" class="w-full h-64 object-cover rounded-xl" />
+                <button
+                  (click)="removeMedia()"
+                  class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition"
+                >
+                  <i class="fa-solid fa-times"></i>
+                </button>
+              </div>
+            }
+
+            <label
+              class="flex flex-col items-center justify-center w-full h-32 border-2 border-[#D9E1FF] border-dashed 
+                     rounded-xl cursor-pointer bg-[#FFFFFF] hover:bg-[#F0F2FF] transition"
+              [class.border-[#4C6FFF]]="!mediaPreview()"
+            >
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-500 mb-2"></i>
+                <p class="mb-2 text-sm text-gray-600">
+                  <span class="font-semibold text-[#4C6FFF]">Click to upload</span> or drag and drop
+                </p>
+                <p class="text-xs text-gray-500">PNG, JPG, GIF, MP4 (MAX. 10MB)</p>
+              </div>
+              <input
+                type="file"
+                class="hidden"
+                accept="image/*,video/*"
+                (change)="onFileSelected($event)"
+              />
+            </label>
+
+            @if (uploading()) {
+              <div class="mt-4 text-center">
+                <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] mr-2"></i>
+                <span class="text-sm text-gray-600">Uploading media...</span>
+              </div>
+            }
           </div>
         </div>
       }
 
-      <!-- Content Editor -->
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-
-        <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
-          Post Content
-        </label>
-
-        <textarea
-          formControlName="content"
-          placeholder="What's on your mind? Write your post here..."
-          rows="12"
-          class="w-full bg-[#FFFFFF] border border-[#D9E1FF] rounded-xl px-4 py-3 
-                 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222] transition resize-none"
-          [class.border-red-500]="content?.invalid && content?.touched"
-        ></textarea>
-
-        @if (content?.invalid && content?.touched) {
-          <p class="mt-2 text-sm text-red-600">
-            @if (content?.errors?.['required']) {
-              Content is required
-            } @else if (content?.errors?.['maxlength']) {
-              Content must be less than 4000 characters
-            }
-          </p>
-        }
-
-        <div class="mt-2 flex justify-between items-center">
-          <p class="text-xs text-gray-500">
-            {{ characterCount }} / {{ maxCharacters }} characters
-          </p>
-          @if (characterCount > maxCharacters * 0.9) {
-            <p class="text-xs text-amber-500">Approaching character limit</p>
-          }
-        </div>
-
-      </div>
-
-      <!-- Media Upload -->
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-
-        <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
-          Media
-        </label>
-
-        @if (mediaPreview()) {
-          <div class="relative mb-4">
-            <img [src]="mediaPreview()!" class="w-full h-64 object-cover rounded-xl" />
-
-            <button
-              (click)="removeMedia()"
-              class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full transition"
-            >
-              <i class="fa-solid fa-times"></i>
-            </button>
-          </div>
-        }
-
-        <label
-          class="flex flex-col items-center justify-center w-full h-32 border-2 border-[#D9E1FF] border-dashed 
-                 rounded-xl cursor-pointer bg-[#FFFFFF] hover:bg-[#F0F2FF] transition"
-          [class.border-[#4C6FFF]]="!mediaPreview()"
-        >
-          <div class="flex flex-col items-center justify-center pt-5 pb-6">
-            <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-500 mb-2"></i>
-
-            <p class="mb-2 text-sm text-gray-600">
-              <span class="font-semibold text-[#4C6FFF]">Click to upload</span> or drag and drop
-            </p>
-
-            <p class="text-xs text-gray-500">PNG, JPG, GIF, MP4 (MAX. 10MB)</p>
+      <!-- STEP 2: Select Platforms -->
+      @if (currentStep() === 2) {
+        <div class="space-y-6">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 2: Choose Platforms</h2>
+            <p class="text-gray-600 text-sm">Select which social media accounts to publish to</p>
           </div>
 
-          <input
-            type="file"
-            class="hidden"
-            accept="image/*,video/*"
-            (change)="onFileSelected($event)"
-          />
-        </label>
+          @if (loadingAccounts()) {
+            <div class="text-center py-12">
+              <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-3xl mb-3"></i>
+              <p class="text-sm text-gray-600">Loading social accounts...</p>
+            </div>
+          } @else if (socialAccounts().length === 0) {
+            <div class="text-center py-12 border border-dashed border-[#D9E1FF] rounded-xl bg-white">
+              <i class="fa-solid fa-link text-5xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600 font-medium mb-2">No social accounts connected</p>
+              <p class="text-gray-500 text-sm mb-4">Connect your social media accounts to start posting</p>
+              <a routerLink="/dashboard/social-account"
+                 class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-6 py-3 rounded-lg transition">
+                <i class="fa-solid fa-plus"></i>
+                Connect an Account
+              </a>
+            </div>
+          } @else {
+            <div class="space-y-6">
+              @for (platform of getAccountsByPlatform() | keyvalue; track platform.key) {
+                <div class="bg-white rounded-xl p-6 border border-[#D9E1FF]">
+                  <div class="flex items-center gap-3 mb-4">
+                    @switch (platform.key) {
+                      @case ('facebook') {
+                        <i class="fa-brands fa-facebook text-2xl text-[#1877F2]"></i>
+                      }
+                      @case ('instagram') {
+                        <i class="fa-brands fa-instagram text-2xl text-[#E4405F]"></i>
+                      }
+                      @case ('linkedin') {
+                        <i class="fa-brands fa-linkedin text-2xl text-[#0077B5]"></i>
+                      }
+                      @case ('twitter') {
+                        <i class="fa-brands fa-twitter text-2xl text-[#1DA1F2]"></i>
+                      }
+                      @case ('youtube') {
+                        <i class="fa-brands fa-youtube text-2xl text-[#FF0000]"></i>
+                      }
+                    }
+                    <h3 class="text-lg font-bold text-[#1A1A1A] capitalize">{{ platform.key }}</h3>
+                    <span class="ml-auto px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      {{ platform.value.length }} {{ platform.value.length === 1 ? 'account' : 'accounts' }}
+                    </span>
+                  </div>
 
-        @if (uploading()) {
-          <div class="mt-4 text-center">
-            <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] mr-2"></i>
-            <span class="text-sm text-gray-600">Uploading media...</span>
-          </div>
-        }
-      </div>
-
-      <!-- Platform Selection -->
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-
-        <label class="block text-[#1A1A1A] font-semibold mb-4 text-sm uppercase tracking-wider">
-          Select Platforms
-        </label>
-
-        @if (loadingAccounts()) {
-          <div class="text-center py-8">
-            <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-2xl mb-2"></i>
-            <p class="text-sm text-gray-600">Loading social accounts...</p>
-          </div>
-        }
-
-        @else if (socialAccounts().length === 0) {
-          <div class="text-center py-8 border border-dashed border-[#D9E1FF] rounded-xl">
-            <i class="fa-solid fa-link text-3xl text-gray-500 mb-3"></i>
-            <p class="text-gray-600 mb-2">No social accounts connected</p>
-
-            <a routerLink="/dashboard/social-account/connect"
-               class="text-[#4C6FFF] hover:underline text-sm">
-              Connect an account
-            </a>
-          </div>
-        }
-
-        @else {
-          <div class="space-y-4">
-            @for (platform of getAccountsByPlatform() | keyvalue; track platform.key) {
-              <div>
-                <h4 class="text-sm font-medium text-gray-500 mb-2 capitalize">{{ platform.key }}</h4>
-
-                <div class="flex flex-wrap gap-2">
-
-                  @for (account of platform.value; track account.id) {
-
-                    <button
-                      type="button"
-                      (click)="toggleAccount(account.id)"
-
-                      [class.bg-[#4C6FFF]]="isAccountSelected(account.id)"
-                      [class.text-white]="isAccountSelected(account.id)"
-                      [class.bg-white]="!isAccountSelected(account.id)"
-                      [class.text-[#222222]]="!isAccountSelected(account.id)"
-                      [class.border-[#4C6FFF]]="isAccountSelected(account.id)"
-                      [class.border-[#D9E1FF]]="!isAccountSelected(account.id)"
-
-                      class="px-4 py-2 rounded-lg border transition flex items-center gap-2"
-                    >
-                      <i class="fa-solid fa-check" *ngIf="isAccountSelected(account.id)"></i>
-                      <span class="text-sm">{{ account.accountName }}</span>
-                    </button>
-
-                  }
+                  <div class="flex flex-wrap gap-3">
+                    @for (account of platform.value; track account.id) {
+                      <button
+                        type="button"
+                        (click)="toggleAccount(account.id)"
+                        [class.bg-[#4C6FFF]]="isAccountSelected(account.id)"
+                        [class.text-white]="isAccountSelected(account.id)"
+                        [class.bg-gray-50]="!isAccountSelected(account.id)"
+                        [class.text-[#222222]]="!isAccountSelected(account.id)"
+                        [class.border-2]="true"
+                        [class.border-[#4C6FFF]]="isAccountSelected(account.id)"
+                        [class.border-[#D9E1FF]]="!isAccountSelected(account.id)"
+                        class="px-5 py-3 rounded-lg transition flex items-center gap-2 font-medium hover:shadow-md"
+                      >
+                        @if (isAccountSelected(account.id)) {
+                          <i class="fa-solid fa-check-circle"></i>
+                        } @else {
+                          <i class="fa-regular fa-circle"></i>
+                        }
+                        <span>{{ account.accountName }}</span>
+                      </button>
+                    }
+                  </div>
                 </div>
+              }
+            </div>
+
+            @if (selectedAccountIds().length === 0) {
+              <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <p class="text-sm text-amber-700">
+                  <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+                  Please select at least one platform to continue
+                </p>
+              </div>
+            } @else {
+              <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                <p class="text-sm text-green-700">
+                  <i class="fa-solid fa-check-circle mr-2"></i>
+                  {{ selectedAccountIds().length }} {{ selectedAccountIds().length === 1 ? 'account' : 'accounts' }} selected
+                </p>
               </div>
             }
-          </div>
-        }
-
-      </div>
-    </div>
-
-    <!-- SIDEBAR (Right Publish Options + Preview) -->
-    <div class="space-y-6">
-
-      <!-- Publish Options -->
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF]">
-
-        <h3 class="text-lg font-semibold text-[#1A1A1A] mb-4">Publish Options</h3>
-
-        <!-- Toggle -->
-        <div class="mb-6">
-          <div class="flex gap-2 bg-[#FFFFFF] p-1 rounded-lg border border-[#D9E1FF]">
-
-            <button
-              type="button"
-              (click)="scheduleMode.set('now')"
-              [class.bg-[#4C6FFF]]="scheduleMode() === 'now'"
-              [class.text-white]="scheduleMode() === 'now'"
-              class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition"
-            >
-              Publish Now
-            </button>
-
-            <button
-              type="button"
-              (click)="scheduleMode.set('later')"
-              [class.bg-[#4C6FFF]]="scheduleMode() === 'later'"
-              [class.text-white]="scheduleMode() === 'later'"
-              class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition"
-            >
-              Schedule
-            </button>
-
-          </div>
+          }
         </div>
+      }
 
-        <!-- Date/Time -->
-        @if (scheduleMode() === 'later') {
+      <!-- STEP 3: Preview -->
+      @if (currentStep() === 3) {
+        <div class="space-y-6">
           <div class="mb-6">
-
-            <label class="block text-sm font-medium text-[#222222] mb-2">
-              Schedule Date & Time
-            </label>
-
-            <input
-              type="datetime-local"
-              [value]="scheduledDateTime()"
-              (change)="scheduledDateTime.set($any($event.target).value)"
-              class="w-full bg-[#FFFFFF] border border-[#D9E1FF] rounded-lg px-4 py-2 
-                     text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
-            />
-
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 3: Preview Your Post</h2>
+            <p class="text-gray-600 text-sm">See how your post will look on each selected platform</p>
           </div>
-        }
 
-        <!-- Buttons -->
-        <div class="space-y-3">
+          @if (selectedAccountIds().length === 0) {
+            <div class="text-center py-12 border border-dashed border-[#D9E1FF] rounded-xl bg-white">
+              <i class="fa-solid fa-eye-slash text-5xl text-gray-400 mb-4"></i>
+              <p class="text-gray-600 font-medium mb-2">No platforms selected</p>
+              <p class="text-gray-500 text-sm mb-4">Go back to Step 2 to select platforms</p>
+              <button
+                type="button"
+                (click)="goToStep(2)"
+                class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-6 py-3 rounded-lg transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                Select Platforms
+              </button>
+            </div>
+          } @else {
+            <app-post-preview
+              [content]="postForm.value.content || ''"
+              [mediaUrl]="mediaPreview()"
+              [selectedAccounts]="getSelectedSocialAccounts()"
+            ></app-post-preview>
+          }
+        </div>
+      }
 
-          <!-- Save Draft -->
-          <button
-            type="button"
-            (click)="saveDraft()"
-            [disabled]="saving() || postForm.invalid"
-            class="w-full bg-gray-300 hover:bg-gray-400 text-black font-semibold py-3 px-4 rounded-lg 
-                   transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            @if (saving()) {
-              <i class="fa-solid fa-circle-notch animate-spin"></i>
-              Saving...
-            } @else {
-              <i class="fa-solid fa-floppy-disk"></i>
-              Save Draft
+      <!-- STEP 4: Publish/Schedule -->
+      @if (currentStep() === 4) {
+        <div class="space-y-6">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-2">Step 4: Publish or Schedule</h2>
+            <p class="text-gray-600 text-sm">Choose when to publish your post</p>
+          </div>
+
+          <!-- Publish Mode Toggle -->
+          <div class="bg-white rounded-xl p-6 border border-[#D9E1FF]">
+            <label class="block text-[#1A1A1A] font-semibold mb-4 text-sm uppercase tracking-wider">
+              Publishing Mode
+            </label>
+            
+            <div class="flex gap-2 bg-[#F5F7FF] p-1 rounded-lg border border-[#D9E1FF]">
+              <button
+                type="button"
+                (click)="scheduleMode.set('now')"
+                [class.bg-[#4C6FFF]]="scheduleMode() === 'now'"
+                [class.text-white]="scheduleMode() === 'now'"
+                [class.bg-white]="scheduleMode() !== 'now'"
+                [class.text-[#222222]]="scheduleMode() !== 'now'"
+                class="flex-1 py-3 px-6 rounded-md text-sm font-semibold transition flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-paper-plane"></i>
+                Publish Now
+              </button>
+
+              <button
+                type="button"
+                (click)="scheduleMode.set('later')"
+                [class.bg-[#4C6FFF]]="scheduleMode() === 'later'"
+                [class.text-white]="scheduleMode() === 'later'"
+                [class.bg-white]="scheduleMode() !== 'later'"
+                [class.text-[#222222]]="scheduleMode() !== 'later'"
+                class="flex-1 py-3 px-6 rounded-md text-sm font-semibold transition flex items-center justify-center gap-2"
+              >
+                <i class="fa-solid fa-calendar-check"></i>
+                Schedule Later
+              </button>
+            </div>
+
+            <!-- Schedule DateTime -->
+            @if (scheduleMode() === 'later') {
+              <div class="mt-6">
+                <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+                  Schedule Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  [value]="scheduledDateTime()"
+                  (change)="scheduledDateTime.set($any($event.target).value)"
+                  class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 
+                         text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                />
+                @if (isScheduledDateInvalid()) {
+                  <p class="mt-2 text-sm text-amber-600">
+                    <i class="fa-solid fa-exclamation-triangle mr-1"></i>
+                    Please select a future date and time
+                  </p>
+                }
+              </div>
             }
-          </button>
 
-          <!-- Publish Now -->
-          @if (scheduleMode() === 'now') {
+            <!-- Summary -->
+            <div class="mt-6 pt-6 border-t border-[#D9E1FF]">
+              <h3 class="font-semibold text-[#1A1A1A] mb-3">Post Summary</h3>
+              <div class="space-y-2 text-sm text-gray-600">
+                <div class="flex justify-between">
+                  <span>Content:</span>
+                  <span class="font-medium text-[#1A1A1A]">{{ characterCount() }} characters</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Media:</span>
+                  <span class="font-medium text-[#1A1A1A]">{{ mediaPreview() ? 'Yes' : 'No' }}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Platforms:</span>
+                  <span class="font-medium text-[#1A1A1A]">{{ selectedAccountIds().length }} selected</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Publish Mode:</span>
+                  <span class="font-medium text-[#1A1A1A] capitalize">{{ scheduleMode() === 'now' ? 'Publish Now' : 'Scheduled' }}</span>
+                </div>
+                @if (scheduleMode() === 'later' && scheduledDateTime()) {
+                  <div class="flex justify-between">
+                    <span>Scheduled For:</span>
+                    <span class="font-medium text-[#1A1A1A]">{{ scheduledDateTime() | date:'medium' }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
 
+          <!-- Action Buttons -->
+          <div class="flex gap-4">
+            <!-- Save Draft -->
             <button
               type="button"
-              (click)="publishNow()"
-              [disabled]="saving() || postForm.invalid || selectedAccountIds().length === 0"
-              class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 px-4 rounded-lg 
+              (click)="saveDraft()"
+              [disabled]="saving() || postForm.invalid"
+              class="flex-1 bg-gray-200 hover:bg-gray-300 text-[#1A1A1A] font-semibold py-3 px-6 rounded-lg 
                      transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               @if (saving()) {
                 <i class="fa-solid fa-circle-notch animate-spin"></i>
-                Publishing...
+                Saving...
               } @else {
-                <i class="fa-solid fa-paper-plane"></i>
-                Publish Now
+                <i class="fa-solid fa-floppy-disk"></i>
+                Save Draft
               }
             </button>
 
-          } 
-          <!-- Schedule Later -->
-          @else {
-
-            <button
-              type="button"
-              (click)="schedulePost()"
-              [disabled]="saving() || postForm.invalid || selectedAccountIds().length === 0 || !scheduledDateTime()"
-              class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 px-4 rounded-lg transition 
-                     disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              @if (saving()) {
-                <i class="fa-solid fa-circle-notch animate-spin"></i>
-                Scheduling...
-              } @else {
-                <i class="fa-solid fa-calendar-check"></i>
-                Schedule Post
-              }
-            </button>
-
-          }
-
-        </div>
-
-        @if (selectedAccountIds().length === 0) {
-          <p class="mt-3 text-xs text-amber-500">
-            <i class="fa-solid fa-exclamation-triangle mr-1"></i>
-            Select at least one platform to publish
-          </p>
-        }
-
-      </div>
-
-      <!-- Post Preview -->
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF]">
-        <h3 class="text-lg font-semibold text-[#1A1A1A] mb-4">Preview</h3>
-
-        <div class="bg-white rounded-lg p-4 border border-[#D9E1FF]">
-
-          @if (mediaPreview()) {
-            <img [src]="mediaPreview()!" class="w-full rounded-lg mb-3" />
-          }
-
-          <p class="text-sm text-[#222222] whitespace-pre-wrap">
-            {{ postForm.value.content || 'Your post content will appear here...' }}
-          </p>
-
-          @if (selectedAccountIds().length > 0) {
-
-            <div class="mt-3 pt-3 border-t border-[#D9E1FF]">
-
-              <p class="text-xs text-gray-500 mb-2">Publishing to:</p>
-
-              <div class="flex flex-wrap gap-2">
-
-                @for (accountId of selectedAccountIds(); track accountId) {
-                  @for (account of socialAccounts(); track account.id) {
-
-                    @if (account.id === accountId) {
-                      <span class="px-2 py-1 bg-[#BFC9FF] text-[#1A1A1A] text-xs rounded">
-                        {{ account.platform }}
-                      </span>
-                    }
-
-                  }
+            <!-- Publish/Schedule Button -->
+            @if (scheduleMode() === 'now') {
+              <button
+                type="button"
+                (click)="publishNow()"
+                [disabled]="saving() || postForm.invalid || selectedAccountIds().length === 0"
+                class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 px-6 rounded-lg 
+                       transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                @if (saving()) {
+                  <i class="fa-solid fa-circle-notch animate-spin"></i>
+                  Publishing...
+                } @else {
+                  <i class="fa-solid fa-paper-plane"></i>
+                  Publish Now
                 }
+              </button>
+            } @else {
+              <button
+                type="button"
+                (click)="schedulePost()"
+                [disabled]="saving() || postForm.invalid || selectedAccountIds().length === 0 || !scheduledDateTime() || isScheduledDateInvalid()"
+                class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 px-6 rounded-lg 
+                       transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                @if (saving()) {
+                  <i class="fa-solid fa-circle-notch animate-spin"></i>
+                  Scheduling...
+                } @else {
+                  <i class="fa-solid fa-calendar-check"></i>
+                  Schedule Post
+                }
+              </button>
+            }
+          </div>
 
-              </div>
-
+          @if (selectedAccountIds().length === 0) {
+            <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p class="text-sm text-red-700">
+                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+                Please select at least one platform to publish
+              </p>
             </div>
           }
-
         </div>
-      </div>
+      }
 
+      <!-- Navigation Buttons -->
+      <div class="mt-8 pt-6 border-t border-[#D9E1FF] flex justify-between items-center">
+        <button
+          type="button"
+          (click)="previousStep()"
+          [disabled]="currentStep() === 1"
+          class="px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2
+                 bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] disabled:bg-gray-50 disabled:text-gray-400"
+        >
+          <i class="fa-solid fa-arrow-left"></i>
+          Previous
+        </button>
+
+        <div class="text-sm text-gray-500">
+          Step {{ currentStep() }} of {{ totalSteps }}
+        </div>
+
+        @if (currentStep() < totalSteps) {
+          <button
+            type="button"
+            (click)="nextStep()"
+            [disabled]="!canGoToNextStep()"
+            class="px-6 py-3 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2
+                   bg-[#4C6FFF] hover:bg-[#3A56CC] text-white disabled:bg-gray-300"
+          >
+            Next
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        } @else {
+          <div></div>
+        }
+      </div>
     </div>
   </div>
 </div>

@@ -45,7 +45,8 @@ export class LoginPage {
 
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
-        if (response.success) {
+        console.log('[LoginPage] Login response received:', response);
+        if (response && response.success) {
           const returnUrl: string | undefined = this.route.snapshot.queryParams['returnUrl'];
           const responseTenantType = response.data?.user?.tenantType;
 

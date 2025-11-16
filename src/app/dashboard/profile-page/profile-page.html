@@ -4,59 +4,86 @@
     <i class="fa-solid fa-user"></i> Profile
   </h2>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex items-center gap-3 text-[#4C6FFF]">
+        <i class="fa-solid fa-circle-notch animate-spin text-xl"></i>
+        <span>Loading profile...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <!-- LEFT PROFILE CARD -->
-    <div class="bg-[#F5F7FF] p-6 rounded-2xl shadow-md flex flex-col items-center border border-[#D9E1FF]">
+      <!-- LEFT PROFILE CARD -->
+      <div class="bg-[#F5F7FF] p-6 rounded-2xl shadow-md flex flex-col items-center border border-[#D9E1FF]">
 
-      <img src="https://via.placeholder.com/150"
-           class="w-32 h-32 rounded-full border-4 border-[#4C6FFF] mb-4" />
+        <img [src]="getAvatarUrl()"
+             [alt]="getDisplayName()"
+             class="w-32 h-32 rounded-full border-4 border-[#4C6FFF] mb-4 object-cover" />
 
-      <h3 class="text-lg font-semibold text-[#1A1A1A]">Abdul Baasith</h3>
-      <p class="text-sm text-gray-600">Client / Agency Owner</p>
+        <h3 class="text-lg font-semibold text-[#1A1A1A]">{{ getDisplayName() }}</h3>
+        <p class="text-sm text-gray-600">{{ getRole() }}</p>
+
+      </div>
+
+      <!-- RIGHT FORM -->
+      <div class="lg:col-span-2 bg-[#F5F7FF] p-6 rounded-2xl shadow-md border border-[#D9E1FF]">
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="space-y-4">
+
+          <!-- Name -->
+          <div class="relative">
+            <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+            <input
+              type="text"
+              formControlName="fullName"
+              placeholder="Full Name"
+              class="w-full bg-white border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2
+                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222]
+                     [&.ng-invalid.ng-touched]:border-red-500"
+            />
+            @if (profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched) {
+              <p class="mt-1 text-sm text-red-600">Full name is required</p>
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="Email"
+              class="w-full bg-white border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2
+                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222]
+                     [&.ng-invalid.ng-touched]:border-red-500"
+              [readonly]="true"
+            />
+            <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+          </div>
+
+          <!-- Save Button -->
+          <button
+            type="submit"
+            [disabled]="saving() || profileForm.invalid"
+            class="bg-[#4C6FFF] text-white px-5 py-2 rounded-lg hover:bg-[#3A56CC]
+                   transition font-medium flex items-center gap-2 shadow-sm hover:shadow-md
+                   disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (saving()) {
+              <i class="fa-solid fa-circle-notch animate-spin"></i>
+              <span>Saving...</span>
+            } @else {
+              <i class="fa-solid fa-floppy-disk"></i>
+              <span>Save</span>
+            }
+          </button>
+
+        </form>
+
+      </div>
 
     </div>
-
-    <!-- RIGHT FORM -->
-    <div class="lg:col-span-2 bg-[#F5F7FF] p-6 rounded-2xl shadow-md border border-[#D9E1FF]">
-
-      <form class="space-y-4">
-
-        <!-- Name -->
-        <div class="relative">
-          <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
-          <input
-            type="text"
-            placeholder="Full Name"
-            class="w-full bg-white border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2
-                   focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222]"
-          />
-        </div>
-
-        <!-- Email -->
-        <div class="relative">
-          <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
-          <input
-            type="email"
-            placeholder="Email"
-            class="w-full bg-white border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2
-                   focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222]"
-          />
-        </div>
-
-        <!-- Save Button -->
-        <button
-          type="button"
-          class="bg-[#4C6FFF] text-white px-5 py-2 rounded-lg hover:bg-[#3A56CC]
-                 transition font-medium flex items-center gap-2 shadow-sm hover:shadow-md"
-        >
-          <i class="fa-solid fa-floppy-disk"></i> Save
-        </button>
-
-      </form>
-
-    </div>
-
-  </div>
+  }
 
 </div>

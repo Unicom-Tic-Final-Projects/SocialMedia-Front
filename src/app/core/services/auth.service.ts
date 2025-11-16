@@ -38,14 +38,18 @@ export class AuthService {
    * Login user
    */
   login(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
+    console.log('[AuthService] Login request:', request);
     return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/login`, request).pipe(
       tap(response => {
-        if (response.success && response.data) {
+        console.log('[AuthService] Login response:', response);
+        if (response && response.success && response.data) {
           this.setAuthData(response.data);
+        } else {
+          console.warn('[AuthService] Login response missing success or data:', response);
         }
       }),
       catchError(error => {
-        console.error('Login error:', error);
+        console.error('[AuthService] Login error:', error);
         return throwError(() => error);
       })
     );

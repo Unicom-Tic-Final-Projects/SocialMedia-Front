@@ -31,25 +31,29 @@ export class AuthSuccess implements OnInit {
 
       this.loading = false;
 
-      // If success, refresh accounts list and redirect after 3 seconds
+      // If success, refresh accounts list and redirect immediately with connected parameter
       if (this.success) {
+        // Refresh accounts first to ensure they're loaded
         this.socialAccountsService.refresh().subscribe({
           next: () => {
-            // Auto-redirect to social-account page after 3 seconds
+            // Auto-redirect to social-account page after 2 seconds (reduced from 3)
+            // with connected=true to trigger refresh on social account page
             setTimeout(() => {
               this.router.navigate(['/dashboard/social-account'], {
-                queryParams: { connected: this.platform },
+                queryParams: { connected: 'true', platform: this.platform },
+                replaceUrl: true, // Replace current history entry to avoid back button issues
               });
-            }, 3000);
+            }, 2000);
           },
           error: (error) => {
             console.error('Failed to refresh accounts:', error);
             // Still redirect even if refresh fails
             setTimeout(() => {
               this.router.navigate(['/dashboard/social-account'], {
-                queryParams: { connected: this.platform },
+                queryParams: { connected: 'true', platform: this.platform },
+                replaceUrl: true,
               });
-            }, 3000);
+            }, 2000);
           },
         });
       } else if (this.error) {
@@ -60,6 +64,10 @@ export class AuthSuccess implements OnInit {
   }
 
   goToSocialAccounts(): void {
-    this.router.navigate(['/dashboard/social-account']);
+    // Navigate with connected parameter to trigger refresh
+    this.router.navigate(['/dashboard/social-account'], {
+      queryParams: { connected: 'true', platform: this.platform },
+      replaceUrl: true,
+    });
   }
 }

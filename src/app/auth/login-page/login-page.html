@@ -1,20 +1,30 @@
-<div class="min-h-screen bg-gradient-to-br from-[#1B1B1B] via-[#121212] to-[#0a0a0a] flex items-center justify-center px-4 py-12">
-  <div class="w-full max-w-md">
+<div class="min-h-screen relative bg-[#FFFFFF] text-[#1A1A1A] flex items-center justify-center px-4 py-12 overflow-hidden">
+  <!-- Soft Blue Glow Background -->
+  <div
+    class="absolute inset-0"
+    style="
+      background:
+        radial-gradient(circle at 20% 30%, #BFC9FF40 0%, transparent 60%),
+        radial-gradient(circle at 80% 70%, #BFC9FF40 0%, transparent 60%);
+    "
+  ></div>
+
+  <div class="w-full max-w-md relative z-10">
     <!-- Logo -->
     <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-[#00B78E] mb-2">
-        Nexus<span class="text-[#F2F2F2]">Post</span>
+      <h1 class="text-4xl font-bold text-[#4C6FFF] mb-2">
+        One<span class="text-[#1A1A1A]">vo</span>
       </h1>
-      <p class="text-[#888] text-sm">Welcome back! Sign in to your account</p>
+      <p class="text-[#222222]/90 text-sm">Welcome back! Sign in to your account</p>
     </div>
 
     <!-- Login Card -->
-    <div class="bg-[#1B1B1B] border border-[#2a2a2a] rounded-lg shadow-2xl p-8">
-      <h2 class="text-2xl font-semibold text-[#F2F2F2] mb-6">Sign In</h2>
+    <div class="bg-white border border-[#D9E1FF] rounded-xl shadow-lg p-8">
+      <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Sign In</h2>
 
       <!-- Error Message -->
       @if (errorMessage()) {
-        <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-md text-red-400 text-sm">
+        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
           {{ errorMessage() }}
         </div>
       }
@@ -23,19 +33,19 @@
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <!-- Email Field -->
         <div>
-          <label for="email" class="block text-sm font-medium text-[#F2F2F2] mb-2">
+          <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Email Address
           </label>
           <input
             id="email"
             type="email"
             formControlName="email"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
+            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
             placeholder="you@example.com"
             [class.border-red-500]="email?.invalid && email?.touched"
           />
           @if (email?.invalid && email?.touched) {
-            <p class="mt-1 text-sm text-red-400">
+            <p class="mt-1 text-sm text-red-600">
               @if (email?.errors?.['required']) {
                 Email is required
               } @else if (email?.errors?.['email']) {
@@ -47,19 +57,19 @@
 
         <!-- Password Field -->
         <div>
-          <label for="password" class="block text-sm font-medium text-[#F2F2F2] mb-2">
+          <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Password
           </label>
           <input
             id="password"
             type="password"
             formControlName="password"
-            class="w-full px-4 py-3 bg-[#121212] border border-[#2a2a2a] rounded-md text-[#F2F2F2] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#00B78E] focus:border-transparent transition"
+            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
             placeholder="Enter your password"
             [class.border-red-500]="password?.invalid && password?.touched"
           />
           @if (password?.invalid && password?.touched) {
-            <p class="mt-1 text-sm text-red-400">
+            <p class="mt-1 text-sm text-red-600">
               @if (password?.errors?.['required']) {
                 Password is required
               } @else if (password?.errors?.['minlength']) {
@@ -76,13 +86,13 @@
               id="remember-me"
               name="remember-me"
               type="checkbox"
-              class="h-4 w-4 text-[#00B78E] focus:ring-[#00B78E] border-[#2a2a2a] rounded bg-[#121212]"
+              class="h-4 w-4 text-[#4C6FFF] focus:ring-[#4C6FFF] border-[#D9E1FF] rounded bg-[#F5F7FF]"
             />
-            <label for="remember-me" class="ml-2 block text-sm text-[#888]">
+            <label for="remember-me" class="ml-2 block text-sm text-[#222222]">
               Remember me
             </label>
           </div>
-          <a routerLink="/auth/forgot-password" class="text-sm text-[#00B78E] hover:underline">
+          <a routerLink="/auth/forgot-password" class="text-sm text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors">
             Forgot password?
           </a>
         </div>
@@ -91,7 +101,7 @@
         <button
           type="submit"
           [disabled]="loading() || loginForm.invalid"
-          class="w-full bg-[#00B78E] hover:bg-[#004C3F] text-white font-semibold py-3 px-4 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
         >
           @if (loading()) {
             <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -107,9 +117,9 @@
 
       <!-- Sign Up Link -->
       <div class="mt-6 text-center">
-        <p class="text-sm text-[#888]">
+        <p class="text-sm text-[#222222]">
           Don't have an account?
-          <a routerLink="/auth/register" class="text-[#00B78E] hover:underline font-medium">
+          <a routerLink="/auth/register" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline font-medium transition-colors">
             Sign up
           </a>
         </p>
@@ -118,7 +128,7 @@
 
     <!-- Back to Home -->
     <div class="mt-6 text-center">
-      <a routerLink="/" class="text-[#888] hover:text-[#00B78E] text-sm transition">
+      <a routerLink="/" class="text-[#222222] hover:text-[#4C6FFF] text-sm transition-colors">
         ← Back to Home
       </a>
     </div>

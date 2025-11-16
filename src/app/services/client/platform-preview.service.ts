@@ -46,6 +46,14 @@ export class PlatformPreviewService {
       description: 'Thumbnail',
       backgroundColor: '#000000',
     },
+    tiktok: {
+      platform: 'tiktok',
+      width: 1080,
+      height: 1920,
+      label: '9:16',
+      description: 'Vertical video',
+      backgroundColor: '#000000',
+    },
   };
 
   getAspect(platform: Platform): PlatformPreviewConfig {

@@ -4,9 +4,13 @@
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
         <i class="fa-solid fa-link text-[#4C6FFF]"></i> Social Accounts
+        <!-- Loading indicator -->
+        @if (socialAccountsService.loading()) {
+          <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-sm"></i>
+        }
       </h1>
       <p class="text-gray-600 text-sm">
-        Connect your favorite social media platforms to schedule, publish, and manage posts directly from NexusPost.
+        Connect your favorite social media platforms to schedule, publish, and manage posts directly from Onevo.
       </p>
     </div>
 

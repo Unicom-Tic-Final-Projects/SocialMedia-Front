@@ -1,49 +1,49 @@
-<div class="min-h-screen bg-slate-50 text-slate-900 md:grid md:grid-cols-[260px,1fr]">
+<div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] md:grid md:grid-cols-[260px,1fr]">
   <aside
-    class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full flex-col gap-10 bg-slate-950 px-6 py-8 text-white shadow-xl transition-transform duration-300 md:static md:translate-x-0 md:shadow-none"
+    class="fixed inset-y-0 left-0 z-30 flex w-72 -translate-x-full flex-col gap-10 bg-[#F5F7FF] border-r border-[#D9E1FF] px-6 py-8 text-[#1A1A1A] shadow-xl transition-transform duration-300 md:static md:translate-x-0 md:shadow-none"
     [class.translate-x-0]="showMenu()"
   >
     <div class="flex flex-col gap-1.5">
-      <div class="text-2xl font-bold tracking-wide text-primary-400">Onevo</div>
+      <div class="text-2xl font-bold tracking-wide text-[#4C6FFF]">One<span class="text-[#1A1A1A]">vo</span></div>
       <div>
-        <div class="text-lg font-semibold">{{ getTenantName() }}</div>
-        <div class="text-sm text-white/60">Agency Workspace</div>
+        <div class="text-lg font-semibold text-[#1A1A1A]">{{ getTenantName() }}</div>
+        <div class="text-sm text-gray-600">Agency Workspace</div>
       </div>
     </div>
 
     <nav class="flex flex-col gap-1.5 text-sm font-medium">
       <a
         routerLink="/agency"
-        routerLinkActive="bg-white/10 text-white"
+        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
         [routerLinkActiveOptions]="{ exact: true }"
-        class="flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 transition hover:bg-white/10 hover:text-white"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
         (click)="showMenu.set(false)"
       >
-        <i class="fa-solid fa-gauge w-5 text-center"></i>
+        <i class="fa-solid fa-gauge w-5 text-center text-[#4C6FFF]"></i>
         Overview
       </a>
       <a
         routerLink="/agency/clients"
-        routerLinkActive="bg-white/10 text-white"
-        class="flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 transition hover:bg-white/10 hover:text-white"
+        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
         (click)="showMenu.set(false)"
       >
-        <i class="fa-solid fa-users w-5 text-center"></i>
+        <i class="fa-solid fa-users w-5 text-center text-[#4C6FFF]"></i>
         Clients
       </a>
       <a
         routerLink="/agency/tasks"
-        routerLinkActive="bg-white/10 text-white"
-        class="flex items-center gap-3 rounded-xl px-4 py-3 text-white/70 transition hover:bg-white/10 hover:text-white"
+        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
         (click)="showMenu.set(false)"
       >
-        <i class="fa-solid fa-list-check w-5 text-center"></i>
+        <i class="fa-solid fa-list-check w-5 text-center text-[#4C6FFF]"></i>
         Tasks
       </a>
     </nav>
 
     <button
-      class="mt-auto inline-flex items-center gap-3 rounded-xl border border-white/20 px-4 py-3 text-sm font-medium text-white transition hover:border-white/40 hover:bg-white/10"
+      class="mt-auto inline-flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-100"
       (click)="logout()"
     >
       <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
@@ -52,17 +52,17 @@
   </aside>
 
   <div class="flex min-h-screen flex-col">
-    <header class="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4 md:px-10 md:py-6">
-      <button class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary-50 text-primary-500 md:hidden" (click)="toggleMenu()">
+    <header class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6">
+      <button class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition" (click)="toggleMenu()">
         <i class="fa-solid fa-bars text-lg"></i>
       </button>
 
-      <div class="ml-auto text-sm font-medium text-slate-500 md:text-base">
+      <div class="ml-auto text-sm font-medium text-[#222222] md:text-base">
         {{ getUserEmail() }}
       </div>
     </header>
 
-    <main class="flex-1 px-6 py-6 md:px-10 md:py-10">
+    <main class="flex-1 px-6 py-6 md:px-10 md:py-10 bg-[#FFFFFF]">
       <router-outlet></router-outlet>
     </main>
   </div>

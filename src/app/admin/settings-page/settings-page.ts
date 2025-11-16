@@ -33,7 +33,7 @@ export class AdminSettingsPage implements OnInit {
       next: (settings) => {
         // Transform API data
         this.generalSettings = {
-          platformName: settings.title || 'NexusPost',
+          platformName: settings.title || 'Onevo',
           platformDescription: settings.body || 'Social media management platform'
         };
         this.settingsService.getSecuritySettings().subscribe({

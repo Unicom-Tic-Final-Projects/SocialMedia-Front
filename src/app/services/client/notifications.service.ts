@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map, tap, catchError, of } from 'rxjs';
 import { NotificationItem } from '../../models/social.models';
 import { API_BASE_URL } from '../../config/api.config';
 
@@ -16,32 +16,89 @@ export class NotificationsService {
     this.refresh().subscribe();
   }
 
-  refresh(limit = 15): Observable<NotificationItem[]> {
+  refresh(limit = 20, isRead?: boolean): Observable<NotificationItem[]> {
+    const params: any = {
+      PageNumber: '1',
+      PageSize: limit.toString(),
+    };
+
+    if (isRead !== undefined) {
+      params.IsRead = isRead.toString();
+    }
+
     return this.http
-      .get<{ comments: any[] }>(`${this.baseUrl}/comments`, { params: { limit } as any })
+      .get<any>(`${this.baseUrl}/api/notifications`, { params })
       .pipe(
-        map(({ comments }) => comments.map((comment) => this.mapNotification(comment))),
-        tap((items) => this.notificationsSignal.set(items))
+        map((response) => {
+          // Handle ApiResponse structure
+          const notifications = response?.data || response || [];
+          return Array.isArray(notifications) 
+            ? notifications.map((notif: any) => this.mapNotification(notif))
+            : [];
+        }),
+        tap((items) => this.notificationsSignal.set(items)),
+        catchError((error) => {
+          console.error('Error fetching notifications:', error);
+          this.notificationsSignal.set([]);
+          return of([]);
+        })
       );
   }
 
-  markAsRead(id: number): void {
-    this.notificationsSignal.update((items) =>
-      items.map((item) => (item.id === id ? { ...item, read: true } : item))
+  markAsRead(id: string | number): Observable<void> {
+    return this.http.post<any>(`${this.baseUrl}/api/notifications/${id}/read`, {}).pipe(
+      tap(() => {
+        this.notificationsSignal.update((items) =>
+          items.map((item) => (item.id === id ? { ...item, read: true } : item))
+        );
+      }),
+      map(() => void 0),
+      catchError((error) => {
+        console.error('Error marking notification as read:', error);
+        return of(void 0);
+      })
     );
   }
 
-  private mapNotification(comment: any): NotificationItem {
-    const createdAt = new Date();
-    createdAt.setMinutes(createdAt.getMinutes() - comment.id * 5);
-    const types: NotificationItem['type'][] = ['comment', 'mention', 'alert'];
+  deleteNotification(id: string | number): Observable<void> {
+    return this.http.delete<any>(`${this.baseUrl}/api/notifications/${id}`).pipe(
+      tap(() => {
+        this.notificationsSignal.update((items) => items.filter((item) => item.id !== id));
+      }),
+      map(() => void 0),
+      catchError((error) => {
+        console.error('Error deleting notification:', error);
+        return of(void 0);
+      })
+    );
+  }
+
+  private mapNotification(notif: any): NotificationItem {
+    // Map backend NotificationResponse to frontend NotificationItem
+    const id = notif.id || notif.Id || notif.notificationId || 0;
+    const source = notif.title || notif.Title || notif.source || 'System';
+    const message = notif.message || notif.Message || notif.content || '';
+    const type = (notif.type || notif.Type || 'system').toLowerCase();
+    const createdAt = notif.createdAt || notif.CreatedAt || notif.timestamp || new Date().toISOString();
+    const read = notif.isRead !== undefined ? notif.isRead : (notif.IsRead !== undefined ? notif.IsRead : false);
+
+    // Map notification type to frontend type
+    let mappedType: NotificationItem['type'] = 'alert';
+    if (type === 'comment' || type === 'mention') {
+      mappedType = type as 'comment' | 'mention';
+    } else if (type === 'system') {
+      mappedType = 'system';
+    } else {
+      mappedType = 'alert';
+    }
+
     return {
-      id: comment.id,
-      source: `@${comment.user?.username ?? 'user'}`,
-      message: comment.body,
-      type: types[comment.id % types.length],
-      createdAt: createdAt.toISOString(),
-      read: false,
+      id: typeof id === 'string' ? parseInt(id, 10) || 0 : id,
+      source,
+      message,
+      type: mappedType,
+      createdAt,
+      read,
     };
   }
 }
