@@ -21,6 +21,7 @@ export class DashboardLayout implements OnInit {
   readonly isIndividual = this.authService.isIndividual;
   
   showUserMenu = signal(false);
+  showMobileMenu = signal(false);
 
   constructor() {
     // React to user changes
@@ -43,6 +44,14 @@ export class DashboardLayout implements OnInit {
 
   toggleUserMenu(): void {
     this.showUserMenu.update(value => !value);
+  }
+
+  toggleMobileMenu(): void {
+    this.showMobileMenu.update(value => !value);
+  }
+
+  closeMobileMenu(): void {
+    this.showMobileMenu.set(false);
   }
 
   logout(): void {

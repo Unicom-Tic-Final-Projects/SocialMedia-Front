@@ -1,4 +1,4 @@
-export type Platform = 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'youtube';
+export type Platform = 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'youtube' | 'tiktok' | 'pinterest';
 
 export interface SocialAccount {
   id: string;
@@ -30,10 +30,15 @@ export interface PlatformPreviewConfig extends PlatformAspect {
 
 export interface PostDraft {
   id: string;
-  caption: string;
+  caption: string; // Global caption (default for all platforms)
+  platformCaptions?: Record<Platform, string>; // Platform-specific captions (override global)
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
   selectedPlatforms: Platform[];
+  platformCropConfigs?: Record<Platform, {
+    crop: CropAdjustment;
+    cropBox: { width: number; height: number; left: number; top: number };
+  }>;
   createdAt: string;
   updatedAt: string;
 }

@@ -4,9 +4,13 @@
     <div class="mb-8">
       <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
         <i class="fa-solid fa-link text-[#4C6FFF]"></i> Social Accounts
+        <!-- Loading indicator -->
+        @if (socialAccountsService.loading()) {
+          <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-sm"></i>
+        }
       </h1>
       <p class="text-gray-600 text-sm">
-        Connect your favorite social media platforms to schedule, publish, and manage posts directly from NexusPost.
+        Connect your favorite social media platforms to schedule, publish, and manage posts directly from Onevo.
       </p>
     </div>
 
@@ -66,9 +70,9 @@
         </div>
 
         <div class="flex gap-2">
-          <!-- Connect/Connected Button -->
+          <!-- Connect/Connected Button (hidden for team members in client dashboard context) -->
           <button
-            *ngIf="!isConnected(platform.value)"
+            *ngIf="!isConnected(platform.value) && !(isTeamMember() && isViewingClient())"
             type="button"
             (click)="connectOrManage(platform.value)"
             class="flex-1 bg-[#4C6FFF] text-white py-2 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
@@ -82,20 +86,28 @@
             </span>
           </button>
 
-          <!-- Connected State Button -->
+          <!-- Disconnect Button (hidden for team members in client dashboard context) -->
           <button
-            *ngIf="isConnected(platform.value)"
+            *ngIf="isConnected(platform.value) && !(isTeamMember() && isViewingClient())"
             type="button"
-            disabled
-            class="flex-1 bg-green-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md text-sm cursor-default opacity-90"
+            (click)="disconnectAccount(platform.value)"
+            [disabled]="isDisconnecting(platform.value)"
+            class="flex-1 bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
+            [class.opacity-60]="isDisconnecting(platform.value)"
+            [class.cursor-not-allowed]="isDisconnecting(platform.value)"
           >
-            <i class="fa-solid fa-check-circle"></i>
-            <span>Connected</span>
+            <i class="fa-solid fa-unlink"></i>
+            <span *ngIf="!isDisconnecting(platform.value); else disconnectingTpl">
+              Disconnect
+            </span>
+            <ng-template #disconnectingTpl>
+              <span>Disconnecting...</span>
+            </ng-template>
           </button>
 
-          <!-- Manage Button (only when connected) -->
+          <!-- Manage Button (only when connected, hidden for team members in client dashboard context) -->
           <button
-            *ngIf="isConnected(platform.value)"
+            *ngIf="isConnected(platform.value) && !(isTeamMember() && isViewingClient())"
             type="button"
             (click)="connectOrManage(platform.value)"
             class="px-4 bg-white border border-[#D9E1FF] text-[#1A1A1A] py-2 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF] transition-all duration-200"
@@ -104,15 +116,6 @@
             <i class="fa-solid fa-gear"></i>
           </button>
 
-          <!-- Preview Button -->
-          <button
-            type="button"
-            (click)="openPreview(platform.value)"
-            class="px-4 bg-white border border-[#D9E1FF] text-[#1A1A1A] py-2 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF] transition-all duration-200"
-            title="Preview Post"
-          >
-            <i class="fa-solid fa-eye"></i>
-          </button>
         </div>
       </div>
     </div>
@@ -121,15 +124,6 @@
 <ng-template #connectingTpl>
   <span>Connecting…</span>
 </ng-template>
-  <!-- Post Preview Modal -->
-  <app-post-preview-modal
-    [open]="previewOpen"
-    [mediaUrl]="previewMediaUrl"
-    [caption]="previewCaption"
-    [targets]="previewTargets"
-    (close)="closePreview()"
-  ></app-post-preview-modal>
-
   <!-- Manual Connect Modal (for Instagram) -->
   @if (manualConnectModalOpen) {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" (click)="closeManualConnectModal()">

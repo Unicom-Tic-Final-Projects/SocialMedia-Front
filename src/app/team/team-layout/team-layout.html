@@ -1,0 +1,139 @@
+<div
+  class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] md:grid"
+  [class.md:grid-cols-[260px,1fr]]="!showClientSidebar()"
+  [class.md:grid-cols-[260px,260px,1fr]]="showClientSidebar()"
+>
+  <!-- Main Team Sidebar -->
+  <aside
+    class="fixed inset-y-0 left-0 z-30 flex flex-col gap-10 bg-[#F5F7FF] border-r border-[#D9E1FF] text-[#1A1A1A] shadow-xl transition-all duration-300 md:static md:translate-x-0 md:shadow-none"
+    [class.w-72]="!isTeamSidebarCollapsed()"
+    [class.w-[72px]]="isTeamSidebarCollapsed()"
+    [class.px-6]="!isTeamSidebarCollapsed()"
+    [class.px-3]="isTeamSidebarCollapsed()"
+    [class.py-8]="!isTeamSidebarCollapsed()"
+    [class.py-6]="isTeamSidebarCollapsed()"
+    [class.-translate-x-full]="!showMenu()"
+    [class.translate-x-0]="showMenu()"
+    (mouseenter)="isTeamSidebarCollapsed() && isTeamSidebarCollapsed.set(false)"
+    (mouseleave)="selectedClient() && isTeamSidebarCollapsed.set(true)"
+  >
+    <div class="flex flex-col gap-1.5">
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-10 w-10 items-center justify-center rounded-xl bg-[#4C6FFF] text-white shadow-md"
+        >
+          <span class="text-lg font-bold">O</span>
+        </div>
+        @if (!isTeamSidebarCollapsed()) {
+          <div>
+            <div class="text-lg font-semibold text-[#1A1A1A]">{{ getTenantName() }}</div>
+            <div class="text-xs text-gray-600">Team Member Portal</div>
+            <div class="text-xs text-gray-500 mt-1">Role: {{ getUserRole() }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <nav class="flex flex-col gap-1.5 text-sm font-medium mt-6">
+      <a
+        routerLink="/team"
+        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        (click)="showMenu.set(false)"
+      >
+        <i class="fa-solid fa-gauge w-5 text-center text-[#4C6FFF]"></i>
+        @if (!isTeamSidebarCollapsed()) { My Tasks }
+      </a>
+      @if (isAdmin()) {
+        <a
+          routerLink="/team/approvals"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+          (click)="showMenu.set(false)"
+        >
+          <i class="fa-solid fa-check-circle w-5 text-center text-[#4C6FFF]"></i>
+          @if (!isTeamSidebarCollapsed()) { Approvals }
+        </a>
+      }
+    </nav>
+
+    <button
+      class="mt-auto inline-flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-100"
+      (click)="logout()"
+    >
+      <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
+      @if (!isTeamSidebarCollapsed()) { Logout }
+    </button>
+  </aside>
+
+  <!-- Client Sub-Sidebar (when viewing client dashboard) -->
+  @if (showClientSidebar() && selectedClient()) {
+    <aside
+      class="hidden md:flex min-h-screen flex-col gap-6 bg-[#F0F4FF] border-r border-[#D9E1FF] px-6 py-8 text-[#1A1A1A] shadow-xl"
+    >
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-[#E0E7FF] rounded-lg flex items-center justify-center">
+          <i class="fa-solid fa-user text-[#4C6FFF]"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-[#1A1A1A]">{{ selectedClient()?.name }}</p>
+          <p class="text-xs text-gray-600">Client Dashboard</p>
+        </div>
+      </div>
+
+      <nav class="flex flex-col gap-1.5 text-sm font-medium mt-4">
+        <a
+          [routerLink]="['/team/client', selectedClient()?.id, 'dashboard']"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        >
+          <i class="fa-solid fa-home w-5 text-center text-[#4C6FFF]"></i>
+          Overview
+        </a>
+        <a
+          [routerLink]="['/team/client', selectedClient()?.id, 'posts']"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        >
+          <i class="fa-solid fa-file-alt w-5 text-center text-[#4C6FFF]"></i>
+          Posts
+        </a>
+        <a
+          [routerLink]="['/team/client', selectedClient()?.id, 'analytics']"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        >
+          <i class="fa-solid fa-chart-bar w-5 text-center text-[#4C6FFF]"></i>
+          Analytics
+        </a>
+        <a
+          [routerLink]="['/team/client', selectedClient()?.id, 'social-account']"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        >
+          <i class="fa-solid fa-link w-5 text-center text-[#4C6FFF]"></i>
+          Social Accounts
+        </a>
+      </nav>
+    </aside>
+  }
+
+  <div class="flex min-h-screen flex-col">
+    <header class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6">
+      <button class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition" (click)="toggleMenu()">
+        <i class="fa-solid fa-bars text-lg"></i>
+      </button>
+
+      <div class="ml-auto text-sm font-medium text-[#222222] md:text-base">
+        {{ getUserEmail() }}
+      </div>
+    </header>
+
+    <main class="flex-1 px-6 py-6 md:px-10 md:py-10 bg-[#FFFFFF]">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
+

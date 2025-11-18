@@ -31,25 +31,49 @@ export class AuthSuccess implements OnInit {
 
       this.loading = false;
 
-      // If success, refresh accounts list and redirect after 3 seconds
+      // Determine redirect route based on current URL
+      const currentUrl = this.router.url;
+      const isAgencyClientRoute = currentUrl.includes('/agency/client/');
+      let redirectRoute: string[];
+
+      if (isAgencyClientRoute) {
+        // Extract clientId from current route
+        const clientMatch = currentUrl.match(/\/agency\/client\/([^\/]+)/);
+        if (clientMatch) {
+          const clientId = clientMatch[1];
+          redirectRoute = ['/agency/client', clientId, 'social-account'];
+        } else {
+          // Fallback to agency social-account
+          redirectRoute = ['/agency/social-account'];
+        }
+      } else {
+        // Individual dashboard route
+        redirectRoute = ['/dashboard/social-account'];
+      }
+
+      // If success, refresh accounts list and redirect immediately with connected parameter
       if (this.success) {
+        // Refresh accounts first to ensure they're loaded
         this.socialAccountsService.refresh().subscribe({
           next: () => {
-            // Auto-redirect to social-account page after 3 seconds
+            // Auto-redirect to social-account page after 2 seconds (reduced from 3)
+            // with connected=true to trigger refresh on social account page
             setTimeout(() => {
-              this.router.navigate(['/dashboard/social-account'], {
-                queryParams: { connected: this.platform },
+              this.router.navigate(redirectRoute, {
+                queryParams: { connected: 'true', platform: this.platform },
+                replaceUrl: true, // Replace current history entry to avoid back button issues
               });
-            }, 3000);
+            }, 2000);
           },
           error: (error) => {
             console.error('Failed to refresh accounts:', error);
             // Still redirect even if refresh fails
             setTimeout(() => {
-              this.router.navigate(['/dashboard/social-account'], {
-                queryParams: { connected: this.platform },
+              this.router.navigate(redirectRoute, {
+                queryParams: { connected: 'true', platform: this.platform },
+                replaceUrl: true,
               });
-            }, 3000);
+            }, 2000);
           },
         });
       } else if (this.error) {
@@ -60,6 +84,30 @@ export class AuthSuccess implements OnInit {
   }
 
   goToSocialAccounts(): void {
-    this.router.navigate(['/dashboard/social-account']);
+    // Determine redirect route based on current URL
+    const currentUrl = this.router.url;
+    const isAgencyClientRoute = currentUrl.includes('/agency/client/');
+    let redirectRoute: string[];
+
+    if (isAgencyClientRoute) {
+      // Extract clientId from current route
+      const clientMatch = currentUrl.match(/\/agency\/client\/([^\/]+)/);
+      if (clientMatch) {
+        const clientId = clientMatch[1];
+        redirectRoute = ['/agency/client', clientId, 'social-account'];
+      } else {
+        // Fallback to agency social-account
+        redirectRoute = ['/agency/social-account'];
+      }
+    } else {
+      // Individual dashboard route
+      redirectRoute = ['/dashboard/social-account'];
+    }
+
+    // Navigate with connected parameter to trigger refresh
+    this.router.navigate(redirectRoute, {
+      queryParams: { connected: 'true', platform: this.platform },
+      replaceUrl: true,
+    });
   }
 }

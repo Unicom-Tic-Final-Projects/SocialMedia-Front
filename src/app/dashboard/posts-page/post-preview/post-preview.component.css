@@ -1,0 +1,63 @@
+/* Post Preview Component Styles */
+
+/* Range input styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #4C6FFF;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: #4C6FFF;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Crop box handle hover effects */
+.cursor-move:hover {
+  cursor: move;
+}
+
+.cursor-n-resize:hover {
+  cursor: n-resize;
+}
+
+.cursor-s-resize:hover {
+  cursor: s-resize;
+}
+
+.cursor-w-resize:hover {
+  cursor: w-resize;
+}
+
+.cursor-e-resize:hover {
+  cursor: e-resize;
+}
+
+.cursor-se-resize:hover {
+  cursor: se-resize;
+}
+
+/* Smooth transitions */
+button {
+  transition: all 0.2s ease;
+}
+
+/* Modal overlay */
+.fixed.inset-0 {
+  backdrop-filter: blur(4px);
+}
+
+

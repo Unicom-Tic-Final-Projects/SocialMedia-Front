@@ -45,13 +45,22 @@ export class LoginPage {
 
     this.authService.login(loginRequest).subscribe({
       next: (response) => {
-        if (response.success) {
+        console.log('[LoginPage] Login response received:', response);
+        if (response && response.success) {
           const returnUrl: string | undefined = this.route.snapshot.queryParams['returnUrl'];
           const responseTenantType = response.data?.user?.tenantType;
 
-          const handleNavigation = (tenantType?: 'Agency' | 'Individual' | 'System') => {
+          const handleNavigation = (tenantType?: 'Agency' | 'Individual' | 'System', userRole?: string) => {
             if (tenantType === 'System') {
               this.router.navigateByUrl('/admin');
+              return;
+            }
+
+            // Check if user is a team member (Editor or Admin in Agency tenant)
+            const isTeamMember = tenantType === 'Agency' && (userRole === 'Editor' || userRole === 'Admin');
+            
+            if (isTeamMember) {
+              this.router.navigateByUrl(returnUrl ?? '/team');
               return;
             }
 
@@ -66,10 +75,10 @@ export class LoginPage {
           };
 
           if (responseTenantType) {
-            handleNavigation(responseTenantType);
+            handleNavigation(responseTenantType, response.data?.user?.role);
           } else {
             this.authService.loadCurrentUser().subscribe((user) => {
-              handleNavigation(user?.tenantType);
+              handleNavigation(user?.tenantType, user?.role);
             });
           }
         } else {

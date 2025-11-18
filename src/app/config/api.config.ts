@@ -6,10 +6,11 @@ export function provideApiBaseUrl(url?: string): Provider {
   const resolved =
     url ||
     // @ts-ignore allow optional global at runtime
-    (typeof window !== 'undefined' && (window as any).ENV?.API_BASE_URL) ||
-    // Use HTTP for local development - API Gateway runs on HTTP port 5000 by default
-    //'http://localhost:5000'; // API Gateway URL (HTTP by default, use HTTPS if gateway is configured for HTTPS)
-    'https://nexuspost-api-dev-896.azurewebsites.net'
+    //(typeof window !== 'undefined' && (window as any).ENV?.API_BASE_URL) ||
+    // Production: Azure backend URL
+    'https://nexuspost-api-dev-896.azurewebsites.net';
+    // Local development: Uncomment below for local development
+     //'http://localhost:5000';
   return { provide: API_BASE_URL, useValue: resolved };
 }
 

@@ -46,6 +46,22 @@ export class PlatformPreviewService {
       description: 'Thumbnail',
       backgroundColor: '#000000',
     },
+    tiktok: {
+      platform: 'tiktok',
+      width: 1080,
+      height: 1920,
+      label: '9:16',
+      description: 'Vertical video',
+      backgroundColor: '#000000',
+    },
+    pinterest: {
+      platform: 'pinterest',
+      width: 1000,
+      height: 1500,
+      label: '2:3',
+      description: 'Pin image',
+      backgroundColor: '#FFFFFF',
+    },
   };
 
   getAspect(platform: Platform): PlatformPreviewConfig {

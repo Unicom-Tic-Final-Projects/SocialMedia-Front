@@ -1,4 +1,4 @@
-<div class="flex h-screen bg-[#121212] overflow-hidden">
+<div class="flex h-screen bg-[#FFFFFF] overflow-hidden">
   <!-- Sidebar -->
   <app-admin-sidebar [isCollapsed]="isSidebarCollapsed" (toggleCollapse)="toggleSidebar()"></app-admin-sidebar>
 
@@ -10,7 +10,7 @@
     <app-admin-navbar [isSidebarCollapsed]="isSidebarCollapsed" (toggleSidebar)="toggleSidebar()"></app-admin-navbar>
 
     <!-- Page Content -->
-    <main class="flex-1 overflow-y-auto p-6">
+    <main class="flex-1 overflow-y-auto p-6 bg-[#FFFFFF]">
       <router-outlet />
     </main>
   </div>

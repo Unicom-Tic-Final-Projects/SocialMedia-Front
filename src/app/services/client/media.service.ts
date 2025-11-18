@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, throwError, tap } from 'rxjs';
+import { Observable, catchError, throwError, tap, map } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { AuthService } from '../../core/services/auth.service';
 import { MediaAssetResponse } from '../../models/post.models';
@@ -25,30 +25,39 @@ export class MediaService {
   readonly uploading = this.uploadingSignal.asReadonly();
 
   /**
-   * Upload media file
-   * Note: Backend currently expects metadata, not actual file
-   * In production, this would upload the actual file to cloud storage
+   * Upload media file.
+   * Sends the actual file as multipart/form-data to backend, which uploads to Cloudinary.
    */
   uploadMedia(file: File): Observable<MediaAssetResponse> {
-    const user = this.authService.user();
-    if (!user || !user.tenantId) {
-      return throwError(() => new Error('User not authenticated or tenant ID missing'));
-    }
-
     this.uploadingSignal.set(true);
 
-    const request: UploadMediaRequest = {
-      tenantId: user.tenantId,
-      uploadedByUserId: user.userId,
-      fileType: file.type,
-      fileSize: file.size,
-      fileName: file.name,
-    };
+    const formData = new FormData();
+    formData.append('file', file);
 
-    return this.http.post<MediaAssetResponse>(`${this.baseUrl}/api/content/media/upload`, request).pipe(
+    // Response interceptor unwraps ApiResponse<T>, so response is already MediaAssetResponse
+    // But we need to handle both cases: unwrapped (from interceptor) and wrapped (if interceptor fails)
+    return this.http.post<any>(`${this.baseUrl}/api/media/upload`, formData).pipe(
+      map(response => {
+        if (!response) {
+          throw new Error('Media upload returned undefined response');
+        }
+        
+        // Check if response is already unwrapped (has MediaAssetResponse properties)
+        if (response.mediaId || response.url) {
+          return response as MediaAssetResponse;
+        }
+        
+        // Check if response is wrapped in ApiResponse structure
+        if (response.data) {
+          return response.data as MediaAssetResponse;
+        }
+        
+        throw new Error('Media upload response missing data field');
+      }),
       tap(() => this.uploadingSignal.set(false)),
       catchError((error) => {
         this.uploadingSignal.set(false);
+        console.error('Media upload error:', error);
         return throwError(() => error);
       })
     );
@@ -58,7 +67,7 @@ export class MediaService {
    * Get media by ID
    */
   getMedia(mediaId: string): Observable<MediaAssetResponse> {
-    return this.http.get<MediaAssetResponse>(`${this.baseUrl}/api/content/media/${mediaId}`);
+    return this.http.get<MediaAssetResponse>(`${this.baseUrl}/api/media/${mediaId}`);
   }
 
   /**
@@ -70,7 +79,7 @@ export class MediaService {
       return throwError(() => new Error('User not authenticated or tenant ID missing'));
     }
 
-    return this.http.get<MediaAssetResponse[]>(`${this.baseUrl}/api/content/media/tenant/${user.tenantId}`);
+    return this.http.get<MediaAssetResponse[]>(`${this.baseUrl}/api/media/tenant/${user.tenantId}`);
   }
 }
 

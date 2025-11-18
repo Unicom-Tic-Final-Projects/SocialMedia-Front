@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { Observable, map, tap, catchError, of } from 'rxjs';
 import { ApprovalRequest } from '../../models/social.models';
 import { API_BASE_URL } from '../../config/api.config';
 
@@ -18,32 +18,48 @@ export class ApprovalsService {
 
   refresh(limit = 12): Observable<ApprovalRequest[]> {
     return this.http
-      .get<{ posts: any[] }>(`${this.baseUrl}/posts`, { params: { limit } as any })
+      .get<any>(`${this.baseUrl}/api/approvals/pending`)
       .pipe(
-        map(({ posts }) =>
-          posts.map((post) => this.mapApproval(post))
-        ),
-        tap((items) => this.approvalsSignal.set(items))
+        map((response) => {
+          // Handle ApiResponse structure
+          const approvals = response?.data || response || [];
+          return Array.isArray(approvals)
+            ? approvals.map((approval: any) => this.mapApproval(approval))
+            : [];
+        }),
+        tap((items) => this.approvalsSignal.set(items)),
+        catchError((error) => {
+          console.error('Error fetching approvals:', error);
+          this.approvalsSignal.set([]);
+          return [];
+        })
       );
   }
 
-  updateStatus(id: number, status: ApprovalRequest['status']): void {
-    this.approvalsSignal.update((items) =>
-      items.map((item) => (item.id === id ? { ...item, status } : item))
-    );
+  updateStatus(id: number, status: ApprovalRequest['status']): Observable<void> {
+    return this.http
+      .post<any>(`${this.baseUrl}/api/approvals/review`, {
+        approvalId: id,
+        status: status,
+        comments: status === 'rejected' ? 'Rejected' : status === 'approved' ? 'Approved' : '',
+      })
+      .pipe(
+        tap(() => {
+          this.approvalsSignal.update((items) =>
+            items.map((item) => (item.id === id ? { ...item, status } : item))
+          );
+        })
+      );
   }
 
-  private mapApproval(post: any): ApprovalRequest {
-    const submittedAt = new Date();
-    submittedAt.setHours(submittedAt.getHours() - (post.id % 48));
-    const statuses: ApprovalRequest['status'][] = ['pending', 'approved', 'rejected'];
+  private mapApproval(approval: any): ApprovalRequest {
     return {
-      id: post.id,
-      postId: post.id,
-      reviewer: post.userId ? `Reviewer #${post.userId}` : 'Automated Workflow',
-      status: statuses[post.id % statuses.length],
-      submittedAt: submittedAt.toISOString(),
-      notes: post.body,
+      id: approval.id || approval.approvalId || 0,
+      postId: approval.postId || 0,
+      reviewer: approval.reviewerId || approval.reviewedBy || 'Unknown Reviewer',
+      status: (approval.status?.toLowerCase() || 'pending') as ApprovalRequest['status'],
+      submittedAt: approval.createdAt || approval.requestedAt || new Date().toISOString(),
+      notes: approval.comments || approval.notes || '',
     };
   }
 }

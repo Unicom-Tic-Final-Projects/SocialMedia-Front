@@ -1,0 +1,85 @@
+<section class="flex flex-col gap-8">
+  <header class="flex flex-col gap-4">
+    <div class="space-y-2">
+      <h1 class="text-3xl font-semibold text-slate-900">Task Approvals</h1>
+      <p class="text-sm text-slate-500 md:text-base">
+        Review and approve completed tasks from your team members.
+      </p>
+    </div>
+  </header>
+
+  @if (successMessage()) {
+    <div class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700 text-sm">
+      <i class="fa-solid fa-check-circle mr-2"></i>
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (error() || errorMessage()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
+      <i class="fa-solid fa-exclamation-circle mr-2"></i>
+      {{ error() || errorMessage() }}
+    </div>
+  }
+
+  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    @if (loading()) {
+      <div class="px-6 py-12 text-center text-sm text-slate-500">
+        <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-2 text-primary-500"></i>
+        <p>Loading tasks...</p>
+      </div>
+    } @else if (getCompletedTasks().length === 0) {
+      <div class="px-6 py-10 text-center text-sm font-semibold text-slate-400">
+        <i class="fa-solid fa-check-circle text-3xl mb-3 text-slate-300"></i>
+        <p>No completed tasks pending approval.</p>
+      </div>
+    } @else {
+      <div class="divide-y divide-slate-200">
+        @for (task of getCompletedTasks(); track trackTaskById($index, task)) {
+          <div class="p-6 hover:bg-slate-50/70 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-lg font-semibold text-slate-900">{{ task.title }}</h3>
+                  <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-green-50 text-green-600">
+                    Completed
+                  </span>
+                </div>
+                @if (task.description) {
+                  <p class="text-sm text-slate-600 mb-3">{{ task.description }}</p>
+                }
+                <div class="flex items-center gap-4 text-xs text-slate-500">
+                  @if (task.dueDate) {
+                    <span>
+                      <i class="fa-solid fa-calendar mr-1"></i>
+                      Due: {{ task.dueDate | date:'short' }}
+                    </span>
+                  }
+                  <span>
+                    <i class="fa-solid fa-clock mr-1"></i>
+                    Completed: {{ task.updatedAt | date:'short' }}
+                  </span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="rejectTask(task)"
+                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                  <i class="fa-solid fa-times"></i>
+                  Reject
+                </button>
+                <button
+                  (click)="approveTask(task)"
+                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                  <i class="fa-solid fa-check"></i>
+                  Approve
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>
+
