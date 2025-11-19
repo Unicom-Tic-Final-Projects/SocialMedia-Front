@@ -1,0 +1,109 @@
+<div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+  <!-- Header -->
+  <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+    <div>
+      <h3 class="text-xl font-bold text-[#1A1A1A]">Select Media from Library</h3>
+      <p class="text-sm text-gray-600 mt-1">Choose an image or video for your post</p>
+    </div>
+    <button
+      (click)="close.emit()"
+      class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition">
+      <i class="fa-solid fa-times text-xl"></i>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="p-4 border-b border-gray-200 bg-[#F5F7FF]">
+    <div class="flex flex-wrap gap-3">
+      <input
+        type="text"
+        placeholder="Search media..."
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value); onSearchChange()"
+        class="flex-1 min-w-[200px] border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
+      />
+      <div class="flex gap-2">
+        <button
+          (click)="selectedFilter.set('all'); onFilterChange()"
+          [class.bg-[#4C6FFF]]="selectedFilter() === 'all'"
+          [class.text-white]="selectedFilter() === 'all'"
+          [class.text-[#1A1A1A]]="selectedFilter() !== 'all'"
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          All
+        </button>
+        <button
+          (click)="selectedFilter.set('images'); onFilterChange()"
+          [class.bg-[#4C6FFF]]="selectedFilter() === 'images'"
+          [class.text-white]="selectedFilter() === 'images'"
+          [class.text-[#1A1A1A]]="selectedFilter() !== 'images'"
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          Images
+        </button>
+        <button
+          (click)="selectedFilter.set('videos'); onFilterChange()"
+          [class.bg-[#4C6FFF]]="selectedFilter() === 'videos'"
+          [class.text-white]="selectedFilter() === 'videos'"
+          [class.text-[#1A1A1A]]="selectedFilter() !== 'videos'"
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          Videos
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="mx-4 mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Media Grid -->
+  <div class="flex-1 overflow-y-auto p-4">
+    @if (loading()) {
+      <div class="text-center py-12">
+        <i class="fa-solid fa-circle-notch animate-spin text-4xl text-[#4C6FFF] mb-4"></i>
+        <p class="text-gray-600">Loading media library...</p>
+      </div>
+    } @else if (mediaItems().length === 0) {
+      <div class="text-center py-12 border-2 border-dashed border-[#D9E1FF] rounded-xl">
+        <i class="fa-solid fa-images text-5xl text-gray-400 mb-4"></i>
+        <p class="text-gray-600 mb-2">No media files found</p>
+        <p class="text-sm text-gray-500">Upload media files to use them in your posts</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        @for (item of mediaItems(); track item.id) {
+          <div
+            (click)="selectMedia(item)"
+            class="group relative bg-white rounded-lg border-2 border-[#D9E1FF] overflow-hidden hover:border-[#4C6FFF] hover:shadow-lg transition cursor-pointer">
+            <div class="aspect-square bg-gray-100 relative">
+              @if (item.fileType.startsWith('image/')) {
+                <img [src]="item.thumbnailUrl || item.url" [alt]="item.fileName" class="w-full h-full object-cover" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center">
+                  <i class="fa-solid fa-video text-4xl text-gray-400"></i>
+                </div>
+              }
+              <div class="absolute inset-0 bg-[#4C6FFF]/0 group-hover:bg-[#4C6FFF]/20 transition flex items-center justify-center">
+                <div class="opacity-0 group-hover:opacity-100 transition">
+                  <div class="bg-[#4C6FFF] text-white px-4 py-2 rounded-lg font-medium text-sm">
+                    <i class="fa-solid fa-check mr-2"></i>
+                    Select
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="p-2">
+              <p class="text-xs font-medium text-[#1A1A1A] truncate" [title]="item.fileName">
+                {{ item.fileName }}
+              </p>
+              <p class="text-xs text-gray-600">{{ formatFileSize(item.fileSize) }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+

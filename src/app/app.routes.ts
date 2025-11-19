@@ -26,6 +26,8 @@ export const routes: Routes = [
       { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
       { path: 'clients', loadComponent: () => import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage) },
       { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
+      { path: 'content-management', loadComponent: () => import('./dashboard/content-management/content-management').then((m) => m.ContentManagementComponent) },
+      { path: 'ai-content', redirectTo: 'content-management', pathMatch: 'full' },
       { path: 'media', loadComponent: () => import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary) },
       { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
       { path: 'notifications', loadComponent: () => import('./dashboard/notifications-page/notifications-page').then((m) => m.NotificationsPage) },

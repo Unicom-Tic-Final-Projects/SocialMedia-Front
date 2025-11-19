@@ -1,0 +1,25 @@
+/* Content Calendar Styles */
+
+/* Ensure calendar is scrollable on mobile */
+@media (max-width: 640px) {
+  .calendar-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Smooth drag and drop transitions */
+[draggable="true"] {
+  cursor: move;
+  user-select: none;
+}
+
+[draggable="true"]:active {
+  opacity: 0.5;
+}
+
+/* Drop zone highlight */
+.drop-zone-active {
+  background-color: rgba(76, 111, 255, 0.1);
+  border: 2px dashed #4C6FFF;
+}

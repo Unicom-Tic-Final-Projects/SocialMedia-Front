@@ -35,7 +35,7 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
       const body = response.body;
       
       // Log the raw response for debugging
-      if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount')) {
+      if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount') || req.url.includes('/api/ai')) {
         console.log('[ResponseInterceptor] Raw response body for', req.url, ':', body);
       }
       
@@ -44,10 +44,13 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
       if (body && typeof body === 'object' && 'success' in body) {
         // If success is false, throw error (will be caught by error interceptor)
         if (!body.success) {
-          if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount')) {
+          if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount') || req.url.includes('/api/ai')) {
             console.error('[ResponseInterceptor] API returned success=false:', body);
           }
-          throw body;
+          // Create an error object that will be caught by error handler
+          const error = new Error(body.message || body.Message || 'Request failed');
+          (error as any).error = body;
+          throw error;
         }
         // Return the data directly for successful responses (if data exists)
         // Some endpoints might return success: true without data

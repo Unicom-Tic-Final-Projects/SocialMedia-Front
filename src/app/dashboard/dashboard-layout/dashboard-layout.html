@@ -39,6 +39,16 @@
         My Posts
       </a>
 
+      <!-- Individual users only - Content Management -->
+      @if (isIndividual()) {
+        <a routerLink="/dashboard/content-management" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          (click)="closeMobileMenu()"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group">
+          <i class="fa-solid fa-folder-open w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
+          Content Management
+        </a>
+      }
+
       <!-- Agency only -->
       @if (isAgency()) {
         <a routerLink="/dashboard/clients" routerLinkActive="bg-[#4C6FFF] text-white shadow-md"

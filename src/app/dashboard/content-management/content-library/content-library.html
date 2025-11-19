@@ -1,0 +1,164 @@
+<div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A]">Content Library</h2>
+    <button
+      (click)="showUploadModal.set(true)"
+      class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition text-sm flex items-center gap-2">
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      Upload Media
+    </button>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="mb-6 space-y-4">
+    <div class="flex flex-wrap gap-3">
+      <input
+        type="text"
+        placeholder="Search media by name..."
+        [value]="searchQuery()"
+        (input)="searchQuery.set($any($event.target).value); onSearchChange()"
+        class="flex-1 min-w-[200px] border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
+      />
+      <div class="flex gap-2">
+        <button
+          (click)="selectedFilter.set('all'); onFilterChange()"
+          [class.bg-[#4C6FFF]]="selectedFilter() === 'all'"
+          [class.text-white]="selectedFilter() === 'all'"
+          [class.text-[#1A1A1A]]="selectedFilter() !== 'all'"
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          All
+        </button>
+        <button
+          (click)="selectedFilter.set('images'); onFilterChange()"
+          [class.bg-[#4C6FFF]]="selectedFilter() === 'images'"
+          [class.text-white]="selectedFilter() === 'images'"
+          [class.text-[#1A1A1A]]="selectedFilter() !== 'images'"
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          Images
+        </button>
+        <button
+          (click)="selectedFilter.set('videos'); onFilterChange()"
+          [class.bg-[#4C6FFF]]="selectedFilter() === 'videos'"
+          [class.text-white]="selectedFilter() === 'videos'"
+          [class.text-[#1A1A1A]]="selectedFilter() !== 'videos'"
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          Videos
+        </button>
+      </div>
+    </div>
+    
+    <!-- Sort Options -->
+    <div class="flex items-center gap-3 text-sm">
+      <span class="text-gray-600">Sort by:</span>
+      <select
+        [value]="sortBy()"
+        (change)="sortBy.set($any($event.target).value); onSortChange()"
+        class="border border-[#D9E1FF] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm">
+        <option value="date">Date</option>
+        <option value="name">Name</option>
+        <option value="size">Size</option>
+      </select>
+      <button
+        (click)="toggleSortOrder()"
+        class="px-3 py-1.5 border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition text-sm">
+        <i class="fa-solid fa-arrow-{{ sortOrder() === 'asc' ? 'up' : 'down' }} mr-1"></i>
+        {{ sortOrder() === 'asc' ? 'Ascending' : 'Descending' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Media Grid -->
+  @if (loading()) {
+    <div class="text-center py-12">
+      <i class="fa-solid fa-circle-notch animate-spin text-4xl text-[#4C6FFF] mb-4"></i>
+      <p class="text-gray-600 text-sm sm:text-base">Loading media library...</p>
+    </div>
+  } @else if (mediaItems().length === 0) {
+    <div class="text-center py-12 border-2 border-dashed border-[#D9E1FF] rounded-xl">
+      <i class="fa-solid fa-images text-4xl sm:text-5xl text-gray-400 mb-4"></i>
+      <p class="text-gray-600 mb-2 text-sm sm:text-base">No media files yet</p>
+      <button
+        (click)="showUploadModal.set(true)"
+        class="text-[#4C6FFF] hover:underline font-medium text-sm sm:text-base">
+        Upload your first media file
+      </button>
+    </div>
+  } @else {
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      @for (item of mediaItems(); track item.id) {
+        <div class="group relative bg-white rounded-lg border border-[#D9E1FF] overflow-hidden hover:shadow-lg transition">
+          <div class="aspect-square bg-gray-100 relative">
+            @if (item.fileType.startsWith('image/')) {
+              <img [src]="item.thumbnailUrl || item.url" [alt]="item.fileName" class="w-full h-full object-cover" />
+            } @else {
+              <div class="w-full h-full flex items-center justify-center">
+                <i class="fa-solid fa-video text-4xl text-gray-400"></i>
+              </div>
+            }
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+              <button
+                (click)="useInPost(item.id)"
+                class="px-3 py-1.5 bg-[#4C6FFF] text-white rounded-lg text-xs hover:bg-[#3A56CC] transition">
+                <i class="fa-solid fa-plus mr-1"></i>
+                Use
+              </button>
+              <button
+                (click)="deleteMedia(item.id)"
+                class="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition">
+                <i class="fa-solid fa-trash mr-1"></i>
+                Delete
+              </button>
+            </div>
+          </div>
+          <div class="p-3">
+            <p class="text-xs font-medium text-[#1A1A1A] truncate mb-1" [title]="item.fileName">
+              {{ item.fileName }}
+            </p>
+            <div class="flex items-center justify-between text-xs text-gray-600">
+              <span>{{ formatFileSize(item.fileSize) }}</span>
+              @if (item.usedInPosts && item.usedInPosts > 0) {
+                <span class="text-[#4C6FFF]">
+                  <i class="fa-solid fa-check-circle mr-1"></i>
+                  Used
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Upload Modal -->
+  @if (showUploadModal()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="showUploadModal.set(false)">
+      <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+        <h3 class="text-xl font-bold text-[#1A1A1A] mb-4">Upload Media</h3>
+        <div class="border-2 border-dashed border-[#D9E1FF] rounded-lg p-8 text-center">
+          <input
+            type="file"
+            accept="image/*,video/*"
+            (change)="onFileSelected($event)"
+            class="hidden"
+            #fileInput
+          />
+          <i class="fa-solid fa-cloud-arrow-up text-4xl text-[#4C6FFF] mb-3"></i>
+          <p class="text-sm text-gray-600 mb-2">Click to select files</p>
+          <p class="text-xs text-gray-500">PNG, JPG, GIF, MP4 up to 10MB</p>
+          <button
+            (click)="fileInput.click()"
+            [disabled]="uploading()"
+            class="mt-4 px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition disabled:opacity-50">
+            @if (uploading()) {
+              <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+              Uploading...
+            } @else {
+              Select Files
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

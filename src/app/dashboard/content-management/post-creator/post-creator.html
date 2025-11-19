@@ -1,0 +1,239 @@
+<div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A]">Create New Post</h2>
+    <button
+      (click)="openAIAssistant()"
+      class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition text-sm flex items-center gap-2">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      AI Assistant
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <form [formGroup]="postForm" class="space-y-6">
+    <!-- Content Input -->
+    <div>
+      <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">
+        Post Content *
+      </label>
+      <textarea
+        formControlName="content"
+        rows="6"
+        placeholder="What's on your mind? Use AI Assistant to generate engaging content..."
+        class="w-full border border-[#D9E1FF] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm resize-none"
+      ></textarea>
+      <div class="flex items-center justify-between mt-2">
+        <span class="text-xs text-gray-600">
+          {{ postForm.get('content')?.value?.length || 0 }} / 4000 characters
+        </span>
+        @if (postForm.get('content')?.invalid && postForm.get('content')?.touched) {
+          <span class="text-xs text-red-600">Content is required</span>
+        }
+      </div>
+    </div>
+
+    <!-- Media Upload -->
+    <div>
+      <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">
+        Media (Optional)
+      </label>
+      @if (!mediaPreview()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <div class="border-2 border-dashed border-[#D9E1FF] rounded-lg p-6 text-center cursor-pointer hover:bg-[#E8EDFF] transition"
+               (click)="triggerFileInput()">
+            <input
+              #fileInput
+              type="file"
+              accept="image/*,video/*"
+              (change)="onFileSelected($event)"
+              class="hidden"
+            />
+            <i class="fa-solid fa-cloud-arrow-up text-3xl text-[#4C6FFF] mb-2"></i>
+            <p class="text-sm font-medium text-[#1A1A1A] mb-1">Upload New</p>
+            <p class="text-xs text-gray-500">Images up to 10MB, Videos up to 100MB</p>
+          </div>
+          <button
+            type="button"
+            (click)="openMediaLibrary()"
+            class="border-2 border-dashed border-[#4C6FFF] rounded-lg p-6 text-center hover:bg-[#E8EDFF] transition">
+            <i class="fa-solid fa-images text-3xl text-[#4C6FFF] mb-2"></i>
+            <p class="text-sm font-medium text-[#1A1A1A] mb-1">Select from Library</p>
+            <p class="text-xs text-gray-500">Choose existing media</p>
+          </button>
+        </div>
+      } @else {
+        <div class="relative">
+          <img [src]="mediaPreview()!" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF]" />
+          <button
+            type="button"
+            (click)="selectedFile.set(null); mediaPreview.set(null); uploadedMediaId.set(null)"
+            class="absolute top-2 right-2 bg-white/90 hover:bg-white border border-gray-300 rounded-lg p-2 transition"
+            [title]="'Remove media'">
+            <i class="fa-solid fa-times text-gray-700"></i>
+          </button>
+          <div class="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-xs">
+            <i class="fa-solid fa-check-circle mr-1"></i>
+            Media Selected
+          </div>
+        </div>
+        <div class="mt-2 flex gap-2">
+          <button
+            type="button"
+            (click)="openMediaLibrary()"
+            class="px-3 py-1.5 text-sm border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition">
+            <i class="fa-solid fa-images mr-1"></i>
+            Change Media
+          </button>
+          <button
+            type="button"
+            (click)="triggerFileInput()"
+            class="px-3 py-1.5 text-sm border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition">
+            <i class="fa-solid fa-upload mr-1"></i>
+            Upload New
+          </button>
+        </div>
+      }
+      @if (uploading()) {
+        <div class="mt-2 text-sm text-gray-600">
+          <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+          Uploading...
+        </div>
+      }
+    </div>
+
+    <!-- Social Media Platforms -->
+    <div>
+      <label class="block text-sm font-semibold mb-3 text-[#1A1A1A]">
+        Select Platforms *
+      </label>
+      @if (loadingAccounts()) {
+        <div class="text-center py-8">
+          <i class="fa-solid fa-circle-notch animate-spin text-2xl text-[#4C6FFF]"></i>
+          <p class="text-sm text-gray-600 mt-2">Loading accounts...</p>
+        </div>
+      } @else if (socialAccounts().length === 0) {
+        <div class="border border-[#D9E1FF] rounded-lg p-6 text-center bg-white">
+          <i class="fa-solid fa-exclamation-circle text-3xl text-gray-400 mb-3"></i>
+          <p class="text-sm text-gray-600 mb-3">No social accounts connected</p>
+          <a routerLink="/dashboard/social-account" class="text-[#4C6FFF] hover:underline text-sm font-medium">
+            Connect Social Accounts →
+          </a>
+        </div>
+      } @else {
+        <div class="space-y-3">
+          @for (platform of getAccountsByPlatform() | keyvalue; track platform.key) {
+            <div class="border border-[#D9E1FF] rounded-lg p-4 bg-white">
+              <div class="flex items-center gap-2 mb-3">
+                <i class="fa-brands fa-{{ platform.key.toLowerCase() }} text-xl text-[#4C6FFF]"></i>
+                <span class="font-semibold text-sm text-[#1A1A1A]">{{ platform.key }}</span>
+              </div>
+              <div class="space-y-2">
+                @for (account of platform.value; track account.id) {
+                  <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#F5F7FF] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="selectedAccountIds().includes(account.id)"
+                      (change)="toggleAccountSelection(account.id)"
+                      class="w-4 h-4 text-[#4C6FFF] border-[#D9E1FF] rounded focus:ring-[#4C6FFF]"
+                    />
+                    <div class="flex-1">
+                      <p class="text-sm font-medium text-[#1A1A1A]">{{ account.accountName }}</p>
+                      <p class="text-xs text-gray-600">{{ account.platform }}</p>
+                    </div>
+                  </label>
+                }
+              </div>
+            </div>
+          }
+        </div>
+        @if (selectedAccountIds().length === 0 && postForm.touched) {
+          <p class="text-xs text-red-600 mt-2">Please select at least one platform</p>
+        }
+      }
+    </div>
+
+    <!-- Schedule Option -->
+    <div>
+      <label class="flex items-center gap-2 mb-2">
+        <input
+          type="checkbox"
+          formControlName="saveAsDraft"
+          class="w-4 h-4 text-[#4C6FFF] border-[#D9E1FF] rounded focus:ring-[#4C6FFF]"
+        />
+        <span class="text-sm font-medium text-[#1A1A1A]">Save as Draft</span>
+      </label>
+      @if (!postForm.get('saveAsDraft')?.value) {
+        <div class="mt-3">
+          <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">
+            Schedule Post (Optional)
+          </label>
+          <input
+            type="datetime-local"
+            formControlName="scheduledAt"
+            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
+          />
+        </div>
+      }
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-3 pt-4 sticky bottom-0 bg-[#F5F7FF] pb-4 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 border-t border-[#D9E1FF] mt-6">
+      <button
+        type="button"
+        (click)="saveAsDraft()"
+        [disabled]="loading() || postForm.invalid"
+        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+        <i class="fa-solid fa-save mr-2"></i>
+        Save as Draft
+      </button>
+      <button
+        type="button"
+        (click)="createPost()"
+        [disabled]="loading() || postForm.invalid || selectedAccountIds().length === 0"
+        class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+        @if (loading()) {
+          <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+          Creating...
+        } @else {
+          <i class="fa-solid fa-paper-plane mr-2"></i>
+          Create Post
+        }
+      </button>
+    </div>
+  </form>
+
+  <!-- AI Assistant Modal -->
+  @if (showAIAssistant()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="showAIAssistant.set(false)">
+      <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
+          <h3 class="text-xl font-bold text-[#1A1A1A]">AI Assistant</h3>
+          <button (click)="showAIAssistant.set(false)" class="text-gray-500 hover:text-gray-700">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <app-ai-assistant (contentGenerated)="useAIContent($event)"></app-ai-assistant>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Media Library Selector Modal -->
+  @if (showMediaLibrary()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeMediaLibrary()">
+      <div (click)="$event.stopPropagation()">
+        <app-media-selector
+          (mediaSelected)="selectMediaFromLibrary($event.id, $event.url)"
+          (close)="closeMediaLibrary()">
+        </app-media-selector>
+      </div>
+    </div>
+  }
+</div>
+

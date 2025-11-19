@@ -81,5 +81,17 @@ export class MediaService {
 
     return this.http.get<MediaAssetResponse[]>(`${this.baseUrl}/api/media/tenant/${user.tenantId}`);
   }
+
+  /**
+   * Delete media by ID
+   */
+  deleteMedia(mediaId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/media/${mediaId}`).pipe(
+      catchError((error) => {
+        console.error('Media delete error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 }
 

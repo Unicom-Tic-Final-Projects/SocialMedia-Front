@@ -1,0 +1,405 @@
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-3 sm:p-4 md:p-6">
+  <!-- Header -->
+  <div class="mb-4 sm:mb-6 md:mb-8">
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
+      <i class="fa-solid fa-wand-magic-sparkles text-[#4C6FFF]"></i>
+      AI Content Generator
+    </h1>
+    <p class="text-gray-600 text-xs sm:text-sm">Generate engaging content, captions, and images with AI</p>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- Tabs -->
+  <div class="bg-[#F5F7FF] rounded-xl shadow-md p-2 mb-6 border border-[#D9E1FF]">
+    <div class="flex flex-wrap gap-2">
+      <button
+        (click)="setActiveTab('captions')"
+        [class.bg-[#4C6FFF]]="activeTab() === 'captions'"
+        [class.text-white]="activeTab() === 'captions'"
+        [class.text-[#1A1A1A]]="activeTab() !== 'captions'"
+        class="px-4 py-2 rounded-lg font-medium transition text-sm"
+      >
+        <i class="fa-solid fa-pen-to-square mr-2"></i>
+        Captions
+      </button>
+      <button
+        (click)="setActiveTab('content-plan')"
+        [class.bg-[#4C6FFF]]="activeTab() === 'content-plan'"
+        [class.text-white]="activeTab() === 'content-plan'"
+        [class.text-[#1A1A1A]]="activeTab() !== 'content-plan'"
+        class="px-4 py-2 rounded-lg font-medium transition text-sm"
+      >
+        <i class="fa-solid fa-calendar-alt mr-2"></i>
+        Content Plan
+      </button>
+      <button
+        (click)="setActiveTab('best-time')"
+        [class.bg-[#4C6FFF]]="activeTab() === 'best-time'"
+        [class.text-white]="activeTab() === 'best-time'"
+        [class.text-[#1A1A1A]]="activeTab() !== 'best-time'"
+        class="px-4 py-2 rounded-lg font-medium transition text-sm"
+      >
+        <i class="fa-solid fa-clock mr-2"></i>
+        Best Time to Post
+      </button>
+      <button
+        (click)="setActiveTab('image')"
+        [class.bg-[#4C6FFF]]="activeTab() === 'image'"
+        [class.text-white]="activeTab() === 'image'"
+        [class.text-[#1A1A1A]]="activeTab() !== 'image'"
+        class="px-4 py-2 rounded-lg font-medium transition text-sm"
+      >
+        <i class="fa-solid fa-image mr-2"></i>
+        Generate Image
+      </button>
+      <button
+        (click)="setActiveTab('image-editor')"
+        [class.bg-[#4C6FFF]]="activeTab() === 'image-editor'"
+        [class.text-white]="activeTab() === 'image-editor'"
+        [class.text-[#1A1A1A]]="activeTab() !== 'image-editor'"
+        class="px-4 py-2 rounded-lg font-medium transition text-sm"
+      >
+        <i class="fa-solid fa-wand-magic mr-2"></i>
+        Image Editor
+      </button>
+    </div>
+  </div>
+
+  <!-- Caption Generator Tab -->
+  @if (activeTab() === 'captions') {
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+      <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A] mb-4">Generate Captions</h2>
+      
+      <form [formGroup]="captionForm" (ngSubmit)="generateCaptions()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold mb-2">Topic *</label>
+          <input
+            formControlName="topic"
+            type="text"
+            placeholder="e.g., Product launch, Event announcement..."
+            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Context (Optional)</label>
+          <textarea
+            formControlName="context"
+            rows="3"
+            placeholder="Additional context about your post..."
+            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Number of Captions</label>
+            <input formControlName="captionCount" type="number" min="1" max="10" class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Hashtags per Caption</label>
+            <input formControlName="hashtagCount" type="number" min="1" max="30" class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2" />
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input formControlName="includeHashtags" type="checkbox" id="includeHashtags" />
+          <label for="includeHashtags" class="text-sm">Include hashtags</label>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loading() || captionForm.invalid"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50"
+        >
+          @if (loading()) {
+            <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+            Generating...
+          } @else {
+            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>
+            Generate Captions
+          }
+        </button>
+      </form>
+
+      @if (aiCaptions()) {
+        <div class="mt-6 space-y-4">
+          <h3 class="text-lg font-semibold">Generated Captions</h3>
+          @for (caption of aiCaptions()!.captions; track $index) {
+            <div class="border border-gray-200 rounded-lg p-4 hover:border-[#4C6FFF] transition bg-white">
+              <p class="text-gray-700 mb-2">{{ caption.caption }}</p>
+              @if (caption.hashtags.length > 0) {
+                <div class="flex flex-wrap gap-2 mb-3">
+                  @for (tag of caption.hashtags; track tag) {
+                    <span class="text-sm text-[#4C6FFF]">{{ tag }}</span>
+                  }
+                </div>
+              }
+              <button
+                (click)="selectCaption(caption.caption, caption.hashtags)"
+                class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-4 py-2 rounded-lg transition text-sm"
+              >
+                Use This Caption
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Content Plan Tab -->
+  @if (activeTab() === 'content-plan') {
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+      <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A] mb-4">Generate Content Plan</h2>
+      
+      <form [formGroup]="contentPlanForm" (ngSubmit)="generateContentPlan()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold mb-2">Topic *</label>
+          <input
+            formControlName="topic"
+            type="text"
+            placeholder="e.g., Marketing campaign, Product promotion..."
+            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold mb-2">Business Context (Optional)</label>
+          <textarea
+            formControlName="businessContext"
+            rows="4"
+            placeholder="Describe your business goals, target audience, etc..."
+            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Posts per Week</label>
+            <input formControlName="postsPerWeek" type="number" min="1" max="20" class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2" />
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Number of Weeks</label>
+            <input formControlName="weeks" type="number" min="1" max="12" class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2" />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loading() || contentPlanForm.invalid"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50"
+        >
+          @if (loading()) {
+            <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+            Generating...
+          } @else {
+            <i class="fa-solid fa-calendar-alt mr-2"></i>
+            Generate Content Plan
+          }
+        </button>
+      </form>
+
+      @if (contentPlan()) {
+        <div class="mt-6 space-y-6">
+          <h3 class="text-lg font-semibold">Content Plan</h3>
+          @for (weekPlan of contentPlan()!.weeklyPlans; track weekPlan.weekNumber) {
+            <div class="border border-gray-200 rounded-lg p-4 bg-white">
+              <h4 class="font-semibold mb-2">Week {{ weekPlan.weekNumber }}: {{ weekPlan.theme }}</h4>
+              <div class="space-y-3">
+                @for (post of weekPlan.posts; track post.title) {
+                  <div class="border border-gray-100 rounded p-3">
+                    <h5 class="font-medium mb-1">{{ post.title }}</h5>
+                    <p class="text-sm text-gray-600 mb-2">{{ post.description }}</p>
+                    @if (post.suggestedCaption) {
+                      <p class="text-sm mb-2">{{ post.suggestedCaption }}</p>
+                    }
+                    @if (post.suggestedHashtags.length > 0) {
+                      <div class="flex flex-wrap gap-2 mb-2">
+                        @for (tag of post.suggestedHashtags; track tag) {
+                          <span class="text-xs text-[#4C6FFF]">{{ tag }}</span>
+                        }
+                      </div>
+                    }
+                    <button
+                      (click)="useContentPlanItem(post)"
+                      class="text-sm text-[#4C6FFF] hover:underline"
+                    >
+                      Use This Content
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Best Time to Post Tab -->
+  @if (activeTab() === 'best-time') {
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+      <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A] mb-4">Best Time to Post</h2>
+      
+      @if (loading()) {
+        <div class="text-center py-8">
+          <i class="fa-solid fa-circle-notch animate-spin text-3xl text-[#4C6FFF] mb-3"></i>
+          <p class="text-gray-600">Analyzing engagement patterns...</p>
+        </div>
+      } @else if (bestTimeToPost()) {
+        @if (bestTimeToPost()!.analysisSummary) {
+          <p class="text-gray-600 mb-4">{{ bestTimeToPost()!.analysisSummary }}</p>
+        }
+        <div class="space-y-3">
+          @for (time of bestTimeToPost()!.optimalTimes; track time.timeDisplay) {
+            <div class="border border-gray-200 rounded-lg p-4 bg-white">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-[#1A1A1A]">{{ time.timeDisplay }}</h4>
+                <span class="text-sm text-[#4C6FFF] font-medium">{{ (time.engagementScore * 100).toFixed(0) }}% Engagement</span>
+              </div>
+              @if (time.reason) {
+                <p class="text-sm text-gray-600">{{ time.reason }}</p>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-gray-600">No data available. Start posting to get recommendations!</p>
+      }
+    </div>
+  }
+
+  <!-- Image Generation Tab -->
+  @if (activeTab() === 'image') {
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+      <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A] mb-4">Generate Image with AI</h2>
+      
+      <form [formGroup]="imageForm" (ngSubmit)="generateImage()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-semibold mb-2">Image Description *</label>
+          <textarea
+            formControlName="prompt"
+            rows="4"
+            placeholder="e.g., A modern office workspace with plants and natural lighting"
+            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Aspect Ratio</label>
+            <select formControlName="aspectRatio" class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2">
+              <option value="1:1">Square (1:1)</option>
+              <option value="16:9">Landscape (16:9)</option>
+              <option value="4:5">Portrait (4:5)</option>
+              <option value="9:16">Vertical (9:16)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Style (Optional)</label>
+            <input
+              formControlName="style"
+              type="text"
+              placeholder="e.g., Realistic, Cartoon, Abstract"
+              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="loading() || imageForm.invalid"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50"
+        >
+          @if (loading()) {
+            <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+            Generating Image...
+          } @else {
+            <i class="fa-solid fa-image mr-2"></i>
+            Generate Image
+          }
+        </button>
+      </form>
+
+      @if (generatedImage()) {
+        <div class="mt-6 border border-gray-200 rounded-lg p-4 bg-white">
+          <h3 class="text-lg font-semibold mb-3">Generated Image</h3>
+          @if (generatedImage()!.imageUrl) {
+            <img [src]="generatedImage()!.imageUrl" alt="Generated" class="w-full rounded-lg mb-4" />
+          }
+          <button
+            (click)="useGeneratedImage()"
+            class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-4 py-2 rounded-lg transition text-sm"
+          >
+            Use This Image
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Image Editor Tab -->
+  @if (activeTab() === 'image-editor') {
+    <app-ai-image-editor></app-ai-image-editor>
+  }
+
+  <!-- Post Creator Modal -->
+  @if (showPostCreator()) {
+    <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="showPostCreator.set(false)">
+      <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-xl font-bold text-[#1A1A1A]">Create Post</h3>
+          <button (click)="showPostCreator.set(false)" class="text-gray-500 hover:text-gray-700">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <form [formGroup]="postForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-semibold mb-2">Post Content *</label>
+              <textarea
+                formControlName="content"
+                rows="6"
+                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              ></textarea>
+            </div>
+
+            @if (postForm.get('mediaUrl')?.value) {
+              <div>
+                <label class="block text-sm font-semibold mb-2">Generated Image</label>
+                <img [src]="postForm.get('mediaUrl')?.value" alt="Generated" class="w-full rounded-lg mb-2" />
+              </div>
+            }
+
+            <div class="flex gap-3">
+              <button
+                type="button"
+                (click)="saveAsDraft()"
+                [disabled]="loading() || postForm.invalid"
+                class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
+              >
+                Save as Draft
+              </button>
+              <button
+                type="button"
+                (click)="createPost()"
+                [disabled]="loading() || postForm.invalid"
+                class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-4 py-2 rounded-lg transition disabled:opacity-50"
+              >
+                Create Post
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

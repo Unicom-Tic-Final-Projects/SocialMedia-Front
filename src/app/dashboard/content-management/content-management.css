@@ -1,0 +1,26 @@
+/* Content Management Styles */
+
+.content-tab-container {
+  min-height: 400px;
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  .content-tab-container {
+    min-height: 300px;
+  }
+}
+
+/* Loading state animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

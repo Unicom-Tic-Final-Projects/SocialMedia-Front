@@ -1,236 +1,689 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
-
   <div class="mb-8">
     <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
       <i class="fa-solid fa-gear text-[#4C6FFF]"></i> Settings
     </h1>
-    <p class="text-gray-600 text-sm">Manage your account preferences and appearance</p>
+    <p class="text-gray-600 text-sm">Manage your account preferences and application settings</p>
+    
+    @if (errorMessage()) {
+      <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        {{ errorMessage() }}
+      </div>
+    }
+    
+    @if (successMessage()) {
+      <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+        {{ successMessage() }}
+      </div>
+    }
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-
-    <!-- LEFT SIDE SETTINGS -->
-    <div class="lg:col-span-2 space-y-6">
-
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h3 class="text-xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-2">
-              <i class="fa-solid fa-palette text-[#4C6FFF]"></i> Theme Settings
-            </h3>
-            <p class="text-sm text-gray-600">Customize your dashboard appearance</p>
-          </div>
+  @if (loading()) {
+    <div class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C6FFF]"></div>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- TABS SIDEBAR -->
+      <div class="lg:col-span-1">
+        <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 border border-[#D9E1FF] sticky top-6">
+          <nav class="space-y-2">
+            <button
+              (click)="setActiveTab('appearance')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'appearance'"
+              [class.text-white]="activeTab() === 'appearance'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'appearance'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-palette w-5"></i> Appearance
+            </button>
+            <button
+              (click)="setActiveTab('general')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'general'"
+              [class.text-white]="activeTab() === 'general'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'general'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-sliders-h w-5"></i> General
+            </button>
+            <button
+              (click)="setActiveTab('posts')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'posts'"
+              [class.text-white]="activeTab() === 'posts'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'posts'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-file-alt w-5"></i> Posts
+            </button>
+            <button
+              (click)="setActiveTab('notifications')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'notifications'"
+              [class.text-white]="activeTab() === 'notifications'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'notifications'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-bell w-5"></i> Notifications
+            </button>
+            <button
+              (click)="setActiveTab('analytics')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'analytics'"
+              [class.text-white]="activeTab() === 'analytics'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'analytics'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-chart-line w-5"></i> Analytics
+            </button>
+            <button
+              (click)="setActiveTab('security')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'security'"
+              [class.text-white]="activeTab() === 'security'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'security'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-shield-alt w-5"></i> Security
+            </button>
+            <button
+              (click)="setActiveTab('ai')"
+              [class.bg-[#4C6FFF]]="activeTab() === 'ai'"
+              [class.text-white]="activeTab() === 'ai'"
+              [class.text-[#1A1A1A]]="activeTab() !== 'ai'"
+              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+            >
+              <i class="fa-solid fa-robot w-5"></i> AI Settings
+            </button>
+          </nav>
         </div>
+      </div>
 
-        <div class="space-y-8">
+      <!-- SETTINGS CONTENT -->
+      <div class="lg:col-span-3">
+        @if (activeTab() === 'appearance') {
+          <!-- APPEARANCE TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-palette text-[#4C6FFF]"></i> Appearance Settings
+            </h2>
 
-          <!-- Theme Mode -->
-          <div>
-            <div class="flex items-center justify-between mb-4">
-
-              <div>
-                <p class="font-semibold text-[#1A1A1A] mb-1">Theme Mode</p>
-                <p class="text-sm text-gray-600">Switch between dark and light mode</p>
-              </div>
-
-              <div class="flex items-center gap-3">
-
-                <span
-                  class="text-sm"
-                  [class.text-gray-400]="isDarkMode"
-                  [class.text-[#4C6FFF]]="!isDarkMode"
-                  [class.font-semibold]="!isDarkMode"
-                >
-                  Light
-                </span>
-
-                <!-- Toggle -->
-                <div
-                  (click)="toggleTheme()"
-                  class="relative w-14 h-7 rounded-full cursor-pointer border-2 transition-all duration-300"
-                  [class.bg-gray-300]="!isDarkMode"
-                  [class.bg-[#BFC9FF]]="!isDarkMode"
-                  [class.bg-gray-700]="isDarkMode"
-                  [class.border-[#D9E1FF]]="!isDarkMode"
-                  [class.border-gray-700]="isDarkMode"
-                >
-                  <div
-                    class="absolute left-1 top-1 w-5 h-5 rounded-full transition-transform duration-300"
-                    [class.bg-white]="!isDarkMode"
-                    [class.bg-[#4C6FFF]]="isDarkMode"
-                    [class.translate-x-7]="isDarkMode"
-                  >
-                  </div>
+            <!-- Theme Mode -->
+            <div class="mb-8">
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <p class="font-semibold text-[#1A1A1A] mb-1">Theme Mode</p>
+                  <p class="text-sm text-gray-600">Switch between dark and light mode</p>
                 </div>
-
-                <span
-                  class="text-sm"
-                  [class.text-gray-400]="!isDarkMode"
-                  [class.text-[#4C6FFF]]="isDarkMode"
-                  [class.font-semibold]="isDarkMode"
-                >
-                  Dark
-                </span>
-
+                <div class="flex items-center gap-3">
+                  <span class="text-sm" [class.text-[#4C6FFF]]="settings()?.themeMode === 'light'" [class.font-semibold]="settings()?.themeMode === 'light'">Light</span>
+                  <div
+                    (click)="saveSettings({ themeMode: settings()?.themeMode === 'dark' ? 'light' : 'dark' })"
+                    class="relative w-14 h-7 rounded-full cursor-pointer border-2 transition-all duration-300"
+                    [class.bg-[#BFC9FF]]="settings()?.themeMode === 'light'"
+                    [class.bg-gray-700]="settings()?.themeMode === 'dark'"
+                    [class.border-[#D9E1FF]]="settings()?.themeMode === 'light'"
+                    [class.border-gray-700]="settings()?.themeMode === 'dark'"
+                  >
+                    <div
+                      class="absolute left-1 top-1 w-5 h-5 rounded-full transition-transform duration-300 bg-white"
+                      [class.translate-x-7]="settings()?.themeMode === 'dark'"
+                    ></div>
+                  </div>
+                  <span class="text-sm" [class.text-[#4C6FFF]]="settings()?.themeMode === 'dark'" [class.font-semibold]="settings()?.themeMode === 'dark'">Dark</span>
+                </div>
               </div>
+            </div>
 
+            <!-- Color Theme -->
+            <div class="pt-6 border-t border-[#D9E1FF]">
+              <p class="font-semibold text-[#1A1A1A] mb-4">Color Theme</p>
+              <div class="grid grid-cols-3 gap-4">
+                @for (color of ['blue', 'purple', 'pink']; track color) {
+                  <div class="relative">
+                    <input
+                      type="radio"
+                      name="colorTheme"
+                      [id]="'color-' + color"
+                      [value]="color"
+                      class="peer hidden"
+                      [checked]="settings()?.colorTheme === color"
+                      (change)="saveColorTheme(color)"
+                    >
+                    <label
+                      [for]="'color-' + color"
+                      class="flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200
+                             hover:border-[#4C6FFF]/50 peer-checked:border-[#4C6FFF] peer-checked:bg-[#BFC9FF]/20 peer-checked:shadow-md
+                             border-[#D9E1FF]"
+                    >
+                      <div class="w-12 h-12 rounded-full mb-2 shadow"
+                           [class.bg-[#4C6FFF]]="color === 'blue'"
+                           [class.bg-purple-500]="color === 'purple'"
+                           [class.bg-pink-500]="color === 'pink'"
+                      ></div>
+                      <span class="text-sm font-medium text-[#1A1A1A] capitalize">{{ color }}</span>
+                    </label>
+                  </div>
+                }
+              </div>
             </div>
           </div>
+        }
 
-          <!-- Color Theme -->
-          <div class="pt-6 border-t border-[#D9E1FF]">
+        @if (activeTab() === 'general') {
+          <!-- GENERAL TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-sliders-h text-[#4C6FFF]"></i> General Settings
+            </h2>
 
-            <div class="mb-4">
-              <p class="font-semibold text-[#1A1A1A] mb-2">Color Theme</p>
-              <p class="text-sm text-gray-600 mb-4">Choose your preferred accent color</p>
+            <!-- Timezone -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Timezone</label>
+              <select
+                [value]="settings()?.timezone || 'UTC'"
+                (change)="saveSettings({ timezone: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+                @for (tz of timezones; track tz.value) {
+                  <option [value]="tz.value">{{ tz.label }}</option>
+                }
+              </select>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-              <!-- Teal removed -->
-              <!-- BLUE -->
-              <div class="relative">
-                <input
-                  type="radio"
-                  name="colorTheme"
-                  id="color-blue"
-                  value="blue"
-                  class="peer hidden"
-                  [checked]="selectedColor === 'blue'"
-                  (change)="selectColorTheme('blue')"
-                >
-
-                <label
-                  for="color-blue"
-                  class="flex flex-col items-center p-4 rounded-xl border-2 border-[#D9E1FF] cursor-pointer
-                         hover:border-[#4C6FFF]/50 transition-all duration-200
-                         peer-checked:border-[#4C6FFF]
-                         peer-checked:bg-[#BFC9FF]/20
-                         peer-checked:shadow-md"
-                >
-                  <div class="w-12 h-12 rounded-full bg-[#4C6FFF] mb-2 shadow"></div>
-                  <span class="text-sm font-medium text-[#1A1A1A]">Blue</span>
-                </label>
-              </div>
-
-              <!-- Purple -->
-              <div class="relative">
-                <input
-                  type="radio"
-                  name="colorTheme"
-                  id="color-purple"
-                  value="purple"
-                  class="peer hidden"
-                  [checked]="selectedColor === 'purple'"
-                  (change)="selectColorTheme('purple')"
-                >
-
-                <label
-                  for="color-purple"
-                  class="flex flex-col items-center p-4 rounded-xl border-2 border-[#D9E1FF] cursor-pointer
-                         hover:border-purple-500/50 transition-all duration-200
-                         peer-checked:border-purple-500
-                         peer-checked:bg-purple-500/10
-                         peer-checked:shadow-md"
-                >
-                  <div class="w-12 h-12 rounded-full bg-purple-500 mb-2 shadow"></div>
-                  <span class="text-sm font-medium text-[#1A1A1A]">Purple</span>
-                </label>
-              </div>
-
-              <!-- Pink -->
-              <div class="relative">
-                <input
-                  type="radio"
-                  name="colorTheme"
-                  id="color-pink"
-                  value="pink"
-                  class="peer hidden"
-                  [checked]="selectedColor === 'pink'"
-                  (change)="selectColorTheme('pink')"
-                >
-
-                <label
-                  for="color-pink"
-                  class="flex flex-col items-center p-4 rounded-xl border-2 border-[#D9E1FF] cursor-pointer
-                         hover:border-pink-500/50 transition-all duration-200
-                         peer-checked:border-pink-500
-                         peer-checked:bg-pink-500/10
-                         peer-checked:shadow-md"
-                >
-                  <div class="w-12 h-12 rounded-full bg-pink-500 mb-2 shadow"></div>
-                  <span class="text-sm font-medium text-[#1A1A1A]">Pink</span>
-                </label>
-              </div>
-
+            <!-- Date Format -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Date Format</label>
+              <select
+                [value]="settings()?.dateFormat || 'MM/DD/YYYY'"
+                (change)="saveSettings({ dateFormat: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+              </select>
             </div>
 
+            <!-- Time Format -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Time Format</label>
+              <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="timeFormat"
+                    value="12"
+                    [checked]="settings()?.timeFormat === '12'"
+                    (change)="saveSettings({ timeFormat: '12' })"
+                    class="w-4 h-4 text-[#4C6FFF]"
+                  >
+                  <span>12 Hour</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="timeFormat"
+                    value="24"
+                    [checked]="settings()?.timeFormat === '24'"
+                    (change)="saveSettings({ timeFormat: '24' })"
+                    class="w-4 h-4 text-[#4C6FFF]"
+                  >
+                  <span>24 Hour</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Language -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Language</label>
+              <select
+                [value]="settings()?.language || 'en'"
+                (change)="saveSettings({ language: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+                <option value="ja">Japanese</option>
+              </select>
+            </div>
+
+            <!-- Dashboard Refresh Interval -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">
+                Dashboard Refresh Interval: {{ settings()?.dashboardRefreshInterval || 30 }} seconds
+              </label>
+              <input
+                type="range"
+                min="10"
+                max="300"
+                step="10"
+                [value]="settings()?.dashboardRefreshInterval || 30"
+                (input)="saveSettings({ dashboardRefreshInterval: +$any($event.target).value })"
+                class="w-full"
+              >
+              <p class="text-sm text-gray-600 mt-1">How often the dashboard automatically refreshes</p>
+            </div>
           </div>
+        }
 
-        </div>
+        @if (activeTab() === 'posts') {
+          <!-- POSTS TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i> Post Settings
+            </h2>
 
+            <!-- Default Platforms -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-3">Default Platforms</label>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                @for (platform of platforms; track platform) {
+                  <label class="flex items-center gap-2 p-3 border border-[#D9E1FF] rounded-lg cursor-pointer hover:bg-[#BFC9FF]/20">
+                    <input
+                      type="checkbox"
+                      [checked]="getDefaultPlatforms().includes(platform)"
+                      (change)="updateDefaultPlatforms(platform, $any($event.target).checked)"
+                      class="w-4 h-4 text-[#4C6FFF]"
+                    >
+                    <span>{{ platform }}</span>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <!-- Auto Save Drafts -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">Auto-save Drafts</p>
+                <p class="text-sm text-gray-600">Automatically save post drafts as you type</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.autoSaveDrafts ?? true"
+                  (change)="saveSettings({ autoSaveDrafts: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            <!-- Auto Save Interval -->
+            @if (settings()?.autoSaveDrafts) {
+              <div>
+                <label class="block font-semibold text-[#1A1A1A] mb-2">
+                  Auto-save Interval: {{ settings()?.autoSaveInterval || 60 }} seconds
+                </label>
+                <input
+                  type="range"
+                  min="10"
+                  max="300"
+                  step="10"
+                  [value]="settings()?.autoSaveInterval || 60"
+                  (input)="saveSettings({ autoSaveInterval: +$any($event.target).value })"
+                  class="w-full"
+                >
+              </div>
+            }
+
+            <!-- Require Approval -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">Require Approval Before Publishing</p>
+                <p class="text-sm text-gray-600">All posts must be approved before they can be published</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.requireApprovalBeforePublishing ?? false"
+                  (change)="saveSettings({ requireApprovalBeforePublishing: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            <!-- Auto Hashtag Suggestions -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">Auto Hashtag Suggestions</p>
+                <p class="text-sm text-gray-600">Automatically suggest hashtags for your posts</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.autoHashtagSuggestions ?? true"
+                  (change)="saveSettings({ autoHashtagSuggestions: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            <!-- Default Hashtag Count -->
+            @if (settings()?.autoHashtagSuggestions) {
+              <div>
+                <label class="block font-semibold text-[#1A1A1A] mb-2">
+                  Default Hashtag Count: {{ settings()?.defaultHashtagCount || 10 }}
+                </label>
+                <input
+                  type="range"
+                  min="1"
+                  max="50"
+                  [value]="settings()?.defaultHashtagCount || 10"
+                  (input)="saveSettings({ defaultHashtagCount: +$any($event.target).value })"
+                  class="w-full"
+                >
+              </div>
+            }
+
+            <!-- Default Scheduling Time -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Default Scheduling Time</label>
+              <input
+                type="time"
+                [value]="settings()?.defaultSchedulingTime || '09:00'"
+                (change)="saveSettings({ defaultSchedulingTime: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+              <p class="text-sm text-gray-600 mt-1">Default time for scheduling posts</p>
+            </div>
+          </div>
+        }
+
+        @if (activeTab() === 'notifications') {
+          <!-- NOTIFICATIONS TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-bell text-[#4C6FFF]"></i> Notification Settings
+            </h2>
+
+            <!-- Email Notifications -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">Email Notifications</p>
+                <p class="text-sm text-gray-600">Enable or disable all email notifications</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.emailNotificationsEnabled ?? true"
+                  (change)="saveSettings({ emailNotificationsEnabled: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            @if (settings()?.emailNotificationsEnabled) {
+              <div class="ml-6 space-y-4 border-l-2 border-[#D9E1FF] pl-6">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm">Email for Post Approvals</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="settings()?.emailPostApprovals ?? true"
+                      (change)="saveSettings({ emailPostApprovals: $any($event.target).checked })"
+                      class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm">Email for Scheduled Posts</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="settings()?.emailScheduledPosts ?? false"
+                      (change)="saveSettings({ emailScheduledPosts: $any($event.target).checked })"
+                      class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm">Email for Account Connections</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="settings()?.emailAccountConnections ?? true"
+                      (change)="saveSettings({ emailAccountConnections: $any($event.target).checked })"
+                      class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+                  </label>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm">Email when Post is Published</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="settings()?.emailPostPublished ?? false"
+                      (change)="saveSettings({ emailPostPublished: $any($event.target).checked })"
+                      class="sr-only peer"
+                    >
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+                  </label>
+                </div>
+              </div>
+            }
+
+            <!-- In-App Notifications -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">In-App Notifications</p>
+                <p class="text-sm text-gray-600">Show notifications within the application</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.inAppNotificationsEnabled ?? true"
+                  (change)="saveSettings({ inAppNotificationsEnabled: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            <!-- Notification Frequency -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Notification Frequency</label>
+              <select
+                [value]="settings()?.notificationFrequency || 'Immediate'"
+                (change)="saveSettings({ notificationFrequency: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+                <option value="Immediate">Immediate</option>
+                <option value="Daily">Daily Digest</option>
+                <option value="Weekly">Weekly Digest</option>
+                <option value="Never">Never</option>
+              </select>
+            </div>
+
+            <!-- Quiet Hours -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block font-semibold text-[#1A1A1A] mb-2">Quiet Hours Start</label>
+                <input
+                  type="time"
+                  [value]="settings()?.quietHoursStart || '22:00'"
+                  (change)="saveSettings({ quietHoursStart: $any($event.target).value })"
+                  class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                >
+              </div>
+              <div>
+                <label class="block font-semibold text-[#1A1A1A] mb-2">Quiet Hours End</label>
+                <input
+                  type="time"
+                  [value]="settings()?.quietHoursEnd || '08:00'"
+                  (change)="saveSettings({ quietHoursEnd: $any($event.target).value })"
+                  class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                >
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (activeTab() === 'analytics') {
+          <!-- ANALYTICS TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-chart-line text-[#4C6FFF]"></i> Analytics Settings
+            </h2>
+
+            <!-- Default Date Range -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Default Date Range</label>
+              <select
+                [value]="settings()?.defaultAnalyticsDateRange || '7d'"
+                (change)="saveSettings({ defaultAnalyticsDateRange: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+                <option value="1d">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="90d">Last 90 Days</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            </div>
+
+            <!-- Auto Refresh Analytics -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">Auto-refresh Analytics</p>
+                <p class="text-sm text-gray-600">Automatically refresh analytics data</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.autoRefreshAnalytics ?? true"
+                  (change)="saveSettings({ autoRefreshAnalytics: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            @if (settings()?.autoRefreshAnalytics) {
+              <div>
+                <label class="block font-semibold text-[#1A1A1A] mb-2">
+                  Refresh Interval: {{ (settings()?.analyticsRefreshInterval || 300) / 60 }} minutes
+                </label>
+                <input
+                  type="range"
+                  min="60"
+                  max="3600"
+                  step="60"
+                  [value]="settings()?.analyticsRefreshInterval || 300"
+                  (input)="saveSettings({ analyticsRefreshInterval: +$any($event.target).value })"
+                  class="w-full"
+                >
+              </div>
+            }
+          </div>
+        }
+
+        @if (activeTab() === 'security') {
+          <!-- SECURITY TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-shield-alt text-[#4C6FFF]"></i> Security Settings
+            </h2>
+
+            <!-- Two Factor Authentication -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">Two-Factor Authentication</p>
+                <p class="text-sm text-gray-600">Add an extra layer of security to your account</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.twoFactorEnabled ?? false"
+                  (change)="saveSettings({ twoFactorEnabled: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            <!-- Session Timeout -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">
+                Session Timeout: {{ settings()?.sessionTimeoutMinutes || 60 }} minutes
+                @if (settings()?.sessionTimeoutMinutes === 0) {
+                  <span class="text-sm text-gray-600">(Never)</span>
+                }
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1440"
+                step="15"
+                [value]="settings()?.sessionTimeoutMinutes || 60"
+                (input)="saveSettings({ sessionTimeoutMinutes: +$any($event.target).value })"
+                class="w-full"
+              >
+              <p class="text-sm text-gray-600 mt-1">Automatically log out after inactivity (0 = never)</p>
+            </div>
+          </div>
+        }
+
+        @if (activeTab() === 'ai') {
+          <!-- AI TAB -->
+          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+            <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
+              <i class="fa-solid fa-robot text-[#4C6FFF]"></i> AI Settings
+            </h2>
+
+            <!-- AI Content Suggestions -->
+            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+              <div>
+                <p class="font-semibold text-[#1A1A1A]">AI Content Suggestions</p>
+                <p class="text-sm text-gray-600">Enable AI-powered content suggestions</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  [checked]="settings()?.aiContentSuggestionsEnabled ?? true"
+                  (change)="saveSettings({ aiContentSuggestionsEnabled: $any($event.target).checked })"
+                  class="sr-only peer"
+                >
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#4C6FFF]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4C6FFF]"></div>
+              </label>
+            </div>
+
+            <!-- Default AI Model -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">Default AI Model</label>
+              <select
+                [value]="settings()?.defaultAIModel || 'gpt-4'"
+                (change)="saveSettings({ defaultAIModel: $any($event.target).value })"
+                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+              >
+                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                <option value="claude">Claude</option>
+                <option value="gemini">Gemini</option>
+              </select>
+            </div>
+
+            <!-- Max AI Suggestions -->
+            <div>
+              <label class="block font-semibold text-[#1A1A1A] mb-2">
+                Max AI Suggestions Per Request: {{ settings()?.maxAISuggestionsPerRequest || 3 }}
+              </label>
+              <input
+                type="range"
+                min="1"
+                max="10"
+                [value]="settings()?.maxAISuggestionsPerRequest || 3"
+                (input)="saveSettings({ maxAISuggestionsPerRequest: +$any($event.target).value })"
+                class="w-full"
+              >
+            </div>
+          </div>
+        }
       </div>
     </div>
-
-    <!-- RIGHT: ACCOUNT BOX -->
-    <div class="space-y-6">
-
-      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
-
-        <h3 class="text-xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
-          <i class="fa-solid fa-user text-[#4C6FFF]"></i> Account
-        </h3>
-
-        <div class="space-y-4">
-
-          <!-- Profile -->
-          <button
-            routerLink="/profile"
-            class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-[#BFC9FF]/30
-                   transition-all duration-200 border border-transparent hover:border-[#4C6FFF]/20 group"
-          >
-            <div
-              class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center
-                     border border-[#4C6FFF]/20 group-hover:bg-[#4C6FFF]/20 transition"
-            >
-              <i class="fa-solid fa-user text-[#4C6FFF]"></i>
-            </div>
-
-            <div class="flex-1 text-left">
-              <p class="font-semibold text-[#1A1A1A]">Profile</p>
-              <p class="text-xs text-gray-600">View and edit your profile</p>
-            </div>
-
-            <i class="fa-solid fa-chevron-right text-gray-500"></i>
-          </button>
-
-          <!-- Logout -->
-          <button
-            (click)="logout()"
-            class="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-red-500/10 transition-all duration-200
-                   border border-transparent hover:border-red-500/20 group"
-          >
-            <div
-              class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center border border-red-500/20
-                     group-hover:bg-red-500/20 transition"
-            >
-              <i class="fa-solid fa-sign-out-alt text-red-500"></i>
-            </div>
-
-            <div class="flex-1 text-left">
-              <p class="font-semibold text-[#1A1A1A]">Logout</p>
-              <p class="text-xs text-gray-600">Sign out of your account</p>
-            </div>
-
-            <i class="fa-solid fa-chevron-right text-gray-500"></i>
-          </button>
-
-        </div>
-
-      </div>
-    </div>
-
-  </div>
-
+  }
 </div>

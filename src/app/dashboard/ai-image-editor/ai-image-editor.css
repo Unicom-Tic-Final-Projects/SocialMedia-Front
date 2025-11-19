@@ -1,0 +1,41 @@
+/* AI Image Editor Styles - Following theme */
+
+.upload-area {
+  border: 2px dashed #D9E1FF;
+}
+
+.upload-area:hover {
+  border-color: #4C6FFF;
+  background-color: #E8EDFF;
+}
+
+/* Ensure proper icon rendering */
+.fa-brands.fa-instagram,
+.fa-brands.fa-x-twitter,
+.fa-brands.fa-facebook {
+  font-size: 1.5rem;
+}
+
+/* Smooth transitions */
+* {
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+/* Custom scrollbar for history */
+.space-y-2::-webkit-scrollbar {
+  width: 6px;
+}
+
+.space-y-2::-webkit-scrollbar-track {
+  background: #F5F7FF;
+  border-radius: 3px;
+}
+
+.space-y-2::-webkit-scrollbar-thumb {
+  background: #D9E1FF;
+  border-radius: 3px;
+}
+
+.space-y-2::-webkit-scrollbar-thumb:hover {
+  background: #4C6FFF;
+}

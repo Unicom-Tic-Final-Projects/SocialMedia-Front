@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, KeyValuePipe, DatePipe } from '@angular/common';
 import { Observable, throwError, timer } from 'rxjs';
@@ -128,6 +128,17 @@ export class PostEditor implements OnInit {
     if (postId) {
       this.postId.set(postId);
       this.loadPost(postId);
+    } else {
+      // Check for query parameters (from AI content generator)
+      const queryParams = this.route.snapshot.queryParams;
+      if (queryParams['content']) {
+        const content = decodeURIComponent(queryParams['content']);
+        this.postForm.patchValue({ content });
+      }
+      if (queryParams['mediaUrl']) {
+        const mediaUrl = decodeURIComponent(queryParams['mediaUrl']);
+        this.mediaPreview.set(mediaUrl);
+      }
     }
 
     // Load social accounts
@@ -833,4 +844,5 @@ export class PostEditor implements OnInit {
     const now = new Date();
     return scheduledDate <= now;
   }
+
 }

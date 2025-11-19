@@ -1,0 +1,232 @@
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-3 sm:p-4 md:p-6">
+  <!-- Header -->
+  <div class="mb-4 sm:mb-6 md:mb-8">
+    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
+      <i class="fa-solid fa-wand-magic-sparkles text-[#4C6FFF]"></i>
+      AI Image Editor
+    </h1>
+    <p class="text-gray-600 text-xs sm:text-sm">Edit images with AI-powered text prompts</p>
+  </div>
+
+  <!-- Error Message -->
+  @if (errorMessage()) {
+    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+    <!-- Left Panel: Social Media Presets -->
+    <div class="lg:col-span-3">
+      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 border border-[#D9E1FF] sticky top-6">
+        <h3 class="text-sm font-semibold text-[#1A1A1A] mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-share-nodes text-[#4C6FFF]"></i>
+          Social Media Presets
+        </h3>
+        <div class="space-y-2">
+          @for (preset of presets; track preset.value) {
+            <button 
+              type="button"
+              class="w-full flex items-center gap-3 p-3 rounded-lg border-2 transition text-sm text-left"
+              [class.bg-white]="editForm.get('preset')?.value === preset.value"
+              [class.border-[#4C6FFF]]="editForm.get('preset')?.value === preset.value"
+              [class.bg-transparent]="editForm.get('preset')?.value !== preset.value"
+              [class.border-[#D9E1FF]]="editForm.get('preset')?.value !== preset.value"
+              [class.hover:bg-white]="editForm.get('preset')?.value !== preset.value"
+              (click)="selectPreset(preset.value)">
+              @if (preset.isBrand) {
+                <i class="fa-brands {{ preset.icon }} fa-lg text-[#4C6FFF] flex-shrink-0"></i>
+              } @else {
+                <i class="fa-solid {{ preset.icon }} fa-lg text-[#4C6FFF] flex-shrink-0"></i>
+              }
+              <div class="flex-1 min-w-0">
+                <p class="text-[#1A1A1A] font-medium truncate">{{ preset.label }}</p>
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Panel: Image Display -->
+    <div class="lg:col-span-6 space-y-4 sm:space-y-6">
+      <!-- Image Upload/Display -->
+      <div class="bg-[#F5F7FF] rounded-xl shadow-md border border-[#D9E1FF] overflow-hidden">
+        @if (!currentImageUrl()) {
+          <div class="upload-area p-8 sm:p-12 text-center cursor-pointer transition hover:bg-[#E8EDFF]" (click)="fileInput.click()">
+            <input 
+              #fileInput 
+              type="file" 
+              accept="image/*" 
+              (change)="onImageUpload($event)"
+              class="hidden"
+            />
+            <div class="flex flex-col items-center gap-3">
+              <i class="fa-solid fa-cloud-arrow-up text-5xl text-[#4C6FFF]"></i>
+              <div>
+                <p class="text-lg font-semibold text-[#1A1A1A] mb-1">Click to upload an image</p>
+                <span class="text-sm text-gray-600">PNG, JPG, GIF up to 10MB</span>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="relative bg-gray-100 flex items-center justify-center" [style.min-height.px]="400">
+            @if (loading()) {
+              <div class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+                <div class="text-center">
+                  <i class="fa-solid fa-circle-notch animate-spin text-4xl text-[#4C6FFF] mb-3"></i>
+                  <p class="text-sm text-gray-600">Regenerating image to fit aspect ratio...</p>
+                </div>
+              </div>
+            }
+            <img 
+              [src]="currentImageUrl()!" 
+              alt="Edited image" 
+              [class]="getImageClass()"
+              [class.opacity-50]="loading()"
+              style="object-fit: contain;"
+            />
+            <div class="absolute top-4 right-4">
+              <button 
+                class="bg-white/90 hover:bg-white border border-gray-300 rounded-lg p-2 transition shadow-sm" 
+                (click)="clearImage()" 
+                title="Clear image">
+                <i class="fa-solid fa-times text-gray-700"></i>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Edit History -->
+      @if (editHistory().length > 0) {
+        <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 border border-[#D9E1FF]">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-[#1A1A1A] flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left text-[#4C6FFF]"></i>
+              Edit History
+            </h3>
+            <div class="flex gap-2">
+              <button 
+                class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition disabled:opacity-40 disabled:cursor-not-allowed" 
+                [disabled]="!canUndo()" 
+                (click)="navigateHistory('back')"
+                title="Undo">
+                <i class="fa-solid fa-rotate-left text-[#1A1A1A]"></i>
+              </button>
+              <button 
+                class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition disabled:opacity-40 disabled:cursor-not-allowed" 
+                [disabled]="!canRedo()" 
+                (click)="navigateHistory('forward')"
+                title="Redo">
+                <i class="fa-solid fa-rotate-right text-[#1A1A1A]"></i>
+              </button>
+              <button 
+                class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition disabled:opacity-40 disabled:cursor-not-allowed" 
+                [disabled]="!canReset()" 
+                (click)="resetToOriginal()"
+                title="Reset to original">
+                <i class="fa-solid fa-arrow-rotate-left text-[#1A1A1A]"></i>
+              </button>
+            </div>
+          </div>
+          <div class="space-y-2 max-h-[300px] overflow-y-auto">
+            @for (item of editHistory(); track item.id; let i = $index) {
+              <div 
+                class="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition border-2"
+                [class.bg-white]="i === currentHistoryIndex()"
+                [class.border-[#4C6FFF]]="i === currentHistoryIndex()"
+                [class.border-transparent]="i !== currentHistoryIndex()"
+                [class.hover:bg-white]="i !== currentHistoryIndex()"
+                (click)="goToHistoryItem(i)"
+                [title]="item.prompt">
+                <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border border-[#D9E1FF]">
+                  <img [src]="item.imageUrl" [alt]="item.prompt" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-[#1A1A1A] truncate mb-1">{{ item.prompt }}</p>
+                  <span class="text-xs text-gray-600">{{ item.timestamp | date:'short' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Right Panel: Controls -->
+    <div class="lg:col-span-3">
+      <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 border border-[#D9E1FF] sticky top-6">
+        <form [formGroup]="editForm" (ngSubmit)="editImage()" class="space-y-6">
+          <!-- Quick Prompts -->
+          <div>
+            <h3 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-bolt text-[#4C6FFF]"></i>
+              Quick Prompts
+            </h3>
+            <div class="grid grid-cols-1 gap-2">
+              @for (quickPrompt of quickPrompts; track quickPrompt.text) {
+                <button 
+                  type="button"
+                  class="flex items-center gap-2 p-2.5 bg-white border border-[#D9E1FF] rounded-lg hover:bg-[#E8EDFF] hover:border-[#4C6FFF] transition text-xs text-left"
+                  (click)="useQuickPrompt(quickPrompt.text)">
+                  <i class="fa-solid {{ quickPrompt.icon }} text-[#4C6FFF]"></i>
+                  <span class="text-[#1A1A1A] truncate">{{ quickPrompt.text }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Custom Prompt -->
+          <div>
+            <h3 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
+              Custom Prompt
+            </h3>
+            <textarea 
+              formControlName="prompt"
+              placeholder="Describe how you want to edit the image (e.g., 'make it vintage', 'remove background person')"
+              rows="4"
+              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm resize-none"></textarea>
+            @if (editForm.get('prompt')?.invalid && editForm.get('prompt')?.touched) {
+              <div class="text-xs text-red-600 mt-1">
+                @if (editForm.get('prompt')?.errors?.['required']) {
+                  Prompt is required
+                }
+                @if (editForm.get('prompt')?.errors?.['maxlength']) {
+                  Prompt must be less than 2000 characters
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="space-y-3 pt-2">
+            <button 
+              type="submit" 
+              class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-4 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              [disabled]="editForm.invalid || !currentImageUrl() || loading()">
+              @if (loading()) {
+                <i class="fa-solid fa-circle-notch animate-spin"></i>
+                Processing...
+              } @else {
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Apply Edit
+              }
+            </button>
+
+            @if (currentImageUrl()) {
+              <button 
+                type="button" 
+                class="w-full bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium px-4 py-3 rounded-lg transition border border-[#D9E1FF] flex items-center justify-center gap-2"
+                (click)="downloadImage()">
+                <i class="fa-solid fa-download text-[#4C6FFF]"></i>
+                Download Image
+              </button>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
