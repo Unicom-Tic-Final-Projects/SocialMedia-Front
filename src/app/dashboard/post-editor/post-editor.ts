@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -83,6 +83,11 @@ export class PostEditor implements OnInit {
 
   // Platform crop configurations (stored per platform)
   platformCropConfigs = signal<Record<Platform, { crop: { zoom: number; offsetX: number; offsetY: number }; cropBox: { width: number; height: number; left: number; top: number } }>>({} as any);
+  
+  // Platform cropped images (base64 strings per platform)
+  platformCroppedImages = signal<Record<Platform, string>>({} as Record<Platform, string>);
+  
+  @ViewChild(PhotoCropComponent) photoCropComponent?: PhotoCropComponent;
 
   // Step completion tracking - checkmarks only show after clicking Next
   step1Completed = signal<boolean>(false); // True only after clicking Next in Step 1
@@ -134,9 +139,43 @@ export class PostEditor implements OnInit {
         this.step2ValidationError.set(false); // Clear error on success
         this.saveStep2ToDraft();
       } else if (current === 3) {
-        // Mark Step 3 as completed when moving to Step 4
-        this.step3Completed.set(true);
+        // CRITICAL: Generate all cropped images BEFORE allowing Step 4 preview to load
+        // This ensures:
+        // 1. Preview shows EXACT cropped images (not original with transforms)
+        // 2. Published post uses SAME cropped images
+        // 3. 100% visual consistency between preview and published output
         this.saveStep3ToDraft();
+        
+        if (this.photoCropComponent) {
+          // Generate crops for all platforms and WAIT for completion
+          // Don't proceed to Step 4 until crops are ready
+          this.photoCropComponent.cropAllImages().then(() => {
+            // Save crops to draft after generation completes
+            this.saveStep3ToDraft();
+            // Mark step as completed and move to preview
+            // Preview will now show exact cropped images matching what will be published
+            this.step3Completed.set(true);
+            this.currentStep.set(4);
+          }).catch(err => {
+            console.error('Error cropping images:', err);
+            // Even on error, try to save what we have and proceed
+            this.saveStep3ToDraft();
+            this.step3Completed.set(true);
+            this.currentStep.set(4);
+          });
+          // IMPORTANT: Don't change step yet - wait for crops to complete
+          // This ensures Step 4 preview always has cropped images ready
+          return;
+        } else {
+          // If component not available, try to proceed but warn
+          console.warn('PhotoCropComponent not available - crops may not be generated');
+          setTimeout(() => {
+            this.saveStep3ToDraft();
+            this.step3Completed.set(true);
+            this.currentStep.set(4);
+          }, 100);
+          return;
+        }
       } else if (current === 4) {
         // Mark Step 4 as completed when moving to Step 5
         this.step4PreviewLoaded.set(true);
@@ -263,6 +302,9 @@ export class PostEditor implements OnInit {
     }
     if (draft.platformCropConfigs) {
       this.platformCropConfigs.set(draft.platformCropConfigs);
+    }
+    if (draft.platformCroppedImages) {
+      this.platformCroppedImages.set(draft.platformCroppedImages);
     }
   }
 
@@ -530,14 +572,16 @@ export class PostEditor implements OnInit {
   }
   
   /**
-   * Save Step 3 data to draft (crop configs and platform captions)
+   * Save Step 3 data to draft (crop configs, cropped images, and platform captions)
    */
   saveStep3ToDraft(): void {
     const platformCropConfigs = this.platformCropConfigs();
+    const platformCroppedImages = this.platformCroppedImages();
     const platformCaptions = this.platformCaptions();
     
     this.postDraftService.updateDraft({
       platformCropConfigs,
+      platformCroppedImages: Object.keys(platformCroppedImages).length > 0 ? platformCroppedImages : undefined,
       platformCaptions,
     });
   }
@@ -548,6 +592,15 @@ export class PostEditor implements OnInit {
   onCropConfigsChange(configs: Record<Platform, { crop: { zoom: number; offsetX: number; offsetY: number }; cropBox: { width: number; height: number; left: number; top: number } }>): void {
     this.platformCropConfigs.set(configs);
     // Auto-save to draft when crop changes
+    this.saveStep3ToDraft();
+  }
+
+  /**
+   * Handle cropped images change from photo-crop component
+   */
+  onCroppedImagesChange(croppedImages: Record<Platform, string>): void {
+    this.platformCroppedImages.set(croppedImages);
+    // Auto-save to draft when cropped images change
     this.saveStep3ToDraft();
   }
   
@@ -879,29 +932,112 @@ export class PostEditor implements OnInit {
           return throwError(() => new Error('No connected accounts found for selected platforms'));
         }
 
-        if (this.isEditMode()) {
-          // Update existing post with media
-          const updateRequest: UpdatePostRequest = {
-            content: formValue.content,
-            mediaId: mediaId || undefined,
-            socialAccountIds: accountIds,
-            scheduledAt: undefined,
-          };
-
-          return this.postsService.updatePost(this.postId()!, updateRequest);
-        } else {
-          // Create new post with media
-          const createRequest: CreatePostRequest = {
-            clientId: activeClient.id,
-            createdByTeamMemberId: user.userId,
-            content: formValue.content,
-            mediaId: mediaId || undefined,
-            socialAccountIds: accountIds,
-            scheduledAt: undefined,
-          };
-
-          return this.postsService.createPost(createRequest);
+        // Get platform crop configs and cropped images from draft
+        // Ensure we have the absolute latest data by saving Step 3 one more time
+        this.saveStep3ToDraft();
+        const draft = this.postDraftService.getActiveDraft();
+        const platformCropConfigs = draft?.platformCropConfigs || this.platformCropConfigs();
+        const platformCroppedImages = draft?.platformCroppedImages || this.platformCroppedImages();
+        
+        // Upload cropped images for each platform and get mediaIds
+        // For now, we'll use the first platform's cropped image as the main mediaId
+        // In the future, this could be expanded to support per-platform media
+        const selectedPlatforms = draft?.selectedPlatforms || [];
+        let croppedMediaId = mediaId;
+        
+        // CRITICAL: Always use cropped images for publishing to ensure published post matches preview
+        // Generate crops if they don't exist yet (shouldn't happen, but safety check)
+        if (selectedPlatforms.length > 0) {
+          const firstPlatform = selectedPlatforms[0];
+          let croppedImageBase64 = platformCroppedImages?.[firstPlatform];
+          
+          // If no cropped image exists, generate it now (shouldn't happen if Step 4 was completed)
+          if (!croppedImageBase64 && this.photoCropComponent) {
+            console.warn('Cropped image not found - generating now before publishing');
+            // Wait for crop generation before proceeding
+            return new Observable<SocialPost>((observer) => {
+              this.photoCropComponent!.cropImageForPlatform(firstPlatform).then((cropped) => {
+                if (cropped) {
+                  // Update draft with generated crop
+                  const updatedCropped = { ...platformCroppedImages };
+                  updatedCropped[firstPlatform] = cropped;
+                  this.platformCroppedImages.set(updatedCropped);
+                  this.saveStep3ToDraft();
+                  
+                  // Upload and publish with cropped image
+                  const file = this.base64ToFile(cropped, `cropped-${firstPlatform}.png`);
+                  this.mediaService.uploadMedia(file).subscribe({
+                    next: (mediaResponse) => {
+                      const request = this.isEditMode() 
+                        ? {
+                            content: formValue.content,
+                            mediaId: mediaResponse.mediaId,
+                            socialAccountIds: accountIds,
+                            scheduledAt: undefined,
+                            platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+                          }
+                        : {
+                            clientId: activeClient.id,
+                            createdByTeamMemberId: user.userId,
+                            content: formValue.content,
+                            mediaId: mediaResponse.mediaId,
+                            socialAccountIds: accountIds,
+                            scheduledAt: undefined,
+                            platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+                          };
+                      
+                      const apiCall = this.isEditMode()
+                        ? this.postsService.updatePost(this.postId()!, request as UpdatePostRequest)
+                        : this.postsService.createPost(request as CreatePostRequest);
+                      
+                      apiCall.subscribe(observer);
+                    },
+                    error: (err) => observer.error(err)
+                  });
+                } else {
+                  observer.error(new Error('Failed to generate cropped image'));
+                }
+              }).catch((err) => observer.error(err));
+            });
+          }
+          
+          if (croppedImageBase64) {
+            // Convert base64 to File and upload
+            const file = this.base64ToFile(croppedImageBase64, `cropped-${firstPlatform}.png`);
+            return this.mediaService.uploadMedia(file).pipe(
+              switchMap((mediaResponse) => {
+                croppedMediaId = mediaResponse.mediaId;
+                
+                if (this.isEditMode()) {
+                  const updateRequest: UpdatePostRequest = {
+                    content: formValue.content,
+                    mediaId: croppedMediaId,
+                    socialAccountIds: accountIds,
+                    scheduledAt: undefined,
+                    platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+                  };
+                  return this.postsService.updatePost(this.postId()!, updateRequest);
+                } else {
+                  const createRequest: CreatePostRequest = {
+                    clientId: activeClient.id,
+                    createdByTeamMemberId: user.userId,
+                    content: formValue.content,
+                    mediaId: croppedMediaId,
+                    socialAccountIds: accountIds,
+                    scheduledAt: undefined,
+                    platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+                  };
+                  return this.postsService.createPost(createRequest);
+                }
+              })
+            );
+          }
         }
+        
+        // If no cropped images available and no way to generate them, show error
+        this.errorMessage.set('Cropped images not found. Please go back to Step 3 and complete cropping before publishing.');
+        this.saving.set(false);
+        return throwError(() => new Error('Cropped images required for publishing'));
       }),
       // Step 3: After post is created/updated, wait a moment for DB commit, then publish to social media (with image from Cloudinary)
       switchMap((post) => {
@@ -1078,6 +1214,15 @@ export class PostEditor implements OnInit {
       // But for immediate publishing, we need accounts
     }
 
+    // Get platform crop configs from draft (source of truth for what was previewed)
+    // Ensure we have the absolute latest crop configs by saving Step 3 one more time
+    this.saveStep3ToDraft();
+    const draft = this.postDraftService.getActiveDraft();
+    const platformCropConfigs = draft?.platformCropConfigs || this.platformCropConfigs();
+
+    // Log crop configs for debugging
+    console.log('Saving post with crop configs:', JSON.stringify(platformCropConfigs, null, 2));
+
     if (this.isEditMode()) {
       // Update existing post
       const updateRequest: UpdatePostRequest = {
@@ -1085,8 +1230,10 @@ export class PostEditor implements OnInit {
         mediaId: mediaId,
         socialAccountIds: accountIds.length > 0 ? accountIds : this.selectedAccountIds(),
         scheduledAt: isScheduled ? this.scheduledDateTime() : undefined,
+        platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
       };
 
+      console.log('Update post request:', JSON.stringify(updateRequest, null, 2));
       return this.postsService.updatePost(this.postId()!, updateRequest).pipe(
         tap(() => {
           this.saving.set(false);
@@ -1107,8 +1254,10 @@ export class PostEditor implements OnInit {
         mediaId: mediaId, // Only include if already uploaded (for edit mode)
         socialAccountIds: accountIds.length > 0 ? accountIds : this.selectedAccountIds(),
         scheduledAt: scheduledAt || undefined,
+        platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
       };
 
+      console.log('Create post request:', JSON.stringify(createRequest, null, 2));
       return this.postsService.createPost(createRequest).pipe(
         tap(() => {
           this.saving.set(false);
@@ -1120,6 +1269,21 @@ export class PostEditor implements OnInit {
         })
       );
     }
+  }
+
+  /**
+   * Convert base64 string to File object
+   */
+  private base64ToFile(base64: string, filename: string): File {
+    const arr = base64.split(',');
+    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {

@@ -48,21 +48,12 @@
 
     <div class="flex gap-3">
       <button
-        (click)="openPreviewEditor()"
-        class="bg-white border border-[#D9E1FF] text-[#1A1A1A] font-semibold px-6 py-3 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF]
-               transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md"
-        title="Preview & Crop Post"
+        (click)="navigateToPostEditor()"
+        class="bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#3A56CC]
+               transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105"
       >
-        <i class="fa-solid fa-eye"></i> Preview & Crop
+        <i class="fa-solid fa-plus"></i> New Post
       </button>
-      
-    <button
-      (click)="navigateToPostEditor()"
-      class="bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#3A56CC]
-             transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105"
-    >
-      <i class="fa-solid fa-plus"></i> New Post
-    </button>
     </div>
 
   </div>
@@ -245,15 +236,5 @@
 
     </div>
   }
-
-  <!-- Post Preview Component -->
-  <app-post-preview
-    [open]="showPreview"
-    [mediaUrl]="previewMediaUrl"
-    [caption]="previewCaption"
-    [selectedPlatforms]="previewTargets"
-    [cropEnabled]="true"
-    (onClose)="closePreviewEditor()"
-  ></app-post-preview>
 
 </div>

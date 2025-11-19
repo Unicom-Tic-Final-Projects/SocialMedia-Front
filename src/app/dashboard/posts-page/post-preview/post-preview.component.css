@@ -50,14 +50,67 @@ input[type="range"]::-moz-range-thumb {
   cursor: se-resize;
 }
 
-/* Smooth transitions */
-button {
-  transition: all 0.2s ease;
+/* Remove transitions from engagement buttons */
+.pointer-events-none,
+.pointer-events-none * {
+  transition: none !important;
+  animation: none !important;
 }
 
 /* Modal overlay */
 .fixed.inset-0 {
   backdrop-filter: blur(4px);
+}
+
+/* Ensure engagement buttons are always visible with no hover effects */
+app-post-preview .pointer-events-none {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+app-post-preview .pointer-events-none * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Remove any hover effects from engagement buttons */
+app-post-preview .pointer-events-none:hover,
+app-post-preview .pointer-events-none:hover * {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure media containers clip zoomed content and don't affect layout */
+app-post-preview .overflow-hidden,
+app-post-preview [class*="overflow-hidden"] {
+  position: relative;
+  contain: layout style paint;
+  overflow: hidden !important;
+  isolation: isolate;
+}
+
+/* Ensure images/videos don't affect parent layout - no transforms since we use cropped images directly */
+app-post-preview .overflow-hidden img,
+app-post-preview .overflow-hidden video,
+app-post-preview [class*="overflow-hidden"] img,
+app-post-preview [class*="overflow-hidden"] video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  transform: none !important;
+}
+
+/* Prevent any zoom effects on the entire preview container */
+app-post-preview {
+  contain: layout style paint;
+  transform: none !important;
+}
+
+/* Ensure no transforms are applied to preview content */
+app-post-preview img,
+app-post-preview video {
+  transform: none !important;
 }
 
 

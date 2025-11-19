@@ -20,7 +20,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { CommonModule, NgStyle } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Platform, CropAdjustment, SocialAccount, PostDraft } from '../../../models/social.models';
 import { PlatformPreviewService } from '../../../services/client/platform-preview.service';
@@ -48,7 +48,7 @@ interface PlatformCropState {
 @Component({
   selector: 'app-post-preview',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgStyle],
+  imports: [CommonModule, FormsModule],
   templateUrl: './post-preview.component.html',
   styleUrl: './post-preview.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,6 +72,29 @@ export class PostPreviewComponent implements OnChanges {
   readonly isDraftMode = computed(() => !!this.draft);
   readonly draftMediaUrl = computed(() => this.draft?.mediaUrl || null);
   readonly draftSelectedPlatforms = computed(() => this.draft?.selectedPlatforms || []);
+  
+  /**
+   * Get cropped image URL for a platform
+   * CRITICAL: Always use cropped image to ensure preview matches published output exactly
+   * The preview MUST show the exact same cropped image that will be published
+   */
+  getPlatformMediaUrl(platform: Platform): string | null {
+    // ALWAYS use cropped image if available - this is the source of truth for what will be published
+    if (this.isDraftMode() && this.draft?.platformCroppedImages?.[platform]) {
+      return this.draft.platformCroppedImages[platform];
+    }
+    
+    // In preview mode (Step 4), we should ALWAYS have cropped images after Step 3 completes
+    // If we don't have crops yet, show a loading state or wait
+    // Fallback to original ONLY if this is not a draft (legacy support for modal mode)
+    if (!this.isDraftMode()) {
+      return this.mediaUrl;
+    }
+    
+    // For draft mode, wait for crops - don't show original as fallback
+    // This ensures preview always matches what will be published
+    return this.draftMediaUrl();
+  }
 
   readonly allPlatforms: Platform[] = ['facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'pinterest'];
 
@@ -86,32 +109,16 @@ export class PostPreviewComponent implements OnChanges {
   };
 
   /**
-   * Generate realistic engagement numbers for preview
+   * Get static engagement numbers for preview
+   * Always returns the same values for consistent display
    */
-  getEngagementNumbers(platform: Platform): { likes: number; comments: number; shares: number } {
-    const base = Math.floor(Math.random() * 1000) + 100;
-    const multipliers: Record<Platform, { likes: number; comments: number; shares: number }> = {
-      facebook: { likes: base * 1.2, comments: Math.floor(base * 0.15), shares: Math.floor(base * 0.08) },
-      instagram: { likes: base * 2.5, comments: Math.floor(base * 0.12), shares: 0 },
-      linkedin: { likes: base * 0.8, comments: Math.floor(base * 0.1), shares: Math.floor(base * 0.05) },
-      twitter: { likes: base * 0.6, comments: Math.floor(base * 0.08), shares: Math.floor(base * 0.1) },
-      tiktok: { likes: base * 3.0, comments: Math.floor(base * 0.2), shares: Math.floor(base * 0.15) },
-      youtube: { likes: base * 0.5, comments: Math.floor(base * 0.05), shares: 0 },
-      pinterest: { likes: base * 1.5, comments: 0, shares: 0 },
+  getEngagementNumbers(platform: Platform): { likes: string; comments: string; shares: string } {
+    // Static numbers: 10M likes, 500K comments, 100K shares
+    return {
+      likes: '10M',
+      comments: '500K',
+      shares: '100K'
     };
-    return multipliers[platform];
-  }
-
-  /**
-   * Format engagement numbers (e.g., 1200 -> "1.2K")
-   */
-  formatEngagement(num: number): string {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
   }
 
   selectedPlatform = signal<Platform | null>(null);
@@ -324,11 +331,15 @@ export class PostPreviewComponent implements OnChanges {
     const dy = moveY - this.dragStartY();
 
     const box = this.cropBox();
-    this.cropBox.set({
+    const newBox = {
       ...box,
       left: this.initialLeft() + dx,
       top: this.initialTop() + dy,
-    });
+    };
+    this.cropBox.set(newBox);
+    
+    // Update transform in real-time while dragging
+    this.updateTransformFromCropBox();
   }
 
   stopDragCropBox(): void {
@@ -388,6 +399,9 @@ export class PostPreviewComponent implements OnChanges {
     }
 
     this.cropBox.set(newBox);
+    
+    // Update transform in real-time while resizing
+    this.updateTransformFromCropBox();
   }
 
   stopResize(): void {
@@ -401,13 +415,71 @@ export class PostPreviewComponent implements OnChanges {
     this.activeHandle.set(null);
   }
 
+  /**
+   * Update image transform based on current crop box position and size
+   * This ensures the preview matches what's shown in the crop box
+   */
+  private updateTransformFromCropBox(): void {
+    const platform = this.selectedPlatform();
+    if (!platform) return;
+    
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (!state) return;
+    
+    // Calculate image transform based on crop box position and size
+    const displayDims = this.getDisplayDimensions(platform);
+    const containerWidth = displayDims.width;
+    const containerHeight = displayDims.height;
+    const cropBox = this.cropBox();
+    
+    // Calculate zoom: how much the image needs to be scaled to show the crop box area
+    // If crop box is smaller than container, we need to zoom in
+    // The zoom should make the crop box area fill the entire container
+    const zoomX = containerWidth / cropBox.width;
+    const zoomY = containerHeight / cropBox.height;
+    // Use the larger ratio to ensure the crop box area completely fills the container
+    const zoom = Math.max(zoomX, zoomY, 1);
+    
+    // Calculate offset: pan the image so the crop box area is centered in the view
+    // The crop box center position relative to the container
+    const cropBoxCenterX = cropBox.left + cropBox.width / 2;
+    const cropBoxCenterY = cropBox.top + cropBox.height / 2;
+    const containerCenterX = containerWidth / 2;
+    const containerCenterY = containerHeight / 2;
+    
+    // Calculate the difference between crop box center and container center
+    // This tells us how much the image needs to move
+    const deltaX = cropBoxCenterX - containerCenterX;
+    const deltaY = cropBoxCenterY - containerCenterY;
+    
+    // Convert pixel offset to percentage
+    // Since transform-origin is center center, we need to account for the zoom
+    // When zoomed in, the same pixel movement requires a larger percentage offset
+    const offsetX = -(deltaX / containerWidth) * 100 * zoom;
+    const offsetY = -(deltaY / containerHeight) * 100 * zoom;
+    
+    // Update crop transform to match crop box
+    state.crop = {
+      zoom: Math.min(Math.max(zoom, 1), 3), // Clamp zoom between 1 and 3
+      offsetX: Math.min(Math.max(offsetX, -100), 100), // Clamp offset
+      offsetY: Math.min(Math.max(offsetY, -100), 100),
+    };
+    
+    states.set(platform, { ...state });
+    this.platformCropStates.set(new Map(states));
+  }
+
   private saveCropBoxToPlatform(platform: Platform): void {
     const states = this.platformCropStates();
     const state = states.get(platform);
     if (state) {
       state.cropBox = { ...this.cropBox() };
-      states.set(platform, { ...state });
-      this.platformCropStates.set(new Map(states));
+      
+      // Update transform to match crop box
+      this.updateTransformFromCropBox();
+      
+      // Emit the change
       this.emitCropChange();
     }
   }

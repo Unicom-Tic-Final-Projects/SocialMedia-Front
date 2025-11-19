@@ -39,6 +39,7 @@ export interface PostDraft {
     crop: CropAdjustment;
     cropBox: { width: number; height: number; left: number; top: number };
   }>;
+  platformCroppedImages?: Record<Platform, string>; // Base64 cropped images per platform
   createdAt: string;
   updatedAt: string;
 }

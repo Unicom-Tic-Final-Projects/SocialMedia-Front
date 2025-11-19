@@ -32,7 +32,7 @@
       @let meta = platformMeta[platform];
       @let displayDims = getDisplayDimensions(platform);
       @let caption = getPlatformCaption(platform);
-      @let cropStyle = getCropStyleFromDraft(platform);
+      @let platformMediaUrl = getPlatformMediaUrl(platform);
 
       @let engagement = getEngagementNumbers(platform);
       @let profileName = "Your Page Name";
@@ -56,36 +56,31 @@
           }
           
           <!-- Media -->
-          @if (draftMediaUrl()) {
-            <div class="w-full">
+          @if (platformMediaUrl) {
+            <div class="w-full overflow-hidden">
               @if (detectedMediaType() === 'video') {
-                <video [src]="draftMediaUrl()!" class="w-full" [ngStyle]="cropStyle" controls (loadedmetadata)="onMediaLoaded()"></video>
+                <video [src]="platformMediaUrl" class="w-full" controls (loadedmetadata)="onMediaLoaded()"></video>
               } @else {
-                <img [src]="draftMediaUrl()!" class="w-full" [ngStyle]="cropStyle" alt="Post" (load)="onMediaLoaded()" />
+                <img [src]="platformMediaUrl" class="w-full" alt="Post" (load)="onMediaLoaded()" />
               }
             </div>
           }
           
           <!-- Engagement -->
           <div class="p-3 border-t">
-            <div class="flex items-center justify-between text-gray-600 mb-2">
-              <div class="flex items-center gap-4">
-                <div class="flex items-center gap-1 text-gray-600 pointer-events-none">
-                  <i class="fa-solid fa-thumbs-up"></i>
-                  <span class="text-sm">{{ formatEngagement(engagement.likes) }}</span>
-                </div>
-                <div class="flex items-center gap-1 text-gray-600 pointer-events-none">
-                  <i class="fa-solid fa-comment"></i>
-                  <span class="text-sm">{{ formatEngagement(engagement.comments) }}</span>
-                </div>
-                <div class="flex items-center gap-1 text-gray-600 pointer-events-none">
-                  <i class="fa-solid fa-share"></i>
-                  <span class="text-sm">{{ formatEngagement(engagement.shares) }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="text-xs text-gray-500">
-              {{ formatEngagement(engagement.likes) }} likes · {{ formatEngagement(engagement.comments) }} comments
+            <div class="flex items-center gap-4 text-sm text-gray-600 pointer-events-none">
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-thumbs-up text-blue-600"></i>
+                <span>{{ engagement.likes }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-comment text-gray-600"></i>
+                <span>{{ engagement.comments }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-share text-gray-600"></i>
+                <span>{{ engagement.shares }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -104,12 +99,12 @@
           </div>
           
           <!-- Media -->
-          @if (draftMediaUrl()) {
-            <div class="w-full aspect-square bg-gray-100">
+          @if (platformMediaUrl) {
+            <div class="w-full aspect-square bg-gray-100 overflow-hidden">
               @if (detectedMediaType() === 'video') {
-                <video [src]="draftMediaUrl()!" class="w-full h-full object-cover" [ngStyle]="cropStyle" controls (loadedmetadata)="onMediaLoaded()"></video>
+                <video [src]="platformMediaUrl" class="w-full h-full object-cover" controls (loadedmetadata)="onMediaLoaded()"></video>
               } @else {
-                <img [src]="draftMediaUrl()!" class="w-full h-full object-cover" [ngStyle]="cropStyle" alt="Post" (load)="onMediaLoaded()" />
+                <img [src]="platformMediaUrl" class="w-full h-full object-cover" alt="Post" (load)="onMediaLoaded()" />
               }
             </div>
           }
@@ -117,17 +112,22 @@
           <!-- Engagement -->
           <div class="p-3">
             <div class="flex items-center gap-4 mb-2 pointer-events-none">
-              <i class="fa-solid fa-heart text-xl text-red-500"></i>
-              <i class="fa-regular fa-comment text-xl"></i>
-              <i class="fa-regular fa-paper-plane text-xl"></i>
-              <i class="fa-regular fa-bookmark text-xl ml-auto"></i>
+              <button class="flex items-center gap-1 text-gray-600" disabled>
+                <i class="fa-regular fa-heart text-xl text-gray-600"></i>
+              </button>
+              <button class="flex items-center gap-1 text-gray-600" disabled>
+                <i class="fa-regular fa-comment text-xl"></i>
+              </button>
+              <button class="flex items-center gap-1 text-gray-600" disabled>
+                <i class="fa-regular fa-paper-plane text-xl"></i>
+              </button>
+              <i class="fa-regular fa-bookmark text-xl ml-auto text-gray-600"></i>
             </div>
-            <div class="font-semibold text-sm mb-1">{{ formatEngagement(engagement.likes) }} likes</div>
+            <div class="text-sm font-semibold mb-1">{{ engagement.likes }} likes</div>
             <div class="text-sm">
               <span class="font-semibold">{{ profileName }}</span>
               <span class="ml-2">{{ caption }}</span>
             </div>
-            <div class="text-xs text-gray-500 mt-1">View all {{ formatEngagement(engagement.comments) }} comments</div>
             <div class="text-xs text-gray-500 mt-2">{{ timestamp }}</div>
           </div>
         </div>
@@ -153,33 +153,33 @@
           }
           
           <!-- Media -->
-          @if (draftMediaUrl()) {
-            <div class="w-full">
+          @if (platformMediaUrl) {
+            <div class="w-full overflow-hidden">
               @if (detectedMediaType() === 'video') {
-                <video [src]="draftMediaUrl()!" class="w-full" [ngStyle]="cropStyle" controls (loadedmetadata)="onMediaLoaded()"></video>
+                <video [src]="platformMediaUrl" class="w-full" controls (loadedmetadata)="onMediaLoaded()"></video>
               } @else {
-                <img [src]="draftMediaUrl()!" class="w-full" [ngStyle]="cropStyle" alt="Post" (load)="onMediaLoaded()" />
+                <img [src]="platformMediaUrl" class="w-full" alt="Post" (load)="onMediaLoaded()" />
               }
             </div>
           }
           
           <!-- Engagement -->
           <div class="p-3 border-t flex items-center gap-4 text-gray-600 pointer-events-none">
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-solid fa-thumbs-up"></i>
-              <span class="text-sm">{{ formatEngagement(engagement.likes) }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-solid fa-comment"></i>
-              <span class="text-sm">{{ formatEngagement(engagement.comments) }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-solid fa-share"></i>
-              <span class="text-sm">{{ formatEngagement(engagement.shares) }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-gray-600 ml-auto">
-              <i class="fa-solid fa-paper-plane"></i>
-            </div>
+            <button class="flex items-center gap-1" disabled>
+              <i class="fa-solid fa-thumbs-up text-blue-600"></i>
+              <span class="text-sm">{{ engagement.likes }}</span>
+            </button>
+            <button class="flex items-center gap-1" disabled>
+              <i class="fa-solid fa-comment text-gray-600"></i>
+              <span class="text-sm">{{ engagement.comments }}</span>
+            </button>
+            <button class="flex items-center gap-1" disabled>
+              <i class="fa-solid fa-share text-gray-600"></i>
+              <span class="text-sm">{{ engagement.shares }}</span>
+            </button>
+            <button class="flex items-center gap-1 hover:opacity-80 transition ml-auto" disabled>
+              <i class="fa-solid fa-paper-plane text-gray-600"></i>
+            </button>
           </div>
         </div>
       }
@@ -204,32 +204,34 @@
           }
           
           <!-- Media -->
-          @if (draftMediaUrl()) {
+          @if (platformMediaUrl) {
             <div class="w-full rounded-lg overflow-hidden">
               @if (detectedMediaType() === 'video') {
-                <video [src]="draftMediaUrl()!" class="w-full" [ngStyle]="cropStyle" controls (loadedmetadata)="onMediaLoaded()"></video>
+                <video [src]="platformMediaUrl" class="w-full" controls (loadedmetadata)="onMediaLoaded()"></video>
               } @else {
-                <img [src]="draftMediaUrl()!" class="w-full" [ngStyle]="cropStyle" alt="Post" (load)="onMediaLoaded()" />
+                <img [src]="platformMediaUrl" class="w-full" alt="Post" (load)="onMediaLoaded()" />
               }
             </div>
           }
           
           <!-- Engagement -->
           <div class="p-3 border-t flex items-center justify-between text-gray-600 pointer-events-none">
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-regular fa-comment"></i>
-              <span class="text-sm">{{ formatEngagement(engagement.comments) }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-solid fa-retweet"></i>
-              <span class="text-sm">{{ formatEngagement(engagement.shares) }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-regular fa-heart"></i>
-              <span class="text-sm">{{ formatEngagement(engagement.likes) }}</span>
-            </div>
-            <div class="flex items-center gap-1 text-gray-600">
-              <i class="fa-solid fa-share"></i>
+            <div class="flex items-center gap-4">
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-regular fa-comment text-gray-600"></i>
+                <span class="text-sm">{{ engagement.comments }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-retweet text-gray-600"></i>
+                <span class="text-sm">{{ engagement.shares }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-regular fa-heart text-gray-600"></i>
+                <span class="text-sm">{{ engagement.likes }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-share text-gray-600"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -239,38 +241,32 @@
       @else if (platform === 'tiktok') {
         <div class="bg-black rounded-lg shadow-lg border border-gray-800 max-w-xs mx-auto relative">
           <!-- Media -->
-          @if (draftMediaUrl()) {
-            <div class="w-full aspect-[9/16] bg-gray-900 relative">
+          @if (platformMediaUrl) {
+            <div class="w-full aspect-[9/16] bg-gray-900 relative overflow-hidden">
               @if (detectedMediaType() === 'video') {
-                <video [src]="draftMediaUrl()!" class="w-full h-full object-cover" [ngStyle]="cropStyle" controls (loadedmetadata)="onMediaLoaded()"></video>
+                <video [src]="platformMediaUrl" class="w-full h-full object-cover" controls (loadedmetadata)="onMediaLoaded()"></video>
               } @else {
-                <img [src]="draftMediaUrl()!" class="w-full h-full object-cover" [ngStyle]="cropStyle" alt="Post" (load)="onMediaLoaded()" />
+                <img [src]="platformMediaUrl" class="w-full h-full object-cover" alt="Post" (load)="onMediaLoaded()" />
               }
               
-              <!-- Right Side Engagement -->
-              <div class="absolute right-2 bottom-20 flex flex-col gap-4 pointer-events-none">
-                <div class="flex flex-col items-center text-white">
-                  <div class="w-10 h-10 rounded-full bg-gray-700 border-2 border-white mb-1"></div>
-                  <i class="fa-solid fa-plus text-xl"></i>
-                </div>
-                <div class="flex flex-col items-center text-white">
-                  <i class="fa-solid fa-heart text-2xl mb-1"></i>
-                  <span class="text-xs font-semibold">{{ formatEngagement(engagement.likes) }}</span>
-                </div>
-                <div class="flex flex-col items-center text-white">
-                  <i class="fa-regular fa-comment text-2xl mb-1"></i>
-                  <span class="text-xs font-semibold">{{ formatEngagement(engagement.comments) }}</span>
-                </div>
-                <div class="flex flex-col items-center text-white">
-                  <i class="fa-solid fa-share text-2xl mb-1"></i>
-                  <span class="text-xs font-semibold">{{ formatEngagement(engagement.shares) }}</span>
-                </div>
-              </div>
-              
-              <!-- Caption at Bottom -->
+              <!-- Engagement at Bottom -->
               <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-white">
                 <div class="font-semibold text-sm mb-1">@{{ profileName.toLowerCase().replace(' ', '') }}</div>
-                <div class="text-sm">{{ caption }}</div>
+                <div class="text-sm mb-2">{{ caption }}</div>
+                <div class="flex items-center gap-3 text-xs text-white/80 pointer-events-none mt-2">
+                  <button class="flex items-center gap-1" disabled>
+                    <i class="fa-solid fa-heart text-white"></i>
+                    <span>{{ engagement.likes }}</span>
+                  </button>
+                  <button class="flex items-center gap-1" disabled>
+                    <i class="fa-regular fa-comment text-white"></i>
+                    <span>{{ engagement.comments }}</span>
+                  </button>
+                  <button class="flex items-center gap-1" disabled>
+                    <i class="fa-solid fa-share text-white"></i>
+                    <span>{{ engagement.shares }}</span>
+                  </button>
+                </div>
               </div>
             </div>
           }
@@ -294,12 +290,12 @@
           <!-- Content Area -->
           <div class="p-6 bg-gray-50">
             <!-- Media Preview -->
-            @if (draftMediaUrl()) {
+            @if (platformMediaUrl) {
               <div class="relative overflow-hidden rounded-lg border border-gray-300 bg-gray-100 mx-auto mb-4" [style.width.px]="displayDims.width" [style.height.px]="displayDims.height" [style.max-width]="'100%'">
                 @if (detectedMediaType() === 'video') {
-                  <video [src]="draftMediaUrl()!" class="w-full h-full object-cover" [ngStyle]="cropStyle" controls (loadedmetadata)="onMediaLoaded()"></video>
+                  <video [src]="platformMediaUrl" class="w-full h-full object-cover" controls (loadedmetadata)="onMediaLoaded()"></video>
                 } @else {
-                  <img [src]="draftMediaUrl()!" class="w-full h-full object-cover" [ngStyle]="cropStyle" alt="Post preview" (load)="onMediaLoaded()" />
+                  <img [src]="platformMediaUrl" class="w-full h-full object-cover" alt="Post preview" (load)="onMediaLoaded()" />
                 }
               </div>
             }
@@ -312,23 +308,19 @@
             }
 
             <!-- Engagement -->
-            <div class="flex items-center gap-4 text-gray-600 pointer-events-none">
-              <div class="flex items-center gap-1 text-gray-600">
-                <i class="fa-solid fa-heart"></i>
-                <span class="text-sm">{{ formatEngagement(engagement.likes) }}</span>
-              </div>
-              @if (engagement.comments > 0) {
-                <div class="flex items-center gap-1 text-gray-600">
-                  <i class="fa-solid fa-comment"></i>
-                  <span class="text-sm">{{ formatEngagement(engagement.comments) }}</span>
-                </div>
-              }
-              @if (engagement.shares > 0) {
-                <div class="flex items-center gap-1 text-gray-600">
-                  <i class="fa-solid fa-share"></i>
-                  <span class="text-sm">{{ formatEngagement(engagement.shares) }}</span>
-                </div>
-              }
+            <div class="flex items-center gap-4 text-sm text-gray-600 pointer-events-none">
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-heart text-red-500"></i>
+                <span>{{ engagement.likes }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-comment text-gray-600"></i>
+                <span>{{ engagement.comments }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-share text-gray-600"></i>
+                <span>{{ engagement.shares }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -417,6 +409,7 @@
             @let meta = platformMeta[platform];
             @let displayDims = getDisplayDimensions(platform);
             @let aspect = getPlatformAspect(platform);
+            @let platformMediaUrl = getPlatformMediaUrl(platform);
 
             <div class="text-center mb-6">
               <p class="text-sm text-[#222222]/80">Aspect Ratio</p>
@@ -432,20 +425,18 @@
               [style.height.px]="displayDims.height"
             >
               <!-- Image/Video -->
-              @if (isDraftMode() ? draftMediaUrl() : mediaUrl) {
+              @if (platformMediaUrl) {
                 @if (detectedMediaType() === 'video') {
                   <video
-                    [src]="isDraftMode() ? draftMediaUrl()! : mediaUrl!"
+                    [src]="platformMediaUrl"
                     class="w-full h-full object-cover"
-                    [ngStyle]="isDraftMode() ? getCropStyleFromDraft(platform) : imageStyle(platform)"
                     (loadedmetadata)="onImageLoad()"
                     controls
                   ></video>
                 } @else {
                   <img
-                    [src]="isDraftMode() ? draftMediaUrl()! : mediaUrl!"
+                    [src]="platformMediaUrl"
                     class="w-full h-full object-cover"
-                    [ngStyle]="isDraftMode() ? getCropStyleFromDraft(platform) : imageStyle(platform)"
                     (load)="onImageLoad()"
                   />
                 }

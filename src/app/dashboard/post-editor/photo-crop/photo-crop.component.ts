@@ -49,6 +49,7 @@ export class PhotoCropComponent implements OnChanges {
   @Input() selectedAccountIds: string[] = [];
   @Input() selectedPlatforms: Platform[] = []; // Platforms selected in Step 2
   @Output() cropConfigsChange = new EventEmitter<Record<Platform, { crop: CropAdjustment; cropBox: { width: number; height: number; left: number; top: number } }>>();
+  @Output() croppedImagesChange = new EventEmitter<Record<Platform, string>>(); // Base64 cropped images
 
   // All available platforms
   readonly allPlatforms: Platform[] = ['facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'pinterest'];
@@ -289,11 +290,15 @@ export class PhotoCropComponent implements OnChanges {
     const dy = moveY - this.dragStartY();
 
     const box = this.cropBox();
-    this.cropBox.set({
+    const newBox = {
       ...box,
       left: this.initialLeft() + dx,
       top: this.initialTop() + dy,
-    });
+    };
+    this.cropBox.set(newBox);
+    
+    // Update transform in real-time while dragging
+    this.updateTransformFromCropBox();
   }
 
   /**
@@ -301,10 +306,10 @@ export class PhotoCropComponent implements OnChanges {
    */
   stopDragCropBox(): void {
     if (this.isDraggingCropBox()) {
-      // Save crop box state to platform
+      // Save crop box state to platform and crop image
       const platform = this.selectedPlatform();
       if (platform) {
-        this.saveCropBoxToPlatform(platform);
+        this.saveCropBoxToPlatform(platform).catch(err => console.error('Error saving crop:', err));
       }
     }
     this.isDraggingCropBox.set(false);
@@ -362,6 +367,67 @@ export class PhotoCropComponent implements OnChanges {
     }
 
     this.cropBox.set(newBox);
+    
+    // Update transform in real-time while resizing
+    this.updateTransformFromCropBox();
+  }
+
+  /**
+   * Update image transform based on current crop box position and size
+   * This ensures the preview matches what's shown in the crop box
+   */
+  private updateTransformFromCropBox(): void {
+    const platform = this.selectedPlatform();
+    if (!platform) return;
+    
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (!state) return;
+    
+    // Calculate image transform based on crop box position and size
+    const displayDims = this.getDisplayDimensions(platform);
+    const containerWidth = displayDims.width;
+    const containerHeight = displayDims.height;
+    const cropBox = this.cropBox();
+    
+    // Calculate zoom: how much the image needs to be scaled to show the crop box area
+    // If crop box is smaller than container, we need to zoom in
+    // The zoom should make the crop box area fill the entire container
+    const zoomX = containerWidth / cropBox.width;
+    const zoomY = containerHeight / cropBox.height;
+    // Use the larger ratio to ensure the crop box area completely fills the container
+    const zoom = Math.max(zoomX, zoomY, 1);
+    
+    // Calculate offset: pan the image so the crop box area is centered in the view
+    // The crop box center position relative to the container
+    const cropBoxCenterX = cropBox.left + cropBox.width / 2;
+    const cropBoxCenterY = cropBox.top + cropBox.height / 2;
+    const containerCenterX = containerWidth / 2;
+    const containerCenterY = containerHeight / 2;
+    
+    // Calculate the difference between crop box center and container center
+    // This tells us how much the image needs to move
+    const deltaX = cropBoxCenterX - containerCenterX;
+    const deltaY = cropBoxCenterY - containerCenterY;
+    
+    // Convert pixel offset to percentage
+    // Since transform-origin is center center, we need to account for the zoom
+    // When zoomed in, the same pixel movement requires a larger percentage offset
+    const offsetX = -(deltaX / containerWidth) * 100 * zoom;
+    const offsetY = -(deltaY / containerHeight) * 100 * zoom;
+    
+    // Update crop transform to match crop box
+    state.crop = {
+      zoom: Math.min(Math.max(zoom, 1), 3), // Clamp zoom between 1 and 3
+      offsetX: Math.min(Math.max(offsetX, -100), 100), // Clamp offset
+      offsetY: Math.min(Math.max(offsetY, -100), 100),
+    };
+    
+    states.set(platform, { ...state });
+    this.platformCropStates.set(new Map(states));
+    
+    // Emit crop configs change immediately so draft is updated in real-time
+    this.cropConfigsChange.emit(this.getCropConfigurations());
   }
 
   /**
@@ -369,10 +435,10 @@ export class PhotoCropComponent implements OnChanges {
    */
   stopResize(): void {
     if (this.isResizingCrop()) {
-      // Save crop box state to platform
+      // Save crop box state to platform and crop image
       const platform = this.selectedPlatform();
       if (platform) {
-        this.saveCropBoxToPlatform(platform);
+        this.saveCropBoxToPlatform(platform).catch(err => console.error('Error saving crop:', err));
       }
     }
     this.isResizingCrop.set(false);
@@ -382,15 +448,36 @@ export class PhotoCropComponent implements OnChanges {
   /**
    * Save crop box state to platform
    */
-  private saveCropBoxToPlatform(platform: Platform): void {
+  private async saveCropBoxToPlatform(platform: Platform): Promise<void> {
     const states = this.platformCropStates();
     const state = states.get(platform);
     if (state) {
       state.cropBox = { ...this.cropBox() };
-      states.set(platform, { ...state });
-      this.platformCropStates.set(new Map(states));
+      
+      // Update transform to match crop box
+      this.updateTransformFromCropBox();
+      
+      // Emit the updated configurations
       this.cropConfigsChange.emit(this.getCropConfigurations());
+      
+      // Crop the image for this platform and emit
+      const croppedImage = await this.cropImageForPlatform(platform);
+      if (croppedImage) {
+        const currentCropped = { ...this.getCroppedImages() };
+        currentCropped[platform] = croppedImage;
+        this.croppedImagesCache.set(currentCropped);
+        this.croppedImagesChange.emit(currentCropped);
+      }
     }
+  }
+
+  /**
+   * Get current cropped images (stored in component state)
+   */
+  private croppedImagesCache = signal<Record<Platform, string>>({} as Record<Platform, string>);
+  
+  private getCroppedImages(): Record<Platform, string> {
+    return this.croppedImagesCache();
   }
 
   /**
@@ -405,6 +492,177 @@ export class PhotoCropComponent implements OnChanges {
       };
     });
     return configs;
+  }
+
+  /**
+   * Crop image for a specific platform and return base64 string
+   * This crops the image exactly as shown in the preview
+   * 
+   * The crop calculation:
+   * 1. Maps cropBox (container coordinates) to displayed image coordinates
+   * 2. Accounts for zoom/pan transform applied to the image
+   * 3. Maps displayed coordinates to original image coordinates
+   * 4. Extracts exact region and scales to crop box dimensions
+   */
+  async cropImageForPlatform(platform: Platform): Promise<string | null> {
+    if (!this.mediaUrl || !this.imageLoaded()) return null;
+
+    const state = this.platformCropStates().get(platform);
+    if (!state) return null;
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const displayDims = this.getDisplayDimensions(platform);
+          const containerWidth = displayDims.width;
+          const containerHeight = displayDims.height;
+          const cropBox = state.cropBox;
+          const crop = state.crop;
+
+          // Step 1: Calculate how the original image is displayed in the container (object-cover behavior)
+          const containerAspect = containerWidth / containerHeight;
+          const imageAspect = img.width / img.height;
+          
+          let displayedWidth: number;
+          let displayedHeight: number;
+          let imageOffsetX = 0;
+          let imageOffsetY = 0;
+
+          if (imageAspect > containerAspect) {
+            // Image is wider than container - fit to height, crop width
+            displayedHeight = containerHeight;
+            displayedWidth = img.width * (containerHeight / img.height);
+            imageOffsetX = (containerWidth - displayedWidth) / 2;
+          } else {
+            // Image is taller than container - fit to width, crop height
+            displayedWidth = containerWidth;
+            displayedHeight = img.height * (containerWidth / img.width);
+            imageOffsetY = (containerHeight - displayedHeight) / 2;
+          }
+
+          // Step 2: Calculate scale factor from displayed size to original image size
+          const scaleX = img.width / displayedWidth;
+          const scaleY = img.height / displayedHeight;
+
+          // Step 3: Account for the CSS transform applied in the editor
+          // The image has: transform: translate(offsetX%, offsetY%) scale(zoom)
+          // Transform origin is 'center center', so transforms happen around container center
+          const zoom = crop.zoom;
+          const containerCenterX = containerWidth / 2;
+          const containerCenterY = containerHeight / 2;
+          
+          // Calculate crop box center in container coordinates
+          const cropBoxCenterX = cropBox.left + cropBox.width / 2;
+          const cropBoxCenterY = cropBox.top + cropBox.height / 2;
+
+          // Step 4: Reverse the CSS transform to find what part of the displayed image
+          // corresponds to the crop box position
+          // 
+          // CSS transform: translate(offsetX%, offsetY%) scale(zoom) with origin center center
+          // Transform order (right to left): scale happens first, then translate
+          // But with center origin, both happen around the center point
+          //
+          // To find what's visible in the crop box:
+          // 1. Crop box center in container coordinates
+          // 2. Reverse the transform to find corresponding point in untransformed image
+          
+          // Calculate offset in pixels (percentage of displayed image size)
+          const offsetXPixels = (crop.offsetX / 100) * displayedWidth;
+          const offsetYPixels = (crop.offsetY / 100) * displayedHeight;
+          
+          // Transform origin is center center, so we work relative to container center
+          const relativeX = cropBoxCenterX - containerCenterX;
+          const relativeY = cropBoxCenterY - containerCenterY;
+          
+          // Reverse the transform chain:
+          // In CSS: translate then scale (but applied right-to-left, so scale first, then translate)
+          // To reverse: undo translate first, then undo scale
+          
+          // Step 1: Reverse the translation (subtract the offset)
+          const afterTranslateX = relativeX - offsetXPixels;
+          const afterTranslateY = relativeY - offsetYPixels;
+          
+          // Step 2: Reverse the scale (divide by zoom, around center)
+          const unzoomedX = afterTranslateX / zoom;
+          const unzoomedY = afterTranslateY / zoom;
+          
+          // Step 3: Convert back to absolute coordinates in displayed image space
+          let displayedCropCenterX = containerCenterX + unzoomedX - imageOffsetX;
+          let displayedCropCenterY = containerCenterY + unzoomedY - imageOffsetY;
+
+          // Step 5: Map displayed image coordinates to original image coordinates
+          const sourceCenterX = displayedCropCenterX * scaleX;
+          const sourceCenterY = displayedCropCenterY * scaleY;
+          
+          // Crop box size in original image coordinates (account for zoom)
+          // The crop box appears smaller when zoomed, so we divide by zoom
+          const sourceWidth = (cropBox.width * scaleX) / zoom;
+          const sourceHeight = (cropBox.height * scaleY) / zoom;
+
+          // Step 8: Calculate final source rectangle, ensuring it stays within image bounds
+          const sourceX = Math.max(0, Math.min(img.width - sourceWidth, sourceCenterX - sourceWidth / 2));
+          const sourceY = Math.max(0, Math.min(img.height - sourceHeight, sourceCenterY - sourceHeight / 2));
+          const finalSourceWidth = Math.min(sourceWidth, img.width - sourceX);
+          const finalSourceHeight = Math.min(sourceHeight, img.height - sourceY);
+
+          // Step 9: Create canvas with platform display dimensions
+          // The crop box is positioned on the platform-sized container, so we extract
+          // the crop box region and scale it to fill the platform dimensions
+          // This ensures the preview shows exactly what was visible in the crop box
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.floor(containerWidth));
+          canvas.height = Math.max(1, Math.floor(containerHeight));
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            resolve(null);
+            return;
+          }
+
+          // Step 10: Draw the cropped region scaled to fill the platform container
+          // The crop box defines what portion of the transformed image is visible
+          // We extract that exact region and scale it to fill the canvas (platform dimensions)
+          // This matches what the user sees: the crop box content filling the platform container
+          ctx.drawImage(
+            img,
+            sourceX, sourceY, finalSourceWidth, finalSourceHeight, // Source rectangle in original image
+            0, 0, canvas.width, canvas.height // Destination rectangle (platform dimensions - fills container)
+          );
+
+          // Convert to base64 PNG for consistent quality
+          const base64 = canvas.toDataURL('image/png');
+          resolve(base64);
+        } catch (error) {
+          console.error('Error cropping image:', error);
+          resolve(null);
+        }
+      };
+      img.onerror = () => {
+        console.error('Error loading image for cropping');
+        resolve(null);
+      };
+      img.src = this.mediaUrl;
+    });
+  }
+
+  /**
+   * Crop images for all platforms and emit cropped images
+   */
+  async cropAllImages(): Promise<void> {
+    const croppedImages: Record<Platform, string> = { ...this.getCroppedImages() };
+    const platforms = this.selectedPlatforms.length > 0 ? this.selectedPlatforms : this.allPlatforms;
+
+    for (const platform of platforms) {
+      const cropped = await this.cropImageForPlatform(platform);
+      if (cropped) {
+        croppedImages[platform] = cropped;
+      }
+    }
+
+    this.croppedImagesCache.set(croppedImages);
+    this.croppedImagesChange.emit(croppedImages);
   }
 
   /**

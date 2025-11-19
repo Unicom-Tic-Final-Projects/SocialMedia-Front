@@ -9,19 +9,16 @@ import { ClientContextService } from '../../services/client/client-context.servi
 import { AuthService } from '../../core/services/auth.service';
 import { Platform } from '../../models/social.models';
 import { FormsModule } from '@angular/forms';
-import { PostPreviewComponent } from './post-preview/post-preview.component';
-import { PostDraftService } from '../../services/client/post-draft.service';
 
 @Component({
   selector: 'app-posts-page',
   standalone: true,
-  imports: [NgIf, NgFor, DatePipe, NgClass, DecimalPipe, FormsModule, PostPreviewComponent],
+  imports: [NgIf, NgFor, DatePipe, NgClass, DecimalPipe, FormsModule],
   templateUrl: './posts-page.html',
   styleUrl: './posts-page.css',
 })
 export class PostsPage implements OnInit, OnDestroy {
   private readonly postsService = inject(PostsService);
-  private readonly postDraftService = inject(PostDraftService);
   private readonly clientsService = inject(ClientsService);
   readonly clientContextService = inject(ClientContextService); // Public for template access
   private readonly authService = inject(AuthService);
@@ -45,11 +42,6 @@ export class PostsPage implements OnInit, OnDestroy {
   private postsSubscription: Subscription | null = null;
   private clientsSubscription: Subscription | null = null;
 
-  // Preview Component State
-  showPreview = false;
-  previewMediaUrl = '';
-  previewCaption = '';
-  previewTargets: Platform[] = [];
 
   constructor() {
     effect(() => {
@@ -193,35 +185,4 @@ export class PostsPage implements OnInit, OnDestroy {
     this.router.navigate(route);
   }
 
-  /**
-   * Open preview/crop editor with active draft
-   * If no draft exists, redirect to post editor to create one
-   */
-  openPreviewEditor(): void {
-    const draft = this.postDraftService.getActiveDraft();
-    if (!draft) {
-      // Fix: Redirect to post editor instead of showing alert
-      this.router.navigate(['/dashboard/post-editor']);
-      return;
-    }
-    
-    this.previewMediaUrl = draft.mediaUrl ?? '';
-    this.previewCaption = draft.caption ?? '';
-    this.previewTargets = (draft.selectedPlatforms?.length ? draft.selectedPlatforms : []) as Platform[];
-    
-    if (this.previewTargets.length === 0) {
-      // Fix: Redirect to post editor instead of showing alert
-      this.router.navigate(['/dashboard/post-editor']);
-      return;
-    }
-    
-    this.showPreview = true;
-  }
-
-  /**
-   * Close preview/crop editor
-   */
-  closePreviewEditor(): void {
-    this.showPreview = false;
-  }
 }

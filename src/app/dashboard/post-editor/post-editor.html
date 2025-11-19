@@ -374,6 +374,7 @@
             [selectedAccountIds]="[]"
             [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
             (cropConfigsChange)="onCropConfigsChange($event)"
+            (croppedImagesChange)="onCroppedImagesChange($event)"
           ></app-photo-crop>
         </div>
       }
