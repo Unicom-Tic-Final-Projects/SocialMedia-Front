@@ -7,11 +7,13 @@ import { SocialPost, PostStatus } from '../../models/post.models';
 import { ClientsService } from '../../services/client/clients.service';
 import { ClientContextService } from '../../services/client/client-context.service';
 import { AuthService } from '../../core/services/auth.service';
+import { Platform } from '../../models/social.models';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-posts-page',
   standalone: true,
-  imports: [NgIf, NgFor, DatePipe, NgClass, DecimalPipe],
+  imports: [NgIf, NgFor, DatePipe, NgClass, DecimalPipe, FormsModule],
   templateUrl: './posts-page.html',
   styleUrl: './posts-page.css',
 })
@@ -39,6 +41,7 @@ export class PostsPage implements OnInit, OnDestroy {
 
   private postsSubscription: Subscription | null = null;
   private clientsSubscription: Subscription | null = null;
+
 
   constructor() {
     effect(() => {
@@ -181,4 +184,5 @@ export class PostsPage implements OnInit, OnDestroy {
     const route = this.getPostEditorRoute();
     this.router.navigate(route);
   }
+
 }

@@ -1,0 +1,272 @@
+<div class="space-y-6">
+  <div class="mb-6">
+    <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">
+      Step 3: Crop & Edit for Each Platform
+    </h2>
+    <p class="text-gray-600 text-xs sm:text-sm">
+      Adjust the crop and positioning for each platform. Default configurations have been applied automatically.
+    </p>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-300px)]">
+    <!-- Left Panel: Platform List -->
+    <div class="lg:w-64 border-r border-[#DDE3FF] bg-[#F9FAFF] overflow-y-auto rounded-xl p-4">
+      <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">
+        Platforms
+      </h3>
+      <div class="space-y-2">
+        @for (platform of selectedPlatforms.length > 0 ? selectedPlatforms : allPlatforms; track platform) {
+          @let state = getCropState(platform);
+          @let meta = platformMeta[platform];
+          @let isSelectedInStep2 = selectedPlatforms.includes(platform);
+          <button
+            (click)="selectPlatform(platform)"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition text-left font-medium relative"
+            [class.bg-[#4C6FFF]]="selectedPlatform() === platform"
+            [class.text-white]="selectedPlatform() === platform"
+            [class.border-[#4C6FFF]]="selectedPlatform() === platform"
+            [class.text-[#1A1A1A]]="selectedPlatform() !== platform"
+            [class.bg-white]="selectedPlatform() !== platform"
+            [class.border-[#DDE3FF]]="selectedPlatform() !== platform"
+            [class.opacity-60]="!isSelectedInStep2"
+          >
+            <i [class]="meta.icon + ' text-lg'" [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"></i>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="truncate">{{ meta.label }}</span>
+                @if (!isSelectedInStep2) {
+                  <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">Not Selected</span>
+                }
+              </div>
+              @if (state) {
+                <div class="text-xs mt-1 opacity-75">
+                  {{ getPlatformAspect(platform).label }}
+                </div>
+              }
+            </div>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Middle: Image Area with Free-Form Crop -->
+    @if (selectedPlatform()) {
+      <div
+        class="flex-1 flex flex-col items-center justify-center bg-[#F4F6FF] px-4 py-6 relative rounded-xl"
+        (mousemove)="moveCropBox($event)"
+        (mouseup)="stopDragCropBox()"
+      >
+      @let platform = selectedPlatform()!;
+      @let meta = platformMeta[platform];
+      @let displayDims = getDisplayDimensions(platform);
+      @let aspect = getPlatformAspect(platform);
+
+      <div class="text-center mb-6">
+        <p class="text-sm text-[#222222]/80">Aspect Ratio</p>
+        <p class="text-xl font-bold" [style.color]="meta.color">
+          {{ aspect.label }}
+        </p>
+        <p class="text-xs text-gray-500 mt-1">{{ aspect.description }}</p>
+      </div>
+
+      <div
+        class="relative overflow-hidden shadow-xl rounded-xl border border-[#DDE3FF] bg-white"
+        [style.width.px]="displayDims.width"
+        [style.height.px]="displayDims.height"
+      >
+        <!-- Image -->
+        @if (mediaUrl) {
+          <img
+            [src]="mediaUrl"
+            class="w-full h-full object-cover"
+            [ngStyle]="imageStyle(platform)"
+            (load)="onImageLoad()"
+          />
+        } @else {
+          <div class="w-full h-full flex items-center justify-center bg-gray-100">
+            <div class="text-center text-gray-400">
+              <i class="fa-solid fa-image text-4xl mb-2"></i>
+              <p class="text-sm">No media selected</p>
+            </div>
+          </div>
+        }
+
+        <!-- Free-Form Crop Box (Draggable & Resizable) -->
+        @if (mediaUrl) {
+          <div
+            class="absolute border-2 rounded-lg border-[#4C6FFF] backdrop-blur-sm bg-[#4C6FFF]/10 cursor-move"
+            [style.width.px]="cropBox().width"
+            [style.height.px]="cropBox().height"
+            [style.left.px]="cropBox().left"
+            [style.top.px]="cropBox().top"
+            (mousedown)="startDragCropBox($event)"
+            (touchstart)="startDragCropBox($event)"
+          >
+          <!-- Resize Handles -->
+          <div
+            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -top-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-n-resize z-10"
+            (mousedown)="startResize($event, 't')"
+          ></div>
+          <div
+            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -bottom-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-s-resize z-10"
+            (mousedown)="startResize($event, 'b')"
+          ></div>
+          <div
+            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -left-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-e-resize z-10"
+            (mousedown)="startResize($event, 'l')"
+          ></div>
+          <div
+            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -right-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-w-resize z-10"
+            (mousedown)="startResize($event, 'r')"
+          ></div>
+          <div
+            class="absolute w-4 h-4 bg-white border border-[#4C6FFF] -right-2 -bottom-2 rounded-md cursor-se-resize z-10"
+            (mousedown)="startResize($event, 'br')"
+          ></div>
+        </div>
+        }
+      </div>
+
+      <!-- Crop Controls (Zoom & Pan) -->
+      <div class="mt-6 w-full max-w-md space-y-4">
+        <!-- Zoom Control -->
+        <div>
+          <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">
+            Zoom: {{ getCrop(platform).zoom.toFixed(2) }}x
+          </label>
+          <input
+            type="range"
+            min="1"
+            max="3"
+            step="0.1"
+            [value]="getCrop(platform).zoom"
+            (input)="setZoom(platform, $any($event.target).valueAsNumber)"
+            class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+
+        <!-- Pan X Control -->
+        <div>
+          <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">
+            Pan X: {{ getCrop(platform).offsetX.toFixed(0) }}%
+          </label>
+          <input
+            type="range"
+            min="-100"
+            max="100"
+            step="1"
+            [value]="getCrop(platform).offsetX"
+            (input)="setOffset(platform, 'offsetX', $any($event.target).valueAsNumber)"
+            class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+
+        <!-- Pan Y Control -->
+        <div>
+          <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">
+            Pan Y: {{ getCrop(platform).offsetY.toFixed(0) }}%
+          </label>
+          <input
+            type="range"
+            min="-100"
+            max="100"
+            step="1"
+            [value]="getCrop(platform).offsetY"
+            (input)="setOffset(platform, 'offsetY', $any($event.target).valueAsNumber)"
+            class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer"
+          />
+        </div>
+      </div>
+    </div>
+    } @else {
+      <div class="flex-1 flex items-center justify-center bg-[#F4F6FF] rounded-xl">
+        <div class="text-center text-gray-500">
+          <i class="fa-solid fa-image text-4xl mb-4"></i>
+          <p>Select a platform to edit</p>
+        </div>
+      </div>
+    }
+
+    <!-- Right Panel: Platform Details -->
+    @if (selectedPlatform()) {
+      <div class="lg:w-80 p-6 bg-[#FFFFFF] overflow-y-auto rounded-xl border border-[#DDE3FF]">
+      @let platform = selectedPlatform()!;
+      @let state = getCropState(platform)!;
+      @let meta = platformMeta[platform];
+      @let aspect = getPlatformAspect(platform);
+
+      <h3 class="text-lg font-bold text-[#1A1A1A] mb-4">Platform Details</h3>
+
+      <div class="space-y-4">
+        <!-- Platform Info -->
+        <div class="p-4 bg-[#F4F6FF] rounded-xl border border-[#DDE3FF]">
+          <div class="flex items-center gap-3 mb-3">
+            <i [class]="meta.icon + ' text-2xl'" [style.color]="meta.color"></i>
+            <div>
+              <h4 class="font-semibold text-[#1A1A1A]">{{ meta.label }}</h4>
+              <p class="text-xs text-gray-500">{{ aspect.description }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-[#222222]/60">Aspect Ratio:</span>
+              <span class="text-[#4C6FFF] font-semibold">{{ aspect.label }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#222222]/60">Dimensions:</span>
+              <span class="text-[#1A1A1A] font-semibold">
+                {{ aspect.width }} × {{ aspect.height }}
+              </span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#222222]/60">Status:</span>
+              <span
+                class="font-semibold"
+                [class.text-green-600]="state.isConnected"
+                [class.text-gray-500]="!state.isConnected"
+              >
+                {{ state.isConnected ? 'Connected' : 'Not Connected' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Caption Preview -->
+        <div>
+          <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2">Caption</h4>
+          <div class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-[#222222] text-sm">
+            @if (caption) {
+              <div>{{ caption }}</div>
+            } @else {
+              <p class="text-[#222222]/50 italic">No caption provided.</p>
+            }
+          </div>
+        </div>
+
+        <!-- Crop Box Info -->
+        <div>
+          <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2">Crop Box</h4>
+          <div class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-sm space-y-1">
+            <div class="flex justify-between">
+              <span class="text-[#222222]/60">Width:</span>
+              <span class="text-[#1A1A1A] font-semibold">{{ cropBox().width.toFixed(0) }}px</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#222222]/60">Height:</span>
+              <span class="text-[#1A1A1A] font-semibold">{{ cropBox().height.toFixed(0) }}px</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-[#222222]/60">Position:</span>
+              <span class="text-[#1A1A1A] font-semibold">
+                ({{ cropBox().left.toFixed(0) }}, {{ cropBox().top.toFixed(0) }})
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+

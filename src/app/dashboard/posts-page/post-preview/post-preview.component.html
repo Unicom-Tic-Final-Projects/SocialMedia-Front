@@ -1,0 +1,608 @@
+<!-- Post Preview Component - Supports Modal Mode (Posts Page) and Draft Mode (Post Editor Step 4) -->
+
+<!-- Draft Mode: Inline preview for Post Editor Step 4 -->
+@if (isDraftMode() && draft) {
+  <div class="w-full">
+    <!-- Platform Selector -->
+    <div class="mb-6">
+      <h3 class="text-lg font-bold text-[#1A1A1A] mb-4">Preview by Platform</h3>
+      <div class="flex flex-wrap gap-2">
+        @for (platform of draftSelectedPlatforms(); track platform) {
+          @let meta = platformMeta[platform];
+          <button
+            (click)="selectPlatform(platform)"
+            class="px-4 py-2 rounded-lg border-2 transition font-medium flex items-center gap-2"
+            [class.bg-[#4C6FFF]]="selectedPlatform() === platform"
+            [class.text-white]="selectedPlatform() === platform"
+            [class.border-[#4C6FFF]]="selectedPlatform() === platform"
+            [class.text-[#1A1A1A]]="selectedPlatform() !== platform"
+            [class.bg-white]="selectedPlatform() !== platform"
+            [class.border-gray-300]="selectedPlatform() !== platform"
+          >
+            <i [class]="meta.icon + ' text-lg'" [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"></i>
+            <span>{{ meta.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Platform Preview Mockup -->
+    @if (selectedPlatform()) {
+      @let platform = selectedPlatform()!;
+      @let meta = platformMeta[platform];
+      @let displayDims = getDisplayDimensions(platform);
+      @let caption = getPlatformCaption(platform);
+      @let platformMediaUrl = getPlatformMediaUrl(platform);
+
+      @let engagement = getEngagementNumbers(platform);
+      @let profileName = "Your Page Name";
+      @let timestamp = "2 hours ago";
+
+      <!-- Facebook Preview -->
+      @if (platform === 'facebook') {
+        <div class="bg-white rounded-lg shadow-lg border border-gray-200 max-w-md mx-auto">
+          <!-- Header -->
+          <div class="flex items-center gap-3 p-3 border-b">
+            <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">{{ profileName.charAt(0) }}</div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm">{{ profileName }}</div>
+              <div class="text-xs text-gray-500">{{ timestamp }} · 🌐</div>
+            </div>
+          </div>
+          
+          <!-- Caption -->
+          @if (caption) {
+            <div class="p-3 text-sm text-gray-900">{{ caption }}</div>
+          }
+          
+          <!-- Media -->
+          @if (platformMediaUrl) {
+            <div class="w-full overflow-hidden">
+              @if (detectedMediaType() === 'video') {
+                <video [src]="platformMediaUrl" class="w-full" controls (loadedmetadata)="onMediaLoaded()"></video>
+              } @else {
+                <img [src]="platformMediaUrl" class="w-full" alt="Post" (load)="onMediaLoaded()" />
+              }
+            </div>
+          }
+          
+          <!-- Engagement -->
+          <div class="p-3 border-t">
+            <div class="flex items-center gap-4 text-sm text-gray-600 pointer-events-none">
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-thumbs-up text-blue-600"></i>
+                <span>{{ engagement.likes }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-comment text-gray-600"></i>
+                <span>{{ engagement.comments }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-share text-gray-600"></i>
+                <span>{{ engagement.shares }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Instagram Preview -->
+      @else if (platform === 'instagram') {
+        <div class="bg-white rounded-lg shadow-lg border border-gray-200 max-w-sm mx-auto">
+          <!-- Header -->
+          <div class="flex items-center justify-between p-3 border-b">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500"></div>
+              <span class="font-semibold text-sm">{{ profileName }}</span>
+            </div>
+            <i class="fa-solid fa-ellipsis text-gray-600"></i>
+          </div>
+          
+          <!-- Media -->
+          @if (platformMediaUrl) {
+            <div class="w-full aspect-square bg-gray-100 overflow-hidden">
+              @if (detectedMediaType() === 'video') {
+                <video [src]="platformMediaUrl" class="w-full h-full object-cover" controls (loadedmetadata)="onMediaLoaded()"></video>
+              } @else {
+                <img [src]="platformMediaUrl" class="w-full h-full object-cover" alt="Post" (load)="onMediaLoaded()" />
+              }
+            </div>
+          }
+          
+          <!-- Engagement -->
+          <div class="p-3">
+            <div class="flex items-center gap-4 mb-2 pointer-events-none">
+              <button class="flex items-center gap-1 text-gray-600" disabled>
+                <i class="fa-regular fa-heart text-xl text-gray-600"></i>
+              </button>
+              <button class="flex items-center gap-1 text-gray-600" disabled>
+                <i class="fa-regular fa-comment text-xl"></i>
+              </button>
+              <button class="flex items-center gap-1 text-gray-600" disabled>
+                <i class="fa-regular fa-paper-plane text-xl"></i>
+              </button>
+              <i class="fa-regular fa-bookmark text-xl ml-auto text-gray-600"></i>
+            </div>
+            <div class="text-sm font-semibold mb-1">{{ engagement.likes }} likes</div>
+            <div class="text-sm">
+              <span class="font-semibold">{{ profileName }}</span>
+              <span class="ml-2">{{ caption }}</span>
+            </div>
+            <div class="text-xs text-gray-500 mt-2">{{ timestamp }}</div>
+          </div>
+        </div>
+      }
+
+      <!-- LinkedIn Preview -->
+      @else if (platform === 'linkedin') {
+        <div class="bg-white rounded-lg shadow-lg border border-gray-200 max-w-2xl mx-auto">
+          <!-- Header -->
+          <div class="p-3 border-b">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">{{ profileName.charAt(0) }}</div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">{{ profileName }}</div>
+                <div class="text-xs text-gray-500">Professional Title · {{ timestamp }} · 🌐</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Caption -->
+          @if (caption) {
+            <div class="p-3 text-sm text-gray-900">{{ caption }}</div>
+          }
+          
+          <!-- Media -->
+          @if (platformMediaUrl) {
+            <div class="w-full overflow-hidden">
+              @if (detectedMediaType() === 'video') {
+                <video [src]="platformMediaUrl" class="w-full" controls (loadedmetadata)="onMediaLoaded()"></video>
+              } @else {
+                <img [src]="platformMediaUrl" class="w-full" alt="Post" (load)="onMediaLoaded()" />
+              }
+            </div>
+          }
+          
+          <!-- Engagement -->
+          <div class="p-3 border-t flex items-center gap-4 text-gray-600 pointer-events-none">
+            <button class="flex items-center gap-1" disabled>
+              <i class="fa-solid fa-thumbs-up text-blue-600"></i>
+              <span class="text-sm">{{ engagement.likes }}</span>
+            </button>
+            <button class="flex items-center gap-1" disabled>
+              <i class="fa-solid fa-comment text-gray-600"></i>
+              <span class="text-sm">{{ engagement.comments }}</span>
+            </button>
+            <button class="flex items-center gap-1" disabled>
+              <i class="fa-solid fa-share text-gray-600"></i>
+              <span class="text-sm">{{ engagement.shares }}</span>
+            </button>
+            <button class="flex items-center gap-1 hover:opacity-80 transition ml-auto" disabled>
+              <i class="fa-solid fa-paper-plane text-gray-600"></i>
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Twitter/X Preview -->
+      @else if (platform === 'twitter') {
+        <div class="bg-white rounded-lg shadow-lg border border-gray-200 max-w-xl mx-auto">
+          <!-- Header -->
+          <div class="p-3 border-b">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-blue-400 flex items-center justify-center text-white font-bold">{{ profileName.charAt(0) }}</div>
+              <div class="flex-1">
+                <div class="font-semibold text-sm">{{ profileName }}</div>
+                <div class="text-xs text-gray-500">@handle · {{ timestamp }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Caption -->
+          @if (caption) {
+            <div class="p-3 text-sm text-gray-900">{{ caption }}</div>
+          }
+          
+          <!-- Media -->
+          @if (platformMediaUrl) {
+            <div class="w-full rounded-lg overflow-hidden">
+              @if (detectedMediaType() === 'video') {
+                <video [src]="platformMediaUrl" class="w-full" controls (loadedmetadata)="onMediaLoaded()"></video>
+              } @else {
+                <img [src]="platformMediaUrl" class="w-full" alt="Post" (load)="onMediaLoaded()" />
+              }
+            </div>
+          }
+          
+          <!-- Engagement -->
+          <div class="p-3 border-t flex items-center justify-between text-gray-600 pointer-events-none">
+            <div class="flex items-center gap-4">
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-regular fa-comment text-gray-600"></i>
+                <span class="text-sm">{{ engagement.comments }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-retweet text-gray-600"></i>
+                <span class="text-sm">{{ engagement.shares }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-regular fa-heart text-gray-600"></i>
+                <span class="text-sm">{{ engagement.likes }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-share text-gray-600"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- TikTok Preview -->
+      @else if (platform === 'tiktok') {
+        <div class="bg-black rounded-lg shadow-lg border border-gray-800 max-w-xs mx-auto relative">
+          <!-- Media -->
+          @if (platformMediaUrl) {
+            <div class="w-full aspect-[9/16] bg-gray-900 relative overflow-hidden">
+              @if (detectedMediaType() === 'video') {
+                <video [src]="platformMediaUrl" class="w-full h-full object-cover" controls (loadedmetadata)="onMediaLoaded()"></video>
+              } @else {
+                <img [src]="platformMediaUrl" class="w-full h-full object-cover" alt="Post" (load)="onMediaLoaded()" />
+              }
+              
+              <!-- Engagement at Bottom -->
+              <div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent text-white">
+                <div class="font-semibold text-sm mb-1">@{{ profileName.toLowerCase().replace(' ', '') }}</div>
+                <div class="text-sm mb-2">{{ caption }}</div>
+                <div class="flex items-center gap-3 text-xs text-white/80 pointer-events-none mt-2">
+                  <button class="flex items-center gap-1" disabled>
+                    <i class="fa-solid fa-heart text-white"></i>
+                    <span>{{ engagement.likes }}</span>
+                  </button>
+                  <button class="flex items-center gap-1" disabled>
+                    <i class="fa-regular fa-comment text-white"></i>
+                    <span>{{ engagement.comments }}</span>
+                  </button>
+                  <button class="flex items-center gap-1" disabled>
+                    <i class="fa-solid fa-share text-white"></i>
+                    <span>{{ engagement.shares }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Default Preview (YouTube, Pinterest, etc.) -->
+      @else {
+        <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <!-- Platform Header -->
+          <div class="px-4 py-3 border-b border-gray-200 flex items-center gap-3" [style.background-color]="meta.color + '20'">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center" [style.background-color]="meta.color">
+              <i [class]="meta.icon + ' text-white text-sm'"></i>
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-sm text-gray-900">{{ meta.label }}</div>
+              <div class="text-xs text-gray-500">{{ profileName }} · {{ timestamp }}</div>
+            </div>
+          </div>
+
+          <!-- Content Area -->
+          <div class="p-6 bg-gray-50">
+            <!-- Media Preview -->
+            @if (platformMediaUrl) {
+              <div class="relative overflow-hidden rounded-lg border border-gray-300 bg-gray-100 mx-auto mb-4" [style.width.px]="displayDims.width" [style.height.px]="displayDims.height" [style.max-width]="'100%'">
+                @if (detectedMediaType() === 'video') {
+                  <video [src]="platformMediaUrl" class="w-full h-full object-cover" controls (loadedmetadata)="onMediaLoaded()"></video>
+                } @else {
+                  <img [src]="platformMediaUrl" class="w-full h-full object-cover" alt="Post preview" (load)="onMediaLoaded()" />
+                }
+              </div>
+            }
+
+            <!-- Caption Preview -->
+            @if (caption) {
+              <div class="bg-white rounded-lg p-4 border border-gray-200 shadow-sm mb-4">
+                <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ caption }}</p>
+              </div>
+            }
+
+            <!-- Engagement -->
+            <div class="flex items-center gap-4 text-sm text-gray-600 pointer-events-none">
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-heart text-red-500"></i>
+                <span>{{ engagement.likes }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-comment text-gray-600"></i>
+                <span>{{ engagement.comments }}</span>
+              </button>
+              <button class="flex items-center gap-1" disabled>
+                <i class="fa-solid fa-share text-gray-600"></i>
+                <span>{{ engagement.shares }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="text-center py-12 text-gray-500">
+        <i class="fa-solid fa-image text-4xl mb-4 opacity-50"></i>
+        <p>Select a platform to preview</p>
+      </div>
+    }
+  </div>
+}
+
+<!-- Modal Mode: Full modal for Posts Page -->
+@if (!isDraftMode() && open) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md px-4" (click)="close()">
+    <div
+      class="bg-[#FFFFFF] rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden border border-[#BFC9FF]"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-[#DDE3FF]">
+        <h2 class="text-2xl font-extrabold text-[#1A1A1A] flex items-center gap-2">
+          <i class="fa-solid fa-crop-simple text-[#4C6FFF]"></i>
+          Crop & Preview
+        </h2>
+        <button
+          (click)="close()"
+          class="text-[#4C6FFF] hover:text-[#1A1A1A] transition p-2 rounded-lg hover:bg-[#BFC9FF]/30"
+        >
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex flex-col lg:flex-row h-[calc(90vh-70px)]">
+        <!-- Left Panel: Platforms -->
+        <div class="lg:w-64 border-r border-[#DDE3FF] bg-[#F9FAFF] overflow-y-auto">
+          <div class="p-4">
+            <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">
+              Platforms
+            </h3>
+            <div class="space-y-2">
+              @for (platform of (isDraftMode() ? draftSelectedPlatforms() : selectedPlatforms); track platform) {
+                @let state = getCropState(platform);
+                @let meta = platformMeta[platform];
+                <button
+                  (click)="selectPlatform(platform)"
+                  class="w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition text-left font-medium"
+                  [class.bg-[#4C6FFF]]="selectedPlatform() === platform"
+                  [class.text-white]="selectedPlatform() === platform"
+                  [class.border-[#4C6FFF]]="selectedPlatform() === platform"
+                  [class.text-[#1A1A1A]]="selectedPlatform() !== platform"
+                  [class.bg-white]="selectedPlatform() !== platform"
+                  [class.border-[#DDE3FF]]="selectedPlatform() !== platform"
+                  [class.opacity-60]="!state?.isConnected"
+                >
+                  <i [class]="meta.icon + ' text-lg'" [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"></i>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="truncate">{{ meta.label }}</span>
+                      @if (!state?.isConnected) {
+                        <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">Not Connected</span>
+                      }
+                    </div>
+                    @if (state) {
+                      <div class="text-xs mt-1 opacity-75">
+                        {{ getPlatformAspect(platform).label }}
+                      </div>
+                    }
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle: Image Area with Free-Form Crop -->
+        @if (selectedPlatform()) {
+          <div
+            class="flex-1 flex flex-col items-center justify-center bg-[#F4F6FF] border-r border-[#DDE3FF] px-4 py-6 relative"
+            (mousemove)="moveCropBox($event)"
+            (mouseup)="stopDragCropBox()"
+          >
+            @let platform = selectedPlatform()!;
+            @let meta = platformMeta[platform];
+            @let displayDims = getDisplayDimensions(platform);
+            @let aspect = getPlatformAspect(platform);
+            @let platformMediaUrl = getPlatformMediaUrl(platform);
+
+            <div class="text-center mb-6">
+              <p class="text-sm text-[#222222]/80">Aspect Ratio</p>
+              <p class="text-xl font-bold" [style.color]="meta.color">
+                {{ aspect.label }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">{{ aspect.description }}</p>
+            </div>
+
+            <div
+              class="relative overflow-hidden shadow-xl rounded-xl border border-[#DDE3FF] bg-white"
+              [style.width.px]="displayDims.width"
+              [style.height.px]="displayDims.height"
+            >
+              <!-- Image/Video -->
+              @if (platformMediaUrl) {
+                @if (detectedMediaType() === 'video') {
+                  <video
+                    [src]="platformMediaUrl"
+                    class="w-full h-full object-cover"
+                    (loadedmetadata)="onImageLoad()"
+                    controls
+                  ></video>
+                } @else {
+                  <img
+                    [src]="platformMediaUrl"
+                    class="w-full h-full object-cover"
+                    (load)="onImageLoad()"
+                  />
+                }
+              } @else {
+                <div class="w-full h-full flex items-center justify-center bg-gray-100">
+                  <div class="text-center text-gray-400">
+                    <i class="fa-solid fa-image text-4xl mb-2"></i>
+                    <p class="text-sm">No media selected</p>
+                  </div>
+                </div>
+              }
+
+              <!-- Free-Form Crop Box -->
+              @if (mediaUrl && cropEnabled) {
+                <div
+                  class="absolute border-2 rounded-lg border-[#4C6FFF] backdrop-blur-sm bg-[#4C6FFF]/10 cursor-move"
+                  [style.width.px]="cropBox().width"
+                  [style.height.px]="cropBox().height"
+                  [style.left.px]="cropBox().left"
+                  [style.top.px]="cropBox().top"
+                  (mousedown)="startDragCropBox($event)"
+                  (touchstart)="startDragCropBox($event)"
+                >
+                  <!-- Resize Handles -->
+                  <div
+                    class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -top-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-n-resize z-10"
+                    (mousedown)="startResize($event, 't')"
+                  ></div>
+                  <div
+                    class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -bottom-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-s-resize z-10"
+                    (mousedown)="startResize($event, 'b')"
+                  ></div>
+                  <div
+                    class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -left-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-w-resize z-10"
+                    (mousedown)="startResize($event, 'l')"
+                  ></div>
+                  <div
+                    class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -right-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-e-resize z-10"
+                    (mousedown)="startResize($event, 'r')"
+                  ></div>
+                  <div
+                    class="absolute w-4 h-4 bg-white border border-[#4C6FFF] -right-2 -bottom-2 rounded-md cursor-se-resize z-10"
+                    (mousedown)="startResize($event, 'br')"
+                  ></div>
+                </div>
+              }
+            </div>
+
+            <!-- Crop Controls -->
+            @if (cropEnabled) {
+              <div class="mt-6 w-full max-w-md space-y-4">
+                <!-- Zoom Control -->
+                <div>
+                  <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">
+                    Zoom: {{ getCrop(platform).zoom.toFixed(2) }}x
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="3"
+                    step="0.1"
+                    [value]="getCrop(platform).zoom"
+                    (input)="setZoom(platform, $any($event.target).valueAsNumber)"
+                    class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <!-- Pan X Control -->
+                <div>
+                  <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">
+                    Pan X: {{ getCrop(platform).offsetX.toFixed(0) }}%
+                  </label>
+                  <input
+                    type="range"
+                    min="-100"
+                    max="100"
+                    step="1"
+                    [value]="getCrop(platform).offsetX"
+                    (input)="setOffset(platform, 'offsetX', $any($event.target).valueAsNumber)"
+                    class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+
+                <!-- Pan Y Control -->
+                <div>
+                  <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">
+                    Pan Y: {{ getCrop(platform).offsetY.toFixed(0) }}%
+                  </label>
+                  <input
+                    type="range"
+                    min="-100"
+                    max="100"
+                    step="1"
+                    [value]="getCrop(platform).offsetY"
+                    (input)="setOffset(platform, 'offsetY', $any($event.target).valueAsNumber)"
+                    class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="flex-1 flex items-center justify-center bg-[#F4F6FF]">
+            <div class="text-center text-gray-500">
+              <i class="fa-solid fa-image text-4xl mb-4"></i>
+              <p>Select a platform to edit</p>
+            </div>
+          </div>
+        }
+
+        <!-- Right Panel: Platform Details -->
+        @if (selectedPlatform()) {
+          <div class="lg:w-80 p-6 bg-[#FFFFFF] overflow-y-auto border-l border-[#DDE3FF]">
+            @let platform = selectedPlatform()!;
+            @let meta = platformMeta[platform];
+            @let aspect = getPlatformAspect(platform);
+
+            <div class="space-y-6">
+              <!-- Platform Info -->
+              <div>
+                <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2">Platform</h4>
+                <div class="flex items-center gap-3 p-3 bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl">
+                  <i [class]="meta.icon + ' text-2xl'" [style.color]="meta.color"></i>
+                  <div>
+                    <p class="font-semibold text-[#1A1A1A]">{{ meta.label }}</p>
+                    <p class="text-xs text-gray-500">{{ aspect.label }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Caption Preview -->
+              @if (isDraftMode() ? getPlatformCaption(platform) : caption) {
+                <div>
+                  <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2">Caption</h4>
+                  <div class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-[#222222] text-sm">
+                    {{ isDraftMode() ? getPlatformCaption(platform) : caption }}
+                  </div>
+                </div>
+              }
+
+              <!-- Crop Box Info -->
+              @if (cropEnabled) {
+                <div>
+                  <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2">Crop Box</h4>
+                  <div class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-sm space-y-1">
+                    <div class="flex justify-between">
+                      <span class="text-[#222222]/60">Size:</span>
+                      <span class="text-[#1A1A1A] font-semibold">
+                        {{ cropBox().width.toFixed(0) }} × {{ cropBox().height.toFixed(0) }}px
+                      </span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-[#222222]/60">Position:</span>
+                      <span class="text-[#1A1A1A] font-semibold">
+                        ({{ cropBox().left.toFixed(0) }}, {{ cropBox().top.toFixed(0) }})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+
