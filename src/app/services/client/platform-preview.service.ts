@@ -54,6 +54,14 @@ export class PlatformPreviewService {
       description: 'Vertical video',
       backgroundColor: '#000000',
     },
+    pinterest: {
+      platform: 'pinterest',
+      width: 1000,
+      height: 1500,
+      label: '2:3',
+      description: 'Pin image',
+      backgroundColor: '#FFFFFF',
+    },
   };
 
   getAspect(platform: Platform): PlatformPreviewConfig {

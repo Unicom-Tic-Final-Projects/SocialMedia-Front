@@ -30,15 +30,14 @@
       }
 
       <!-- Register Form -->
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
-        <!-- Email Field -->
+        <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Email Address
           </label>
           <input
-            id="email"
             type="email"
             formControlName="email"
             class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
@@ -56,13 +55,12 @@
           }
         </div>
 
-        <!-- Display Name Field -->
+        <!-- Display Name -->
         <div>
           <label for="tenantName" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Display Name
           </label>
           <input
-            id="tenantName"
             type="text"
             formControlName="tenantName"
             class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
@@ -80,7 +78,7 @@
           }
         </div>
 
-        <!-- Tenant Type Selection -->
+        <!-- Tenant Type -->
         <div>
           <label class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Account Type
@@ -103,6 +101,7 @@
               <span class="text-xs text-[#222222]/70">For solo creators managing their own channels.</span>
             </label>
 
+            <!-- Agency -->
             <label
               class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
               [class.border-[#4C6FFF]]="tenantType?.value === 'Agency'"
@@ -118,16 +117,16 @@
               <span class="text-sm font-semibold text-[#1A1A1A]">Agency</span>
               <span class="text-xs text-[#222222]/70">For marketing teams managing multiple clients.</span>
             </label>
+
           </div>
         </div>
 
-        <!-- Password Field -->
+        <!-- Password -->
         <div>
           <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Password
           </label>
           <input
-            id="password"
             type="password"
             formControlName="password"
             class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
@@ -145,13 +144,12 @@
           }
         </div>
 
-        <!-- Confirm Password Field -->
+        <!-- Confirm Password -->
         <div>
           <label for="confirmPassword" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Confirm Password
           </label>
           <input
-            id="confirmPassword"
             type="password"
             formControlName="confirmPassword"
             class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
@@ -172,7 +170,7 @@
           }
         </div>
 
-        <!-- Terms and Conditions -->
+        <!-- Terms -->
         <div class="flex items-start">
           <input
             id="acceptTerms"
@@ -194,19 +192,18 @@
         <!-- Submit Button -->
         <button
           type="submit"
+          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white font-semibold py-3 rounded-lg transition
+                 shadow-[0_0_25px_rgba(76,111,255,0.4)]"
           [disabled]="loading() || registerForm.invalid"
           class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
         >
           @if (loading()) {
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
             Creating account...
           } @else {
             Create Account
           }
         </button>
+
       </form>
 
       <!-- Sign In Link -->
@@ -227,4 +224,5 @@
       </a>
     </div>
   </div>
+
 </div>

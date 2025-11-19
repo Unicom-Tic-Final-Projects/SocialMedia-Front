@@ -37,7 +37,7 @@
     <!-- Step Progress Indicator -->
     <div class="mb-4 sm:mb-6 md:mb-8 bg-[#F5F7FF] rounded-xl shadow-md p-3 sm:p-4 md:p-6 border border-[#D9E1FF] overflow-x-auto">
       <div class="flex items-center justify-between min-w-max sm:min-w-0">
-        @for (step of [1, 2, 3, 4]; track step) {
+        @for (step of [1, 2, 3, 4, 5]; track step) {
           <div class="flex items-center flex-1">
             <!-- Step Circle -->
             <div class="flex flex-col items-center flex-1">
@@ -56,6 +56,7 @@
                 [class.border-[#4C6FFF]]="currentStep() === step || isStepComplete(step)"
                 [class.border-gray-300]="currentStep() !== step && !isStepComplete(step)"
               >
+                <!-- Always show number, checkmark only appears when step is completed AND we're not on that step -->
                 @if (isStepComplete(step) && currentStep() !== step) {
                   <i class="fa-solid fa-check"></i>
                 } @else {
@@ -70,14 +71,15 @@
                 @switch (step) {
                   @case (1) { <span class="hidden sm:inline">Content & Media</span><span class="sm:hidden">Content</span> }
                   @case (2) { <span class="hidden sm:inline">Select Platforms</span><span class="sm:hidden">Platforms</span> }
-                  @case (3) { Preview }
-                  @case (4) { <span class="hidden sm:inline">Publish/Schedule</span><span class="sm:hidden">Publish</span> }
+                  @case (3) { <span class="hidden sm:inline">Crop & Edit</span><span class="sm:hidden">Crop</span> }
+                  @case (4) { <span class="hidden sm:inline">Preview</span><span class="sm:hidden">Preview</span> }
+                  @case (5) { <span class="hidden sm:inline">Publish/Schedule</span><span class="sm:hidden">Publish</span> }
                 }
               </span>
             </div>
 
             <!-- Connector Line -->
-            @if (step < 4) {
+            @if (step < 5) {
               <div class="flex-1 h-0.5 mx-2 -mt-6"
                    [class.bg-[#4C6FFF]]="currentStep() > step"
                    [class.bg-gray-300]="currentStep() <= step">
@@ -155,14 +157,15 @@
         <div class="space-y-4 sm:space-y-6" [formGroup]="postForm">
           <div class="mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 1: Write Your Post</h2>
-            <p class="text-gray-600 text-xs sm:text-sm">Create your content and add media (optional)</p>
+            <p class="text-gray-600 text-xs sm:text-sm">Create your content and add media (both required)</p>
           </div>
 
           <!-- Content Editor -->
           <div>
             <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
-              Post Content <span class="text-red-500">*</span>
+              Post Content
             </label>
+            <p class="text-xs text-gray-500 mb-2">Enter a caption and upload at least one image/video (both are required)</p>
 
             <textarea
               formControlName="content"
@@ -177,11 +180,15 @@
 
             @if (content?.invalid && content?.touched) {
               <p class="mt-2 text-sm text-red-600">
-                @if (content?.errors?.['required']) {
-                  Content is required
-                } @else if (content?.errors?.['maxlength']) {
+                @if (content?.errors?.['maxlength']) {
                   Content must be less than 4000 characters
                 }
+              </p>
+            }
+            
+            @if (!step1Valid() && currentStep() === 1) {
+              <p class="mt-2 text-sm text-amber-600">
+                Please enter a caption and upload at least one image/video to continue
               </p>
             }
 
@@ -243,141 +250,195 @@
         </div>
       }
 
-      <!-- STEP 2: Select Platforms -->
+      <!-- STEP 2: Select Platforms (ALL platforms, not just connected) -->
       @if (currentStep() === 2) {
         <div class="space-y-4 sm:space-y-6">
           <div class="mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 2: Choose Platforms</h2>
-            <p class="text-gray-600 text-xs sm:text-sm">Select which social media accounts to publish to</p>
+            <p class="text-gray-600 text-xs sm:text-sm">Select which social media platforms to publish to (all platforms shown)</p>
           </div>
 
-          @if (loadingAccounts()) {
-            <div class="text-center py-12">
-              <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-3xl mb-3"></i>
-              <p class="text-sm text-gray-600">Loading social accounts...</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @for (platform of getAllPlatforms(); track platform) {
+              @let isSelected = isPlatformSelected(platform);
+              @let accounts = getConnectedAccountsForPlatform(platform);
+              @let isConnected = accounts.length > 0;
+              
+              <button
+                type="button"
+                (click)="togglePlatform(platform)"
+                class="relative p-6 rounded-xl border-2 transition-all hover:shadow-lg text-left"
+                [class.bg-[#4C6FFF]]="isSelected"
+                [class.text-white]="isSelected"
+                [class.border-[#4C6FFF]]="isSelected"
+                [class.bg-white]="!isSelected"
+                [class.text-[#1A1A1A]]="!isSelected"
+                [class.border-gray-300]="!isSelected"
+                [class.opacity-60]="!isConnected"
+              >
+                <div class="flex items-center gap-3 mb-3">
+                  @switch (platform) {
+                    @case ('facebook') {
+                      <i class="fa-brands fa-facebook text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#1877F2'"></i>
+                    }
+                    @case ('instagram') {
+                      <i class="fa-brands fa-instagram text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#E4405F'"></i>
+                    }
+                    @case ('linkedin') {
+                      <i class="fa-brands fa-linkedin text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#0077B5'"></i>
+                    }
+                    @case ('twitter') {
+                      <i class="fa-brands fa-x-twitter text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#1DA1F2'"></i>
+                    }
+                    @case ('youtube') {
+                      <i class="fa-brands fa-youtube text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#FF0000'"></i>
+                    }
+                    @case ('tiktok') {
+                      <i class="fa-brands fa-tiktok text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#000000'"></i>
+                    }
+                    @case ('pinterest') {
+                      <i class="fa-brands fa-pinterest text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#E60023'"></i>
+                    }
+                  }
+                  <div class="flex-1">
+                    <h3 class="font-bold text-lg capitalize">{{ platform }}</h3>
+                    @if (!isConnected) {
+                      <p class="text-xs opacity-75 mt-1">Not connected</p>
+                    } @else {
+                      <p class="text-xs opacity-75 mt-1">{{ accounts.length }} {{ accounts.length === 1 ? 'account' : 'accounts' }}</p>
+                    }
+                  </div>
+                  @if (isSelected) {
+                    <i class="fa-solid fa-check-circle text-xl"></i>
+                  }
+                </div>
+              </button>
+            }
+          </div>
+
+          @if (step2ValidationError()) {
+            <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p class="text-sm text-red-700">
+                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+                Please select at least one platform.
+              </p>
             </div>
-          } @else if (socialAccounts().length === 0) {
-            <div class="text-center py-12 border border-dashed border-[#D9E1FF] rounded-xl bg-white">
-              <i class="fa-solid fa-link text-5xl text-gray-400 mb-4"></i>
-              <p class="text-gray-600 font-medium mb-2">No social accounts connected</p>
-              <p class="text-gray-500 text-sm mb-4">Connect your social media accounts to start posting</p>
-              <a routerLink="/dashboard/social-account"
-                 class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-6 py-3 rounded-lg transition">
-                <i class="fa-solid fa-plus"></i>
-                Connect an Account
-              </a>
+          } @else if (postDraftService.getActiveDraft()?.selectedPlatforms?.length === 0) {
+            <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <p class="text-sm text-amber-700">
+                <i class="fa-solid fa-info-circle mr-2"></i>
+                Please select at least one platform to continue
+              </p>
             </div>
           } @else {
-            <div class="space-y-6">
-              @for (platform of getAccountsByPlatform() | keyvalue; track platform.key) {
-                <div class="bg-white rounded-xl p-6 border border-[#D9E1FF]">
-                  <div class="flex items-center gap-3 mb-4">
-                    @switch (platform.key) {
-                      @case ('facebook') {
-                        <i class="fa-brands fa-facebook text-2xl text-[#1877F2]"></i>
-                      }
-                      @case ('instagram') {
-                        <i class="fa-brands fa-instagram text-2xl text-[#E4405F]"></i>
-                      }
-                      @case ('linkedin') {
-                        <i class="fa-brands fa-linkedin text-2xl text-[#0077B5]"></i>
-                      }
-                      @case ('twitter') {
-                        <i class="fa-brands fa-twitter text-2xl text-[#1DA1F2]"></i>
-                      }
-                      @case ('youtube') {
-                        <i class="fa-brands fa-youtube text-2xl text-[#FF0000]"></i>
-                      }
-                    }
-                    <h3 class="text-lg font-bold text-[#1A1A1A] capitalize">{{ platform.key }}</h3>
-                    <span class="ml-auto px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
-                      {{ platform.value.length }} {{ platform.value.length === 1 ? 'account' : 'accounts' }}
-                    </span>
-                  </div>
-
-                  <div class="flex flex-wrap gap-3">
-                    @for (account of platform.value; track account.id) {
-                      <button
-                        type="button"
-                        (click)="toggleAccount(account.id)"
-                        [class.bg-[#4C6FFF]]="isAccountSelected(account.id)"
-                        [class.text-white]="isAccountSelected(account.id)"
-                        [class.bg-gray-50]="!isAccountSelected(account.id)"
-                        [class.text-[#222222]]="!isAccountSelected(account.id)"
-                        [class.border-2]="true"
-                        [class.border-[#4C6FFF]]="isAccountSelected(account.id)"
-                        [class.border-[#D9E1FF]]="!isAccountSelected(account.id)"
-                        class="px-5 py-3 rounded-lg transition flex items-center gap-2 font-medium hover:shadow-md"
-                      >
-                        @if (isAccountSelected(account.id)) {
-                          <i class="fa-solid fa-check-circle"></i>
-                        } @else {
-                          <i class="fa-regular fa-circle"></i>
-                        }
-                        <span>{{ account.accountName }}</span>
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
+            <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+              <p class="text-sm text-green-700">
+                <i class="fa-solid fa-check-circle mr-2"></i>
+                {{ postDraftService.getActiveDraft()?.selectedPlatforms?.length || 0 }} {{ (postDraftService.getActiveDraft()?.selectedPlatforms?.length || 0) === 1 ? 'platform' : 'platforms' }} selected
+              </p>
             </div>
-
-            @if (selectedAccountIds().length === 0) {
-              <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-                <p class="text-sm text-amber-700">
-                  <i class="fa-solid fa-exclamation-triangle mr-2"></i>
-                  Please select at least one platform to continue
-                </p>
-              </div>
-            } @else {
-              <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
-                <p class="text-sm text-green-700">
-                  <i class="fa-solid fa-check-circle mr-2"></i>
-                  {{ selectedAccountIds().length }} {{ selectedAccountIds().length === 1 ? 'account' : 'accounts' }} selected
-                </p>
-              </div>
-            }
           }
         </div>
       }
 
-      <!-- STEP 3: Preview -->
+      <!-- STEP 3: Crop & Edit per Platform -->
       @if (currentStep() === 3) {
         <div class="space-y-4 sm:space-y-6">
           <div class="mb-4 sm:mb-6">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 3: Preview Your Post</h2>
-            <p class="text-gray-600 text-xs sm:text-sm">See how your post will look on each selected platform</p>
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 3: Crop & Edit per Platform</h2>
+            <p class="text-gray-600 text-xs sm:text-sm">Adjust crops and edit caption for each platform</p>
           </div>
 
-          @if (selectedAccountIds().length === 0) {
-            <div class="text-center py-12 border border-dashed border-[#D9E1FF] rounded-xl bg-white">
-              <i class="fa-solid fa-eye-slash text-5xl text-gray-400 mb-4"></i>
-              <p class="text-gray-600 font-medium mb-2">No platforms selected</p>
-              <p class="text-gray-500 text-sm mb-4">Go back to Step 2 to select platforms</p>
-              <button
-                type="button"
-                (click)="goToStep(2)"
-                class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-6 py-3 rounded-lg transition">
-                <i class="fa-solid fa-arrow-left"></i>
-                Select Platforms
-              </button>
-            </div>
-          } @else {
-            <app-post-preview
-              [content]="postForm.value.content || ''"
-              [mediaUrl]="mediaPreview()"
-              [selectedAccounts]="getSelectedSocialAccounts()"
-            ></app-post-preview>
-          }
+          <!-- Single Caption Field -->
+          <div class="bg-white rounded-xl p-6 border border-[#D9E1FF] mb-6">
+            <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+              Caption
+            </label>
+            <textarea
+              formControlName="content"
+              placeholder="Write your post caption here..."
+              rows="4"
+              class="w-full bg-[#FFFFFF] border border-[#D9E1FF] rounded-lg px-3 py-2 
+                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222] text-sm resize-none"
+              (input)="onContentInput($event)"
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-2">
+              This caption will be used for all selected platforms.
+            </p>
+          </div>
+
+          <!-- Free-Form Crop Component -->
+          <app-photo-crop
+            [mediaUrl]="mediaPreview() || ''"
+            [caption]="postForm.value.content || ''"
+            [selectedAccountIds]="[]"
+            [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
+            (cropConfigsChange)="onCropConfigsChange($event)"
+            (croppedImagesChange)="onCroppedImagesChange($event)"
+          ></app-photo-crop>
         </div>
       }
 
-      <!-- STEP 4: Publish/Schedule -->
+      <!-- STEP 4: Platform-Specific Preview -->
       @if (currentStep() === 4) {
         <div class="space-y-4 sm:space-y-6">
           <div class="mb-4 sm:mb-6">
-            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 4: Publish or Schedule</h2>
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 4: Preview</h2>
+            <p class="text-gray-600 text-xs sm:text-sm">See how your post will look on each platform</p>
+          </div>
+
+          <app-post-preview 
+            [draft]="postDraftService.getActiveDraft()"
+            (previewLoaded)="step4PreviewLoaded.set(true)"
+          ></app-post-preview>
+        </div>
+      }
+
+      <!-- STEP 5: Publish/Schedule -->
+      @if (currentStep() === 5) {
+        <div class="space-y-4 sm:space-y-6">
+          <div class="mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Step 5: Publish or Schedule</h2>
             <p class="text-gray-600 text-xs sm:text-sm">Choose when to publish your post</p>
+          </div>
+
+          <!-- Selected Platforms List -->
+          <div class="mb-6 p-4 bg-[#F5F7FF] rounded-xl border border-[#D9E1FF]">
+            <h3 class="font-semibold text-[#1A1A1A] mb-3 text-sm uppercase tracking-wider">Selected Platforms</h3>
+            @if ((postDraftService.getActiveDraft()?.selectedPlatforms?.length ?? 0) > 0) {
+              <div class="flex flex-wrap gap-2">
+                @for (platform of postDraftService.getActiveDraft()?.selectedPlatforms; track platform) {
+                  <div class="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-[#D9E1FF]">
+                    @switch (platform) {
+                      @case ('facebook') {
+                        <i class="fa-brands fa-facebook-f text-[#1877F2]"></i>
+                      }
+                      @case ('instagram') {
+                        <i class="fa-brands fa-instagram text-[#E1306C]"></i>
+                      }
+                      @case ('linkedin') {
+                        <i class="fa-brands fa-linkedin-in text-[#0A66C2]"></i>
+                      }
+                      @case ('twitter') {
+                        <i class="fa-brands fa-x-twitter text-[#1DA1F2]"></i>
+                      }
+                      @case ('youtube') {
+                        <i class="fa-brands fa-youtube text-[#FF0000]"></i>
+                      }
+                      @case ('tiktok') {
+                        <i class="fa-brands fa-tiktok text-[#000000]"></i>
+                      }
+                      @case ('pinterest') {
+                        <i class="fa-brands fa-pinterest text-[#E60023]"></i>
+                      }
+                    }
+                    <span class="text-sm font-medium text-[#1A1A1A] capitalize">{{ platform }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="text-sm text-gray-500">No platforms selected</p>
+            }
           </div>
 
           <!-- Publish Mode Toggle -->
@@ -450,7 +511,7 @@
                 </div>
                 <div class="flex justify-between">
                   <span>Platforms:</span>
-                  <span class="font-medium text-[#1A1A1A]">{{ selectedAccountIds().length }} selected</span>
+                  <span class="font-medium text-[#1A1A1A]">{{ (postDraftService.getActiveDraft()?.selectedPlatforms?.length ?? 0) }} selected</span>
                 </div>
                 <div class="flex justify-between">
                   <span>Publish Mode:</span>
@@ -490,7 +551,7 @@
               <button
                 type="button"
                 (click)="publishNow()"
-                [disabled]="saving() || postForm.invalid || selectedAccountIds().length === 0"
+                [disabled]="saving() || postForm.invalid || (postDraftService.getActiveDraft()?.selectedPlatforms?.length ?? 0) === 0"
                 class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 px-6 rounded-lg 
                        transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -506,7 +567,7 @@
               <button
                 type="button"
                 (click)="schedulePost()"
-                [disabled]="saving() || postForm.invalid || selectedAccountIds().length === 0 || !scheduledDateTime() || isScheduledDateInvalid()"
+                [disabled]="saving() || postForm.invalid || (postDraftService.getActiveDraft()?.selectedPlatforms?.length ?? 0) === 0 || !scheduledDateTime() || isScheduledDateInvalid()"
                 class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold py-3 px-6 rounded-lg 
                        transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -521,7 +582,7 @@
             }
           </div>
 
-          @if (selectedAccountIds().length === 0) {
+          @if ((postDraftService.getActiveDraft()?.selectedPlatforms?.length ?? 0) === 0) {
             <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
               <p class="text-sm text-red-700">
                 <i class="fa-solid fa-exclamation-triangle mr-2"></i>

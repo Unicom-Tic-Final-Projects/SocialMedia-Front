@@ -8,7 +8,7 @@ export function provideApiBaseUrl(url?: string): Provider {
     // @ts-ignore allow optional global at runtime
     //(typeof window !== 'undefined' && (window as any).ENV?.API_BASE_URL) ||
     // Production: Azure backend URL
-    //'https://nexuspost-api-dev-896.azurewebsites.net';
+    'https://nexuspost-api-dev-896.azurewebsites.net';
     // Local development: Uncomment below for local development
      'http://localhost:5000'
     // 'https://nexuspost-api-dev-896.azurewebsites.net';

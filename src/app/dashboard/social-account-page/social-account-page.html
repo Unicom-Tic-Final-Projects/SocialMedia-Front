@@ -116,15 +116,6 @@
             <i class="fa-solid fa-gear"></i>
           </button>
 
-          <!-- Preview Button -->
-          <button
-            type="button"
-            (click)="openPreview(platform.value)"
-            class="px-4 bg-white border border-[#D9E1FF] text-[#1A1A1A] py-2 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF] transition-all duration-200"
-            title="Preview Post"
-          >
-            <i class="fa-solid fa-eye"></i>
-          </button>
         </div>
       </div>
     </div>
@@ -133,15 +124,6 @@
 <ng-template #connectingTpl>
   <span>Connecting…</span>
 </ng-template>
-  <!-- Post Preview Modal -->
-  <app-post-preview-modal
-    [open]="previewOpen"
-    [mediaUrl]="previewMediaUrl"
-    [caption]="previewCaption"
-    [targets]="previewTargets"
-    (close)="closePreview()"
-  ></app-post-preview-modal>
-
   <!-- Manual Connect Modal (for Instagram) -->
   @if (manualConnectModalOpen) {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" (click)="closeManualConnectModal()">

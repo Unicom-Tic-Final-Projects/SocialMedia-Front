@@ -7,21 +7,19 @@ import { Platform, SocialAccount } from '../../models/social.models';
 import { PostsService } from '../../services/client/posts.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
 import { ClientContextService } from '../../services/client/client-context.service';
-import { PostPreviewModal } from './post-preview/post-preview-modal';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-social-account-page',
   standalone: true,
-  imports: [RouterModule, CommonModule, FormsModule, PostPreviewModal],
+  imports: [RouterModule, CommonModule, FormsModule],
   templateUrl: './social-account-page.html',
   styleUrl: './social-account-page.css',
 })
 export class SocialAccountPage implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly postsService = inject(PostsService);
   readonly socialAccountsService = inject(SocialAccountsService); // Made public for template access
   readonly clientContextService = inject(ClientContextService);
   private readonly authService = inject(AuthService);
@@ -40,10 +38,6 @@ export class SocialAccountPage implements OnInit, OnDestroy {
 
   showGrid = true;
 
-  previewOpen = false;
-  previewMediaUrl = '';
-  previewCaption = '';
-  previewTargets: Platform[] = [];
   connectingPlatform: Platform | null = null;
   disconnectingPlatform: Platform | null = null;
   private profileImageErrors = new Map<Platform, boolean>();
@@ -164,19 +158,6 @@ export class SocialAccountPage implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       },
     });
-  }
-
-  openPreview(platform: Platform): void {
-    const draft = this.postsService.getActiveDraft();
-    this.previewMediaUrl = draft?.mediaUrl ?? '';
-    this.previewCaption = draft?.caption ?? '';
-    this.previewTargets =
-      (draft?.selectedPlatforms?.length ? draft.selectedPlatforms : [platform]) as Platform[];
-    this.previewOpen = true;
-  }
-
-  closePreview(): void {
-    this.previewOpen = false;
   }
 
   isConnected(platform: Platform): boolean {
