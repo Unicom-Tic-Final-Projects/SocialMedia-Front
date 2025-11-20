@@ -1,38 +1,65 @@
-<div class="min-h-screen relative bg-[#FFFFFF] text-[#1A1A1A] flex items-center justify-center px-4 py-12 overflow-hidden">
-  <!-- Soft Blue Glow Background -->
+<div class="min-h-screen relative overflow-hidden bg-[#F4F6FF] text-[#1A1A1A]">
+
+  <!-- Soft Background -->
   <div
-    class="absolute inset-0"
+    class="absolute inset-0 pointer-events-none"
     style="
       background:
+        linear-gradient(to bottom right, #F6F8FF 0%, #EDEFFF 50%, #F8F9FF 100%),
         radial-gradient(circle at 20% 30%, #BFC9FF40 0%, transparent 60%),
         radial-gradient(circle at 80% 70%, #BFC9FF40 0%, transparent 60%);
-    "
-  ></div>
+    ">
+  </div>
 
-  <div class="w-full max-w-md relative z-10">
-    <!-- Logo -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-[#4C6FFF] mb-2">
-        One<span class="text-[#1A1A1A]">vo</span>
-      </h1>
-      <p class="text-[#222222]/90 text-sm">Create your account to get started</p>
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-screen">
+
+    <!-- =================================
+         LEFT IMAGE – 3 SECOND ROLL SLIDER
+    ================================== -->
+    <div class="hidden lg:flex lg:col-span-5 items-center justify-center relative overflow-hidden">
+      <div class="absolute inset-0 m-4">
+
+        <!-- Roll Image 1 -->
+        <img src="/assets/image/unnamed.jpg" class="cinemaSlide" />
+
+        <!-- Roll Image 2 -->
+        <img src="/assets/image/unnamed (1).jpg" class="cinemaSlide" />
+
+      </div>
     </div>
 
-    <!-- Register Card -->
-    <div class="bg-white border border-[#D9E1FF] rounded-xl shadow-lg p-8">
-      <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Create Account</h2>
+    <!-- =================================
+         RIGHT SIDE – REGISTER FORM
+    ================================== -->
+    <div class="flex lg:col-span-7 items-center justify-center px-6 py-12">
 
-      <!-- Error Message -->
-      @if (errorMessage()) {
-        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-          {{ errorMessage() }}
+      <div class="w-full max-w-md">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+          <h1 class="text-6xl font-extrabold">
+            <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
+          </h1>
+          <p class="text-[#222]/80 text-sm">Create your account to get started</p>
         </div>
-      }
 
-      <!-- Register Form -->
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Register Section (NO CARD BOX) -->
+        <div class="p-2">
 
-        <!-- Email -->
+          <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-4">Create Account</h2>
+
+          <!-- Error -->
+          @if (errorMessage()) {
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <!-- FORM -->
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+            <!-- Email -->
+             <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Email Address
@@ -126,13 +153,19 @@
           <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Password
           </label>
+
           <input
             type="password"
             formControlName="password"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+            (input)="checkStrength()"
+            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg
+                  text-[#1A1A1A] placeholder-[#666]
+                  focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
             placeholder="At least 6 characters"
             [class.border-red-500]="password?.invalid && password?.touched"
           />
+
+          <!-- Angular Errors -->
           @if (password?.invalid && password?.touched) {
             <p class="mt-1 text-sm text-red-600">
               @if (password?.errors?.['required']) {
@@ -142,7 +175,32 @@
               }
             </p>
           }
+
+          <!-- Password Strength Meter -->
+          <div class="flex gap-2 mt-3">
+            <div class="h-2 w-full rounded-full transition-all duration-300"
+                [ngClass]="strengthLevel >= 1 ? 'bg-red-500' : 'bg-gray-300'"></div>
+
+            <div class="h-2 w-full rounded-full transition-all duration-300"
+                [ngClass]="strengthLevel >= 2 ? 'bg-yellow-400' : 'bg-gray-300'"></div>
+
+            <div class="h-2 w-full rounded-full transition-all duration-300"
+                [ngClass]="strengthLevel >= 3 ? 'bg-green-500' : 'bg-gray-300'"></div>
+          </div>
+
+          <!-- Strength Text -->
+          <p class="text-xs mt-1"
+            [ngClass]="{
+              'text-red-500': strengthLevel === 1,
+              'text-yellow-500': strengthLevel === 2,
+              'text-green-600': strengthLevel === 3
+            }">
+            @if (strengthLevel === 1) { Weak Password }
+            @if (strengthLevel === 2) { Medium Password }
+            @if (strengthLevel === 3) { Strong Password }
+          </p>
         </div>
+
 
         <!-- Confirm Password -->
         <div>
@@ -204,25 +262,88 @@
           }
         </button>
 
-      </form>
+          </form>
 
-      <!-- Sign In Link -->
-      <div class="mt-6 text-center">
-        <p class="text-sm text-[#222222]">
-          Already have an account?
-          <a routerLink="/auth/login" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline font-medium transition-colors">
-            Sign in
-          </a>
-        </p>
+          <div class="mt-6 text-center">
+            <p class="text-sm text-[#222]">
+              Already have an account?
+              <a routerLink="/auth/login" class="text-[#4C6FFF] hover:underline">
+                Sign in
+              </a>
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mt-6 text-center">
+          <a routerLink="/" class="text-[#222] hover:text-[#4C6FFF] text-sm">← Back to Home</a>
+        </div>
+
       </div>
     </div>
 
-    <!-- Back to Home -->
-    <div class="mt-6 text-center">
-      <a routerLink="/" class="text-[#222222] hover:text-[#4C6FFF] text-sm transition-colors">
-        ← Back to Home
-      </a>
-    </div>
   </div>
-
 </div>
+
+<!-- ========== IMAGE ROLL STYLE ========== -->
+<style>
+  
+/* Ultra-Premium Cinematic Depth Slide */
+.cinemaSlide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  opacity: 0;
+  transform: translateZ(-80px) scale(1.15) rotateY(10deg);
+  filter: blur(8px);
+
+  animation: cinemaSwitch 6s infinite ease-in-out;
+}
+
+/* Slide order */
+.cinemaSlide:nth-child(1) { animation-delay: 0s; }
+.cinemaSlide:nth-child(2) { animation-delay: 3s; }
+
+/* 🎬 CINEMATIC KEYFRAMES (3 seconds per slide) */
+@keyframes cinemaSwitch {
+
+  /* Starting hidden with depth */
+  0% {
+    opacity: 0;
+    transform: translateZ(-80px) scale(1.15) rotateY(10deg);
+    filter: blur(8px);
+  }
+
+  /* Smooth cinematic reveal */
+  12% {
+    opacity: 1;
+    transform: translateZ(0px) scale(1) rotateY(0deg);
+    filter: blur(1px);
+  }
+
+  /* Hold clean */
+  45% {
+    opacity: 1;
+    transform: translateZ(0px) scale(1) rotateY(0deg);
+    filter: blur(0px);
+  }
+
+  /* Cinematic exit */
+  60% {
+    opacity: 0;
+    transform: translateZ(-60px) scale(1.10) rotateY(-8deg);
+    filter: blur(6px);
+  }
+
+  /* Repeat hidden */
+  100% {
+    opacity: 0;
+    transform: translateZ(-60px) scale(1.10) rotateY(-8deg);
+    filter: blur(6px);
+  }
+}
+
+</style>
