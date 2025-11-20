@@ -1,38 +1,63 @@
-<div class="min-h-screen relative bg-[#FFFFFF] text-[#1A1A1A] flex items-center justify-center px-4 py-12 overflow-hidden">
-  <!-- Soft Blue Glow Background -->
+<div class="min-h-screen relative overflow-hidden bg-[#F4F6FF] text-[#1A1A1A]">
+
+  <!-- Soft Light Blue Background -->
   <div
-    class="absolute inset-0"
+    class="absolute inset-0 pointer-events-none"
     style="
       background:
+        linear-gradient(to bottom right, #F6F8FF 0%, #EDEFFF 50%, #F8F9FF 100%),
         radial-gradient(circle at 20% 30%, #BFC9FF40 0%, transparent 60%),
         radial-gradient(circle at 80% 70%, #BFC9FF40 0%, transparent 60%);
-    "
-  ></div>
+    ">
+  </div>
 
-  <div class="w-full max-w-md relative z-10">
-    <!-- Logo -->
-    <div class="text-center mb-8">
-      <h1 class="text-4xl font-bold text-[#4C6FFF] mb-2">
-        One<span class="text-[#1A1A1A]">vo</span>
-      </h1>
-      <p class="text-[#222222]/90 text-sm">Welcome back! Sign in to your account</p>
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-screen">
+
+    <!-- ============================
+         LEFT SIDE (5/12) - ROLL SLIDER
+    ============================= -->
+    <div class="hidden lg:flex lg:col-span-5 items-center justify-center relative overflow-hidden">
+      <div class="absolute inset-0 m-4">
+
+        <!-- Image 1 -->
+        <img src="/assets/image/unnamed.jpg" class="cinemaSlide" />
+
+        <!-- Image 2 -->
+        <img src="/assets/image/unnamed (1).jpg" class="cinemaSlide" />
+
+      </div>
     </div>
 
-    <!-- Login Card -->
-    <div class="bg-white border border-[#D9E1FF] rounded-xl shadow-lg p-8">
-      <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Sign In</h2>
+    <!-- ============================
+         RIGHT SIDE (7/12) - LOGIN
+    ============================= -->
+    <div class="flex lg:col-span-7 items-center justify-center px-6 py-12">
 
-      <!-- Error -->
-      @if (errorMessage()) {
-        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-          {{ errorMessage() }}
+      <div class="w-full max-w-md">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+          <h1 class="text-6xl font-extrabold">
+            <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
+          </h1>
+          <p class="text-[#222]/80 text-sm">Welcome back! Sign in to your account</p>
         </div>
-      }
 
-      <!-- FORM -->
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Login Form (NO CARD BOX) -->
+        <div class="p-8">
 
-        <!-- Email -->
+          <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Sign In</h2>
+
+          <!-- Error -->
+          @if (errorMessage()) {
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+
+            <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
             Email Address
@@ -56,50 +81,42 @@
           }
         </div>
 
-        <!-- Password -->
-        <div>
-          <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            formControlName="password"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-            placeholder="Enter your password"
-            [class.border-red-500]="password?.invalid && password?.touched"
-          />
-          @if (password?.invalid && password?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (password?.errors?.['required']) {
-                Password is required
-              } @else if (password?.errors?.['minlength']) {
-                Password must be at least 6 characters
+            <!-- Password -->
+            <div>
+              <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                formControlName="password"
+                class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                placeholder="Enter your password"
+                [class.border-red-500]="password?.invalid && password?.touched"
+              />
+              @if (password?.invalid && password?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (password?.errors?.['required']) {
+                    Password is required
+                  } @else if (password?.errors?.['minlength']) {
+                    Password must be at least 6 characters
+                  }
+                </p>
               }
-            </p>
-          }
-        </div>
+            </div>
 
-        <!-- Remember + Forgot -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <input
-              id="remember-me"
-              name="remember-me"
-              type="checkbox"
-              class="h-4 w-4 text-[#4C6FFF] focus:ring-[#4C6FFF] border-[#D9E1FF] rounded bg-[#F5F7FF]"
-            />
-            <label for="remember-me" class="ml-2 block text-sm text-[#222222]">
-              Remember me
-            </label>
-          </div>
-          <a routerLink="/auth/forgot-password" class="text-sm text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors">
-            Forgot password?
-          </a>
-        </div>
+            <!-- Remember + Forgot -->
+            <div class="flex items-center justify-between">
+              <label class="flex items-center text-sm text-[#222]">
+                <input type="checkbox" class="h-4 w-4 text-[#4C6FFF] border-[#D9E1FF]" />
+                <span class="ml-2">Remember me</span>
+              </label>
 
-        <!-- Submit -->
-        <button
+              <a class="text-sm text-[#4C6FFF] hover:underline">Forgot password?</a>
+            </div>
+
+            <!-- Submit -->
+            <button
           type="submit"
           class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-[1.02] shadow-[0_0_25px_rgba(76,111,255,0.4)]"
           [disabled]="loading() || loginForm.invalid"
@@ -112,25 +129,92 @@
           }
         </button>
 
-      </form>
+          </form>
 
-      <!-- Sign Up Link -->
-      <div class="mt-6 text-center">
-        <p class="text-sm text-[#222222]">
-          Don't have an account?
-          <a routerLink="/auth/register" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline font-medium transition-colors">
-            Sign up
-          </a>
-        </p>
+          <div class="mt-6 text-center">
+            <p class="text-sm text-[#222]">
+              Don’t have an account?
+              <a routerLink="/auth/register" class="text-[#4C6FFF] hover:underline">Sign up</a>
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mt-6 text-center">
+          <a class="text-[#222] hover:text-[#4C6FFF] text-sm">← Back to Home</a>
+        </div>
+
       </div>
-
     </div>
 
-    <!-- Back to Home -->
-    <div class="mt-6 text-center">
-      <a routerLink="/" class="text-[#222222] hover:text-[#4C6FFF] text-sm transition-colors">
-        ← Back to Home
-      </a>
-    </div>
   </div>
 </div>
+
+<!-- SLIDER ROLL EFFECT -->
+<style>
+ /* =======================
+     FADE SLIDES (LEFT IMAGE)
+  ======================= */
+/* Professional Parallax 3D Slide */
+/* Ultra-Premium Cinematic Depth Slide */
+.cinemaSlide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  opacity: 0;
+  transform: translateZ(-80px) scale(1.15) rotateY(10deg);
+  filter: blur(8px);
+
+  animation: cinemaSwitch 6s infinite ease-in-out;
+}
+
+/* Slide order */
+.cinemaSlide:nth-child(1) { animation-delay: 0s; }
+.cinemaSlide:nth-child(2) { animation-delay: 3s; }
+
+/* 🎬 CINEMATIC KEYFRAMES (3 seconds per slide) */
+@keyframes cinemaSwitch {
+
+  /* Starting hidden with depth */
+  0% {
+    opacity: 0;
+    transform: translateZ(-80px) scale(1.15) rotateY(10deg);
+    filter: blur(8px);
+  }
+
+  /* Smooth cinematic reveal */
+  12% {
+    opacity: 1;
+    transform: translateZ(0px) scale(1) rotateY(0deg);
+    filter: blur(1px);
+  }
+
+  /* Hold clean */
+  45% {
+    opacity: 1;
+    transform: translateZ(0px) scale(1) rotateY(0deg);
+    filter: blur(0px);
+  }
+
+  /* Cinematic exit */
+  60% {
+    opacity: 0;
+    transform: translateZ(-60px) scale(1.10) rotateY(-8deg);
+    filter: blur(6px);
+  }
+
+  /* Repeat hidden */
+  100% {
+    opacity: 0;
+    transform: translateZ(-60px) scale(1.10) rotateY(-8deg);
+    filter: blur(6px);
+  }
+}
+
+
+
+
+</style>
