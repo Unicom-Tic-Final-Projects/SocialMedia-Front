@@ -46,54 +46,67 @@
     </button>
   </div>
 
-  @if (errorMessage()) {
-    <div class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
-      {{ errorMessage() }}
-    </div>
-  }
 
   <!-- Caption Generation -->
   @if (activeTab() === 'captions') {
     <div class="space-y-6">
-      <form [formGroup]="captionForm" (ngSubmit)="generateCaptions()" class="space-y-4">
-        <div>
-          <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">Topic *</label>
-          <input
-            type="text"
-            formControlName="topic"
-            placeholder="Enter topic for your post..."
-            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
-          />
+      <form [formGroup]="captionForm" (ngSubmit)="generateCaptions()" class="space-y-6">
+        <div class="input-group">
+          <div class="relative">
+            <input
+              type="text"
+              formControlName="topic"
+              placeholder=" "
+              class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
+            />
+            <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              Topic <span class="text-red-500">*</span>
+            </label>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">Context (Optional)</label>
-          <textarea
-            formControlName="context"
-            rows="3"
-            placeholder="Additional context..."
-            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
-          ></textarea>
+        <div class="input-group">
+          <div class="relative">
+            <textarea
+              formControlName="context"
+              rows="3"
+              placeholder=" "
+              class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white resize-none"
+            ></textarea>
+            <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              Context <span class="text-gray-400">(Optional)</span>
+            </label>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">Number of Captions</label>
-            <input
-              type="number"
-              formControlName="captionCount"
-              min="1"
-              max="10"
-              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
-            />
+          <div class="input-group">
+            <div class="relative">
+              <input
+                type="number"
+                formControlName="captionCount"
+                min="1"
+                max="10"
+                placeholder=" "
+                class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
+              />
+              <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+                Number of Captions
+              </label>
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">Hashtags Count</label>
-            <input
-              type="number"
-              formControlName="hashtagCount"
-              min="1"
-              max="30"
-              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
-            />
+          <div class="input-group">
+            <div class="relative">
+              <input
+                type="number"
+                formControlName="hashtagCount"
+                min="1"
+                max="30"
+                placeholder=" "
+                class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
+              />
+              <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+                Hashtags Count
+              </label>
+            </div>
           </div>
         </div>
         <button

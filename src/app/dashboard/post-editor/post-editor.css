@@ -1,0 +1,132 @@
+/* Post Editor Enterprise Styles */
+
+/* Floating Label Input Styles */
+.input-group-float {
+  position: relative;
+}
+
+.input-field-float {
+  transition: all 0.3s ease;
+}
+
+.input-field-float:focus,
+.input-field-float:not(:placeholder-shown) {
+  padding-top: 1.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.input-field-float:focus ~ .input-label-float,
+.input-field-float:not(:placeholder-shown) ~ .input-label-float {
+  top: 0.5rem;
+  font-size: 0.75rem;
+  color: #4C6FFF;
+  font-weight: 600;
+  transform: translateY(0);
+  background: white;
+  padding: 0 0.5rem;
+  z-index: 10;
+}
+
+.input-label-float {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 0.875rem;
+  color: #6B7280;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  z-index: 5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Step Progress Indicator Enhancements */
+button[type="button"]:not(:disabled):hover {
+  transform: scale(1.05);
+}
+
+/* Platform Card Hover Effects */
+button[type="button"]:not(:disabled):hover {
+  transition: all 0.3s ease;
+}
+
+/* Media Upload Area */
+label[for*="file"]:hover,
+label[class*="cursor-pointer"]:hover {
+  transform: translateY(-2px);
+}
+
+/* Button Enhancements */
+button[class*="bg-gradient"]:not(:disabled):hover {
+  box-shadow: 0 4px 12px rgba(76, 111, 255, 0.4);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .input-label-float {
+    font-size: 0.75rem;
+  }
+  
+  .input-field-float:focus ~ .input-label-float,
+  .input-field-float:not(:placeholder-shown) ~ .input-label-float {
+    font-size: 0.7rem;
+  }
+}
+
+/* Smooth Transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Focus States */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Loading Spinner */
+.fa-circle-notch.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+

@@ -11,6 +11,7 @@ import { ClientsService } from '../../services/client/clients.service';
 import { ClientContextService } from '../../services/client/client-context.service';
 import { PostDraftService } from '../../services/client/post-draft.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { CreatePostRequest, UpdatePostRequest, SocialPost } from '../../models/post.models';
 import { Platform, SocialAccount } from '../../models/social.models';
 import { Client } from '../../models/client.models';
@@ -33,13 +34,13 @@ export class PostEditor implements OnInit {
   readonly clientContextService = inject(ClientContextService); // Public for template access
   readonly postDraftService = inject(PostDraftService); // Public for template access
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   postForm: FormGroup;
   loading = signal(false);
   saving = signal(false);
-  errorMessage = signal<string | null>(null);
   
   // Content value signal for reactive character count
   private contentValue = signal<string>('');
@@ -334,7 +335,7 @@ export class PostEditor implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        this.errorMessage.set('Failed to load post');
+        this.toastService.error('Failed to load post');
         this.loading.set(false);
       },
     });
@@ -773,11 +774,11 @@ export class PostEditor implements OnInit {
 
     this.clientsService.createClient({ name: name.trim() }).subscribe({
       next: () => {
-        this.errorMessage.set(null);
+        // Clear any previous errors
       },
       error: (error) => {
         console.error('Failed to create client', error);
-        this.errorMessage.set('Failed to create client');
+        this.toastService.error('Failed to create client');
       },
     });
   }
@@ -796,7 +797,6 @@ export class PostEditor implements OnInit {
     }
 
     this.saving.set(true);
-    this.errorMessage.set(null);
 
     // For draft, don't schedule
     this.createOrUpdatePost(false);
@@ -821,16 +821,15 @@ export class PostEditor implements OnInit {
     const draft = this.postDraftService.getActiveDraft();
     const hasPlatforms = (draft?.selectedPlatforms?.length ?? 0) > 0;
     if (!hasPlatforms) {
-      this.errorMessage.set('Please select at least one platform');
+      this.toastService.warning('Please select at least one platform');
       return;
     }
 
     this.saving.set(true);
-    this.errorMessage.set(null);
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       this.saving.set(false);
       return;
     }
@@ -851,7 +850,7 @@ export class PostEditor implements OnInit {
             // After clients load, get selected client and continue
             const activeClient = this.clientsService.getSelectedClient();
             if (!activeClient) {
-              this.errorMessage.set('Client selection is required for agencies');
+              this.toastService.warning('Client selection is required for agencies');
               this.saving.set(false);
               return;
             }
@@ -859,7 +858,7 @@ export class PostEditor implements OnInit {
             this.continuePublish(formValue, activeClient);
           },
           error: () => {
-            this.errorMessage.set('Failed to load clients. Please try again.');
+            this.toastService.error('Failed to load clients. Please try again.');
             this.saving.set(false);
           }
         });
@@ -869,7 +868,7 @@ export class PostEditor implements OnInit {
       const activeClient = this.clientsService.getSelectedClient();
 
       if (!activeClient) {
-        this.errorMessage.set('Client selection is required for agencies');
+        this.toastService.warning('Client selection is required for agencies');
         this.saving.set(false);
         return;
       }
@@ -897,7 +896,7 @@ export class PostEditor implements OnInit {
   private continuePublish(formValue: any, activeClient: Client): void {
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       this.saving.set(false);
       return;
     }
@@ -927,7 +926,7 @@ export class PostEditor implements OnInit {
         const accountIds = this.getAccountIdsFromSelectedPlatforms();
         
         if (accountIds.length === 0) {
-          this.errorMessage.set('No connected accounts found for selected platforms');
+          this.toastService.warning('No connected accounts found for selected platforms');
           this.saving.set(false);
           return throwError(() => new Error('No connected accounts found for selected platforms'));
         }
@@ -1035,7 +1034,7 @@ export class PostEditor implements OnInit {
         }
         
         // If no cropped images available and no way to generate them, show error
-        this.errorMessage.set('Cropped images not found. Please go back to Step 3 and complete cropping before publishing.');
+        this.toastService.warning('Cropped images not found. Please go back to Step 3 and complete cropping before publishing.');
         this.saving.set(false);
         return throwError(() => new Error('Cropped images required for publishing'));
       }),
@@ -1070,6 +1069,10 @@ export class PostEditor implements OnInit {
       next: () => {
         console.log('Publish flow completed successfully');
         this.saving.set(false);
+        // Defer toast to avoid change detection errors
+        setTimeout(() => {
+          this.toastService.success('Post published successfully!');
+        }, 0);
         this.router.navigate(['/dashboard/posts']);
       },
       error: (error) => {
@@ -1082,9 +1085,37 @@ export class PostEditor implements OnInit {
           url: error?.url,
           errorBody: error?.error
         });
-        const errorMsg = error?.userMessage || error?.error?.message || error?.message || 'Failed to publish post';
-        console.error('Setting error message:', errorMsg);
-        this.errorMessage.set(errorMsg);
+        // Extract error message - show the actual backend error
+        let errorMsg = error?.userMessage || error?.error?.message || error?.message || 'Failed to publish post';
+        
+        // Log the full error for debugging
+        console.error('Full error object:', {
+          error,
+          errorBody: error?.error,
+          errorMessage: error?.error?.message,
+          userMessage: error?.userMessage,
+          status: error?.status,
+          statusText: error?.statusText,
+          url: error?.url
+        });
+        
+        // Show the actual error message from backend
+        // Only add helpful context if the error is generic
+        let displayMessage = errorMsg;
+        
+        // Add helpful context for specific errors, but keep the original message
+        if (errorMsg.includes('No Facebook pages available') || errorMsg.includes('Facebook pages')) {
+          // Show the actual error, but add context
+          displayMessage = `${errorMsg}\n\nTip: Make sure you have a Facebook Page (not just a personal profile) and granted 'pages_show_list' and 'pages_manage_posts' permissions when connecting.`;
+        } else if (errorMsg.includes('Token expired') || errorMsg.includes('Unauthorized')) {
+          displayMessage = `${errorMsg}\n\nTip: Your social media account connection may have expired. Try reconnecting in Settings → Social Accounts.`;
+        }
+        
+        console.error('Displaying error message:', displayMessage);
+        // Defer toast to avoid change detection errors
+        setTimeout(() => {
+          this.toastService.error(displayMessage);
+        }, 0);
         this.saving.set(false);
       },
     });
@@ -1105,7 +1136,7 @@ export class PostEditor implements OnInit {
     }
 
     if (!this.scheduledDateTime()) {
-      this.errorMessage.set('Please select a date and time for scheduling');
+      this.toastService.warning('Please select a date and time for scheduling');
       return;
     }
 
@@ -1113,12 +1144,11 @@ export class PostEditor implements OnInit {
     const draft = this.postDraftService.getActiveDraft();
     const hasPlatforms = (draft?.selectedPlatforms?.length ?? 0) > 0;
     if (!hasPlatforms) {
-      this.errorMessage.set('Please select at least one platform');
+      this.toastService.warning('Please select at least one platform');
       return;
     }
 
     this.saving.set(true);
-    this.errorMessage.set(null);
 
     // Create post with scheduled date
     this.createOrUpdatePost(true).subscribe({
@@ -1126,7 +1156,7 @@ export class PostEditor implements OnInit {
         // Schedule the post
         const scheduledAt = this.scheduledDateTime();
         if (!scheduledAt) {
-          this.errorMessage.set('Scheduled date/time is required');
+          this.toastService.warning('Scheduled date/time is required');
           this.saving.set(false);
           return;
         }
@@ -1134,7 +1164,7 @@ export class PostEditor implements OnInit {
         // Get account IDs from selected platforms (Step 2)
         const accountIds = this.getAccountIdsFromSelectedPlatforms();
         if (accountIds.length === 0) {
-          this.errorMessage.set('No connected accounts found for selected platforms');
+          this.toastService.warning('No connected accounts found for selected platforms');
           this.saving.set(false);
           return;
         }
@@ -1147,10 +1177,39 @@ export class PostEditor implements OnInit {
 
         this.postsService.schedulePost(post.id, scheduleRequest).subscribe({
           next: () => {
+            // Defer toast to avoid change detection errors
+            setTimeout(() => {
+              this.toastService.success('Post scheduled successfully!');
+            }, 0);
             this.router.navigate(['/dashboard/posts']);
           },
           error: (error) => {
-            this.errorMessage.set('Failed to schedule post');
+            // Extract error message and provide user-friendly message for token expiration
+            let errorMsg = error?.userMessage || error?.error?.message || error?.message || 'Failed to schedule post';
+            
+            // Check for Instagram Business Account error with more specific messaging
+            if (errorMsg.includes('Instagram Business Account') || errorMsg.includes('Failed to get Instagram Business Account')) {
+              if (errorMsg.includes('Unauthorized') || errorMsg.includes('401') || errorMsg.includes('400')) {
+                errorMsg = 'Instagram publishing requires Facebook connection: Instagram Business accounts must be accessed through Facebook Graph API. To post to Instagram: 1) Connect Facebook (with a Facebook Page), 2) Make sure your Instagram Business account is linked to that Facebook Page in Instagram app, 3) Select only Facebook when posting (Instagram will be published automatically if linked). Do NOT connect Instagram separately - it will not work for Business accounts.';
+              } else if (errorMsg.includes('not found')) {
+                errorMsg = 'Instagram Business Account not linked: Your Instagram account is not linked to a Facebook Page. Please: 1) Go to Instagram app → Settings → Account → Linked Accounts, 2) Link your Instagram to a Facebook Page, 3) Then connect Facebook (with Page) in Settings → Social Accounts.';
+              } else {
+                errorMsg = 'Instagram Business Account setup issue: Your Instagram account must be a Business account (not Creator) and properly linked to a Facebook Page. Please check: 1) Instagram account type in Instagram app, 2) Facebook Page connection, 3) Connect Facebook (not Instagram) in Settings → Social Accounts.';
+              }
+            }
+            // Check for Facebook Pages error
+            if (errorMsg.includes('No Facebook pages available') || errorMsg.includes('Facebook pages')) {
+              errorMsg = 'Facebook Page required: You need to connect a Facebook Page (not just a personal profile) to post. Facebook no longer allows posting to personal profiles via API. Please: 1) Create a Facebook Page if you don\'t have one, 2) Go to Settings → Social Accounts, 3) Connect Facebook and select your Page. Note: If your Instagram is linked to this Page, you can post to both Facebook and Instagram by selecting only Facebook.';
+            }
+            // Check if it's a token expiration error
+            else if (errorMsg.includes('Token expired') || (errorMsg.includes('Unauthorized') && !errorMsg.includes('Instagram'))) {
+              errorMsg = 'Your social media account connection has expired. Please reconnect your account in Settings to continue scheduling.';
+            }
+            
+            // Defer toast to avoid change detection errors
+            setTimeout(() => {
+              this.toastService.error(errorMsg);
+            }, 0);
             this.saving.set(false);
           },
         });
@@ -1239,7 +1298,7 @@ export class PostEditor implements OnInit {
           this.saving.set(false);
         }),
         catchError((error) => {
-          this.errorMessage.set(error?.userMessage || 'Failed to save post');
+          this.toastService.error(error?.userMessage || 'Failed to save post');
           this.saving.set(false);
           return throwError(() => error);
         })
@@ -1263,7 +1322,7 @@ export class PostEditor implements OnInit {
           this.saving.set(false);
         }),
         catchError((error) => {
-          this.errorMessage.set(error?.userMessage || 'Failed to save post');
+          this.toastService.error(error?.userMessage || 'Failed to save post');
           this.saving.set(false);
           return throwError(() => error);
         })

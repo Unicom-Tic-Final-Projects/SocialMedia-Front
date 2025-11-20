@@ -2,6 +2,8 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationsService } from '../../services/client/notifications.service';
 import { NotificationItem } from '../../models/social.models';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmationService } from '../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-notifications-page',
@@ -11,6 +13,8 @@ import { NotificationItem } from '../../models/social.models';
 })
 export class NotificationsPage implements OnInit {
   private readonly notificationsService = inject(NotificationsService);
+  private readonly toastService = inject(ToastService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   notifications = signal<NotificationItem[]>([]);
   loading = signal(false);
@@ -60,16 +64,26 @@ export class NotificationsPage implements OnInit {
   }
 
   deleteNotification(notification: NotificationItem): void {
-    if (confirm('Are you sure you want to delete this notification?')) {
-      this.notificationsService.deleteNotification(notification.id).subscribe({
-        next: () => {
-          this.notifications.update((items) => items.filter((item) => item.id !== notification.id));
-        },
-        error: (error) => {
-          console.error('Error deleting notification:', error);
-        }
-      });
-    }
+    this.confirmationService.confirm({
+      title: 'Delete Notification',
+      message: 'Are you sure you want to delete this notification?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
+    }).then((confirmed) => {
+      if (confirmed) {
+        this.notificationsService.deleteNotification(notification.id).subscribe({
+          next: () => {
+            this.notifications.update((items) => items.filter((item) => item.id !== notification.id));
+            this.toastService.success('Notification deleted successfully');
+          },
+          error: (error) => {
+            console.error('Error deleting notification:', error);
+            this.toastService.error('Failed to delete notification');
+          }
+        });
+      }
+    });
   }
 
   getNotificationIcon(type: string): string {

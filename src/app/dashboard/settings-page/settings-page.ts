@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserSettingsService, UpdateUserSettingsRequest, UserSettingsDto } from '../../services/client/user-settings.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 type SettingsTab = 'appearance' | 'general' | 'posts' | 'notifications' | 'analytics' | 'security' | 'ai';
 
@@ -16,13 +17,12 @@ type SettingsTab = 'appearance' | 'general' | 'posts' | 'notifications' | 'analy
 export class SettingsPage implements OnInit {
   private readonly settingsService = inject(UserSettingsService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
 
   activeTab = signal<SettingsTab>('appearance');
   settings = signal<UserSettingsDto | null>(null);
   loading = signal(false);
   saving = signal(false);
-  errorMessage = signal<string | null>(null);
-  successMessage = signal<string | null>(null);
 
   // Common timezones
   timezones = [
@@ -51,7 +51,6 @@ export class SettingsPage implements OnInit {
 
   loadSettings() {
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     this.settingsService.loadSettings().subscribe({
       next: (settings) => {
@@ -62,7 +61,7 @@ export class SettingsPage implements OnInit {
       },
       error: (error) => {
         console.error('Error loading settings:', error);
-        this.errorMessage.set('Failed to load settings. Using defaults.');
+        this.toastService.warning('Failed to load settings. Using defaults.');
         this.loading.set(false);
       }
     });
@@ -70,22 +69,16 @@ export class SettingsPage implements OnInit {
 
   saveSettings(updates: UpdateUserSettingsRequest) {
     this.saving.set(true);
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
 
     this.settingsService.updateUserSettings(updates).subscribe({
       next: (updatedSettings) => {
         this.settings.set(updatedSettings);
-        this.successMessage.set('Settings saved successfully!');
+        this.toastService.success('Settings saved successfully!');
         this.saving.set(false);
-        
-        setTimeout(() => {
-          this.successMessage.set(null);
-        }, 3000);
       },
       error: (error) => {
         console.error('Error saving settings:', error);
-        this.errorMessage.set(error?.error?.message || 'Failed to save settings. Please try again.');
+        this.toastService.error(error?.error?.message || 'Failed to save settings. Please try again.');
         this.saving.set(false);
       }
     });

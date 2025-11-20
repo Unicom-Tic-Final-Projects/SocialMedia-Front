@@ -9,11 +9,6 @@
   </div>
 
   <!-- Error Message -->
-  @if (errorMessage()) {
-    <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
-      {{ errorMessage() }}
-    </div>
-  }
 
   <!-- Tabs -->
   <div class="bg-[#F5F7FF] rounded-xl shadow-md p-2 mb-6 border border-[#D9E1FF]">
@@ -351,7 +346,7 @@
   }
 
   <!-- Post Creator Modal -->
-  @if (showPostCreator()) {
+  @if (showPostCreator() && postForm) {
     <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" (click)="showPostCreator.set(false)">
       <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">

@@ -1,2 +1,40 @@
 /* AI Assistant Styles */
 
+/* Floating Label Input Styles */
+.input-group {
+  position: relative;
+}
+
+.input-field {
+  transition: all 0.3s ease;
+}
+
+.input-field:focus,
+.input-field:not(:placeholder-shown) {
+  padding-top: 1.5rem;
+  padding-bottom: 0.75rem;
+}
+
+.input-field:focus + .input-label,
+.input-field:not(:placeholder-shown) + .input-label {
+  top: 0.5rem;
+  font-size: 0.75rem;
+  color: #4C6FFF;
+  transform: translateY(0);
+}
+
+.input-label {
+  top: 1rem;
+  font-size: 0.875rem;
+  transform: translateY(0);
+  background: white;
+  padding: 0 0.25rem;
+  margin-left: -0.25rem;
+}
+
+textarea.input-field:focus + .input-label,
+textarea.input-field:not(:placeholder-shown) + .input-label {
+  top: 0.5rem;
+  font-size: 0.75rem;
+}
+

@@ -4,6 +4,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { ClientsService } from '../../services/client/clients.service';
 import { Client } from '../../models/client.models';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmationService } from '../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-clients-page',
@@ -15,6 +17,8 @@ import { Client } from '../../models/client.models';
 export class ClientsPage implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly clientsService = inject(ClientsService);
+  private readonly toastService = inject(ToastService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   readonly clients = this.clientsService.clients;
   readonly selectedClientId = this.clientsService.selectedClientId;
@@ -90,16 +94,27 @@ export class ClientsPage implements OnInit, OnDestroy {
   }
 
   deleteClient(client: Client): void {
-    if (!confirm(`Delete client "${client.name}"? This will remove access to their posts.`)) {
-      return;
-    }
+    this.confirmationService.confirm({
+      title: 'Delete Client',
+      message: `Delete client "${client.name}"? This will remove access to their posts.`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
+    }).then((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
 
-    this.clientsService.deleteClient(client.id).subscribe({
-      next: () => {
-        this.successMessage.set('Client deleted successfully');
-        setTimeout(() => this.successMessage.set(null), 3000);
-      },
-      error: (error) => console.error('Failed to delete client', error),
+      this.clientsService.deleteClient(client.id).subscribe({
+        next: () => {
+          this.toastService.success('Client deleted successfully');
+          setTimeout(() => this.successMessage.set(null), 3000);
+        },
+        error: (error) => {
+          console.error('Failed to delete client', error);
+          this.toastService.error('Failed to delete client. Please try again.');
+        }
+      });
     });
   }
 

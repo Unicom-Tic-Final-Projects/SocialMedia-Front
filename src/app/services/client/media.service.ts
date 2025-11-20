@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, throwError, tap, map } from 'rxjs';
+import { HttpClient, HttpEventType, HttpEvent } from '@angular/common/http';
+import { Observable, catchError, throwError, tap, map, filter } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { AuthService } from '../../core/services/auth.service';
 import { MediaAssetResponse } from '../../models/post.models';
@@ -25,19 +25,42 @@ export class MediaService {
   readonly uploading = this.uploadingSignal.asReadonly();
 
   /**
-   * Upload media file.
+   * Upload media file with progress tracking.
    * Sends the actual file as multipart/form-data to backend, which uploads to Cloudinary.
    */
-  uploadMedia(file: File): Observable<MediaAssetResponse> {
+  uploadMedia(file: File, onProgress?: (progress: number) => void): Observable<MediaAssetResponse> {
     this.uploadingSignal.set(true);
 
     const formData = new FormData();
     formData.append('file', file);
 
-    // Response interceptor unwraps ApiResponse<T>, so response is already MediaAssetResponse
-    // But we need to handle both cases: unwrapped (from interceptor) and wrapped (if interceptor fails)
-    return this.http.post<any>(`${this.baseUrl}/api/media/upload`, formData).pipe(
-      map(response => {
+    // Use reportProgress to track upload progress
+    return this.http.post<any>(`${this.baseUrl}/api/media/upload`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).pipe(
+      // Handle progress events in tap (side effect)
+      tap((event: HttpEvent<any>) => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          const progress = Math.round((100 * event.loaded) / event.total);
+          if (onProgress) {
+            onProgress(progress);
+          }
+        }
+      }),
+      // Filter to only emit the final response event
+      filter((event: HttpEvent<any>) => event.type === HttpEventType.Response),
+      // Map the response event to the actual response data
+      map((event: HttpEvent<any>) => {
+        this.uploadingSignal.set(false);
+        
+        // Type guard to ensure we have a response event
+        if (event.type !== HttpEventType.Response) {
+          throw new Error('Expected response event');
+        }
+        
+        const response = (event as any).body;
+        
         if (!response) {
           throw new Error('Media upload returned undefined response');
         }
@@ -54,7 +77,6 @@ export class MediaService {
         
         throw new Error('Media upload response missing data field');
       }),
-      tap(() => this.uploadingSignal.set(false)),
       catchError((error) => {
         this.uploadingSignal.set(false);
         console.error('Media upload error:', error);

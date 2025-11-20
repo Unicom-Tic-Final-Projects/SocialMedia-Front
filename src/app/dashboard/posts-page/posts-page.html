@@ -1,11 +1,42 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
+<div class="min-h-screen bg-[#F8F9FA] text-[#222222] animate-fadeIn">
+  <!-- Enterprise Header Section -->
+  <div class="bg-white border-b border-[#D9E1FF] sticky top-0 z-30 shadow-sm">
+    <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3">
+            <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i>
+            @if (isViewingClient() && selectedClient()) {
+              {{ selectedClient()?.name }}'s Posts
+            } @else {
+              My Posts
+            }
+          </h1>
+          <p class="text-gray-600 text-xs sm:text-sm">
+            @if (isViewingClient() && selectedClient()) {
+              Managing posts for {{ selectedClient()?.name }}
+            } @else {
+              Manage and track all your social media posts
+            }
+          </p>
+        </div>
+        <!-- Quick Action Button -->
+        <button
+          (click)="navigateToPostEditor()"
+          class="flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105">
+          <i class="fa-solid fa-plus"></i>
+          <span class="hidden sm:inline">New Post</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Client Context Banner -->
   @if (isViewingClient() && selectedClient()) {
-    <div class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+    <div class="bg-blue-50 border-b border-blue-200 px-4 sm:px-6 lg:px-8 py-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <i class="fa-solid fa-user text-blue-600"></i>
+        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-user text-blue-600 text-sm"></i>
         </div>
         <div>
           <p class="text-sm font-semibold text-blue-900">Viewing Client Dashboard</p>
@@ -15,226 +46,335 @@
     </div>
   }
 
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-      <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i> 
-      @if (isViewingClient() && selectedClient()) {
-        {{ selectedClient()?.name }}'s Posts
-      } @else {
-        My Posts
-      }
-    </h1>
-    <p class="text-gray-600 text-sm">
-      @if (isViewingClient() && selectedClient()) {
-        Managing posts for {{ selectedClient()?.name }}
-      } @else {
-        Manage and track all your social media posts
-      }
-    </p>
-  </div>
-
-  <!-- Search + New Post -->
-  <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-
-    <div class="relative w-80">
-      <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
-      <input
-        type="text"
-        placeholder="Search posts..."
-        class="bg-[#F5F7FF] border border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3 w-full
-               focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222] transition"
-      />
-    </div>
-
-    <div class="flex gap-3">
-      <button
-        (click)="navigateToPostEditor()"
-        class="bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-xl hover:bg-[#3A56CC]
-               transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105"
-      >
-        <i class="fa-solid fa-plus"></i> New Post
-      </button>
-    </div>
-
-  </div>
-
-  <!-- Only show client selector if agency user but NOT viewing a specific client dashboard -->
-  @if (isAgency() && !isViewingClient()) {
-    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 border border-[#D9E1FF] mb-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex-1">
-          <label class="block text-sm font-medium text-[#1A1A1A] mb-2 uppercase tracking-wider">
-            Client
+  <!-- Main Content Area -->
+  <div class="px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Filters and Search Bar -->
+    <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-4 sm:p-6 mb-6">
+      <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <!-- Search Input -->
+        <div class="input-group relative flex-1 w-full lg:w-auto lg:max-w-md">
+          <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event); onSearchChange()"
+            placeholder=" "
+            class="input-field bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3 w-full
+                   focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300"
+          />
+          <label class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+            Search posts by title or content...
           </label>
-
-          @if (loadingClients()) {
-            <div class="flex items-center gap-2 text-gray-600 text-sm">
-              <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
-              Loading clients...
-            </div>
-          } @else if (clients().length === 0) {
-            <p class="text-gray-600 text-sm">
-              No clients found. Create your first client to manage posts for your customers.
-            </p>
-          } @else {
-            <select
-              class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
-              [value]="selectedClientId() ?? clients()[0]?.id"
-              (change)="selectClient($any($event.target).value)"
-            >
-              @for (client of clients(); track client.id) {
-                <option [value]="client.id">{{ client.name }}</option>
-              }
-            </select>
-          }
-
-          @if (clientsError()) {
-            <p class="mt-2 text-sm text-red-500">{{ clientsError() }}</p>
-          }
         </div>
 
-        <button type="button" (click)="addClient()"
-          class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-3 rounded-lg transition">
-          <i class="fa-solid fa-user-plus"></i>
-          Add Client
-        </button>
-      </div>
-    </div>
-  }
-
-  <!-- Table -->
-  <ng-container *ngIf="!loading(); else loadingState">
-
-    <div class="bg-[#F5F7FF] rounded-xl shadow-md overflow-hidden border border-[#D9E1FF]">
-
-      <div class="overflow-x-auto">
-        <table class="min-w-full">
-
-          <!-- Header -->
-          <thead class="bg-[#4C6FFF] text-white">
-            <tr>
-              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-heading"></i> Title</div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-share-nodes"></i> Tags</div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> Status</div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-calendar"></i> Scheduled Date</div>
-              </th>
-              <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
-                <div class="flex items-center gap-2"><i class="fa-solid fa-chart-simple"></i> Engagement</div>
-              </th>
-            </tr>
-          </thead>
-
-          <!-- Rows -->
-          <tbody class="divide-y divide-[#D9E1FF]">
-
-            <tr
-              *ngFor="let post of posts()"
-              class="hover:bg-[#BFC9FF]/30 transition duration-200"
-            >
-              <!-- Title -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-semibold text-[#1A1A1A]">
-                  {{ post.title || 'Untitled Post' }}
-                </div>
-                <div class="text-xs text-gray-600 max-w-xl truncate">
-                  {{ post.content }}
-                </div>
-              </td>
-
-              <!-- Platforms -->
-              <td class="px-6 py-4 text-sm">
-                <div class="flex gap-2 flex-wrap">
-                  <span *ngFor="let platform of post.platforms"
-                        class="px-2 py-1 rounded-lg bg-white border border-[#D9E1FF] text-xs text-gray-600">
-                    {{ platform }}
-                  </span>
-                  <span *ngIf="post.platforms.length === 0"
-                        class="text-xs text-gray-500">
-                    No platforms
-                  </span>
-                </div>
-              </td>
-
-              <!-- Status -->
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-                      [ngClass]="statusClass(post)">
-                  {{ getStatusDisplay(post.status) }}
-                </span>
-              </td>
-
-              <!-- Scheduled Date -->
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ post.scheduledAt | date: 'mediumDate' }}
-              </td>
-
-              <!-- Engagement -->
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                <div class="flex items-center gap-4">
-
-                  <span>
-                    <i class="fa-solid fa-eye text-[#4C6FFF]"></i>
-                    {{ post.views | number }}
-                  </span>
-
-                  <span>
-                    <i class="fa-solid fa-heart text-red-500"></i>
-                    {{ post.reactions | number }}
-                  </span>
-
-                </div>
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
+        <!-- Filter Buttons -->
+        <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+          <button
+            *ngFor="let filter of statusFilters"
+            (click)="setStatusFilter(filter.value)"
+            [class.bg-[#4C6FFF]]="selectedStatusFilter() === filter.value"
+            [class.text-white]="selectedStatusFilter() === filter.value"
+            [class.bg-[#F5F7FF]]="selectedStatusFilter() !== filter.value"
+            [class.text-[#1A1A1A]]="selectedStatusFilter() !== filter.value"
+            class="px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 hover:shadow-md hover:scale-105 border border-[#D9E1FF]">
+            <i [class]="filter.icon" class="mr-2"></i>
+            {{ filter.label }}
+          </button>
+        </div>
       </div>
 
+      <!-- Client Selector (Agency Only) -->
+      @if (isAgency() && !isViewingClient()) {
+        <div class="mt-4 pt-4 border-t border-[#D9E1FF]">
+          <div class="flex flex-col md:flex-row md:items-center gap-4">
+            <div class="flex-1">
+              <label class="block text-xs font-medium text-[#1A1A1A] mb-2 uppercase tracking-wider">
+                <i class="fa-solid fa-users mr-2"></i>Client
+              </label>
+              @if (loadingClients()) {
+                <div class="flex items-center gap-2 text-gray-600 text-sm">
+                  <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
+                  Loading clients...
+                </div>
+              } @else if (clients().length === 0) {
+                <p class="text-gray-600 text-sm">
+                  No clients found. Create your first client to manage posts.
+                </p>
+              } @else {
+                <select
+                  class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-2.5 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] transition-all"
+                  [value]="selectedClientId() ?? clients()[0]?.id"
+                  (change)="selectClient($any($event.target).value)">
+                  @for (client of clients(); track client.id) {
+                    <option [value]="client.id">{{ client.name }}</option>
+                  }
+                </select>
+              }
+              @if (clientsError()) {
+                <p class="mt-2 text-sm text-red-500">{{ clientsError() }}</p>
+              }
+            </div>
+            <button type="button" (click)="addClient()"
+              class="inline-flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-2.5 rounded-lg transition-all hover:shadow-md">
+              <i class="fa-solid fa-user-plus"></i>
+              <span class="hidden sm:inline">Add Client</span>
+            </button>
+          </div>
+        </div>
+      }
     </div>
 
-  </ng-container>
+    <!-- Posts Table -->
+    <ng-container *ngIf="!loading(); else skeletonTable">
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-[#D9E1FF]">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-[#D9E1FF]">
+            <!-- Table Header -->
+            <thead class="bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-[#4C6FFF]/80 transition-colors"
+                    (click)="toggleSort('title')">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-heading"></i>
+                    <span>Post</span>
+                    @if (sortBy() === 'title') {
+                      <i [class]="sortOrder() === 'asc' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-xs"></i>
+                    }
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span>Platforms</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-[#4C6FFF]/80 transition-colors"
+                    (click)="toggleSort('status')">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>Status</span>
+                    @if (sortBy() === 'status') {
+                      <i [class]="sortOrder() === 'asc' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-xs"></i>
+                    }
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider cursor-pointer hover:bg-[#4C6FFF]/80 transition-colors"
+                    (click)="toggleSort('scheduledAt')">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-calendar"></i>
+                    <span>Date</span>
+                    @if (sortBy() === 'scheduledAt') {
+                      <i [class]="sortOrder() === 'asc' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-xs"></i>
+                    }
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Engagement</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cog"></i>
+                    <span>Actions</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
 
-  <!-- Loading State -->
-  <ng-template #loadingState>
-    <div class="bg-[#F5F7FF] border border-dashed border-[#D9E1FF] rounded-xl p-16 text-center">
-      <i class="fa-solid fa-circle-notch animate-spin text-3xl text-[#4C6FFF] mb-3"></i>
-      <p class="text-gray-600 text-sm">Loading posts...</p>
-    </div>
-  </ng-template>
+            <!-- Table Body -->
+            <tbody class="bg-white divide-y divide-[#D9E1FF]">
+              <tr
+                *ngFor="let post of filteredPosts()"
+                class="hover:bg-[#F5F7FF] transition-all duration-200 group">
+                <!-- Post Title & Content -->
+                <td class="px-6 py-4">
+                  <div class="flex items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-semibold text-[#1A1A1A] mb-1 truncate">
+                        {{ post.title || 'Untitled Post' }}
+                      </div>
+                      <div class="text-xs text-gray-600 line-clamp-2 max-w-md">
+                        {{ post.content }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
 
-  <!-- Error State -->
-  @if (error()) {
-    <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-4">
-      <p class="text-red-600 text-sm">{{ error() }}</p>
-    </div>
-  }
+                <!-- Platforms -->
+                <td class="px-6 py-4">
+                  <div class="flex gap-1.5 flex-wrap">
+                    @if (post.platforms && post.platforms.length > 0) {
+                      <span *ngFor="let platform of post.platforms.slice(0, 3)"
+                            class="inline-flex items-center px-2.5 py-1 rounded-md bg-[#F5F7FF] border border-[#D9E1FF] text-xs font-medium text-gray-700">
+                        {{ platform }}
+                      </span>
+                      @if (post.platforms.length > 3) {
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-gray-100 text-xs font-medium text-gray-600">
+                          +{{ post.platforms.length - 3 }}
+                        </span>
+                      }
+                    } @else {
+                      <span class="text-xs text-gray-400 italic">No platforms</span>
+                    }
+                  </div>
+                </td>
 
-  <!-- Empty State -->
-  @if (!loading() && posts().length === 0) {
-    <div class="bg-[#F5F7FF] border border-dashed border-[#D9E1FF] rounded-xl p-16 text-center">
-      <i class="fa-solid fa-file-alt text-4xl text-gray-500 mb-4"></i>
+                <!-- Status Badge -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+                        [ngClass]="statusClass(post)">
+                    <i [class]="getStatusIcon(post.status)"></i>
+                    {{ getStatusDisplay(post.status) }}
+                  </span>
+                </td>
 
-      <p class="text-gray-700 text-lg mb-2">No posts yet</p>
-      <p class="text-gray-500 text-sm mb-6">Create your first post to get started</p>
+                <!-- Scheduled Date -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-700">
+                    @if (post.scheduledAt) {
+                      <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-[#4C6FFF] text-xs"></i>
+                        <span>{{ post.scheduledAt | date: 'MMM d, y' }}</span>
+                      </div>
+                    } @else {
+                      <span class="text-gray-400 italic">Not scheduled</span>
+                    }
+                  </div>
+                </td>
 
-      <button
-        (click)="navigateToPostEditor()"
-        class="inline-flex items-center gap-2 bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-xl
-               hover:bg-[#3A56CC] transition duration-200 shadow-md hover:shadow-lg"
-      >
-        <i class="fa-solid fa-plus"></i> Create Post
-      </button>
+                <!-- Engagement Metrics -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-4 text-sm">
+                    <div class="flex items-center gap-1.5 text-gray-700">
+                      <i class="fa-solid fa-eye text-[#4C6FFF]"></i>
+                      <span class="font-medium">{{ post.views | number }}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-gray-700">
+                      <i class="fa-solid fa-heart text-red-500"></i>
+                      <span class="font-medium">{{ post.reactions | number }}</span>
+                    </div>
+                  </div>
+                </td>
 
-    </div>
-  }
+                <!-- Actions -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center justify-center gap-2">
+                    <button
+                      (click)="editPost(post.id)"
+                      class="p-2 text-[#4C6FFF] hover:bg-[#F5F7FF] rounded-lg transition-all duration-200 hover:scale-110"
+                      title="Edit Post">
+                      <i class="fa-solid fa-edit"></i>
+                    </button>
+                    <button
+                      (click)="deletePost(post.id)"
+                      class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
+                      title="Delete Post">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
+      <!-- Empty State -->
+      @if (filteredPosts().length === 0 && !loading()) {
+        <div class="bg-white border border-dashed border-[#D9E1FF] rounded-xl p-12 sm:p-16 text-center animate-fadeIn">
+          <div class="max-w-md mx-auto">
+            <div class="w-16 h-16 bg-[#F5F7FF] rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fa-solid fa-file-alt text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-[#1A1A1A] mb-2">No posts found</h3>
+            <p class="text-gray-600 text-sm mb-6">
+              @if (selectedStatusFilter() !== 'all' || searchQuery().trim()) {
+                Try adjusting your filters or search query
+              } @else {
+                Create your first post to get started
+              }
+            </p>
+            @if (selectedStatusFilter() !== 'all' || searchQuery().trim()) {
+              <button
+                (click)="clearFilters()"
+                class="inline-flex items-center gap-2 bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#3A56CC] transition-all shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-filter"></i>
+                Clear Filters
+              </button>
+            } @else {
+              <button
+                (click)="navigateToPostEditor()"
+                class="inline-flex items-center gap-2 bg-[#4C6FFF] text-white font-semibold px-6 py-3 rounded-lg hover:bg-[#3A56CC] transition-all shadow-md hover:shadow-lg">
+                <i class="fa-solid fa-plus"></i>
+                Create Post
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </ng-container>
+
+    <!-- Skeleton Loading State -->
+    <ng-template #skeletonTable>
+      <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-[#D9E1FF]">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-[#D9E1FF]">
+            <thead class="bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Post</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Platforms</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Status</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Date</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">Engagement</th>
+                <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-[#D9E1FF]">
+              @for (row of [1,2,3,4,5,6,7,8]; track row) {
+                <tr class="hover:bg-[#F5F7FF]">
+                  <td class="px-6 py-4">
+                    <div class="skeleton skeleton-text w-32 mb-2" style="height: 1em;"></div>
+                    <div class="skeleton skeleton-text w-48" style="height: 0.75em;"></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex gap-2">
+                      <div class="skeleton skeleton-text w-16 h-6 rounded-full"></div>
+                      <div class="skeleton skeleton-text w-20 h-6 rounded-full"></div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="skeleton skeleton-text w-20 h-6 rounded-full"></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="skeleton skeleton-text w-24"></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="skeleton skeleton-text w-16"></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex justify-center gap-2">
+                      <div class="skeleton skeleton-circle w-8 h-8"></div>
+                      <div class="skeleton skeleton-circle w-8 h-8"></div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 animate-slideDown">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-circle-exclamation text-red-500"></i>
+          <p class="text-red-700 text-sm font-medium">{{ error() }}</p>
+        </div>
+      </div>
+    }
+  </div>
 </div>

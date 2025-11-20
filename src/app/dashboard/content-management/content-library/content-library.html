@@ -12,13 +12,19 @@
   <!-- Filters and Search -->
   <div class="mb-6 space-y-4">
     <div class="flex flex-wrap gap-3">
-      <input
-        type="text"
-        placeholder="Search media by name..."
-        [value]="searchQuery()"
-        (input)="searchQuery.set($any($event.target).value); onSearchChange()"
-        class="flex-1 min-w-[200px] border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
-      />
+      <div class="input-group flex-1 min-w-[200px] relative">
+        <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+        <input
+          type="text"
+          placeholder=" "
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value); onSearchChange()"
+          class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 pl-10 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
+        />
+        <label class="input-label absolute left-10 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+          Search media by name...
+        </label>
+      </div>
       <div class="flex gap-2">
         <button
           (click)="selectedFilter.set('all'); onFilterChange()"
@@ -69,9 +75,18 @@
 
   <!-- Media Grid -->
   @if (loading()) {
-    <div class="text-center py-12">
-      <i class="fa-solid fa-circle-notch animate-spin text-4xl text-[#4C6FFF] mb-4"></i>
-      <p class="text-gray-600 text-sm sm:text-base">Loading media library...</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+      @for (item of [1,2,3,4,5,6,7,8,9,10,11,12]; track item) {
+        <div class="skeleton-grid-item">
+          <div class="aspect-square">
+            <div class="skeleton skeleton-image w-full h-full"></div>
+          </div>
+          <div class="p-3 space-y-2">
+            <div class="skeleton skeleton-text w-3/4"></div>
+            <div class="skeleton skeleton-text w-1/2" style="height: 0.75em;"></div>
+          </div>
+        </div>
+      }
     </div>
   } @else if (mediaItems().length === 0) {
     <div class="text-center py-12 border-2 border-dashed border-[#D9E1FF] rounded-xl">
@@ -134,7 +149,16 @@
     <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="showUploadModal.set(false)">
       <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
         <h3 class="text-xl font-bold text-[#1A1A1A] mb-4">Upload Media</h3>
-        <div class="border-2 border-dashed border-[#D9E1FF] rounded-lg p-8 text-center">
+        <div class="drop-zone border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer"
+             [class.border-[#4C6FFF]]="isDragging()"
+             [class.border-[#D9E1FF]]="!isDragging()"
+             [class.bg-[#F5F7FF]]="isDragging()"
+             [class.scale-105]="isDragging()"
+             [class.shadow-lg]="isDragging()"
+             (dragover)="onDragOver($event)"
+             (dragleave)="onDragLeave($event)"
+             (drop)="onDrop($event)"
+             (click)="fileInput.click()">
           <input
             type="file"
             accept="image/*,video/*"
@@ -142,21 +166,55 @@
             class="hidden"
             #fileInput
           />
-          <i class="fa-solid fa-cloud-arrow-up text-4xl text-[#4C6FFF] mb-3"></i>
-          <p class="text-sm text-gray-600 mb-2">Click to select files</p>
-          <p class="text-xs text-gray-500">PNG, JPG, GIF, MP4 up to 10MB</p>
-          <button
-            (click)="fileInput.click()"
-            [disabled]="uploading()"
-            class="mt-4 px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition disabled:opacity-50">
+          @if (isDragging()) {
+            <i class="fa-solid fa-file-arrow-down text-4xl text-[#4C6FFF] mb-3 animate-bounce"></i>
+            <p class="text-sm font-semibold text-[#4C6FFF] mb-2">Drop your file here</p>
+            <p class="text-xs text-gray-500">Release to upload</p>
+          } @else {
+            <i class="fa-solid fa-cloud-arrow-up text-4xl text-[#4C6FFF] mb-3"></i>
+            <p class="text-sm font-semibold text-[#1A1A1A] mb-2">Drag & drop or click to upload</p>
+            <p class="text-xs text-gray-500 mb-4">Images up to 10MB, Videos up to 100MB</p>
+            <button
+              (click)="fileInput.click(); $event.stopPropagation()"
+              [disabled]="uploading()"
+              class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition disabled:opacity-50">
             @if (uploading()) {
-              <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
-              Uploading...
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                {{ uploadProgress() }}%
+              </span>
             } @else {
               Select Files
             }
-          </button>
+            </button>
+          }
         </div>
+        @if (uploading()) {
+          <div class="mt-4 space-y-2">
+            <div class="flex items-center justify-between text-sm">
+              <span class="text-gray-600 font-medium">
+                <i class="fa-solid fa-cloud-arrow-up mr-2"></i>
+                Uploading...
+              </span>
+              <span class="text-[#4C6FFF] font-semibold">{{ uploadProgress() }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+              <div 
+                class="bg-[#4C6FFF] h-2.5 rounded-full transition-all duration-300 ease-out"
+                [style.width.%]="uploadProgress()">
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 text-center">
+              @if (uploadProgress() < 50) {
+                Starting upload...
+              } @else if (uploadProgress() < 90) {
+                Uploading in progress...
+              } @else {
+                Almost done...
+              }
+            </p>
+          </div>
+        }
       </div>
     </div>
   }

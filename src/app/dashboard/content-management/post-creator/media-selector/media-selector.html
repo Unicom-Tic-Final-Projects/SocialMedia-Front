@@ -51,19 +51,22 @@
     </div>
   </div>
 
-  <!-- Error Message -->
-  @if (errorMessage()) {
-    <div class="mx-4 mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
-      {{ errorMessage() }}
-    </div>
-  }
 
   <!-- Media Grid -->
   <div class="flex-1 overflow-y-auto p-4">
     @if (loading()) {
-      <div class="text-center py-12">
-        <i class="fa-solid fa-circle-notch animate-spin text-4xl text-[#4C6FFF] mb-4"></i>
-        <p class="text-gray-600">Loading media library...</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        @for (item of [1,2,3,4,5,6,7,8,9,10,11,12,15,16,20]; track item) {
+          <div class="skeleton-grid-item">
+            <div class="aspect-square">
+              <div class="skeleton skeleton-image w-full h-full"></div>
+            </div>
+            <div class="p-2 space-y-2">
+              <div class="skeleton skeleton-text w-3/4"></div>
+              <div class="skeleton skeleton-text w-1/2" style="height: 0.75em;"></div>
+            </div>
+          </div>
+        }
       </div>
     } @else if (mediaItems().length === 0) {
       <div class="text-center py-12 border-2 border-dashed border-[#D9E1FF] rounded-xl">

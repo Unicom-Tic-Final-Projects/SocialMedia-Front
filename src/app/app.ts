@@ -3,10 +3,12 @@ import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { AosService } from './shared/services/aos.service';
+import { ToastMessageComponent } from './shared/ui/toast-message/toast-message';
+import { ConfirmationDialogComponent } from './shared/ui/confirmation-dialog/confirmation-dialog';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastMessageComponent, ConfirmationDialogComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

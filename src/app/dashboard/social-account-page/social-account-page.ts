@@ -9,6 +9,8 @@ import { SocialAccountsService } from '../../services/client/social-accounts.ser
 import { ClientContextService } from '../../services/client/client-context.service';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { ConfirmationService } from '../../core/services/confirmation.service';
 
 @Component({
   selector: 'app-social-account-page',
@@ -23,6 +25,8 @@ export class SocialAccountPage implements OnInit, OnDestroy {
   readonly socialAccountsService = inject(SocialAccountsService); // Made public for template access
   readonly clientContextService = inject(ClientContextService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
+  private readonly confirmationService = inject(ConfirmationService);
   private readonly cdr = inject(ChangeDetectorRef);
   private routeSubscription?: Subscription;
   
@@ -165,7 +169,8 @@ export class SocialAccountPage implements OnInit, OnDestroy {
   }
 
   getConnectedAccount(platform: Platform): SocialAccount | undefined {
-    return this.accounts().find(
+    // Use the service's accounts signal directly to ensure we get the latest state
+    return this.socialAccountsService.accounts().find(
       (acc) => acc.platform.toLowerCase() === platform.toLowerCase() && acc.status === 'connected'
     );
   }
@@ -211,25 +216,71 @@ export class SocialAccountPage implements OnInit, OnDestroy {
       return;
     }
 
-    if (!confirm(`Are you sure you want to disconnect your ${platform} account? You'll need to reconnect to publish posts to this platform.`)) {
-      return;
-    }
+    // Use confirmation dialog instead of browser confirm
+    this.confirmationService.confirm({
+      title: 'Disconnect Account',
+      message: `Are you sure you want to disconnect your ${platform} account? You'll need to reconnect to publish posts to this platform.`,
+      confirmText: 'Disconnect',
+      cancelText: 'Cancel',
+      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
+    }).then((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+      
+      this.disconnectAccountConfirmed(account, platform);
+    });
 
+    // This method is called after confirmation
+  }
+
+  private disconnectAccountConfirmed(account: SocialAccount, platform: Platform): void {
     this.disconnectingPlatform = platform;
+    
+    // Clear query parameters immediately to prevent refresh issues
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true,
+    });
+    
     this.socialAccountsService
       .disconnect(account.id)
       .pipe(finalize(() => {
         this.disconnectingPlatform = null;
-        this.loadAccounts(); // Reload accounts to update UI
+        // Reload accounts to update UI from backend
+        setTimeout(() => {
+          this.loadAccounts();
+        }, 100);
       }))
       .subscribe({
         next: () => {
           console.log(`Successfully disconnected ${platform} account`);
-          // Accounts will be reloaded in finalize
+          console.log(`Account ${account.id} should be removed from list`);
+          
+          // The service already removes it from the signal, but verify
+          const remainingAccounts = this.socialAccountsService.accounts();
+          const stillExists = remainingAccounts.some(acc => acc.id === account.id);
+          console.log(`Account still in list after disconnect: ${stillExists}`);
+          
+          setTimeout(() => {
+            this.toastService.success(`${platform} account disconnected successfully`);
+            // Force a refresh to ensure UI is updated
+            this.loadAccounts();
+          }, 0);
         },
         error: (error) => {
           console.error('Failed to disconnect account:', error);
-          alert(`Failed to disconnect account: ${error.error?.message || error.message || 'Unknown error'}`);
+          console.error('Error details:', {
+            status: error?.status,
+            message: error?.message,
+            error: error?.error
+          });
+          setTimeout(() => {
+            this.toastService.error(`Failed to disconnect account: ${error.error?.message || error.message || 'Unknown error'}`);
+            // Reload accounts even on error to ensure UI is in sync
+            this.loadAccounts();
+          }, 0);
         },
       });
   }
@@ -246,8 +297,22 @@ export class SocialAccountPage implements OnInit, OnDestroy {
       return;
     }
 
-    // Instagram now uses Business Login OAuth flow
-    // No special handling needed - use standard OAuth flow
+    // Instagram Business accounts must be accessed through Facebook
+    if (platform === 'instagram') {
+      // Check if Facebook is connected
+      const facebookAccount = this.getConnectedAccount('facebook');
+      if (!facebookAccount) {
+        this.toastService.warning(
+          'Instagram requires Facebook connection. Please connect your Facebook account (with a Facebook Page) first. Make sure your Instagram Business account is linked to that Facebook Page in the Instagram app.'
+        );
+        return;
+      } else {
+        this.toastService.info(
+          'Instagram is accessed through Facebook. When you post to Instagram, select Facebook as the platform - Instagram will be published automatically if your Instagram Business account is linked to your Facebook Page.'
+        );
+        return;
+      }
+    }
 
     const definition = this.platforms.find((item) => item.value === platform);
     const accountName = definition ? `${definition.name} Account` : `${platform} Account`;

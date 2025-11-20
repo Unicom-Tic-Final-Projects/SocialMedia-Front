@@ -1,0 +1,99 @@
+/* Skeleton Loader Styles */
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0px,
+    #f8f8f8 40px,
+    #f0f0f0 80px
+  );
+  background-size: 200px 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 1em;
+  margin-bottom: 0.5em;
+}
+
+.skeleton-text:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-title {
+  height: 1.5em;
+  width: 60%;
+  margin-bottom: 0.75em;
+}
+
+.skeleton-subtitle {
+  height: 1em;
+  width: 80%;
+  margin-bottom: 0.5em;
+}
+
+.skeleton-image {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+
+.skeleton-card {
+  background: #F5F7FF;
+  border: 1px solid #D9E1FF;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+/* Skeleton Grid Items */
+.skeleton-grid-item {
+  background: white;
+  border: 1px solid #D9E1FF;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Skeleton Table Row */
+.skeleton-table-row {
+  display: table-row;
+}
+
+.skeleton-table-cell {
+  display: table-cell;
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+}
+
+/* Skeleton Stat Card */
+.skeleton-stat-card {
+  background: #F5F7FF;
+  border: 1px solid #D9E1FF;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+/* Skeleton Activity Item */
+.skeleton-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #D9E1FF;
+  border-radius: 12px;
+}
+

@@ -9,6 +9,7 @@ import { MediaService } from '../../../services/client/media.service';
 import { SocialAccountsService } from '../../../services/client/social-accounts.service';
 import { AIService } from '../../../services/client/ai.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { CreatePostRequest } from '../../../models/post.models';
 import { SocialAccount } from '../../../models/social.models';
 import { AIAssistantComponent } from '../ai-assistant/ai-assistant';
@@ -30,20 +31,23 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
   private readonly socialAccountsService = inject(SocialAccountsService);
   private readonly aiService = inject(AIService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private routeSubscription?: Subscription;
 
   postForm: FormGroup;
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
 
   // Media
   selectedFile = signal<File | null>(null);
   mediaPreview = signal<string | null>(null);
+  isVideo = signal(false);
   uploadedMediaId = signal<string | null>(null);
   uploading = signal(false);
+  uploadProgress = signal(0);
   showMediaLibrary = signal(false);
+  isDragging = signal(false);
 
   // Social accounts
   socialAccounts = signal<SocialAccount[]>([]);
@@ -92,10 +96,12 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
         this.mediaPreview.set(media.url);
         this.uploadedMediaId.set(media.id);
         this.selectedFile.set(null); // Clear any uploaded file
+        // Detect if media is a video
+        this.isVideo.set(media.fileType?.startsWith('video/') || false);
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error loading media:', error);
-        this.errorMessage.set('Failed to load selected media');
+        this.toastService.error('Failed to load selected media');
       }
     });
   }
@@ -108,12 +114,20 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
     this.showMediaLibrary.set(false);
   }
 
-  selectMediaFromLibrary(mediaId: string, mediaUrl: string): void {
+  selectMediaFromLibrary(mediaId: string, mediaUrl: string, fileType?: string): void {
     this.uploadedMediaId.set(mediaId);
     this.mediaPreview.set(mediaUrl);
     this.selectedFile.set(null); // Clear any uploaded file
     this.showMediaLibrary.set(false);
-    this.errorMessage.set(null);
+    // Clear any previous errors
+    // Detect if selected media is a video
+    if (fileType) {
+      this.isVideo.set(fileType.startsWith('video/'));
+    } else {
+      // Try to detect from URL extension as fallback
+      const isVideoUrl = /\.(mp4|mov|avi|webm|mkv|flv|wmv)(\?|$)/i.test(mediaUrl);
+      this.isVideo.set(isVideoUrl);
+    }
   }
 
   triggerFileInput(): void {
@@ -137,16 +151,52 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      const file = input.files[0];
-      this.selectedFile.set(file);
+      this.handleFile(input.files[0]);
+    }
+  }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.mediaPreview.set(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+  handleFile(file: File): void {
+    this.selectedFile.set(file);
 
-      this.uploadMedia(file);
+    // Detect if file is a video
+    const isVideoFile = file.type.startsWith('video/') || 
+                       /\.(mp4|mov|avi|webm|mkv|flv|wmv)$/i.test(file.name);
+    this.isVideo.set(isVideoFile);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.mediaPreview.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    this.uploadMedia(file);
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    // Only set dragging to false if we're leaving the drop zone itself
+    const target = event.target as HTMLElement;
+    if (!target.closest('.drop-zone')) {
+      this.isDragging.set(false);
+    }
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      this.handleFile(file);
     }
   }
 
@@ -165,7 +215,7 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
       const hasVideoExt = videoExtensions.some(ext => fileName.endsWith(ext));
       
       if (!hasImageExt && !hasVideoExt) {
-        this.errorMessage.set('Invalid file type. Please upload images (JPEG, PNG, GIF, WebP) or videos (MP4, MOV, AVI, WebM, etc.)');
+        this.toastService.error('Invalid file type. Please upload images (JPEG, PNG, GIF, WebP) or videos (MP4, MOV, AVI, WebM, etc.)');
         return;
       }
       
@@ -181,12 +231,13 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
     const maxSize = isVideo ? maxVideoSize : maxImageSize;
     if (file.size > maxSize) {
       const sizeLimitMB = isVideo ? 100 : 10;
-      this.errorMessage.set(`File size exceeds ${sizeLimitMB}MB limit`);
+      this.toastService.error(`File size exceeds ${sizeLimitMB}MB limit`);
       return;
     }
 
     this.uploading.set(true);
-    this.errorMessage.set(null);
+    this.uploadProgress.set(0);
+    // Clear any previous errors
     
     console.log('Uploading media:', {
       name: file.name,
@@ -197,12 +248,19 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
       isImage: isImage
     });
     
-    this.mediaService.uploadMedia(file).subscribe({
+    this.mediaService.uploadMedia(file, (progress) => {
+      this.uploadProgress.set(progress);
+    }).subscribe({
       next: (response) => {
         console.log('Media upload successful:', response);
         this.uploadedMediaId.set(response.id);
         this.uploading.set(false);
-        this.errorMessage.set(null);
+        this.uploadProgress.set(100);
+        this.toastService.success('Media uploaded successfully!');
+        // Reset progress after a short delay
+        setTimeout(() => {
+          this.uploadProgress.set(0);
+        }, 1000);
       },
       error: (error: HttpErrorResponse) => {
         console.error('Error uploading media:', error);
@@ -213,10 +271,12 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
           message: error.message
         });
         const errorMsg = error?.error?.message || error?.error?.Message || error?.message || 'Failed to upload media. Please try again.';
-        this.errorMessage.set(errorMsg);
+        this.toastService.error(errorMsg);
         this.uploading.set(false);
+        this.uploadProgress.set(0);
         this.selectedFile.set(null);
         this.mediaPreview.set(null);
+        this.isVideo.set(false);
       }
     });
   }
@@ -270,7 +330,7 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
 
     const user = this.authService.user();
     if (!user) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       this.loading.set(false);
       return;
     }
@@ -287,10 +347,11 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
     this.postsService.createPost(request).subscribe({
       next: () => {
         this.loading.set(false);
+        this.toastService.success('Post created successfully!');
         this.router.navigate(['/dashboard/posts']);
       },
       error: (error: HttpErrorResponse) => {
-        this.errorMessage.set(error?.error?.message || 'Failed to create post');
+        this.toastService.error(error?.error?.message || 'Failed to create post');
         this.loading.set(false);
       }
     });

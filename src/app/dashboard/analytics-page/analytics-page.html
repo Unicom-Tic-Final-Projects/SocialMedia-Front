@@ -1,7 +1,7 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
-  <div class="mb-8">
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222] animate-fadeIn">
+  <div class="mb-8 animate-slideDown">
     <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-      <i class="fa-solid fa-chart-bar text-[#4C6FFF]"></i> Analytics
+      <i class="fa-solid fa-chart-bar text-[#4C6FFF] animate-pulse"></i> Analytics
     </h1>
     <p class="text-gray-600 text-sm">Track performance and engagement metrics</p>
   </div>
@@ -11,24 +11,24 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
-        <p class="text-sm text-gray-600">Total Posts</p>
-        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.totalPosts }}</p>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
+        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Total Posts</p>
+        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.totalPosts }}</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
-        <p class="text-sm text-gray-600">Total Engagement</p>
-        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.totalEngagement | number }}</p>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
+        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Total Engagement</p>
+        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.totalEngagement | number }}</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
-        <p class="text-sm text-gray-600">Follower Growth</p>
-        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.followerGrowth }}%</p>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
+        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Follower Growth</p>
+        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.followerGrowth }}%</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md" *ngIf="summary() as s">
-        <p class="text-sm text-gray-600">Conversion Rate</p>
-        <p class="text-3xl font-bold text-[#4C6FFF]">{{ s.conversionRate }}%</p>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
+        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Conversion Rate</p>
+        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.conversionRate }}%</p>
       </div>
 
     </div>
@@ -85,12 +85,34 @@
 
   </ng-container>
 
-  <!-- Loading -->
+  <!-- Skeleton Loading -->
   <ng-template #loadingState>
-    <div class="flex items-center justify-center py-20">
-      <div class="text-center">
-        <i class="fa-solid fa-circle-notch animate-spin text-3xl text-[#4C6FFF] mb-3"></i>
-        <p class="text-gray-600">Fetching analytics data...</p>
+    <div class="space-y-8">
+      <!-- Skeleton Summary Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        @for (card of [1,2,3,4]; track card) {
+          <div class="skeleton-stat-card">
+            <div class="skeleton skeleton-text w-24 mb-2" style="height: 0.875em;"></div>
+            <div class="skeleton skeleton-text w-16 mb-2" style="height: 2em;"></div>
+          </div>
+        }
+      </div>
+      <!-- Skeleton Content Cards -->
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        @for (card of [1,2]; track card) {
+          <div class="skeleton-card">
+            <div class="skeleton skeleton-title w-40 mb-4"></div>
+            <div class="space-y-4">
+              @for (item of [1,2,3,4]; track item) {
+                <div class="bg-white rounded-lg border border-[#D9E1FF] p-4">
+                  <div class="skeleton skeleton-text w-3/4 mb-2"></div>
+                  <div class="skeleton skeleton-text w-full mb-2"></div>
+                  <div class="skeleton skeleton-text w-1/2" style="height: 0.875em;"></div>
+                </div>
+              }
+            </div>
+          </div>
+        }
       </div>
     </div>
   </ng-template>

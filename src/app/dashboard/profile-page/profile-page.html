@@ -25,10 +25,21 @@
   </h2>
 
   @if (loading()) {
-    <div class="flex items-center justify-center py-12">
-      <div class="flex items-center gap-3 text-[#4C6FFF]">
-        <i class="fa-solid fa-circle-notch animate-spin text-xl"></i>
-        <span>Loading profile...</span>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Skeleton Profile Card -->
+      <div class="skeleton-card flex flex-col items-center">
+        <div class="skeleton skeleton-circle w-32 h-32 mb-4"></div>
+        <div class="skeleton skeleton-text w-32 mb-2"></div>
+        <div class="skeleton skeleton-text w-24" style="height: 0.875em;"></div>
+      </div>
+      <!-- Skeleton Form -->
+      <div class="lg:col-span-2 skeleton-card space-y-4">
+        @for (field of [1,2,3,4,5]; track field) {
+          <div class="space-y-2">
+            <div class="skeleton skeleton-text w-24" style="height: 0.875em;"></div>
+            <div class="skeleton skeleton-text w-full" style="height: 2.5em;"></div>
+          </div>
+        }
       </div>
     </div>
   } @else {
@@ -59,38 +70,44 @@
           }
 
           <!-- Name -->
-          <div class="relative">
-            <i class="fa-solid fa-user absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+          <div class="input-group relative">
+            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
             <input
               type="text"
               formControlName="fullName"
-              placeholder="Full Name"
-              class="w-full bg-white border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2
-                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222]
+              placeholder=" "
+              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3
+                     focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300
                      [&.ng-invalid.ng-touched]:border-red-500"
               [readonly]="isViewingClient()"
               [class.bg-gray-50]="isViewingClient()"
               [class.cursor-not-allowed]="isViewingClient()"
             />
+            <label class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              Full Name <span class="text-red-500">*</span>
+            </label>
             @if (profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched) {
-              <p class="mt-1 text-sm text-red-600">Full name is required</p>
+              <p class="mt-1 text-sm text-red-600 animate-shake">Full name is required</p>
             }
           </div>
 
           <!-- Email -->
-          <div class="relative">
-            <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+          <div class="input-group relative">
+            <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
             <input
               type="email"
               formControlName="email"
-              placeholder="Email"
-              class="w-full bg-white border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2
-                     focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-[#222222]
+              placeholder=" "
+              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3
+                     focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300
                      [&.ng-invalid.ng-touched]:border-red-500"
               [readonly]="true"
               [class.bg-gray-50]="isViewingClient()"
               [class.cursor-not-allowed]="isViewingClient()"
             />
+            <label class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              Email
+            </label>
             <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
           </div>
 

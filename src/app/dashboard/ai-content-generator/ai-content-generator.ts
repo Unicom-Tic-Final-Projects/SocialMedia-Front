@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AIService, GenerateCaptionResponse, BestTimeToPostResponse, GenerateImageResponse, GenerateContentPlanResponse } from '../../services/client/ai.service';
 import { PostsService } from '../../services/client/posts.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { CreatePostRequest } from '../../models/post.models';
 import { AIImageEditorComponent } from '../ai-image-editor/ai-image-editor';
 
@@ -20,6 +21,7 @@ export class AIContentGenerator implements OnInit {
   private readonly aiService = inject(AIService);
   private readonly postsService = inject(PostsService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
   // Active tab
@@ -27,29 +29,29 @@ export class AIContentGenerator implements OnInit {
 
   // Loading states
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
 
   // Caption generation
-  captionForm: FormGroup;
+  captionForm!: FormGroup;
   aiCaptions = signal<GenerateCaptionResponse | null>(null);
   selectedCaption = signal<{ caption: string; hashtags: string[] } | null>(null);
 
   // Content plan
-  contentPlanForm: FormGroup;
+  contentPlanForm!: FormGroup;
   contentPlan = signal<GenerateContentPlanResponse | null>(null);
 
   // Best time to post
   bestTimeToPost = signal<BestTimeToPostResponse | null>(null);
 
   // Image generation
-  imageForm: FormGroup;
+  imageForm!: FormGroup;
   generatedImage = signal<GenerateImageResponse | null>(null);
 
   // Post creation form
-  postForm: FormGroup;
+  postForm!: FormGroup;
   showPostCreator = signal(false);
 
   constructor() {
+    // Initialize all forms in constructor to ensure they're available when template renders
     this.captionForm = this.fb.group({
       topic: ['', [Validators.required, Validators.maxLength(500)]],
       context: ['', [Validators.maxLength(1000)]],
@@ -87,7 +89,6 @@ export class AIContentGenerator implements OnInit {
 
   setActiveTab(tab: 'captions' | 'content-plan' | 'best-time' | 'image' | 'image-editor'): void {
     this.activeTab.set(tab);
-    this.errorMessage.set(null);
   }
 
   // Caption Generation
@@ -99,12 +100,11 @@ export class AIContentGenerator implements OnInit {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.captionForm.value;
     const request = {
@@ -123,6 +123,7 @@ export class AIContentGenerator implements OnInit {
       next: (response) => {
         console.log('[AI Content Generator] Captions generated successfully:', response);
         this.aiCaptions.set(response);
+        this.toastService.success('Captions generated successfully!');
         this.loading.set(false);
       },
       error: (error) => {
@@ -135,7 +136,7 @@ export class AIContentGenerator implements OnInit {
           url: error?.url
         });
         const errorMsg = error?.error?.message || error?.message || 'Failed to generate captions. Please try again.';
-        this.errorMessage.set(errorMsg);
+        this.toastService.error(errorMsg);
         this.loading.set(false);
       }
     });
@@ -158,12 +159,11 @@ export class AIContentGenerator implements OnInit {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.contentPlanForm.value;
     this.aiService.generateContentPlan({
@@ -176,10 +176,11 @@ export class AIContentGenerator implements OnInit {
     }).subscribe({
       next: (response) => {
         this.contentPlan.set(response);
+        this.toastService.success('Content plan generated successfully!');
         this.loading.set(false);
       },
       error: (error) => {
-        this.errorMessage.set('Failed to generate content plan. Please try again.');
+        this.toastService.error('Failed to generate content plan. Please try again.');
         this.loading.set(false);
       }
     });
@@ -225,12 +226,11 @@ export class AIContentGenerator implements OnInit {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.imageForm.value;
     this.aiService.generateImage({
@@ -246,10 +246,11 @@ export class AIContentGenerator implements OnInit {
         if (response.imageUrl) {
           this.postForm.patchValue({ mediaUrl: response.imageUrl });
         }
+        this.toastService.success('Image generated successfully!');
         this.loading.set(false);
       },
       error: (error) => {
-        this.errorMessage.set('Failed to generate image. Please try again.');
+        this.toastService.error('Failed to generate image. Please try again.');
         this.loading.set(false);
       }
     });
@@ -268,12 +269,11 @@ export class AIContentGenerator implements OnInit {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.postForm.value;
     const createRequest: CreatePostRequest = {
@@ -287,10 +287,11 @@ export class AIContentGenerator implements OnInit {
     this.postsService.createPost(createRequest).subscribe({
       next: () => {
         this.loading.set(false);
+        this.toastService.success('Draft saved successfully!');
         this.router.navigate(['/dashboard/posts']);
       },
       error: (error) => {
-        this.errorMessage.set('Failed to save draft. Please try again.');
+        this.toastService.error('Failed to save draft. Please try again.');
         this.loading.set(false);
       }
     });

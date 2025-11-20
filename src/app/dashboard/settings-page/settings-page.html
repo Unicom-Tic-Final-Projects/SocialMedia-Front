@@ -1,26 +1,36 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
-  <div class="mb-8">
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6 animate-fadeIn">
+  <div class="mb-8 animate-slideDown">
     <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-      <i class="fa-solid fa-gear text-[#4C6FFF]"></i> Settings
+      <i class="fa-solid fa-gear text-[#4C6FFF] animate-pulse"></i> Settings
     </h1>
     <p class="text-gray-600 text-sm">Manage your account preferences and application settings</p>
     
-    @if (errorMessage()) {
-      <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-        {{ errorMessage() }}
-      </div>
-    }
-    
-    @if (successMessage()) {
-      <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-        {{ successMessage() }}
-      </div>
-    }
   </div>
 
   @if (loading()) {
-    <div class="flex justify-center items-center py-12">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C6FFF]"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <!-- Skeleton Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="skeleton-card">
+          <div class="space-y-2">
+            @for (item of [1,2,3,4,5,6,7]; track item) {
+              <div class="skeleton skeleton-text w-full" style="height: 2.75em;"></div>
+            }
+          </div>
+        </div>
+      </div>
+      <!-- Skeleton Content -->
+      <div class="lg:col-span-3">
+        <div class="skeleton-card space-y-6">
+          <div class="skeleton skeleton-title w-48 mb-6"></div>
+          @for (field of [1,2,3,4,5]; track field) {
+            <div class="space-y-2">
+              <div class="skeleton skeleton-text w-32" style="height: 0.875em;"></div>
+              <div class="skeleton skeleton-text w-full" style="height: 2.5em;"></div>
+            </div>
+          }
+        </div>
+      </div>
     </div>
   } @else {
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">

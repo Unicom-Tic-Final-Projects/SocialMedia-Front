@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MediaService } from '../../../../services/client/media.service';
+import { ToastService } from '../../../../core/services/toast.service';
 
 interface MediaItem {
   id: string;
@@ -22,13 +23,13 @@ interface MediaItem {
 })
 export class MediaSelectorComponent implements OnInit {
   private readonly mediaService = inject(MediaService);
+  private readonly toastService = inject(ToastService);
 
-  mediaSelected = output<{ id: string; url: string }>();
+  mediaSelected = output<{ id: string; url: string; fileType?: string }>();
   close = output<void>();
   
   mediaItems = signal<MediaItem[]>([]);
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
   searchQuery = signal('');
   selectedFilter = signal<'all' | 'images' | 'videos'>('all');
 
@@ -38,7 +39,6 @@ export class MediaSelectorComponent implements OnInit {
 
   loadMedia(): void {
     this.loading.set(true);
-    this.errorMessage.set(null);
     
     this.mediaService.getMediaByTenant().subscribe({
       next: (mediaAssets) => {
@@ -72,14 +72,14 @@ export class MediaSelectorComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error: HttpErrorResponse) => {
-        this.errorMessage.set('Failed to load media library');
+        this.toastService.error('Failed to load media library');
         this.loading.set(false);
       }
     });
   }
 
   selectMedia(media: MediaItem): void {
-    this.mediaSelected.emit({ id: media.id, url: media.url });
+    this.mediaSelected.emit({ id: media.id, url: media.url, fileType: media.fileType });
   }
 
   onSearchChange(): void {

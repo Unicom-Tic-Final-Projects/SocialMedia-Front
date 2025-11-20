@@ -1,5 +1,6 @@
 /* stylelint-disable */
 @import 'aos/dist/aos.css';
+@import './app/shared/styles/skeleton.css';
 
 @tailwind base;
 @tailwind components;

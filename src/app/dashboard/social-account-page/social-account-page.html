@@ -1,9 +1,9 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A]">
 
-  <div *ngIf="showGrid">
-    <div class="mb-8">
+  <div *ngIf="showGrid" class="animate-fadeIn">
+    <div class="mb-8 animate-slideDown">
       <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-        <i class="fa-solid fa-link text-[#4C6FFF]"></i> Social Accounts
+        <i class="fa-solid fa-link text-[#4C6FFF] animate-pulse"></i> Social Accounts
         <!-- Loading indicator -->
         @if (socialAccountsService.loading()) {
           <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-sm"></i>
@@ -18,7 +18,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <div
         *ngFor="let platform of platforms"
-        class="bg-[#F5F7FF] p-6 rounded-xl shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300"
+        class="platform-card bg-[#F5F7FF] p-6 rounded-xl shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp"
       >
         <div class="flex items-start justify-between mb-4">
           <div class="flex-1">
@@ -70,9 +70,21 @@
         </div>
 
         <div class="flex gap-2">
-          <!-- Connect/Connected Button (hidden for team members in client dashboard context) -->
+          <!-- Instagram Info Message (accessed through Facebook) -->
+          <div *ngIf="platform.value === 'instagram' && !isConnected(platform.value) && !(isTeamMember() && isViewingClient())" 
+               class="flex-1 bg-blue-50 border border-blue-200 text-blue-800 py-2 px-3 rounded-xl text-xs">
+            <div class="flex items-start gap-2">
+              <i class="fa-solid fa-info-circle mt-0.5"></i>
+              <div>
+                <p class="font-semibold mb-1">Connect via Facebook</p>
+                <p>Instagram is accessed through Facebook. Connect Facebook (with a Page) and link your Instagram Business account to that Page.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Connect/Connected Button (hidden for team members in client dashboard context and Instagram) -->
           <button
-            *ngIf="!isConnected(platform.value) && !(isTeamMember() && isViewingClient())"
+            *ngIf="!isConnected(platform.value) && !(isTeamMember() && isViewingClient()) && platform.value !== 'instagram'"
             type="button"
             (click)="connectOrManage(platform.value)"
             class="flex-1 bg-[#4C6FFF] text-white py-2 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
@@ -85,6 +97,15 @@
               Connect
             </span>
           </button>
+          
+          <!-- Instagram Connected via Facebook Indicator -->
+          <div *ngIf="platform.value === 'instagram' && isConnected(platform.value)" 
+               class="flex-1 bg-green-50 border border-green-200 text-green-800 py-2 px-3 rounded-xl text-xs">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-check-circle"></i>
+              <span>Connected via Facebook</span>
+            </div>
+          </div>
 
           <!-- Disconnect Button (hidden for team members in client dashboard context) -->
           <button

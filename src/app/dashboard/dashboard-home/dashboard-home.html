@@ -29,88 +29,113 @@
   </div>
 
   @if (loading()) {
-    <div class="flex items-center justify-center py-12">
-      <div class="flex items-center gap-3 text-[#4C6FFF]">
-        <i class="fa-solid fa-circle-notch animate-spin text-xl"></i>
-        <span>Loading dashboard...</span>
+    <!-- Skeleton Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10">
+      @for (card of [1,2,3,4]; track card) {
+        <div class="skeleton-stat-card">
+          <div class="flex items-center justify-between mb-3">
+            <div class="skeleton skeleton-text w-20"></div>
+            <div class="skeleton skeleton-circle w-10 h-10"></div>
+          </div>
+          <div class="skeleton skeleton-text w-16 mb-2" style="height: 2.5em;"></div>
+          <div class="skeleton skeleton-text w-24" style="height: 0.875em;"></div>
+        </div>
+      }
+    </div>
+    <!-- Skeleton Activity -->
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 sm:p-8 md:p-8 border border-[#D9E1FF]">
+      <div class="mb-6">
+        <div class="skeleton skeleton-title w-40 mb-2"></div>
+        <div class="skeleton skeleton-text w-48"></div>
+      </div>
+      <div class="space-y-3">
+        @for (item of [1,2,3,4,5]; track item) {
+          <div class="skeleton-activity-item">
+            <div class="skeleton skeleton-circle w-12 h-12 flex-shrink-0"></div>
+            <div class="flex-1 space-y-2">
+              <div class="skeleton skeleton-text w-3/4"></div>
+              <div class="skeleton skeleton-text w-1/2" style="height: 0.875em;"></div>
+            </div>
+          </div>
+        }
       </div>
     </div>
   } @else {
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10">
 
-      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-2 sm:mb-3">
-          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Total Posts</p>
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-file-alt text-[#4C6FFF] text-sm sm:text-base"></i>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Total Posts</p>
+          <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i>
           </div>
         </div>
-        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().totalPosts }}</p>
-        <p class="text-[10px] sm:text-xs text-gray-600">All your posts</p>
+        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">{{ stats().totalPosts }}</p>
+        <p class="text-xs text-gray-600">All your posts</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-2 sm:mb-3">
-          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Published</p>
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-check-circle text-[#4C6FFF] text-sm sm:text-base"></i>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Published</p>
+          <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-check-circle text-[#4C6FFF]"></i>
           </div>
         </div>
-        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().published }}</p>
-        <p class="text-[10px] sm:text-xs text-gray-600">{{ getSuccessRate() }}% success rate</p>
+        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">{{ stats().published }}</p>
+        <p class="text-xs text-gray-600">{{ getSuccessRate() }}% success rate</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-2 sm:mb-3">
-          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Pending</p>
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-clock text-[#4C6FFF] text-sm sm:text-base"></i>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Pending</p>
+          <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-clock text-[#4C6FFF]"></i>
           </div>
         </div>
-        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().pending }}</p>
-        <p class="text-[10px] sm:text-xs text-gray-600">Awaiting approval</p>
+        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">{{ stats().pending }}</p>
+        <p class="text-xs text-gray-600">Awaiting approval</p>
       </div>
 
-      <div class="bg-[#F5F7FF] rounded-xl p-4 sm:p-5 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105">
-        <div class="flex items-center justify-between mb-2 sm:mb-3">
-          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Drafts</p>
-          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-file-pen text-[#4C6FFF] text-sm sm:text-base"></i>
+      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Drafts</p>
+          <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-file-pen text-[#4C6FFF]"></i>
           </div>
         </div>
-        <p class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-1">{{ stats().drafts }}</p>
-        <p class="text-[10px] sm:text-xs text-gray-600">In progress</p>
+        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">{{ stats().drafts }}</p>
+        <p class="text-xs text-gray-600">In progress</p>
       </div>
 
     </div>
 
     <!-- Recent Activity -->
-    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
-      <div class="flex items-center justify-between mb-4 sm:mb-6">
+    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 sm:p-8 md:p-8 border border-[#D9E1FF] animate-slideUp">
+      <div class="flex items-center justify-between mb-6">
         <div>
-          <h3 class="text-lg sm:text-xl font-bold text-[#1A1A1A] mb-1">Recent Activity</h3>
-          <p class="text-xs sm:text-sm text-gray-600">Latest updates from your account</p>
+          <h3 class="text-xl font-bold text-[#1A1A1A] mb-1">Recent Activity</h3>
+          <p class="text-sm text-gray-600">Latest updates from your account</p>
         </div>
       </div>
 
       @if (recentActivity().length === 0) {
-        <div class="text-center py-8">
-          <i class="fa-solid fa-bell-slash text-3xl text-gray-400 mb-3"></i>
+        <div class="text-center py-12">
+          <i class="fa-solid fa-bell-slash text-4xl text-gray-400 mb-4"></i>
           <p class="text-gray-600">No recent activity</p>
         </div>
       } @else {
         <div class="space-y-3">
           @for (activity of recentActivity(); track activity.id) {
-            <div class="flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-200 border border-[#D9E1FF] hover:border-[#4C6FFF]/40">
-              <div class="w-10 h-10 sm:w-12 sm:h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30 flex-shrink-0">
-                <i class="fa-solid text-[#4C6FFF] text-sm sm:text-base" [ngClass]="getActivityIcon(activity.type)"></i>
+            <div class="activity-item flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-300 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 hover:shadow-md hover:scale-[1.02]">
+              <div class="w-12 h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30 flex-shrink-0">
+                <i class="fa-solid text-[#4C6FFF] text-base" [ngClass]="getActivityIcon(activity.type)"></i>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-[#1A1A1A] font-semibold text-sm sm:text-base truncate">{{ getActivityMessage(activity) }}</p>
-                <p class="text-xs sm:text-sm text-gray-600">{{ getTimeAgo(activity.createdAt) }}</p>
+                <p class="text-[#1A1A1A] font-semibold text-base truncate">{{ getActivityMessage(activity) }}</p>
+                <p class="text-sm text-gray-600">{{ getTimeAgo(activity.createdAt) }}</p>
               </div>
-              <i class="fa-solid fa-chevron-right text-gray-500 text-xs sm:text-sm flex-shrink-0"></i>
+              <i class="fa-solid fa-chevron-right text-gray-500 text-sm flex-shrink-0"></i>
             </div>
           }
         </div>

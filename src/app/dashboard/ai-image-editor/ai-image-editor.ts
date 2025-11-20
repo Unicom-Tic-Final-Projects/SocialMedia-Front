@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AIService, EditImageRequest, EditImageResponse } from '../../services/client/ai.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 interface EditHistoryItem {
   id: string;
@@ -24,6 +25,7 @@ export class AIImageEditorComponent {
   private fb = inject(FormBuilder);
   private aiService = inject(AIService);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   // Form
   editForm: FormGroup;
@@ -33,7 +35,6 @@ export class AIImageEditorComponent {
   originalImageBase64 = signal<string | null>(null);
   currentImageUrl = signal<string | null>(null);
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
   
   // Edit history
   editHistory = signal<EditHistoryItem[]>([]);
@@ -78,7 +79,7 @@ export class AIImageEditorComponent {
       const file = input.files[0];
       
       if (!file.type.startsWith('image/')) {
-        this.errorMessage.set('Please upload a valid image file');
+        this.toastService.error('Please upload a valid image file');
         return;
       }
 
@@ -90,7 +91,7 @@ export class AIImageEditorComponent {
         this.currentImageUrl.set(result);
         this.editHistory.set([]);
         this.currentHistoryIndex.set(-1);
-        this.errorMessage.set(null);
+        this.toastService.success('Image uploaded successfully');
       };
       reader.readAsDataURL(file);
     }
@@ -141,7 +142,7 @@ export class AIImageEditorComponent {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
@@ -150,7 +151,6 @@ export class AIImageEditorComponent {
     if (!aspectRatioInfo) return; // Magic expand doesn't need regeneration
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     // Create a prompt that tells AI to adjust image to aspect ratio while preserving all content
     const prompt = `Adjust this image to ${aspectRatioInfo.aspectRatio} aspect ratio (${aspectRatioInfo.description}). Preserve all the original image content. Intelligently expand or adjust the image to fit the new aspect ratio without cropping or cutting any content. Fill any new areas naturally and seamlessly.`;
@@ -191,13 +191,14 @@ export class AIImageEditorComponent {
         } else if (response.editedImageUrl) {
           editedImageUrl = response.editedImageUrl;
         } else {
-          this.errorMessage.set('No image data in response');
+          this.toastService.error('No image data in response');
           this.loading.set(false);
           return;
         }
 
         // Update current image with regenerated version
         this.currentImageUrl.set(editedImageUrl);
+        this.toastService.success('Image regenerated successfully!');
         this.loading.set(false);
       },
       error: (error) => {
@@ -223,7 +224,7 @@ export class AIImageEditorComponent {
           errorMsg = error.message;
         }
         
-        this.errorMessage.set(errorMsg);
+        this.toastService.error(errorMsg);
         this.loading.set(false);
       }
     });
@@ -256,7 +257,7 @@ export class AIImageEditorComponent {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
@@ -264,7 +265,6 @@ export class AIImageEditorComponent {
     const formValue = this.editForm.value;
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const request: EditImageRequest = {
       tenantId: user.tenantId,
@@ -287,7 +287,7 @@ export class AIImageEditorComponent {
         } else if (response.editedImageUrl) {
           editedImageUrl = response.editedImageUrl;
         } else {
-          this.errorMessage.set('No image data in response');
+          this.toastService.error('No image data in response');
           this.loading.set(false);
           return;
         }
@@ -312,12 +312,13 @@ export class AIImageEditorComponent {
         this.editHistory.set(newHistory);
         this.currentHistoryIndex.set(newHistory.length - 1);
         this.currentImageUrl.set(editedImageUrl);
+        this.toastService.success('Image edited successfully!');
         this.loading.set(false);
       },
       error: (error) => {
         console.error('[AI Image Editor] Error editing image:', error);
         const errorMsg = error?.error?.message || error?.message || 'Failed to edit image. Please try again.';
-        this.errorMessage.set(errorMsg);
+        this.toastService.error(errorMsg);
         this.loading.set(false);
       }
     });
@@ -371,7 +372,6 @@ export class AIImageEditorComponent {
     this.editHistory.set([]);
     this.currentHistoryIndex.set(-1);
     this.editForm.reset();
-    this.errorMessage.set(null);
   }
 }
 

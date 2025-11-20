@@ -1,0 +1,154 @@
+/* Posts Page Enterprise Styles */
+
+/* Floating Label Input Styles */
+.input-group {
+  position: relative;
+}
+
+.input-field {
+  transition: all 0.3s ease;
+}
+
+.input-field:focus,
+.input-field:not(:placeholder-shown) {
+  padding-top: 1.5rem;
+  padding-bottom: 0.75rem;
+}
+
+.input-field:focus ~ .input-label,
+.input-field:not(:placeholder-shown) ~ .input-label {
+  top: 0.5rem;
+  font-size: 0.75rem;
+  color: #4C6FFF;
+  transform: translateY(0);
+}
+
+.input-label {
+  top: 1rem;
+  font-size: 0.875rem;
+  transform: translateY(0);
+  background: white;
+  padding: 0 0.25rem;
+  margin-left: -0.25rem;
+  z-index: 5;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Table Enhancements */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+tbody tr {
+  transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+  background-color: #F5F7FF;
+  transform: scale(1.001);
+  box-shadow: 0 2px 4px rgba(76, 111, 255, 0.1);
+}
+
+/* Status Badge Hover Effect */
+tbody tr:hover td span[ng-reflect-ng-class] {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Action Buttons */
+button[title] {
+  position: relative;
+  overflow: hidden;
+}
+
+button[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1A1A1A;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  margin-bottom: 0.25rem;
+  z-index: 20;
+}
+
+/* Line Clamp Utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.875rem;
+  }
+  
+  thead th,
+  tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Filter Button Active State */
+button[class*="bg-[#4C6FFF]"] {
+  box-shadow: 0 2px 8px rgba(76, 111, 255, 0.3);
+}
+
+/* Empty State Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.empty-state-icon {
+  animation: pulse 2s ease-in-out infinite;
+}

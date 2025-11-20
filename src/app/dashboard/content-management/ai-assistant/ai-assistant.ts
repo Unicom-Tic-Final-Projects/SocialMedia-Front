@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { AIService, GenerateCaptionResponse, BestTimeToPostResponse, GenerateImageResponse, GenerateContentPlanResponse } from '../../../services/client/ai.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { AIImageEditorComponent } from '../../ai-image-editor/ai-image-editor';
 
 @Component({
@@ -16,6 +17,7 @@ export class AIAssistantComponent {
   private readonly fb = inject(FormBuilder);
   private readonly aiService = inject(AIService);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
 
   contentGenerated = output<string>();
 
@@ -24,7 +26,6 @@ export class AIAssistantComponent {
 
   // Loading states
   loading = signal(false);
-  errorMessage = signal<string | null>(null);
 
   // Caption generation
   captionForm: FormGroup;
@@ -71,7 +72,6 @@ export class AIAssistantComponent {
 
   setActiveTab(tab: 'captions' | 'content-plan' | 'best-time' | 'image' | 'image-editor'): void {
     this.activeTab.set(tab);
-    this.errorMessage.set(null);
   }
 
   // Use caption in post
@@ -97,12 +97,11 @@ export class AIAssistantComponent {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.captionForm.value;
     const request = {
@@ -119,10 +118,11 @@ export class AIAssistantComponent {
       next: (response) => {
         this.aiCaptions.set(response);
         this.loading.set(false);
+        this.toastService.success('Captions generated successfully!');
       },
       error: (error) => {
         const errorMsg = error?.error?.message || error?.message || 'Failed to generate captions. Please try again.';
-        this.errorMessage.set(errorMsg);
+        this.toastService.error(errorMsg);
         this.loading.set(false);
       }
     });
@@ -136,12 +136,11 @@ export class AIAssistantComponent {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.contentPlanForm.value;
     this.aiService.generateContentPlan({
@@ -155,9 +154,10 @@ export class AIAssistantComponent {
       next: (response) => {
         this.contentPlan.set(response);
         this.loading.set(false);
+        this.toastService.success('Content plan generated successfully!');
       },
       error: (error) => {
-        this.errorMessage.set('Failed to generate content plan. Please try again.');
+        this.toastService.error('Failed to generate content plan. Please try again.');
         this.loading.set(false);
       }
     });
@@ -193,12 +193,11 @@ export class AIAssistantComponent {
 
     const user = this.authService.user();
     if (!user || !user.tenantId) {
-      this.errorMessage.set('User not authenticated');
+      this.toastService.error('User not authenticated');
       return;
     }
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     const formValue = this.imageForm.value;
     this.aiService.generateImage({
@@ -212,9 +211,10 @@ export class AIAssistantComponent {
       next: (response) => {
         this.generatedImage.set(response);
         this.loading.set(false);
+        this.toastService.success('Image generated successfully!');
       },
       error: (error) => {
-        this.errorMessage.set('Failed to generate image. Please try again.');
+        this.toastService.error('Failed to generate image. Please try again.');
         this.loading.set(false);
       }
     });

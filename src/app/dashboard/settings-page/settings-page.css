@@ -1,0 +1,41 @@
+/* Settings Page Styles */
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation Classes */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.6s ease-out;
+}
+
+/* Tab Button Animations */
+button[class*="hover:bg-\[#BFC9FF\]"] {
+  transition: all 0.3s ease;
+}
+
+button[class*="hover:bg-\[#BFC9FF\]"]:hover {
+  transform: translateX(4px);
+}
+

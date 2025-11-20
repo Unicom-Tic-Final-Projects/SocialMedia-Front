@@ -9,43 +9,48 @@
     </button>
   </div>
 
-  @if (errorMessage()) {
-    <div class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-600 text-sm">
-      {{ errorMessage() }}
-    </div>
-  }
-
-  <form [formGroup]="postForm" class="space-y-6">
+  <form [formGroup]="postForm" class="space-y-8">
     <!-- Content Input -->
-    <div>
-      <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">
-        Post Content *
-      </label>
-      <textarea
-        formControlName="content"
-        rows="6"
-        placeholder="What's on your mind? Use AI Assistant to generate engaging content..."
-        class="w-full border border-[#D9E1FF] rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm resize-none"
-      ></textarea>
-      <div class="flex items-center justify-between mt-2">
-        <span class="text-xs text-gray-600">
-          {{ postForm.get('content')?.value?.length || 0 }} / 4000 characters
-        </span>
-        @if (postForm.get('content')?.invalid && postForm.get('content')?.touched) {
-          <span class="text-xs text-red-600">Content is required</span>
-        }
+    <div class="input-group">
+      <div class="relative">
+        <textarea
+          formControlName="content"
+          rows="6"
+          placeholder=" "
+          class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-4 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm resize-none transition-all duration-300 bg-white"
+        ></textarea>
+        <label class="input-label absolute left-4 top-4 text-gray-500 pointer-events-none transition-all duration-300 origin-left">
+          Post Content <span class="text-red-500">*</span>
+        </label>
+        <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between">
+          <span class="text-xs text-gray-500">
+            {{ postForm.get('content')?.value?.length || 0 }} / 4000 characters
+          </span>
+          @if (postForm.get('content')?.invalid && postForm.get('content')?.touched) {
+            <span class="text-xs text-red-600 animate-shake">Content is required</span>
+          }
+        </div>
       </div>
+      <p class="input-hint mt-2 text-xs text-gray-500 ml-4">Use AI Assistant to generate engaging content...</p>
     </div>
 
     <!-- Media Upload -->
-    <div>
-      <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">
-        Media (Optional)
+    <div class="input-group">
+      <label class="block text-sm font-semibold mb-3 text-[#1A1A1A]">
+        Media <span class="text-gray-500 font-normal">(Optional)</span>
       </label>
       @if (!mediaPreview()) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-          <div class="border-2 border-dashed border-[#D9E1FF] rounded-lg p-6 text-center cursor-pointer hover:bg-[#E8EDFF] transition"
-               (click)="triggerFileInput()">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+          <div class="drop-zone media-upload-card border-2 border-dashed rounded-xl p-8 text-center cursor-pointer bg-white transition-all duration-300"
+               [class.border-[#4C6FFF]]="isDragging()"
+               [class.border-[#D9E1FF]]="!isDragging()"
+               [class.bg-[#F5F7FF]]="isDragging()"
+               [class.scale-105]="isDragging()"
+               [class.shadow-lg]="isDragging()"
+               (click)="triggerFileInput()"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               (drop)="onDrop($event)">
             <input
               #fileInput
               type="file"
@@ -53,32 +58,55 @@
               (change)="onFileSelected($event)"
               class="hidden"
             />
-            <i class="fa-solid fa-cloud-arrow-up text-3xl text-[#4C6FFF] mb-2"></i>
-            <p class="text-sm font-medium text-[#1A1A1A] mb-1">Upload New</p>
-            <p class="text-xs text-gray-500">Images up to 10MB, Videos up to 100MB</p>
+            <div class="mb-3">
+              @if (isDragging()) {
+                <i class="fa-solid fa-file-arrow-down text-4xl text-[#4C6FFF] animate-bounce"></i>
+              } @else {
+                <i class="fa-solid fa-cloud-arrow-up text-4xl text-[#4C6FFF]"></i>
+              }
+            </div>
+            @if (isDragging()) {
+              <p class="text-sm font-semibold text-[#4C6FFF] mb-2">Drop your file here</p>
+              <p class="text-xs text-gray-500">Release to upload</p>
+            } @else {
+              <p class="text-sm font-semibold text-[#1A1A1A] mb-2">Upload New</p>
+              <p class="text-xs text-gray-500">Drag & drop or click to select</p>
+              <p class="text-xs text-gray-500 mt-1">Images up to 10MB, Videos up to 100MB</p>
+            }
           </div>
           <button
             type="button"
             (click)="openMediaLibrary()"
-            class="border-2 border-dashed border-[#4C6FFF] rounded-lg p-6 text-center hover:bg-[#E8EDFF] transition">
-            <i class="fa-solid fa-images text-3xl text-[#4C6FFF] mb-2"></i>
-            <p class="text-sm font-medium text-[#1A1A1A] mb-1">Select from Library</p>
+            class="media-upload-card border-2 border-dashed border-[#4C6FFF] rounded-xl p-8 text-center bg-white">
+            <div class="mb-3">
+              <i class="fa-solid fa-images text-4xl text-[#4C6FFF]"></i>
+            </div>
+            <p class="text-sm font-semibold text-[#1A1A1A] mb-2">Select from Library</p>
             <p class="text-xs text-gray-500">Choose existing media</p>
           </button>
         </div>
       } @else {
         <div class="relative">
-          <img [src]="mediaPreview()!" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF]" />
+          @if (isVideo()) {
+            <video 
+              [src]="mediaPreview()!" 
+              controls
+              class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF] bg-black">
+              Your browser does not support the video tag.
+            </video>
+          } @else {
+            <img [src]="mediaPreview()!" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF]" />
+          }
           <button
             type="button"
-            (click)="selectedFile.set(null); mediaPreview.set(null); uploadedMediaId.set(null)"
-            class="absolute top-2 right-2 bg-white/90 hover:bg-white border border-gray-300 rounded-lg p-2 transition"
+            (click)="selectedFile.set(null); mediaPreview.set(null); uploadedMediaId.set(null); isVideo.set(false)"
+            class="absolute top-2 right-2 bg-white/90 hover:bg-white border border-gray-300 rounded-lg p-2 transition z-10"
             [title]="'Remove media'">
             <i class="fa-solid fa-times text-gray-700"></i>
           </button>
-          <div class="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-xs">
+          <div class="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-xs z-10">
             <i class="fa-solid fa-check-circle mr-1"></i>
-            Media Selected
+            {{ isVideo() ? 'Video' : 'Image' }} Selected
           </div>
         </div>
         <div class="mt-2 flex gap-2">
@@ -99,51 +127,76 @@
         </div>
       }
       @if (uploading()) {
-        <div class="mt-2 text-sm text-gray-600">
-          <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
-          Uploading...
+        <div class="mt-4 space-y-2">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600 font-medium">
+              <i class="fa-solid fa-cloud-arrow-up mr-2"></i>
+              Uploading...
+            </span>
+            <span class="text-[#4C6FFF] font-semibold">{{ uploadProgress() }}%</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+            <div 
+              class="bg-[#4C6FFF] h-2.5 rounded-full transition-all duration-300 ease-out"
+              [style.width.%]="uploadProgress()">
+            </div>
+          </div>
+          <p class="text-xs text-gray-500">
+            @if (uploadProgress() < 50) {
+              Starting upload...
+            } @else if (uploadProgress() < 90) {
+              Uploading in progress...
+            } @else {
+              Almost done...
+            }
+          </p>
         </div>
       }
     </div>
 
     <!-- Social Media Platforms -->
-    <div>
-      <label class="block text-sm font-semibold mb-3 text-[#1A1A1A]">
-        Select Platforms *
+    <div class="input-group">
+      <label class="block text-sm font-semibold mb-4 text-[#1A1A1A]">
+        Select Platforms <span class="text-red-500">*</span>
       </label>
       @if (loadingAccounts()) {
-        <div class="text-center py-8">
-          <i class="fa-solid fa-circle-notch animate-spin text-2xl text-[#4C6FFF]"></i>
-          <p class="text-sm text-gray-600 mt-2">Loading accounts...</p>
+        <div class="text-center py-12 bg-white rounded-xl border-2 border-[#D9E1FF]">
+          <i class="fa-solid fa-circle-notch animate-spin text-3xl text-[#4C6FFF] mb-3"></i>
+          <p class="text-sm text-gray-600">Loading accounts...</p>
         </div>
       } @else if (socialAccounts().length === 0) {
-        <div class="border border-[#D9E1FF] rounded-lg p-6 text-center bg-white">
-          <i class="fa-solid fa-exclamation-circle text-3xl text-gray-400 mb-3"></i>
-          <p class="text-sm text-gray-600 mb-3">No social accounts connected</p>
-          <a routerLink="/dashboard/social-account" class="text-[#4C6FFF] hover:underline text-sm font-medium">
-            Connect Social Accounts →
+        <div class="border-2 border-dashed border-[#D9E1FF] rounded-xl p-8 text-center bg-white">
+          <i class="fa-solid fa-exclamation-circle text-4xl text-gray-400 mb-4"></i>
+          <p class="text-sm text-gray-600 mb-4">No social accounts connected</p>
+          <a routerLink="/dashboard/social-account" class="inline-flex items-center gap-2 text-[#4C6FFF] hover:text-[#3A56CC] font-medium text-sm transition-colors">
+            Connect Social Accounts
+            <i class="fa-solid fa-arrow-right"></i>
           </a>
         </div>
       } @else {
-        <div class="space-y-3">
+        <div class="space-y-4">
           @for (platform of getAccountsByPlatform() | keyvalue; track platform.key) {
-            <div class="border border-[#D9E1FF] rounded-lg p-4 bg-white">
-              <div class="flex items-center gap-2 mb-3">
-                <i class="fa-brands fa-{{ platform.key.toLowerCase() }} text-xl text-[#4C6FFF]"></i>
-                <span class="font-semibold text-sm text-[#1A1A1A]">{{ platform.key }}</span>
+            <div class="border-2 border-[#D9E1FF] rounded-xl p-5 bg-white hover:border-[#4C6FFF]/50 transition-all duration-300">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-10 h-10 rounded-lg bg-[#F5F7FF] flex items-center justify-center">
+                  <i class="fa-brands fa-{{ platform.key.toLowerCase() }} text-xl text-[#4C6FFF]"></i>
+                </div>
+                <span class="font-semibold text-base text-[#1A1A1A]">{{ platform.key }}</span>
               </div>
               <div class="space-y-2">
                 @for (account of platform.value; track account.id) {
-                  <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-[#F5F7FF] cursor-pointer">
+                  <label class="social-account-item flex items-center gap-3 p-3 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#D9E1FF] transition-all duration-300"
+                         [class.bg-[#E8EDFF]]="selectedAccountIds().includes(account.id)"
+                         [class.border-[#4C6FFF]]="selectedAccountIds().includes(account.id)">
                     <input
                       type="checkbox"
                       [checked]="selectedAccountIds().includes(account.id)"
                       (change)="toggleAccountSelection(account.id)"
-                      class="w-4 h-4 text-[#4C6FFF] border-[#D9E1FF] rounded focus:ring-[#4C6FFF]"
+                      class="checkbox-custom w-5 h-5 text-[#4C6FFF] border-2 border-[#D9E1FF] rounded focus:ring-2 focus:ring-[#4C6FFF]/20 cursor-pointer transition-all duration-300"
                     />
                     <div class="flex-1">
                       <p class="text-sm font-medium text-[#1A1A1A]">{{ account.accountName }}</p>
-                      <p class="text-xs text-gray-600">{{ account.platform }}</p>
+                      <p class="text-xs text-gray-500">{{ account.platform }}</p>
                     </div>
                   </label>
                 }
@@ -152,31 +205,41 @@
           }
         </div>
         @if (selectedAccountIds().length === 0 && postForm.touched) {
-          <p class="text-xs text-red-600 mt-2">Please select at least one platform</p>
+          <p class="text-xs text-red-600 mt-3 animate-shake flex items-center gap-1">
+            <i class="fa-solid fa-exclamation-circle"></i>
+            Please select at least one platform
+          </p>
         }
       }
     </div>
 
     <!-- Schedule Option -->
-    <div>
-      <label class="flex items-center gap-2 mb-2">
-        <input
-          type="checkbox"
-          formControlName="saveAsDraft"
-          class="w-4 h-4 text-[#4C6FFF] border-[#D9E1FF] rounded focus:ring-[#4C6FFF]"
-        />
-        <span class="text-sm font-medium text-[#1A1A1A]">Save as Draft</span>
+    <div class="space-y-4">
+      <label class="flex items-center gap-3 cursor-pointer group">
+        <div class="relative">
+          <input
+            type="checkbox"
+            formControlName="saveAsDraft"
+            class="checkbox-input w-5 h-5 text-[#4C6FFF] border-2 border-[#D9E1FF] rounded focus:ring-2 focus:ring-[#4C6FFF]/20 cursor-pointer transition-all duration-300"
+          />
+          <div class="checkbox-checkmark absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none">
+            <i class="fa-solid fa-check text-white text-xs"></i>
+          </div>
+        </div>
+        <span class="text-sm font-medium text-[#1A1A1A] group-hover:text-[#4C6FFF] transition-colors duration-300">Save as Draft</span>
       </label>
       @if (!postForm.get('saveAsDraft')?.value) {
-        <div class="mt-3">
-          <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">
-            Schedule Post (Optional)
-          </label>
-          <input
-            type="datetime-local"
-            formControlName="scheduledAt"
-            class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
-          />
+        <div class="input-group animate-slideDown">
+          <div class="relative">
+            <input
+              type="datetime-local"
+              formControlName="scheduledAt"
+              class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
+            />
+            <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              Schedule Post (Optional)
+            </label>
+          </div>
         </div>
       }
     </div>
@@ -229,7 +292,7 @@
     <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeMediaLibrary()">
       <div (click)="$event.stopPropagation()">
         <app-media-selector
-          (mediaSelected)="selectMediaFromLibrary($event.id, $event.url)"
+          (mediaSelected)="selectMediaFromLibrary($event.id, $event.url, $event.fileType)"
           (close)="closeMediaLibrary()">
         </app-media-selector>
       </div>

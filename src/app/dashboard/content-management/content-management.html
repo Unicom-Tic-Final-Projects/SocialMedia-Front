@@ -1,161 +1,257 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-3 sm:p-4 md:p-6">
-  <!-- Header -->
-  <div class="mb-4 sm:mb-6 md:mb-8">
-    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
-      <i class="fa-solid fa-folder-open text-[#4C6FFF]"></i>
-      Content Management
-    </h1>
-    <p class="text-gray-600 text-xs sm:text-sm">Create, manage, and schedule your social media content</p>
-  </div>
-
-  <!-- Statistics Cards -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
-    <div class="bg-[#F5F7FF] rounded-xl p-4 border border-[#D9E1FF]">
+<div class="min-h-screen bg-[#F8F9FA] text-[#222222] animate-fadeIn">
+  <!-- Enterprise Header Section -->
+  <div class="bg-white border-b border-[#D9E1FF] sticky top-0 z-30 shadow-sm">
+    <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-gray-600 mb-1">Total Posts</p>
-          @if (loadingStats()) {
-            <i class="fa-solid fa-circle-notch animate-spin text-xl text-[#4C6FFF]"></i>
-          } @else {
-            <p class="text-2xl font-bold text-[#1A1A1A]">{{ totalPosts() }}</p>
-          }
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3">
+            <i class="fa-solid fa-folder-open text-[#4C6FFF]"></i>
+            Content Management
+          </h1>
+          <p class="text-gray-600 text-xs sm:text-sm">Create, manage, and schedule your social media content</p>
         </div>
-        <i class="fa-solid fa-file-alt text-2xl text-[#4C6FFF]"></i>
-      </div>
-    </div>
-    <div class="bg-[#F5F7FF] rounded-xl p-4 border border-[#D9E1FF]">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs text-gray-600 mb-1">Drafts</p>
-          @if (loadingStats()) {
-            <i class="fa-solid fa-circle-notch animate-spin text-xl text-[#4C6FFF]"></i>
-          } @else {
-            <p class="text-2xl font-bold text-[#1A1A1A]">{{ draftCount() }}</p>
-          }
-        </div>
-        <i class="fa-solid fa-edit text-2xl text-[#4C6FFF]"></i>
-      </div>
-    </div>
-    <div class="bg-[#F5F7FF] rounded-xl p-4 border border-[#D9E1FF]">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs text-gray-600 mb-1">Scheduled</p>
-          @if (loadingStats()) {
-            <i class="fa-solid fa-circle-notch animate-spin text-xl text-[#4C6FFF]"></i>
-          } @else {
-            <p class="text-2xl font-bold text-[#1A1A1A]">{{ scheduledCount() }}</p>
-          }
-        </div>
-        <i class="fa-solid fa-clock text-2xl text-[#4C6FFF]"></i>
-      </div>
-    </div>
-    <div class="bg-[#F5F7FF] rounded-xl p-4 border border-[#D9E1FF]">
-      <div class="flex items-center justify-between">
-        <div>
-          <p class="text-xs text-gray-600 mb-1">Media Files</p>
-          @if (loadingStats()) {
-            <i class="fa-solid fa-circle-notch animate-spin text-xl text-[#4C6FFF]"></i>
-          } @else {
-            <p class="text-2xl font-bold text-[#1A1A1A]">{{ mediaCount() }}</p>
-          }
-        </div>
-        <i class="fa-solid fa-images text-2xl text-[#4C6FFF]"></i>
+        <!-- Quick Action Button -->
+        <button
+          (click)="setActiveTab('create')"
+          class="hidden sm:flex items-center gap-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-semibold px-4 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
+          <i class="fa-solid fa-plus"></i>
+          <span>New Post</span>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="bg-[#F5F7FF] rounded-xl shadow-md p-2 mb-6 border border-[#D9E1FF] overflow-x-auto">
-    <div class="flex flex-wrap gap-2 min-w-max sm:min-w-0">
-      <button
-        (click)="setActiveTab('create')"
-        [class.bg-[#4C6FFF]]="activeTab() === 'create'"
-        [class.text-white]="activeTab() === 'create'"
-        [class.text-[#1A1A1A]]="activeTab() !== 'create'"
-        class="px-4 py-2 rounded-lg font-medium transition text-sm"
-      >
-        <i class="fa-solid fa-plus-circle mr-2"></i>
-        Create Post
-      </button>
-      <button
-        (click)="setActiveTab('library')"
-        [class.bg-[#4C6FFF]]="activeTab() === 'library'"
-        [class.text-white]="activeTab() === 'library'"
-        [class.text-[#1A1A1A]]="activeTab() !== 'library'"
-        class="px-4 py-2 rounded-lg font-medium transition text-sm"
-      >
-        <i class="fa-solid fa-images mr-2"></i>
-        Content Library
-      </button>
-      <button
-        (click)="setActiveTab('drafts')"
-        [class.bg-[#4C6FFF]]="activeTab() === 'drafts'"
-        [class.text-white]="activeTab() === 'drafts'"
-        [class.text-[#1A1A1A]]="activeTab() !== 'drafts'"
-        class="px-4 py-2 rounded-lg font-medium transition text-sm"
-      >
-        <i class="fa-solid fa-edit mr-2"></i>
-        Drafts
-        @if (draftCount() > 0) {
-          <span class="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-xs">{{ draftCount() }}</span>
+  <!-- Statistics Overview Bar -->
+  <div class="bg-white border-b border-[#D9E1FF] px-4 sm:px-6 lg:px-8 py-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      @if (loadingStats()) {
+        @for (card of [1,2,3,4]; track card) {
+          <div class="skeleton-stat-card">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="skeleton skeleton-text w-20 mb-2" style="height: 0.875em;"></div>
+                <div class="skeleton skeleton-text w-12 mb-2" style="height: 2em;"></div>
+              </div>
+              <div class="skeleton skeleton-circle w-10 h-10"></div>
+            </div>
+          </div>
         }
-      </button>
-      <button
-        (click)="setActiveTab('scheduled')"
-        [class.bg-[#4C6FFF]]="activeTab() === 'scheduled'"
-        [class.text-white]="activeTab() === 'scheduled'"
-        [class.text-[#1A1A1A]]="activeTab() !== 'scheduled'"
-        class="px-4 py-2 rounded-lg font-medium transition text-sm"
-      >
-        <i class="fa-solid fa-calendar-check mr-2"></i>
-        Scheduled
-        @if (scheduledCount() > 0) {
-          <span class="ml-2 px-2 py-0.5 bg-white/20 rounded-full text-xs">{{ scheduledCount() }}</span>
-        }
-      </button>
-      <button
-        (click)="setActiveTab('calendar')"
-        [class.bg-[#4C6FFF]]="activeTab() === 'calendar'"
-        [class.text-white]="activeTab() === 'calendar'"
-        [class.text-[#1A1A1A]]="activeTab() !== 'calendar'"
-        class="px-4 py-2 rounded-lg font-medium transition text-sm"
-      >
-        <i class="fa-solid fa-calendar-alt mr-2"></i>
-        Calendar
-      </button>
-      <button
-        (click)="setActiveTab('ai-assistant')"
-        [class.bg-[#4C6FFF]]="activeTab() === 'ai-assistant'"
-        [class.text-white]="activeTab() === 'ai-assistant'"
-        [class.text-[#1A1A1A]]="activeTab() !== 'ai-assistant'"
-        class="px-4 py-2 rounded-lg font-medium transition text-sm"
-      >
-        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>
-        AI Assistant
-      </button>
+      } @else {
+        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Total Posts</p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">{{ totalPosts() }}</p>
+            </div>
+            <div class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-file-alt text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Drafts</p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">{{ draftCount() }}</p>
+            </div>
+            <div class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-edit text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Scheduled</p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">{{ scheduledCount() }}</p>
+            </div>
+            <div class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-clock text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Media Files</p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">{{ mediaCount() }}</p>
+            </div>
+            <div class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-images text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Tab Content -->
-  <div class="content-tab-container">
-    @if (activeTab() === 'create') {
-      <app-post-creator></app-post-creator>
-    }
-    @if (activeTab() === 'library') {
-      <app-content-library></app-content-library>
-    }
-    @if (activeTab() === 'drafts') {
-      <app-draft-manager></app-draft-manager>
-    }
-    @if (activeTab() === 'scheduled') {
-      <app-scheduled-posts></app-scheduled-posts>
-    }
-    @if (activeTab() === 'calendar') {
-      <app-content-calendar></app-content-calendar>
-    }
-    @if (activeTab() === 'ai-assistant') {
-      <app-ai-assistant></app-ai-assistant>
-    }
+  <!-- Main Content Area with Sidebar Navigation -->
+  <div class="flex flex-col lg:flex-row gap-0 lg:gap-6 px-4 sm:px-6 lg:px-8 py-6">
+    <!-- Sidebar Navigation (Desktop) -->
+    <aside class="hidden lg:block w-64 flex-shrink-0">
+      <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-2 sticky top-24">
+        <nav class="space-y-1">
+          <button
+            (click)="setActiveTab('create')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'create'"
+            [class.text-white]="activeTab() === 'create'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'create'"
+            [class.shadow-md]="activeTab() === 'create'"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
+            <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+            <span>Create Post</span>
+          </button>
+          <button
+            (click)="setActiveTab('library')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'library'"
+            [class.text-white]="activeTab() === 'library'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'library'"
+            [class.shadow-md]="activeTab() === 'library'"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
+            <i class="fa-solid fa-images w-5 text-center"></i>
+            <span>Content Library</span>
+          </button>
+          <button
+            (click)="setActiveTab('drafts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'drafts'"
+            [class.text-white]="activeTab() === 'drafts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'drafts'"
+            [class.shadow-md]="activeTab() === 'drafts'"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
+            <i class="fa-solid fa-edit w-5 text-center"></i>
+            <span>Drafts</span>
+            @if (draftCount() > 0) {
+              <span class="ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold">{{ draftCount() }}</span>
+            }
+          </button>
+          <button
+            (click)="setActiveTab('scheduled')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'scheduled'"
+            [class.text-white]="activeTab() === 'scheduled'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'scheduled'"
+            [class.shadow-md]="activeTab() === 'scheduled'"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
+            <i class="fa-solid fa-calendar-check w-5 text-center"></i>
+            <span>Scheduled</span>
+            @if (scheduledCount() > 0) {
+              <span class="ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold">{{ scheduledCount() }}</span>
+            }
+          </button>
+          <button
+            (click)="setActiveTab('calendar')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'calendar'"
+            [class.text-white]="activeTab() === 'calendar'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'calendar'"
+            [class.shadow-md]="activeTab() === 'calendar'"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
+            <i class="fa-solid fa-calendar-alt w-5 text-center"></i>
+            <span>Calendar</span>
+          </button>
+          <button
+            (click)="setActiveTab('ai-assistant')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'ai-assistant'"
+            [class.text-white]="activeTab() === 'ai-assistant'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'ai-assistant'"
+            [class.shadow-md]="activeTab() === 'ai-assistant'"
+            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
+            <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i>
+            <span>AI Assistant</span>
+          </button>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Mobile/Tablet Horizontal Tabs -->
+    <div class="lg:hidden mb-6">
+      <div class="bg-white rounded-xl shadow-sm p-2 border border-[#D9E1FF] overflow-x-auto">
+        <div class="flex gap-2 min-w-max">
+          <button
+            (click)="setActiveTab('create')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'create'"
+            [class.text-white]="activeTab() === 'create'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'create'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-plus-circle mr-2"></i>
+            Create
+          </button>
+          <button
+            (click)="setActiveTab('library')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'library'"
+            [class.text-white]="activeTab() === 'library'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'library'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-images mr-2"></i>
+            Library
+          </button>
+          <button
+            (click)="setActiveTab('drafts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'drafts'"
+            [class.text-white]="activeTab() === 'drafts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'drafts'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-edit mr-2"></i>
+            Drafts
+            @if (draftCount() > 0) {
+              <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">{{ draftCount() }}</span>
+            }
+          </button>
+          <button
+            (click)="setActiveTab('scheduled')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'scheduled'"
+            [class.text-white]="activeTab() === 'scheduled'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'scheduled'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-calendar-check mr-2"></i>
+            Scheduled
+            @if (scheduledCount() > 0) {
+              <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">{{ scheduledCount() }}</span>
+            }
+          </button>
+          <button
+            (click)="setActiveTab('calendar')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'calendar'"
+            [class.text-white]="activeTab() === 'calendar'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'calendar'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-calendar-alt mr-2"></i>
+            Calendar
+          </button>
+          <button
+            (click)="setActiveTab('ai-assistant')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'ai-assistant'"
+            [class.text-white]="activeTab() === 'ai-assistant'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'ai-assistant'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>
+            AI
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0">
+      <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-4 sm:p-6 lg:p-8 animate-fadeIn">
+        @if (activeTab() === 'create') {
+          <app-post-creator class="animate-slideIn"></app-post-creator>
+        }
+        @if (activeTab() === 'library') {
+          <app-content-library class="animate-slideIn"></app-content-library>
+        }
+        @if (activeTab() === 'drafts') {
+          <app-draft-manager class="animate-slideIn"></app-draft-manager>
+        }
+        @if (activeTab() === 'scheduled') {
+          <app-scheduled-posts class="animate-slideIn"></app-scheduled-posts>
+        }
+        @if (activeTab() === 'calendar') {
+          <app-content-calendar class="animate-slideIn"></app-content-calendar>
+        }
+        @if (activeTab() === 'ai-assistant') {
+          <app-ai-assistant class="animate-slideIn"></app-ai-assistant>
+        }
+      </div>
+    </main>
   </div>
 </div>
 

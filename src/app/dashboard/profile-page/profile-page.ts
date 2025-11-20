@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../services/client/profile.service';
 import { ClientContextService } from '../../services/client/client-context.service';
 import { UserProfile } from '../../models/social.models';
@@ -16,6 +17,7 @@ import { UserProfile } from '../../models/social.models';
 export class ProfilePage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly profileService = inject(ProfileService);
+  private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   readonly clientContextService = inject(ClientContextService);
@@ -127,7 +129,7 @@ export class ProfilePage implements OnInit {
 
     // If viewing client dashboard, don't allow saving (read-only view)
     if (this.isViewingClient()) {
-      alert('Cannot edit client profile from agency dashboard. This is a read-only view.');
+      this.toastService.warning('Cannot edit client profile from agency dashboard. This is a read-only view.');
       return;
     }
 
@@ -142,13 +144,12 @@ export class ProfilePage implements OnInit {
       next: (updatedProfile) => {
         this.profile.set(updatedProfile);
         this.saving.set(false);
-        // Show success message (you can add a toast notification here)
-        alert('Profile updated successfully!');
+        this.toastService.success('Profile updated successfully!');
       },
       error: (error) => {
         console.error('Error updating profile:', error);
         this.saving.set(false);
-        alert('Failed to update profile. Please try again.');
+        this.toastService.error('Failed to update profile. Please try again.');
       }
     });
   }
