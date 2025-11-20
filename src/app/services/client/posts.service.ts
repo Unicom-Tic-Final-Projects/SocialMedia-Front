@@ -253,8 +253,9 @@ export class PostsService {
 
   /**
    * Publish a post immediately
+   * Returns an object with success status and message for partial success handling
    */
-  publishPost(postId: string): Observable<void> {
+  publishPost(postId: string): Observable<{ success: boolean; message: string }> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
@@ -267,7 +268,13 @@ export class PostsService {
         this.refreshPosts().subscribe();
         this.loadingSignal.set(false);
       }),
-      map(() => void 0), // Convert to void Observable
+      map((response) => {
+        // Return response with message for partial success handling
+        return { 
+          success: response?.success !== false && response?.data === true, 
+          message: response?.message || 'Post published successfully' 
+        };
+      }),
       catchError((error) => {
         console.error('Publish error:', error);
         const errorMessage = error?.error?.message || error?.userMessage || error?.message || 'Failed to publish post';

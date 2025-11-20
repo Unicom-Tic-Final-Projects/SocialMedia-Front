@@ -50,6 +50,8 @@ export class PostEditor implements OnInit {
   mediaPreview = signal<string | null>(null);
   uploadedMediaId = signal<string | null>(null);
   uploading = this.mediaService.uploading;
+  isDragging = signal(false);
+  isVideo = signal(false);
 
   // Social accounts
   socialAccounts = signal<SocialAccount[]>([]);
@@ -387,20 +389,68 @@ export class PostEditor implements OnInit {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      const file = input.files[0];
+      this.handleFile(input.files[0]);
+      // Reset the file input to allow selecting the same file again
+      input.value = '';
+    }
+  }
+
+  /**
+   * Handle file (used by both file input and drag & drop)
+   */
+  handleFile(file: File): void {
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
+      this.toastService.error('File size exceeds 10MB limit. Please choose a smaller file.');
+      return;
+    }
+
+    // Validate file type
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (!isImage && !isVideo) {
+      this.toastService.error('Invalid file type. Please upload an image or video file.');
+      return;
+    }
+
       this.selectedFile.set(file);
+    this.isVideo.set(isVideo);
 
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        // CRITICAL: Setting mediaPreview signal will automatically trigger step1Valid to recalculate
-        // The computed signal reactivity handles the update - no manual validation needed
+      // CRITICAL: Setting mediaPreview signal will automatically trigger step1Valid to recalculate
+      // The computed signal reactivity handles the update - no manual validation needed
         this.mediaPreview.set(e.target?.result as string);
       };
       reader.readAsDataURL(file);
-      
-      // Reset the file input to allow selecting the same file again
-      input.value = '';
+  }
+
+  /**
+   * Drag and drop handlers
+   */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFile(files[0]);
     }
   }
 
@@ -411,6 +461,7 @@ export class PostEditor implements OnInit {
     this.selectedFile.set(null);
     this.mediaPreview.set(null);
     this.uploadedMediaId.set(null);
+    this.isVideo.set(false);
     
     // CRITICAL: Clearing mediaPreview signal will trigger step1Valid to recalculate
     // The computed signal will automatically detect the change and update
@@ -443,6 +494,8 @@ export class PostEditor implements OnInit {
         // Also update preview URL to the Cloudinary URL returned from backend
         if (response.url) {
           this.mediaPreview.set(response.url);
+          // Save draft with updated media URL and type
+          this.saveStep1ToDraft();
         }
       }),
       switchMap((response) => {
@@ -554,7 +607,8 @@ export class PostEditor implements OnInit {
     
     const content = this.postForm.get('content')?.value || '';
     const mediaUrl = this.mediaPreview();
-    const mediaType = mediaUrl ? (this.detectedMediaType() === 'video' ? 'video' : 'image') : undefined;
+    // Use isVideo signal for more reliable detection
+    const mediaType = mediaUrl ? (this.isVideo() ? 'video' : 'image') : undefined;
     
     this.postDraftService.updateDraft({
       caption: content,
@@ -626,10 +680,10 @@ export class PostEditor implements OnInit {
     // Can only go forward if all previous steps are completed
     if (step > this.currentStep()) {
       // Check all previous steps are complete
-      for (let i = 1; i < step; i++) {
+    for (let i = 1; i < step; i++) {
         if (!this.isStepComplete(i)) {
-          return false;
-        }
+        return false;
+      }
       }
     }
     return true;
@@ -938,7 +992,35 @@ export class PostEditor implements OnInit {
         const platformCropConfigs = draft?.platformCropConfigs || this.platformCropConfigs();
         const platformCroppedImages = draft?.platformCroppedImages || this.platformCroppedImages();
         
-        // Upload cropped images for each platform and get mediaIds
+        // For videos, use the original uploaded media (videos cannot be cropped)
+        if (this.isVideo() || draft?.mediaType === 'video') {
+          // Use the already uploaded media ID for videos
+          const request = this.isEditMode() 
+            ? {
+                content: formValue.content,
+                mediaId: mediaId,
+                socialAccountIds: accountIds,
+                scheduledAt: undefined,
+                platformCropConfigs: undefined, // No crop configs for videos
+              }
+            : {
+                clientId: activeClient.id,
+                createdByTeamMemberId: user.userId,
+                content: formValue.content,
+                mediaId: mediaId,
+                socialAccountIds: accountIds,
+                scheduledAt: undefined,
+                platformCropConfigs: undefined, // No crop configs for videos
+              };
+          
+          const apiCall = this.isEditMode()
+            ? this.postsService.updatePost(this.postId()!, request as UpdatePostRequest)
+            : this.postsService.createPost(request as CreatePostRequest);
+          
+          return apiCall;
+        }
+        
+        // For images, upload cropped images for each platform and get mediaIds
         // For now, we'll use the first platform's cropped image as the main mediaId
         // In the future, this could be expanded to support per-platform media
         const selectedPlatforms = draft?.selectedPlatforms || [];
@@ -1007,27 +1089,27 @@ export class PostEditor implements OnInit {
               switchMap((mediaResponse) => {
                 croppedMediaId = mediaResponse.mediaId;
                 
-                if (this.isEditMode()) {
-                  const updateRequest: UpdatePostRequest = {
-                    content: formValue.content,
+        if (this.isEditMode()) {
+          const updateRequest: UpdatePostRequest = {
+            content: formValue.content,
                     mediaId: croppedMediaId,
                     socialAccountIds: accountIds,
-                    scheduledAt: undefined,
+            scheduledAt: undefined,
                     platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
-                  };
-                  return this.postsService.updatePost(this.postId()!, updateRequest);
-                } else {
-                  const createRequest: CreatePostRequest = {
-                    clientId: activeClient.id,
-                    createdByTeamMemberId: user.userId,
-                    content: formValue.content,
+          };
+          return this.postsService.updatePost(this.postId()!, updateRequest);
+        } else {
+          const createRequest: CreatePostRequest = {
+            clientId: activeClient.id,
+            createdByTeamMemberId: user.userId,
+            content: formValue.content,
                     mediaId: croppedMediaId,
                     socialAccountIds: accountIds,
-                    scheduledAt: undefined,
+            scheduledAt: undefined,
                     platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
-                  };
-                  return this.postsService.createPost(createRequest);
-                }
+          };
+          return this.postsService.createPost(createRequest);
+        }
               })
             );
           }
@@ -1055,23 +1137,47 @@ export class PostEditor implements OnInit {
           switchMap(() => {
             console.log('Calling publishPost with ID:', post.id);
             return this.postsService.publishPost(post.id).pipe(
-              tap(() => console.log('PublishPost returned successfully')),
+              tap((response) => {
+                console.log('PublishPost returned successfully:', response);
+                // Store the message for display in the success handler
+                if (response?.message) {
+                  (post as any).publishMessage = response.message;
+                }
+              }),
               catchError((error) => {
                 console.error('Error in publishPost observable:', error);
                 return throwError(() => error);
               }),
-              map(() => post)
+              map((response) => {
+                // Attach the publish response message to the post object
+                (post as any).publishMessage = response.message;
+                return post;
+              })
             );
           })
         );
       })
     ).subscribe({
-      next: () => {
+      next: (post) => {
         console.log('Publish flow completed successfully');
         this.saving.set(false);
         // Defer toast to avoid change detection errors
         setTimeout(() => {
-          this.toastService.success('Post published successfully!');
+          // Check if there's a detailed message from the backend (for partial success)
+          const publishMessage = (post as any)?.publishMessage;
+          if (publishMessage && publishMessage.includes('out of')) {
+            // Partial success - show as info/warning with details
+            if (publishMessage.includes('Failed to publish to')) {
+              // Some platforms failed - show as warning
+              this.toastService.warning('Partial Publishing Success', publishMessage);
+            } else {
+              // All succeeded or partial with details
+              this.toastService.success('Post Published', publishMessage);
+            }
+          } else {
+            // Full success
+            this.toastService.success('Post published successfully!');
+          }
         }, 0);
         this.router.navigate(['/dashboard/posts']);
       },

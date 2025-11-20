@@ -208,12 +208,21 @@
           <!-- Enhanced Media Upload Section -->
           <div class="space-y-4">
             <label class="block text-[#1A1A1A] font-semibold text-sm uppercase tracking-wider">
-              <i class="fa-solid fa-image mr-2"></i>Add Media *
+              <i class="fa-solid fa-photo-film mr-2"></i>Add Media (Image or Video) *
             </label>
 
             @if (mediaPreview()) {
               <div class="relative group rounded-xl overflow-hidden border-2 border-[#D9E1FF]">
-                <img [src]="mediaPreview()!" class="w-full h-48 sm:h-64 object-cover" />
+                @if (isVideo()) {
+                  <video 
+                    [src]="mediaPreview()!" 
+                    class="w-full h-48 sm:h-64 object-cover"
+                    controls
+                    preload="metadata"
+                  ></video>
+                } @else {
+                  <img [src]="mediaPreview()!" class="w-full h-48 sm:h-64 object-cover" />
+                }
                 <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button
                     (click)="removeMedia()"
@@ -223,30 +232,48 @@
                     Remove
                   </button>
                 </div>
+                @if (isVideo()) {
+                  <div class="absolute top-2 right-2 bg-[#4C6FFF] text-white px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-video"></i>
+                    Video
+                  </div>
+                }
               </div>
             } @else {
-              <label
+              <div
                 class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-xl cursor-pointer 
                        bg-gradient-to-br from-[#F5F7FF] to-white transition-all duration-300 hover:border-[#4C6FFF] hover:shadow-md group"
-                [class.border-[#4C6FFF]]="false"
-                [class.border-[#D9E1FF]]="true"
+                [class.border-[#4C6FFF]]="isDragging()"
+                [class.bg-[#4C6FFF]/5]="isDragging()"
+                [class.border-[#D9E1FF]]="!isDragging()"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event)"
               >
-                <div class="flex flex-col items-center justify-center">
-                  <div class="w-16 h-16 bg-[#4C6FFF]/10 rounded-full flex items-center justify-center mb-3 group-hover:bg-[#4C6FFF]/20 transition-colors">
-                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-[#4C6FFF]"></i>
+                <label class="flex flex-col items-center justify-center w-full h-full cursor-pointer">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="w-16 h-16 bg-[#4C6FFF]/10 rounded-full flex items-center justify-center mb-3 group-hover:bg-[#4C6FFF]/20 transition-colors"
+                         [class.bg-[#4C6FFF]/20]="isDragging()">
+                      <i class="fa-solid fa-cloud-arrow-up text-2xl text-[#4C6FFF]"
+                         [class.animate-bounce]="isDragging()"></i>
+                    </div>
+                    <p class="mb-1 text-sm font-semibold text-[#1A1A1A]">
+                      @if (isDragging()) {
+                        <span class="text-[#4C6FFF]">Drop file here</span>
+                      } @else {
+                        <span class="text-[#4C6FFF]">Click to upload</span> or drag and drop
+                      }
+                    </p>
+                    <p class="text-xs text-gray-500">Images (PNG, JPG, GIF) & Videos (MP4, MOV) - MAX. 10MB</p>
                   </div>
-                  <p class="mb-1 text-sm font-semibold text-[#1A1A1A]">
-                    <span class="text-[#4C6FFF]">Click to upload</span> or drag and drop
-                  </p>
-                  <p class="text-xs text-gray-500">PNG, JPG, GIF, MP4 (MAX. 10MB)</p>
-                </div>
-                <input
-                  type="file"
-                  class="hidden"
-                  accept="image/*,video/*"
-                  (change)="onFileSelected($event)"
-                />
-              </label>
+                  <input
+                    type="file"
+                    class="hidden"
+                    accept="image/*,video/*"
+                    (change)="onFileSelected($event)"
+                  />
+                </label>
+              </div>
             }
 
             @if (uploading()) {
@@ -363,11 +390,25 @@
           <div class="mb-6">
             <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
               <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-                <i class="fa-solid fa-crop text-[#4C6FFF]"></i>
+                @if (isVideo()) {
+                  <i class="fa-solid fa-video text-[#4C6FFF]"></i>
+                } @else {
+                  <i class="fa-solid fa-crop text-[#4C6FFF]"></i>
+                }
               </div>
-              Step 3: Crop & Edit per Platform
+              @if (isVideo()) {
+                Step 3: Review Video & Edit Caption
+              } @else {
+                Step 3: Crop & Edit per Platform
+              }
             </h2>
-            <p class="text-gray-600 text-sm ml-[58px]">Adjust crops and edit caption for each platform</p>
+            <p class="text-gray-600 text-sm ml-[58px]">
+              @if (isVideo()) {
+                Review your video and edit the caption for all platforms
+              } @else {
+                Adjust crops and edit caption for each platform
+              }
+            </p>
           </div>
 
           <!-- Single Caption Field -->
@@ -389,15 +430,55 @@
             </p>
           </div>
 
-          <!-- Free-Form Crop Component -->
-          <app-photo-crop
-            [mediaUrl]="mediaPreview() || ''"
-            [caption]="postForm.value.content || ''"
-            [selectedAccountIds]="[]"
-            [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
-            (cropConfigsChange)="onCropConfigsChange($event)"
-            (croppedImagesChange)="onCroppedImagesChange($event)"
-          ></app-photo-crop>
+          <!-- Free-Form Crop Component (Images Only) -->
+          @if (!isVideo()) {
+            <app-photo-crop
+              [mediaUrl]="mediaPreview() || ''"
+              [caption]="postForm.value.content || ''"
+              [selectedAccountIds]="[]"
+              [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
+              (cropConfigsChange)="onCropConfigsChange($event)"
+              (croppedImagesChange)="onCroppedImagesChange($event)"
+            ></app-photo-crop>
+          } @else {
+            <!-- Video Preview (No Crop Available) -->
+            <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
+              <div class="mb-4">
+                <h3 class="text-lg font-semibold text-[#1A1A1A] mb-2 flex items-center gap-2">
+                  <i class="fa-solid fa-video text-[#4C6FFF]"></i>
+                  Video Preview
+                </h3>
+                <p class="text-sm text-gray-600 mb-4">
+                  Videos cannot be cropped. The full video will be published to all selected platforms.
+                </p>
+              </div>
+              
+              @if (mediaPreview()) {
+                <div class="relative rounded-lg overflow-hidden border-2 border-[#D9E1FF] bg-black">
+                  <video 
+                    [src]="mediaPreview()!" 
+                    class="w-full max-h-96 object-contain"
+                    controls
+                    preload="metadata"
+                  ></video>
+                  <div class="absolute top-2 right-2 bg-[#4C6FFF] text-white px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-video"></i>
+                    Video
+                  </div>
+                </div>
+              }
+              
+              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-blue-800 flex items-start gap-2">
+                  <i class="fa-solid fa-info-circle mt-0.5"></i>
+                  <span>
+                    <strong>Note:</strong> Video cropping is not available. The original video will be published as-is to all selected platforms. 
+                    Make sure your video meets the requirements for each platform before uploading.
+                  </span>
+                </p>
+              </div>
+            </div>
+          }
         </div>
       }
 

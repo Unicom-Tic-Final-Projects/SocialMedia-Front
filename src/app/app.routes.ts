@@ -24,6 +24,7 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
       { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
+      { path: 'published-posts', loadComponent: () => import('./dashboard/published-posts/published-posts').then((m) => m.PublishedPostsComponent) },
       { path: 'clients', loadComponent: () => import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage) },
       { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
       { path: 'content-management', loadComponent: () => import('./dashboard/content-management/content-management').then((m) => m.ContentManagementComponent) },

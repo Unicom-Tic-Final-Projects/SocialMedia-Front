@@ -1,0 +1,274 @@
+<div class="min-h-screen bg-[#F5F7FF] p-4 sm:p-6 lg:p-8">
+  <!-- Header -->
+  <div class="mb-6 animate-slideDown">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2">Published Posts</h1>
+        <p class="text-gray-600">Manage and view your posts published on social media platforms</p>
+      </div>
+      <button
+        (click)="loadPublishedPosts()"
+        class="px-4 py-2 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+      >
+        <i class="fa-solid fa-sync-alt"></i>
+        <span>Refresh</span>
+      </button>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-xl p-4 shadow-md border border-[#D9E1FF]">
+      <!-- Search -->
+      <div class="mb-4">
+        <div class="relative">
+          <input
+            type="text"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event); onSearchChange()"
+            placeholder="Search posts by content or platform..."
+            class="w-full pl-10 pr-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+          />
+          <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-3">
+        <!-- Platform Filter -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700">Platform:</span>
+          <div class="flex gap-2 flex-wrap">
+            @for (platform of platforms; track platform.value) {
+              <button
+                (click)="setPlatformFilter(platform.value)"
+                [class.bg-[#4C6FFF]]="selectedPlatform() === platform.value"
+                [class.text-white]="selectedPlatform() === platform.value"
+                [class.text-[#4C6FFF]]="selectedPlatform() !== platform.value"
+                [class.border-[#4C6FFF]]="selectedPlatform() === platform.value"
+                class="px-3 py-1.5 rounded-lg border transition-all duration-200 text-sm font-medium hover:scale-105"
+              >
+                <i [class]="platform.icon" class="mr-1.5"></i>
+                {{ platform.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-700">Status:</span>
+          <div class="flex gap-2 flex-wrap">
+            @for (status of statusFilters; track status.value) {
+              <button
+                (click)="setStatusFilter(status.value)"
+                [class.bg-[#4C6FFF]]="selectedStatus() === status.value"
+                [class.text-white]="selectedStatus() === status.value"
+                [class.text-gray-700]="selectedStatus() !== status.value"
+                [class.border-[#4C6FFF]]="selectedStatus() === status.value"
+                class="px-3 py-1.5 rounded-lg border transition-all duration-200 text-sm font-medium hover:scale-105 flex items-center gap-1.5"
+              >
+                <i [class]="status.icon" [class.text-white]="selectedStatus() === status.value"></i>
+                {{ status.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Clear Filters -->
+        @if (searchQuery().trim() || selectedPlatform() !== 'all' || selectedStatus() !== 'all') {
+          <button
+            (click)="clearFilters()"
+            class="px-3 py-1.5 text-gray-600 hover:text-[#4C6FFF] transition-colors text-sm font-medium flex items-center gap-1.5"
+          >
+            <i class="fa-solid fa-times"></i>
+            Clear Filters
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (loading()) {
+    <div class="flex justify-center items-center py-20">
+      <div class="skeleton-stat-card w-full max-w-4xl"></div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !loading()) {
+    <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+      <p class="text-red-600">{{ error() }}</p>
+    </div>
+  }
+
+  <!-- Posts List -->
+  @if (!loading() && !error()) {
+    @if (filteredPosts().length === 0) {
+      <div class="bg-white rounded-xl p-12 text-center shadow-md border border-[#D9E1FF]">
+        <i class="fa-solid fa-inbox text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Published Posts Found</h3>
+        <p class="text-gray-500 mb-6">
+          @if (searchQuery().trim() || selectedPlatform() !== 'all' || selectedStatus() !== 'all') {
+            Try adjusting your filters to see more results.
+          } @else {
+            You haven't published any posts yet. Create and publish a post to see it here.
+          }
+        </p>
+        @if (!searchQuery().trim() && selectedPlatform() === 'all' && selectedStatus() === 'all') {
+          <button
+            (click)="router.navigate(['/dashboard/post-editor'])"
+            class="px-6 py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            <i class="fa-solid fa-plus mr-2"></i>
+            Create Your First Post
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="grid gap-6">
+        @for (post of filteredPosts(); track post.id) {
+          <div class="bg-white rounded-xl shadow-md border border-[#D9E1FF] hover:shadow-lg transition-all duration-300 overflow-hidden animate-slideUp">
+            <!-- Post Header -->
+            <div class="p-6 border-b border-[#D9E1FF]">
+              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <!-- Post Content Preview -->
+                <div class="flex-1">
+                  <div class="flex items-start gap-4">
+                    @if (post.media) {
+                      <div class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border border-[#D9E1FF]">
+                        @if (post.media.fileType.startsWith('video/')) {
+                          <video [src]="post.media.url" class="w-full h-full object-cover" muted></video>
+                        } @else {
+                          <img [src]="post.media.url" [alt]="post.content.substring(0, 50)" class="w-full h-full object-cover" />
+                        }
+                      </div>
+                    }
+                    <div class="flex-1 min-w-0">
+                      <p class="text-gray-800 line-clamp-3 mb-3">{{ post.content }}</p>
+                      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <span class="flex items-center gap-1.5">
+                          <i class="fa-solid fa-calendar"></i>
+                          {{ post.createdAt | date:'medium' }}
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                          <i class="fa-solid fa-share"></i>
+                          {{ getTotalPlatforms(post) }} Platform{{ getTotalPlatforms(post) !== 1 ? 's' : '' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2 flex-shrink-0">
+                  <button
+                    (click)="viewPost(post)"
+                    class="px-4 py-2 text-[#4C6FFF] border border-[#4C6FFF] rounded-lg hover:bg-[#4C6FFF] hover:text-white transition-all duration-200 text-sm font-medium"
+                  >
+                    <i class="fa-solid fa-eye mr-1.5"></i>
+                    View
+                  </button>
+                  <button
+                    (click)="editPost(post)"
+                    class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
+                  >
+                    <i class="fa-solid fa-edit mr-1.5"></i>
+                    Edit
+                  </button>
+                  <button
+                    (click)="deletePost(post)"
+                    class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-all duration-200 text-sm font-medium"
+                  >
+                    <i class="fa-solid fa-trash mr-1.5"></i>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media Details -->
+            <div class="p-6 bg-[#F5F7FF]">
+              <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-share-nodes"></i>
+                Social Media Publishing Details
+              </h3>
+              
+              <div class="grid gap-3">
+                @for (detail of post.socialMediaDetails; track detail.publishLogId) {
+                  <div class="bg-white rounded-lg p-4 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-200">
+                    <div class="flex items-start justify-between gap-4">
+                      <div class="flex items-start gap-3 flex-1">
+                        <!-- Platform Icon -->
+                        <div class="w-10 h-10 rounded-lg bg-[#E2E7FF] flex items-center justify-center flex-shrink-0">
+                          <i [class]="getPlatformIcon(detail.platform)" [class]="getPlatformColor(detail.platform)"></i>
+                        </div>
+
+                        <!-- Platform Info -->
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="font-semibold text-gray-800 capitalize">{{ detail.platform }}</span>
+                            <span [class]="getStatusColor(detail.status)" class="px-2 py-0.5 rounded-full text-xs font-medium border">
+                              <i [class]="detail.status === 'Success' ? 'fa-solid fa-check-circle' : detail.status === 'Failed' ? 'fa-solid fa-times-circle' : 'fa-solid fa-clock'" class="mr-1"></i>
+                              {{ detail.status }}
+                            </span>
+                          </div>
+                          
+                          <div class="text-sm text-gray-600 space-y-1">
+                            <div class="flex items-center gap-2">
+                              <i class="fa-solid fa-clock text-xs"></i>
+                              <span>Published: {{ detail.attemptedAt | date:'short' }}</span>
+                            </div>
+                            @if (detail.platformPostId) {
+                              <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-hashtag text-xs"></i>
+                                <span class="font-mono text-xs">ID: {{ detail.platformPostId }}</span>
+                              </div>
+                            }
+                            @if (detail.errorMessage) {
+                              <div class="text-red-600 text-xs mt-1">
+                                <i class="fa-solid fa-exclamation-circle mr-1"></i>
+                                {{ detail.errorMessage }}
+                              </div>
+                            }
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="flex gap-2 flex-shrink-0">
+                        @if (detail.platformUrl && detail.status === 'Success') {
+                          <button
+                            (click)="openPlatformUrl(detail)"
+                            class="px-3 py-1.5 text-[#4C6FFF] border border-[#4C6FFF] rounded-lg hover:bg-[#4C6FFF] hover:text-white transition-all duration-200 text-xs font-medium"
+                            title="View on {{ detail.platform }}"
+                          >
+                            <i class="fa-solid fa-external-link-alt"></i>
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Summary Stats -->
+              <div class="mt-4 pt-4 border-t border-[#D9E1FF] flex items-center gap-4 text-sm">
+                <div class="flex items-center gap-2 text-green-600">
+                  <i class="fa-solid fa-check-circle"></i>
+                  <span class="font-medium">{{ getSuccessCount(post) }} Successful</span>
+                </div>
+                @if (getFailedCount(post) > 0) {
+                  <div class="flex items-center gap-2 text-red-600">
+                    <i class="fa-solid fa-times-circle"></i>
+                    <span class="font-medium">{{ getFailedCount(post) }} Failed</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+

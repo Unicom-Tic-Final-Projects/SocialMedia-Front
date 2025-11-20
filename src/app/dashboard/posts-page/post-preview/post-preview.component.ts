@@ -77,9 +77,15 @@ export class PostPreviewComponent implements OnChanges {
    * Get cropped image URL for a platform
    * CRITICAL: Always use cropped image to ensure preview matches published output exactly
    * The preview MUST show the exact same cropped image that will be published
+   * For videos, use original media URL (videos cannot be cropped)
    */
   getPlatformMediaUrl(platform: Platform): string | null {
-    // ALWAYS use cropped image if available - this is the source of truth for what will be published
+    // For videos, always use original media URL (videos cannot be cropped)
+    if (this.detectedMediaType() === 'video') {
+      return this.isDraftMode() ? this.draftMediaUrl() : this.mediaUrl;
+    }
+    
+    // For images, ALWAYS use cropped image if available - this is the source of truth for what will be published
     if (this.isDraftMode() && this.draft?.platformCroppedImages?.[platform]) {
       return this.draft.platformCroppedImages[platform];
     }
@@ -151,10 +157,16 @@ export class PostPreviewComponent implements OnChanges {
   readonly socialAccounts = this.socialAccountsService.accounts;
 
   readonly detectedMediaType = computed(() => {
+    // First check if draft has mediaType (most reliable)
+    if (this.isDraftMode() && this.draft?.mediaType) {
+      return this.draft.mediaType;
+    }
+    
+    // Fallback to URL extension detection
     const url = this.isDraftMode() ? this.draftMediaUrl() : this.mediaUrl;
     if (!url) return null;
     const ext = url.split('.').pop()?.toLowerCase();
-    if (['mp4', 'mov', 'webm', 'avi'].includes(ext || '')) {
+    if (['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv'].includes(ext || '')) {
       return 'video';
     }
     return 'image';
