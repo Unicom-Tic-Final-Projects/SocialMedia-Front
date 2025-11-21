@@ -12,8 +12,10 @@ import { ScheduledPostsComponent } from './scheduled-posts/scheduled-posts';
 import { ContentCalendarComponent } from './content-calendar/content-calendar';
 import { AIAssistantComponent } from './ai-assistant/ai-assistant';
 import { PostCreatorComponent } from './post-creator/post-creator';
+import { PostsPage } from '../posts-page/posts-page';
+import { PublishedPostsComponent } from '../published-posts/published-posts';
 
-type ContentManagementTab = 'create' | 'library' | 'drafts' | 'scheduled' | 'calendar' | 'ai-assistant';
+type ContentManagementTab = 'create' | 'library' | 'drafts' | 'scheduled' | 'calendar' | 'ai-assistant' | 'posts' | 'published-posts';
 
 @Component({
   selector: 'app-content-management',
@@ -25,7 +27,9 @@ type ContentManagementTab = 'create' | 'library' | 'drafts' | 'scheduled' | 'cal
     ScheduledPostsComponent,
     ContentCalendarComponent,
     AIAssistantComponent,
-    PostCreatorComponent
+    PostCreatorComponent,
+    PostsPage,
+    PublishedPostsComponent
   ],
   templateUrl: './content-management.html',
   styleUrl: './content-management.css',
@@ -55,7 +59,7 @@ export class ContentManagementComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
         const tab = params['tab'] as ContentManagementTab;
-        if (['create', 'library', 'drafts', 'scheduled', 'calendar', 'ai-assistant'].includes(tab)) {
+        if (['create', 'library', 'drafts', 'scheduled', 'calendar', 'ai-assistant', 'posts', 'published-posts'].includes(tab)) {
           this.setActiveTab(tab);
         }
       }

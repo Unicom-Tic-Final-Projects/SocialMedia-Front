@@ -1,6 +1,6 @@
-<div class="min-h-screen bg-[#F8F9FA] text-[#222222] animate-fadeIn">
+<div class="min-h-screen text-[#222222] animate-fadeIn">
   <!-- Enterprise Header Section -->
-  <div class="bg-white border-b border-[#D9E1FF] sticky top-0 z-30 shadow-sm">
+  <div class="sticky top-0 z-30">
     <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       <div class="flex items-center justify-between">
         <div>
@@ -22,7 +22,7 @@
   </div>
 
   <!-- Statistics Overview Bar -->
-  <div class="bg-white border-b border-[#D9E1FF] px-4 sm:px-6 lg:px-8 py-4">
+  <div class="px-4 sm:px-6 lg:px-8 py-4">
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
       @if (loadingStats()) {
         @for (card of [1,2,3,4]; track card) {
@@ -37,7 +37,7 @@
           </div>
         }
       } @else {
-        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Total Posts</p>
@@ -48,7 +48,7 @@
             </div>
           </div>
         </div>
-        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Drafts</p>
@@ -59,7 +59,7 @@
             </div>
           </div>
         </div>
-        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Scheduled</p>
@@ -70,7 +70,7 @@
             </div>
           </div>
         </div>
-        <div class="stat-card bg-gradient-to-br from-[#F5F7FF] to-white rounded-lg p-4 border border-[#D9E1FF] hover:shadow-md transition-all duration-300">
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Media Files</p>
@@ -88,8 +88,8 @@
   <!-- Main Content Area with Sidebar Navigation -->
   <div class="flex flex-col lg:flex-row gap-0 lg:gap-6 px-4 sm:px-6 lg:px-8 py-6">
     <!-- Sidebar Navigation (Desktop) -->
-    <aside class="hidden lg:block w-64 flex-shrink-0">
-      <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-2 sticky top-24">
+    <aside class="hidden lg:block content-management-sidebar flex-shrink-0 group">
+      <div class="p-2 sticky top-24 transition-all duration-300">
         <nav class="space-y-1">
           <button
             (click)="setActiveTab('create')"
@@ -97,9 +97,9 @@
             [class.text-white]="activeTab() === 'create'"
             [class.text-[#1A1A1A]]="activeTab() !== 'create'"
             [class.shadow-md]="activeTab() === 'create'"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
-            <i class="fa-solid fa-plus-circle w-5 text-center"></i>
-            <span>Create Post</span>
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-plus-circle w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Create Post</span>
           </button>
           <button
             (click)="setActiveTab('library')"
@@ -107,9 +107,9 @@
             [class.text-white]="activeTab() === 'library'"
             [class.text-[#1A1A1A]]="activeTab() !== 'library'"
             [class.shadow-md]="activeTab() === 'library'"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
-            <i class="fa-solid fa-images w-5 text-center"></i>
-            <span>Content Library</span>
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-images w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Content Library</span>
           </button>
           <button
             (click)="setActiveTab('drafts')"
@@ -117,11 +117,11 @@
             [class.text-white]="activeTab() === 'drafts'"
             [class.text-[#1A1A1A]]="activeTab() !== 'drafts'"
             [class.shadow-md]="activeTab() === 'drafts'"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
-            <i class="fa-solid fa-edit w-5 text-center"></i>
-            <span>Drafts</span>
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-edit w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Drafts</span>
             @if (draftCount() > 0) {
-              <span class="ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold">{{ draftCount() }}</span>
+              <span class="sidebar-nav-badge ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ draftCount() }}</span>
             }
           </button>
           <button
@@ -130,11 +130,34 @@
             [class.text-white]="activeTab() === 'scheduled'"
             [class.text-[#1A1A1A]]="activeTab() !== 'scheduled'"
             [class.shadow-md]="activeTab() === 'scheduled'"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
-            <i class="fa-solid fa-calendar-check w-5 text-center"></i>
-            <span>Scheduled</span>
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-calendar-check w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Scheduled</span>
             @if (scheduledCount() > 0) {
-              <span class="ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold">{{ scheduledCount() }}</span>
+              <span class="sidebar-nav-badge ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ scheduledCount() }}</span>
+            }
+          </button>
+          <button
+            (click)="setActiveTab('posts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'posts'"
+            [class.text-white]="activeTab() === 'posts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'posts'"
+            [class.shadow-md]="activeTab() === 'posts'"
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-file-alt w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">My Posts</span>
+          </button>
+          <button
+            (click)="setActiveTab('published-posts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'published-posts'"
+            [class.text-white]="activeTab() === 'published-posts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'published-posts'"
+            [class.shadow-md]="activeTab() === 'published-posts'"
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-check-circle w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Published Posts</span>
+            @if (publishedCount() > 0) {
+              <span class="sidebar-nav-badge ml-auto px-2 py-0.5 bg-[#4C6FFF]/20 text-[#4C6FFF] rounded-full text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ publishedCount() }}</span>
             }
           </button>
           <button
@@ -143,9 +166,9 @@
             [class.text-white]="activeTab() === 'calendar'"
             [class.text-[#1A1A1A]]="activeTab() !== 'calendar'"
             [class.shadow-md]="activeTab() === 'calendar'"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
-            <i class="fa-solid fa-calendar-alt w-5 text-center"></i>
-            <span>Calendar</span>
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-calendar-alt w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Calendar</span>
           </button>
           <button
             (click)="setActiveTab('ai-assistant')"
@@ -153,9 +176,9 @@
             [class.text-white]="activeTab() === 'ai-assistant'"
             [class.text-[#1A1A1A]]="activeTab() !== 'ai-assistant'"
             [class.shadow-md]="activeTab() === 'ai-assistant'"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left">
-            <i class="fa-solid fa-wand-magic-sparkles w-5 text-center"></i>
-            <span>AI Assistant</span>
+            class="sidebar-nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] text-left group/item">
+            <i class="fa-solid fa-wand-magic-sparkles w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-nav-text opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">AI Assistant</span>
           </button>
         </nav>
       </div>
@@ -163,7 +186,7 @@
 
     <!-- Mobile/Tablet Horizontal Tabs -->
     <div class="lg:hidden mb-6">
-      <div class="bg-white rounded-xl shadow-sm p-2 border border-[#D9E1FF] overflow-x-auto">
+      <div class="p-2 overflow-x-auto">
         <div class="flex gap-2 min-w-max">
           <button
             (click)="setActiveTab('create')"
@@ -208,6 +231,27 @@
             }
           </button>
           <button
+            (click)="setActiveTab('posts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'posts'"
+            [class.text-white]="activeTab() === 'posts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'posts'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-file-alt mr-2"></i>
+            My Posts
+          </button>
+          <button
+            (click)="setActiveTab('published-posts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'published-posts'"
+            [class.text-white]="activeTab() === 'published-posts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'published-posts'"
+            class="tab-button px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm whitespace-nowrap">
+            <i class="fa-solid fa-check-circle mr-2"></i>
+            Published
+            @if (publishedCount() > 0) {
+              <span class="ml-1 px-1.5 py-0.5 bg-white/20 rounded-full text-xs">{{ publishedCount() }}</span>
+            }
+          </button>
+          <button
             (click)="setActiveTab('calendar')"
             [class.bg-[#4C6FFF]]="activeTab() === 'calendar'"
             [class.text-white]="activeTab() === 'calendar'"
@@ -231,7 +275,7 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 min-w-0">
-      <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-4 sm:p-6 lg:p-8 animate-fadeIn">
+      <div class="p-4 sm:p-6 lg:p-8 animate-fadeIn">
         @if (activeTab() === 'create') {
           <app-post-creator class="animate-slideIn"></app-post-creator>
         }
@@ -243,6 +287,12 @@
         }
         @if (activeTab() === 'scheduled') {
           <app-scheduled-posts class="animate-slideIn"></app-scheduled-posts>
+        }
+        @if (activeTab() === 'posts') {
+          <app-posts-page class="animate-slideIn"></app-posts-page>
+        }
+        @if (activeTab() === 'published-posts') {
+          <app-published-posts class="animate-slideIn"></app-published-posts>
         }
         @if (activeTab() === 'calendar') {
           <app-content-calendar class="animate-slideIn"></app-content-calendar>

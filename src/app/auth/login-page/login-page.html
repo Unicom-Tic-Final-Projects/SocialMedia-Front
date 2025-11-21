@@ -14,25 +14,37 @@
   <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-screen">
 
     <!-- ============================
-         LEFT SIDE (5/12) - ROLL SLIDER
+         IMAGE SECTION - Animated Position
     ============================= -->
-    <div class="hidden lg:flex lg:col-span-5 items-center justify-center relative overflow-hidden">
+    <div 
+      class="hidden lg:flex items-center justify-center relative overflow-hidden auth-image-section"
+      [class.lg:col-span-5]="!isSignupMode()"
+      [class.lg:col-span-7]="isSignupMode()"
+      [class.order-1]="!isSignupMode()"
+      [class.order-2]="isSignupMode()"
+      [class.image-to-right]="isSignupMode()"
+      [class.image-to-left]="!isSignupMode()"
+    >
       <div class="absolute inset-0 m-4">
-
         <!-- Image 1 -->
         <img src="/assets/image/unnamed.jpg" class="cinemaSlide" />
-
         <!-- Image 2 -->
         <img src="/assets/image/unnamed (1).jpg" class="cinemaSlide" />
-
       </div>
     </div>
 
     <!-- ============================
-         RIGHT SIDE (7/12) - LOGIN
+         FORM SECTION - Animated Position
     ============================= -->
-    <div class="flex lg:col-span-7 items-center justify-center px-6 py-12">
-
+    <div 
+      class="flex items-center justify-center px-6 py-12 auth-form-section"
+      [class.lg:col-span-7]="!isSignupMode()"
+      [class.lg:col-span-5]="isSignupMode()"
+      [class.order-2]="!isSignupMode()"
+      [class.order-1]="isSignupMode()"
+      [class.form-to-left]="isSignupMode()"
+      [class.form-to-right]="!isSignupMode()"
+    >
       <div class="w-full max-w-md">
 
         <!-- Logo -->
@@ -40,108 +52,327 @@
           <h1 class="text-6xl font-extrabold">
             <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
           </h1>
-          <p class="text-[#222]/80 text-sm">Welcome back! Sign in to your account</p>
+          <p class="text-[#222]/80 text-sm">
+            @if (isSignupMode()) {
+              Create your account to get started
+            } @else {
+              Welcome back! Sign in to your account
+            }
+          </p>
         </div>
 
-        <!-- Login Form (NO CARD BOX) -->
-        <div class="p-8">
+        <!-- Login Form -->
+        @if (!isSignupMode()) {
+          <div class="p-8">
+            <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Sign In</h2>
 
-          <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-6">Sign In</h2>
+            <!-- Error -->
+            @if (errorMessage()) {
+              <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+                {{ errorMessage() }}
+              </div>
+            }
 
-          <!-- Error -->
-          @if (errorMessage()) {
-            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
-              {{ errorMessage() }}
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Email -->
+              <div>
+                <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                  placeholder="you@example.com"
+                  [class.border-red-500]="email?.invalid && email?.touched"
+                />
+                @if (email?.invalid && email?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    @if (email?.errors?.['required']) {
+                      Email is required
+                    } @else if (email?.errors?.['email']) {
+                      Please enter a valid email
+                    }
+                  </p>
+                }
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  formControlName="password"
+                  class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                  placeholder="Enter your password"
+                  [class.border-red-500]="password?.invalid && password?.touched"
+                />
+                @if (password?.invalid && password?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    @if (password?.errors?.['required']) {
+                      Password is required
+                    } @else if (password?.errors?.['minlength']) {
+                      Password must be at least 6 characters
+                    }
+                  </p>
+                }
+              </div>
+
+              <!-- Remember + Forgot -->
+              <div class="flex items-center justify-between">
+                <label class="flex items-center text-sm text-[#222]">
+                  <input type="checkbox" class="h-4 w-4 text-[#4C6FFF] border-[#D9E1FF]" />
+                  <span class="ml-2">Remember me</span>
+                </label>
+                <a class="text-sm text-[#4C6FFF] hover:underline">Forgot password?</a>
+              </div>
+
+              <!-- Submit -->
+              <button
+                type="submit"
+                class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
+                [disabled]="loading() || loginForm.invalid"
+              >
+                @if (loading()) {
+                  <span class="animate-pulse">Signing in...</span>
+                } @else {
+                  Sign In
+                }
+              </button>
+            </form>
+
+            <div class="mt-6 text-center">
+              <p class="text-sm text-[#222]">
+                Don't have an account?
+                <a (click)="toggleMode()" class="text-[#4C6FFF] hover:underline cursor-pointer">Sign up</a>
+              </p>
             </div>
-          }
-
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-
-            <!-- Email -->
-        <div>
-          <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Email Address
-          </label>
-          <input
-            id="email"
-            type="email"
-            formControlName="email"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-            placeholder="you@example.com"
-            [class.border-red-500]="email?.invalid && email?.touched"
-          />
-          @if (email?.invalid && email?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (email?.errors?.['required']) {
-                Email is required
-              } @else if (email?.errors?.['email']) {
-                Please enter a valid email
-              }
-            </p>
-          }
-        </div>
-
-            <!-- Password -->
-            <div>
-              <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                formControlName="password"
-                class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-                placeholder="Enter your password"
-                [class.border-red-500]="password?.invalid && password?.touched"
-              />
-              @if (password?.invalid && password?.touched) {
-                <p class="mt-1 text-sm text-red-600">
-                  @if (password?.errors?.['required']) {
-                    Password is required
-                  } @else if (password?.errors?.['minlength']) {
-                    Password must be at least 6 characters
-                  }
-                </p>
-              }
-            </div>
-
-            <!-- Remember + Forgot -->
-            <div class="flex items-center justify-between">
-              <label class="flex items-center text-sm text-[#222]">
-                <input type="checkbox" class="h-4 w-4 text-[#4C6FFF] border-[#D9E1FF]" />
-                <span class="ml-2">Remember me</span>
-              </label>
-
-              <a class="text-sm text-[#4C6FFF] hover:underline">Forgot password?</a>
-            </div>
-
-            <!-- Submit -->
-            <button
-          type="submit"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-3 rounded-lg font-semibold transition-all hover:scale-[1.02] shadow-[0_0_25px_rgba(76,111,255,0.4)]"
-          [disabled]="loading() || loginForm.invalid"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
-        >
-          @if (loading()) {
-            <span class="animate-pulse">Signing in...</span>
-          } @else {
-            Sign In
-          }
-        </button>
-
-          </form>
-
-          <div class="mt-6 text-center">
-            <p class="text-sm text-[#222]">
-              Don’t have an account?
-              <a routerLink="/auth/register" class="text-[#4C6FFF] hover:underline">Sign up</a>
-            </p>
           </div>
+        }
 
-        </div>
+        <!-- Signup Form -->
+        @if (isSignupMode()) {
+          <div class="p-2">
+            <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-4">Create Account</h2>
+
+            <!-- Error -->
+            @if (errorMessage()) {
+              <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-600 text-sm">
+                {{ errorMessage() }}
+              </div>
+            }
+
+            <form [formGroup]="registerForm" (ngSubmit)="onRegisterSubmit()" class="space-y-5">
+              <!-- Email -->
+              <div>
+                <label for="reg-email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="reg-email"
+                  type="email"
+                  formControlName="email"
+                  class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                  placeholder="you@example.com"
+                  [class.border-red-500]="email?.invalid && email?.touched"
+                />
+                @if (email?.invalid && email?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    @if (email?.errors?.['required']) {
+                      Email is required
+                    } @else if (email?.errors?.['email']) {
+                      Please enter a valid email
+                    }
+                  </p>
+                }
+              </div>
+
+              <!-- Display Name -->
+              <div>
+                <label for="tenantName" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  formControlName="tenantName"
+                  class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                  placeholder="My Account"
+                  [class.border-red-500]="tenantName?.invalid && tenantName?.touched"
+                />
+                @if (tenantName?.invalid && tenantName?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    @if (tenantName?.errors?.['required']) {
+                      Display name is required
+                    } @else if (tenantName?.errors?.['minlength']) {
+                      Name must be at least 2 characters
+                    }
+                  </p>
+                }
+              </div>
+
+              <!-- Tenant Type -->
+              <div>
+                <label class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Account Type
+                </label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label
+                    class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
+                    [class.border-[#4C6FFF]]="tenantType?.value === 'Individual'"
+                    [class.bg-[#BFC9FF]/30]="tenantType?.value === 'Individual'"
+                    [class.border-[#D9E1FF]]="tenantType?.value !== 'Individual'"
+                  >
+                    <input
+                      type="radio"
+                      class="hidden"
+                      value="Individual"
+                      formControlName="tenantType"
+                      checked
+                    />
+                    <span class="text-sm font-semibold text-[#1A1A1A]">Individual</span>
+                    <span class="text-xs text-[#222222]/70">For solo creators managing their own channels.</span>
+                  </label>
+
+                  <label
+                    class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
+                    [class.border-[#4C6FFF]]="tenantType?.value === 'Agency'"
+                    [class.bg-[#BFC9FF]/30]="tenantType?.value === 'Agency'"
+                    [class.border-[#D9E1FF]]="tenantType?.value !== 'Agency'"
+                  >
+                    <input
+                      type="radio"
+                      class="hidden"
+                      value="Agency"
+                      formControlName="tenantType"
+                    />
+                    <span class="text-sm font-semibold text-[#1A1A1A]">Agency</span>
+                    <span class="text-xs text-[#222222]/70">For marketing teams managing multiple clients.</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label for="reg-password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Password
+                </label>
+                <input
+                  id="reg-password"
+                  type="password"
+                  formControlName="password"
+                  (input)="checkStrength()"
+                  class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                  placeholder="At least 6 characters"
+                  [class.border-red-500]="password?.invalid && password?.touched"
+                />
+                @if (password?.invalid && password?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    @if (password?.errors?.['required']) {
+                      Password is required
+                    } @else if (password?.errors?.['minlength']) {
+                      Password must be at least 6 characters
+                    }
+                  </p>
+                }
+
+                <!-- Password Strength Meter -->
+                <div class="flex gap-2 mt-3">
+                  <div class="h-2 w-full rounded-full transition-all duration-300"
+                      [ngClass]="strengthLevel() >= 1 ? 'bg-red-500' : 'bg-gray-300'"></div>
+                  <div class="h-2 w-full rounded-full transition-all duration-300"
+                      [ngClass]="strengthLevel() >= 2 ? 'bg-yellow-400' : 'bg-gray-300'"></div>
+                  <div class="h-2 w-full rounded-full transition-all duration-300"
+                      [ngClass]="strengthLevel() >= 3 ? 'bg-green-500' : 'bg-gray-300'"></div>
+                </div>
+
+                <!-- Strength Text -->
+                <p class="text-xs mt-1"
+                  [ngClass]="{
+                    'text-red-500': strengthLevel() === 1,
+                    'text-yellow-500': strengthLevel() === 2,
+                    'text-green-600': strengthLevel() === 3
+                  }">
+                  @if (strengthLevel() === 1) { Weak Password }
+                  @if (strengthLevel() === 2) { Medium Password }
+                  @if (strengthLevel() === 3) { Strong Password }
+                </p>
+              </div>
+
+              <!-- Confirm Password -->
+              <div>
+                <label for="confirmPassword" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  formControlName="confirmPassword"
+                  class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                  placeholder="Re-enter your password"
+                  [class.border-red-500]="(confirmPassword?.invalid || passwordMismatch()) && confirmPassword?.touched"
+                />
+                @if (confirmPassword?.invalid && confirmPassword?.touched) {
+                  <p class="mt-1 text-sm text-red-600">
+                    @if (confirmPassword?.errors?.['required']) {
+                      Please confirm your password
+                    }
+                  </p>
+                }
+                @if (passwordMismatch()) {
+                  <p class="mt-1 text-sm text-red-600">
+                    Passwords do not match
+                  </p>
+                }
+              </div>
+
+              <!-- Terms -->
+              <div class="flex items-start">
+                <input
+                  id="acceptTerms"
+                  type="checkbox"
+                  formControlName="acceptTerms"
+                  class="mt-1 h-4 w-4 text-[#4C6FFF] focus:ring-[#4C6FFF] border-[#D9E1FF] rounded bg-[#F5F7FF]"
+                />
+                <label for="acceptTerms" class="ml-2 block text-sm text-[#222222]">
+                  I agree to the
+                  <a href="#" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors">Terms of Service</a>
+                  and
+                  <a href="#" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors">Privacy Policy</a>
+                </label>
+              </div>
+              @if (acceptTerms?.invalid && acceptTerms?.touched) {
+                <p class="text-sm text-red-600">You must accept the terms and conditions</p>
+              }
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
+                [disabled]="loading() || registerForm.invalid"
+              >
+                @if (loading()) {
+                  Creating account...
+                } @else {
+                  Create Account
+                }
+              </button>
+            </form>
+
+            <div class="mt-6 text-center">
+              <p class="text-sm text-[#222]">
+                Already have an account?
+                <a (click)="toggleMode()" class="text-[#4C6FFF] hover:underline cursor-pointer">Sign in</a>
+              </p>
+            </div>
+          </div>
+        }
 
         <div class="mt-6 text-center">
-          <a class="text-[#222] hover:text-[#4C6FFF] text-sm">← Back to Home</a>
+          <a routerLink="/" class="text-[#222] hover:text-[#4C6FFF] text-sm">← Back to Home</a>
         </div>
 
       </div>
@@ -152,9 +383,9 @@
 
 <!-- SLIDER ROLL EFFECT -->
 <style>
- /* =======================
-     FADE SLIDES (LEFT IMAGE)
-  ======================= */
+/* =======================
+    FADE SLIDES (LEFT IMAGE)
+ ======================= */
 /* Professional Parallax 3D Slide */
 /* Ultra-Premium Cinematic Depth Slide */
 .cinemaSlide {
@@ -214,7 +445,112 @@
   }
 }
 
+/* =======================
+    ANIMATED POSITION SWAP
+ ======================= */
+.auth-image-section,
+.auth-form-section {
+  will-change: transform, opacity;
+  position: relative;
+}
 
+/* Image section animations */
+.auth-image-section {
+  transform-origin: center;
+}
 
+/* When switching to signup: image slides from left to right */
+.auth-image-section.image-to-right {
+  animation: imageSlideToRight 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
+/* When switching to login: image slides from right to left */
+.auth-image-section.image-to-left {
+  animation: imageSlideToLeft 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Form section animations */
+.auth-form-section {
+  transform-origin: center;
+}
+
+/* When switching to signup: form slides from right to left */
+.auth-form-section.form-to-left {
+  animation: formSlideToLeft 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* When switching to login: form slides from left to right */
+.auth-form-section.form-to-right {
+  animation: formSlideToRight 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Keyframe animations for visible sliding movement */
+/* Image sliding from LEFT to RIGHT (when switching TO signup) */
+@keyframes imageSlideToRight {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Image sliding from RIGHT to LEFT (when switching TO login) */
+@keyframes imageSlideToLeft {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Form sliding from RIGHT to LEFT (when switching TO signup) */
+@keyframes formSlideToLeft {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Form sliding from LEFT to RIGHT (when switching TO login) */
+@keyframes formSlideToRight {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Smooth fade and slide animation for form content */
+@keyframes slideSwap {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-form-section > div {
+  animation: slideSwap 0.8s ease-out 0.6s both;
+}
+
+/* Ensure grid transitions smoothly */
+.grid {
+  transition: grid-template-columns 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
 </style>

@@ -1,0 +1,88 @@
+/* Rotating Text Styles */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Character animation styles */
+@keyframes charEnter {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes charExit {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+}
+
+/* Base rotating char styles */
+.rotating-char {
+  display: inline-block;
+  will-change: transform, opacity;
+  opacity: 0;
+  transform: translateY(100%);
+  /* Ensure text color is visible */
+  color: currentColor;
+}
+
+/* Animation will be applied via inline style */
+.rotating-char.animate {
+  animation: charEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Ensure text is visible after animation completes */
+.rotating-char.animate.animated {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Ensure parent container inherits properly */
+app-rotating-text {
+  display: inline-block;
+  color: inherit;
+}
+
+app-rotating-text span {
+  color: inherit;
+  -webkit-text-fill-color: inherit;
+}
+
+/* For gradient text parent - ensure gradient works */
+.gradient-text app-rotating-text {
+  background: linear-gradient(135deg, #4C6FFF 0%, #BFC9FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  display: inline-block;
+}
+
+.gradient-text app-rotating-text span,
+.gradient-text app-rotating-text .rotating-char {
+  background: linear-gradient(135deg, #4C6FFF 0%, #BFC9FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  color: transparent;
+}
+

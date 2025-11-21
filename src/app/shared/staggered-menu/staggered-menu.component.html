@@ -1,0 +1,136 @@
+<div
+  class="sm-scope z-40"
+  [class.fixed]="isFixed"
+  [class.top-0]="isFixed"
+  [class.left-0]="isFixed"
+  [class.w-screen]="isFixed"
+  [class.h-screen]="isFixed"
+  [class.overflow-hidden]="isFixed"
+  [class.w-full]="!isFixed"
+  [class.h-full]="!isFixed"
+>
+  <div
+    class="staggered-menu-wrapper relative w-full h-full z-40"
+    [style.--sm-accent]="accentColor"
+    [attr.data-position]="position"
+    [attr.data-open]="open ? '' : null"
+  >
+    <!-- Pre-layers for background animation -->
+    <div
+      #preLayersRef
+      class="sm-prelayers absolute top-0 right-0 bottom-0 pointer-events-none z-[5]"
+      [class.left-0]="position === 'left'"
+      [class.right-0]="position === 'right'"
+      aria-hidden="true"
+    >
+      <div
+        *ngFor="let color of getPreLayerColors(); let i = index"
+        class="sm-prelayer absolute top-0 right-0 h-full w-full translate-x-0"
+        [style.background]="color"
+      ></div>
+    </div>
+
+    <!-- Header with Logo and Toggle -->
+    <header
+      class="staggered-menu-header absolute top-0 left-0 w-full flex items-center justify-between p-[2em] bg-transparent pointer-events-none z-20"
+      aria-label="Main navigation header"
+    >
+      <div class="sm-logo flex items-center select-none pointer-events-auto" aria-label="Logo">
+        <div class="text-xl sm:text-2xl font-bold" [class.text-black]="open" [class.sm-logo-closed]="!open">
+          One<span [class.text-black]="open" [class.sm-logo-vo-closed]="!open">vo</span>
+        </div>
+      </div>
+
+      <button
+        #toggleBtnRef
+        class="sm-toggle relative inline-flex items-center gap-[0.3rem] bg-transparent border-0 cursor-pointer font-medium leading-none overflow-visible pointer-events-auto"
+        [class.text-black]="open"
+        [class.sm-toggle-closed]="!open"
+        [attr.aria-label]="open ? 'Close menu' : 'Open menu'"
+        [attr.aria-expanded]="open"
+        aria-controls="staggered-menu-panel"
+        (click)="toggleMenu()"
+        type="button"
+      >
+        <span
+          class="sm-toggle-textWrap relative inline-block h-[1em] overflow-hidden whitespace-nowrap w-[var(--sm-toggle-width,auto)] min-w-[var(--sm-toggle-width,auto)]"
+          aria-hidden="true"
+        >
+          <span #textInnerRef class="sm-toggle-textInner flex flex-col leading-none">
+            <span *ngFor="let line of textLines" class="sm-toggle-line block h-[1em] leading-none">
+              {{ line }}
+            </span>
+          </span>
+        </span>
+
+        <span
+          #iconRef
+          class="sm-icon relative w-[14px] h-[14px] shrink-0 inline-flex items-center justify-center [will-change:transform]"
+          [class.sm-icon-closed]="!open"
+          aria-hidden="true"
+        >
+          <span
+            #plusHRef
+            class="sm-icon-line absolute left-1/2 top-1/2 w-full h-[2px] bg-current rounded-[2px] -translate-x-1/2 -translate-y-1/2 [will-change:transform]"
+          ></span>
+          <span
+            #plusVRef
+            class="sm-icon-line sm-icon-line-v absolute left-1/2 top-1/2 w-full h-[2px] bg-current rounded-[2px] -translate-x-1/2 -translate-y-1/2 [will-change:transform]"
+          ></span>
+        </span>
+      </button>
+    </header>
+
+    <!-- Menu Panel -->
+    <aside
+      id="staggered-menu-panel"
+      #panelRef
+      class="staggered-menu-panel absolute top-0 h-full bg-white flex flex-col p-[6em_2em_2em_2em] overflow-y-auto z-10 backdrop-blur-[12px]"
+      [class.right-0]="position === 'right'"
+      [class.left-0]="position === 'left'"
+      [attr.aria-hidden]="!open"
+    >
+      <div class="sm-panel-inner flex-1 flex flex-col gap-5">
+        <ul
+          class="sm-panel-list list-none m-0 p-0 flex flex-col gap-2"
+          role="list"
+          [attr.data-numbering]="displayItemNumbering ? '' : null"
+        >
+          <li
+            *ngFor="let item of items; let idx = index"
+            class="sm-panel-itemWrap relative overflow-hidden leading-none"
+          >
+            <a
+              class="sm-panel-item relative text-black font-semibold text-[4rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
+              [href]="item.link"
+              [attr.aria-label]="item.ariaLabel"
+              [attr.data-index]="idx + 1"
+              (click)="handleItemClick(item, $event)"
+            >
+              <span class="sm-panel-itemLabel inline-block [transform-origin:50%_100%] will-change-transform">
+                {{ item.label }}
+              </span>
+            </a>
+          </li>
+        </ul>
+
+        <div *ngIf="displaySocials && socialItems && socialItems.length > 0" class="sm-socials mt-auto pt-8 flex flex-col gap-3" aria-label="Social links">
+          <h3 class="sm-socials-title m-0 text-base font-medium" [style.color]="accentColor">Socials</h3>
+          <ul class="sm-socials-list list-none m-0 p-0 flex flex-row items-center gap-4 flex-wrap" role="list">
+            <li *ngFor="let social of socialItems" class="sm-socials-item">
+              <a
+                [href]="social.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="sm-socials-link text-[1.2rem] font-medium text-[#111] no-underline relative inline-block py-[2px] transition-[color,opacity] duration-300 ease-linear"
+              >
+                {{ social.label }}
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+

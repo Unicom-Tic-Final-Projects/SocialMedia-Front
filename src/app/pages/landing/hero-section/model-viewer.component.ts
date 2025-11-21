@@ -2,35 +2,97 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  Input,
   OnDestroy,
   ViewChild,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+// Material state interface for color layers
+interface MaterialState {
+  color: THREE.Color;
+  metalness: number;
+  roughness: number;
+  emissive: THREE.Color;
+  emissiveIntensity: number;
+  map?: THREE.Texture | null;
+  normalMap?: THREE.Texture | null;
+  roughnessMap?: THREE.Texture | null;
+  metalnessMap?: THREE.Texture | null;
+}
 
 @Component({
   selector: 'app-model-viewer',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './model-viewer.component.html',
+  styleUrl: './model-viewer.component.css',
 })
 export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasHost', { static: true })
   canvasHost!: ElementRef<HTMLDivElement>;
+  
+  @Input() modelPath: string = 'assets/models/genkub_greeting_robot.glb';
+  @Input() rotationSpeed: number = 0.005;
+  @Input() enableInteractivity: boolean = true;
+  @Input() enablePostProcessing: boolean = true;
 
+  // Scene components
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
   private renderer!: THREE.WebGLRenderer;
-  private animationFrameId: number | null = null;
+  private composer!: EffectComposer;
+  private controls!: OrbitControls;
+  
+  // Model and animation
   private model: THREE.Object3D | null = null;
   private mixer: THREE.AnimationMixer | null = null;
   private clock = new THREE.Clock();
-
+  
+  // Environment
+  private environmentMap!: THREE.Texture;
+  private fog!: THREE.Fog;
+  
+  // Materials and states - Color Layers & Material Management
+  private originalMaterials: Map<THREE.Mesh, MaterialState> = new Map();
+  private currentState: 'idle' | 'hover' | 'click' | 'animate' = 'idle';
+  
+  // Interactivity
+  private raycaster = new THREE.Raycaster();
+  private mouse = new THREE.Vector2();
+  
+  // Observers
   private resizeObserver?: ResizeObserver;
   private lazyObserver?: IntersectionObserver;
-  private hasLoaded = false;
+  public hasLoaded = false; // Public for template access
+  private animationFrameId: number | null = null;
+
+  // Event handlers for interactivity
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent) {
+    if (!this.enableInteractivity || !this.canvasHost) return;
+    
+    const rect = this.canvasHost.nativeElement.getBoundingClientRect();
+    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    
+    this.handleMouseInteraction();
+  }
+
+  @HostListener('click', ['$event'])
+  onClick(event: MouseEvent) {
+    if (!this.enableInteractivity) return;
+    this.triggerClickState();
+  }
 
   ngAfterViewInit(): void {
     this.attachLazyLoader();
@@ -45,37 +107,41 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !this.hasLoaded) {
             this.hasLoaded = true;
-
             this.initThree();
-            this.loadModel('assets/models/hero-model.glb');
+            this.loadEnvironment();
+            this.loadModel(this.modelPath);
             this.startRenderingLoop();
             this.attachResizeHandler();
-
             this.lazyObserver?.disconnect();
           }
         });
       },
       { threshold: 0.25 }
     );
-
     this.lazyObserver.observe(this.canvasHost.nativeElement);
   }
 
   //------------------------------------------------------
-  // INIT THREE
+  // INIT THREE.JS WITH ALL FEATURES
   //------------------------------------------------------
   private initThree(): void {
     this.scene = new THREE.Scene();
-
     const { clientWidth, clientHeight } = this.canvasHost.nativeElement;
 
     this.setupCamera(clientWidth, clientHeight);
     this.setupRenderer();
     this.setupLights();
+    this.setupFog();
+    if (this.enableInteractivity) {
+      this.setupControls();
+    }
+    if (this.enablePostProcessing) {
+      this.setupPostProcessing();
+    }
   }
 
   //------------------------------------------------------
-  // CAMERA — MOBILE-FIRST
+  // CAMERA SETUP
   //------------------------------------------------------
   private setupCamera(width: number, height: number) {
     const isMobile = window.innerWidth <= 480;
@@ -93,152 +159,416 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
     } else if (isTablet) {
       this.camera.position.set(0.3, 1.6, 6.0);
     } else {
-      this.camera.position.set(0.5, 1.8, 5.5); // desktop
+      this.camera.position.set(0.5, 1.8, 5.5);
     }
 
     this.camera.lookAt(0, 1.0, 0);
   }
 
   //------------------------------------------------------
-  // RENDERER
+  // ENHANCED RENDERER
   //------------------------------------------------------
   private setupRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
+      powerPreference: 'high-performance',
     });
 
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setClearColor(0x000000, 0);
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.2;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.canvasHost.nativeElement.appendChild(this.renderer.domElement);
-
     this.resizeRenderer();
   }
 
   //------------------------------------------------------
-  // LIGHTS
+  // ENHANCED LIGHTING SYSTEM
   //------------------------------------------------------
   private setupLights() {
-    const ambient = new THREE.AmbientLight(0xffffff, 0.9);
+    // Ambient light
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(ambient);
 
-    const dir = new THREE.DirectionalLight(0xffffff, 1);
-    dir.position.set(3, 5, 2);
-    this.scene.add(dir);
+    // Main directional light with shadows
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    mainLight.position.set(3, 5, 2);
+    mainLight.castShadow = true;
+    mainLight.shadow.mapSize.width = 2048;
+    mainLight.shadow.mapSize.height = 2048;
+    mainLight.shadow.camera.near = 0.5;
+    mainLight.shadow.camera.far = 50;
+    this.scene.add(mainLight);
+
+    // Fill light (colored)
+    const fillLight = new THREE.DirectionalLight(0x4C6FFF, 0.4);
+    fillLight.position.set(-3, 2, -2);
+    this.scene.add(fillLight);
+
+    // Rim light (accent)
+    const rimLight = new THREE.DirectionalLight(0xBFC9FF, 0.5);
+    rimLight.position.set(0, 3, -5);
+    this.scene.add(rimLight);
+
+    // Point lights for depth
+    const pointLight1 = new THREE.PointLight(0x4C6FFF, 0.8, 10);
+    pointLight1.position.set(2, 3, 2);
+    this.scene.add(pointLight1);
+
+    const pointLight2 = new THREE.PointLight(0xBFC9FF, 0.6, 10);
+    pointLight2.position.set(-2, 2, -2);
+    this.scene.add(pointLight2);
   }
 
   //------------------------------------------------------
-  // LOAD GLB MODEL
+  // FOG SYSTEM
   //------------------------------------------------------
-private loadModel(path: string): void {
-  const loader = new GLTFLoader();
+  private setupFog() {
+    this.fog = new THREE.Fog(0xffffff, 10, 50);
+    this.fog.color.setHex(0xffffff);
+    this.scene.fog = this.fog;
+  }
 
-  loader.load(
-    path,
-    (gltf) => {
-      this.model = gltf.scene;
+  //------------------------------------------------------
+  // ENVIRONMENT MAP (for reflections)
+  //------------------------------------------------------
+  private loadEnvironment() {
+    const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+    pmremGenerator.compileEquirectangularShader();
 
-      const box = new THREE.Box3().setFromObject(this.model);
-      const size = new THREE.Vector3();
-      const center = new THREE.Vector3();
-      box.getSize(size);
-      box.getCenter(center);
+    const envScene = new THREE.Scene();
+    const envLight = new THREE.AmbientLight(0xffffff, 1);
+    envScene.add(envLight);
+    
+    const envDirLight = new THREE.DirectionalLight(0xffffff, 1);
+    envDirLight.position.set(1, 1, 1);
+    envScene.add(envDirLight);
 
-      const vw = window.innerWidth;
-      const isMobile = vw <= 480;
-      const isTablet = vw > 480 && vw <= 1024;
+    this.environmentMap = pmremGenerator.fromScene(envScene, 0.04).texture;
+    this.scene.environment = this.environmentMap;
+    pmremGenerator.dispose();
+  }
 
-      // ALWAYS center the model
-      this.model.position.sub(center);
-      this.model.position.x = 0;
+  //------------------------------------------------------
+  // ORBIT CONTROLS (Interactivity)
+  //------------------------------------------------------
+  private setupControls() {
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+    this.controls.enableZoom = true;
+    this.controls.enablePan = false;
+    this.controls.minDistance = 3;
+    this.controls.maxDistance = 15;
+    this.controls.autoRotate = false;
+  }
 
-        if (!isMobile && !isTablet) {
-          this.model.position.y += 0.8;
+  //------------------------------------------------------
+  // POST-PROCESSING PIPELINE
+  //------------------------------------------------------
+  private setupPostProcessing() {
+    this.composer = new EffectComposer(this.renderer);
+    
+    const renderPass = new RenderPass(this.scene, this.camera);
+    this.composer.addPass(renderPass);
 
-          const maxDim = Math.max(size.x, size.y, size.z);
-          const scale = 4.2 / maxDim;
+    // Bloom effect
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      1.5, // strength
+      0.4, // radius
+      0.85 // threshold
+    );
+    this.composer.addPass(bloomPass);
 
-          this.model.scale.setScalar(scale);
+    // Output pass (tone mapping)
+    const outputPass = new OutputPass();
+    this.composer.addPass(outputPass);
+  }
+
+  //------------------------------------------------------
+  // LOAD AND PROCESS MODEL
+  //------------------------------------------------------
+  private loadModel(path: string): void {
+    const loader = new GLTFLoader();
+
+    loader.load(
+      path,
+      (gltf) => {
+        this.model = gltf.scene;
+        this.processModelMaterials(); // Process all material layers
+        this.setupModelPosition();
+        this.setupAnimations(gltf);
+        this.scene.add(this.model);
+      },
+      undefined,
+      (error) => console.error('Error loading model:', error)
+    );
+  }
+
+  //------------------------------------------------------
+  // PROCESS MATERIALS - COLOR LAYERS & ALL MATERIAL LAYERS
+  //------------------------------------------------------
+  private processModelMaterials() {
+    if (!this.model) return;
+
+    this.model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mesh = child as THREE.Mesh;
+        
+        if (mesh.material instanceof THREE.MeshStandardMaterial) {
+          const material = mesh.material;
           
-        }
-          else if (isTablet) {
+          // Store original material state (for color layers)
+          this.originalMaterials.set(mesh, {
+            color: material.color.clone(),
+            metalness: material.metalness,
+            roughness: material.roughness,
+            emissive: material.emissive.clone(),
+            emissiveIntensity: material.emissiveIntensity,
+            map: material.map,
+            normalMap: material.normalMap,
+            roughnessMap: material.roughnessMap,
+            metalnessMap: material.metalnessMap,
+          });
 
-            const maxDim = Math.max(size.x, size.y, size.z);
-
-            // Perfect size
-            this.model.scale.setScalar(4.9 / maxDim);
-
-            // Balanced vertical
-            this.model.position.y = 1.35;
-
-            // Center (tablet needs smaller offset)
-            this.model.position.x = -3.00;
-
-            // ⭐ Tablet camera – prevent left/right crop
-            if (this.camera) {
-              this.camera.fov = 68;          // wider view
-              this.camera.aspect = 1.25;     // tablet-like perspective
-              this.camera.updateProjectionMatrix();
-
-              this.camera.position.set(0, 1.55, 8.2);  // pull back for width
-              this.camera.lookAt(0, 0.5, 0);           // slight tilt
-            }
+          // COLOR LAYER: Base color
+          material.color = new THREE.Color(0xffffff);
+          
+          // ENVIRONMENT MAP (reflections)
+          if (this.environmentMap) {
+            material.envMap = this.environmentMap;
+            material.envMapIntensity = 1.0;
           }
 
-  
-      // DESKTOP → Same as your original settings
-      // if (!isMobile) {
-      //   this.model.position.y += 0.8;
+          // MATERIAL LAYERS: Metalness & Roughness
+          material.metalness = Math.max(0.1, material.metalness || 0.3);
+          material.roughness = Math.min(0.9, material.roughness || 0.7);
+          
+          // EMISSIVE LAYER (for glow effects)
+          material.emissive = new THREE.Color(0x000000);
+          material.emissiveIntensity = 0;
 
-      //   const maxDim = Math.max(size.x, size.y, size.z);
-      //   const scale = 4.2 / maxDim;
+          // TEXTURE SUPPORT (Basic)
+          if (material.map) {
+            material.map.colorSpace = THREE.SRGBColorSpace;
+          }
+          if (material.normalMap) {
+            material.normalScale.set(1, 1);
+          }
+          if (material.roughnessMap) {
+            material.roughnessMap.colorSpace = THREE.SRGBColorSpace;
+          }
+          if (material.metalnessMap) {
+            material.metalnessMap.colorSpace = THREE.SRGBColorSpace;
+          }
 
-      //   this.model.scale.setScalar(scale);
-      // }
-
-      else {
-
-        const maxDim = Math.max(size.x, size.y, size.z);
-
-        const scale = 3.1 / maxDim;
-        this.model.scale.setScalar(scale);
-
-        this.model.position.y = 1.85;
-        this.model.position.x = -1.59;
-
-        
-     
-
+          // Shadows
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
+        }
       }
-
-
-
-
-      this.scene.add(this.model);
-
-      if (gltf.animations && gltf.animations.length > 0) {
-        this.mixer = new THREE.AnimationMixer(this.model);
-        gltf.animations.forEach((clip) => {
-          this.mixer!.clipAction(clip).play();
-        });
-      }
-    },
-    undefined,
-    (error) => console.error('Error loading model:', error)
-  );
-}
-
+    });
+  }
 
   //------------------------------------------------------
-  // ANIMATION LOOP
+  // SETUP MODEL POSITION
+  //------------------------------------------------------
+  private setupModelPosition() {
+    if (!this.model) return;
+
+    const box = new THREE.Box3().setFromObject(this.model);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    box.getSize(size);
+    box.getCenter(center);
+
+    const vw = window.innerWidth;
+    const isMobile = vw <= 480;
+    const isTablet = vw > 480 && vw <= 1024;
+
+    this.model.position.sub(center);
+    this.model.position.x = 0;
+
+    if (!isMobile && !isTablet) {
+      this.model.position.y += 0.8;
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 4.2 / maxDim;
+      this.model.scale.setScalar(scale);
+    } else if (isTablet) {
+      const maxDim = Math.max(size.x, size.y, size.z);
+      this.model.scale.setScalar(4.9 / maxDim);
+      this.model.position.y = 1.35;
+      this.model.position.x = -3.0;
+      
+      if (this.camera) {
+        this.camera.fov = 68;
+        this.camera.aspect = 1.25;
+        this.camera.updateProjectionMatrix();
+        this.camera.position.set(0, 1.55, 8.2);
+        this.camera.lookAt(0, 0.5, 0);
+      }
+    } else {
+      const maxDim = Math.max(size.x, size.y, size.z);
+      this.model.scale.setScalar(3.1 / maxDim);
+      this.model.position.y = 1.85;
+      this.model.position.x = -1.59;
+    }
+  }
+
+  //------------------------------------------------------
+  // ANIMATION SYSTEM
+  //------------------------------------------------------
+  private setupAnimations(gltf: any) {
+    if (gltf.animations && gltf.animations.length > 0) {
+      this.mixer = new THREE.AnimationMixer(this.model!);
+      gltf.animations.forEach((clip: THREE.AnimationClip) => {
+        const action = this.mixer!.clipAction(clip);
+        action.setLoop(THREE.LoopRepeat, Infinity);
+        action.play();
+      });
+    }
+  }
+
+  //------------------------------------------------------
+  // INTERACTIVITY - MOUSE INTERACTION
+  //------------------------------------------------------
+  private handleMouseInteraction() {
+    if (!this.model || !this.enableInteractivity) return;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObject(this.model, true);
+
+    if (intersects.length > 0) {
+      this.setState('hover');
+      this.applyHoverEffect(intersects[0].object as THREE.Mesh);
+    } else {
+      this.setState('idle');
+      this.resetMaterialStates();
+    }
+  }
+
+  //------------------------------------------------------
+  // STATES, EVENTS, AND INTERACTIVITY
+  //------------------------------------------------------
+  private setState(state: 'idle' | 'hover' | 'click' | 'animate') {
+    if (this.currentState === state) return;
+    this.currentState = state;
+    this.applyStateEffects(state);
+  }
+
+  private applyStateEffects(state: string) {
+    if (!this.model) return;
+
+    this.model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mesh = child as THREE.Mesh;
+        const material = mesh.material as THREE.MeshStandardMaterial;
+        
+        if (!material || !this.originalMaterials.has(mesh)) return;
+
+        const original = this.originalMaterials.get(mesh)!;
+
+        switch (state) {
+          case 'hover':
+            // Color layer change on hover
+            material.emissive.setHex(0x4C6FFF);
+            material.emissiveIntensity = 0.3;
+            material.color.lerp(new THREE.Color(0xBFC9FF), 0.2);
+            break;
+          case 'click':
+            material.emissive.setHex(0x4C6FFF);
+            material.emissiveIntensity = 0.6;
+            material.color.lerp(new THREE.Color(0x4C6FFF), 0.3);
+            break;
+          case 'animate':
+            // Pulse animation
+            const time = this.clock.getElapsedTime();
+            material.emissiveIntensity = 0.2 + Math.sin(time * 2) * 0.2;
+            break;
+          default:
+            // Reset to original color layer
+            material.color.copy(original.color);
+            material.emissive.copy(original.emissive);
+            material.emissiveIntensity = original.emissiveIntensity;
+        }
+      }
+    });
+  }
+
+  private applyHoverEffect(mesh: THREE.Mesh) {
+    const material = mesh.material as THREE.MeshStandardMaterial;
+    if (material && this.originalMaterials.has(mesh)) {
+      material.emissive.setHex(0x4C6FFF);
+      material.emissiveIntensity = 0.4;
+    }
+  }
+
+  private resetMaterialStates() {
+    if (!this.model) return;
+    
+    this.model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mesh = child as THREE.Mesh;
+        const original = this.originalMaterials.get(mesh);
+        if (original && mesh.material instanceof THREE.MeshStandardMaterial) {
+          const material = mesh.material;
+          material.color.copy(original.color);
+          material.emissive.copy(original.emissive);
+          material.emissiveIntensity = original.emissiveIntensity;
+        }
+      }
+    });
+  }
+
+  private triggerClickState() {
+    this.setState('click');
+    setTimeout(() => {
+      if (this.currentState === 'click') {
+        this.setState('idle');
+      }
+    }, 300);
+  }
+
+  //------------------------------------------------------
+  // RENDERING LOOP WITH ALL FEATURES
   //------------------------------------------------------
   private startRenderingLoop(): void {
     const render = () => {
       const delta = this.clock.getDelta();
-      if (this.mixer) this.mixer.update(delta);
+      
+      // Update animations
+      if (this.mixer) {
+        this.mixer.update(delta);
+      }
 
-      this.renderer.render(this.scene, this.camera);
+      // Update controls
+      if (this.controls) {
+        this.controls.update();
+      }
+
+      // Smooth rotation (if controls disabled)
+      if (this.model && !this.controls) {
+        this.model.rotation.y += this.rotationSpeed || 0.005;
+      }
+
+      // Animate state effects
+      if (this.currentState === 'animate') {
+        this.applyStateEffects('animate');
+      }
+
+      // Render with post-processing or standard
+      if (this.enablePostProcessing && this.composer) {
+        this.composer.render();
+      } else {
+        this.renderer.render(this.scene, this.camera);
+      }
+
       this.animationFrameId = requestAnimationFrame(render);
     };
 
@@ -250,39 +580,54 @@ private loadModel(path: string): void {
   //------------------------------------------------------
   private attachResizeHandler() {
     if ('ResizeObserver' in window) {
-      this.resizeObserver = new ResizeObserver(() =>
-        this.resizeRenderer()
-      );
+      this.resizeObserver = new ResizeObserver(() => this.resizeRenderer());
       this.resizeObserver.observe(this.canvasHost.nativeElement);
     }
-
-    window.addEventListener('resize', this.resizeRenderer, {
-      passive: true,
-    });
+    window.addEventListener('resize', this.resizeRenderer, { passive: true });
   }
 
   private resizeRenderer = () => {
     const { clientWidth, clientHeight } = this.canvasHost.nativeElement;
-
     if (clientWidth <= 0 || clientHeight <= 0) return;
 
     this.renderer.setSize(clientWidth, clientHeight, false);
     this.camera.aspect = clientWidth / clientHeight;
     this.camera.updateProjectionMatrix();
+
+    if (this.composer) {
+      this.composer.setSize(clientWidth, clientHeight);
+    }
   };
 
   //------------------------------------------------------
   // CLEANUP
   //------------------------------------------------------
   private cleanup(): void {
-    if (this.animationFrameId !== null)
+    if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
+    }
 
     window.removeEventListener('resize', this.resizeRenderer);
     this.resizeObserver?.disconnect();
     this.lazyObserver?.disconnect();
 
+    this.controls?.dispose();
+    this.composer?.dispose();
     this.renderer?.dispose();
+    
+    if (this.environmentMap) {
+      this.environmentMap.dispose();
+    }
+
+    // Cleanup materials
+    this.originalMaterials.forEach((state) => {
+      state.map?.dispose();
+      state.normalMap?.dispose();
+      state.roughnessMap?.dispose();
+      state.metalnessMap?.dispose();
+    });
+    this.originalMaterials.clear();
+
     this.mixer = null;
     this.model = null;
 

@@ -1,6 +1,6 @@
 <div class="relative group w-full flex items-center justify-center">
 
-  <!-- Background glow -->
+  <!-- Enhanced background glow -->
   <div class="pointer-events-none absolute inset-0 -z-10 blur-3xl opacity-40"
        style="background: radial-gradient(circle at 50% 50%,
        rgba(76,111,255,0.25),
@@ -8,7 +8,7 @@
        transparent 70%);">
   </div>
 
-  <!-- 3D Model Container -->
+  <!-- Interactive 3D Model Container with all features -->
   <div #canvasHost
        class="w-full
               h-[380px]
@@ -17,7 +17,14 @@
               lg:h-[500px]
               xl:h-[540px]
               rounded-2xl overflow-hidden bg-transparent
-              hover:scale-[1.02] transition-transform duration-300 mx-auto"
+              hover:scale-[1.02] transition-transform duration-300 mx-auto
+              cursor-pointer"
        data-aos="fade-up">
+  </div>
+
+  <!-- Loading indicator -->
+  <div *ngIf="!hasLoaded" 
+       class="absolute inset-0 flex items-center justify-center z-10">
+    <div class="w-12 h-12 border-4 border-[#4C6FFF] border-t-transparent rounded-full animate-spin"></div>
   </div>
 </div>

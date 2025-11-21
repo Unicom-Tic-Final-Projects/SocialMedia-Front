@@ -1,8 +1,36 @@
-<app-app-header />
-<app-hero-section />
-<app-features-section />
-<app-testimonials-section />
-<app-pricing-section />
-<app-cta-band />
-<app-why-onevo />
-<app-app-footer />
+<div class="landing-container scroll-stack-wrapper">
+  <app-app-header #appHeader />
+  
+  <div class="scroll-stack-inner">
+    <div class="scroll-stack-card" #heroCard id="hero">
+      <app-hero-section #heroSection />
+    </div>
+    
+    <div class="scroll-stack-card" #featuresCard id="features">
+      <app-features-section />
+    </div>
+    
+    <div class="scroll-stack-card" #testimonialsCard id="testimonials">
+      <app-testimonials-section />
+    </div>
+    
+    <div class="scroll-stack-card" #pricingCard id="pricing">
+      <app-pricing-section />
+    </div>
+    
+    <div class="scroll-stack-card" #ctaCard>
+      <app-cta-band />
+    </div>
+    
+    <div class="scroll-stack-card" #whyCard>
+      <app-why-onevo />
+    </div>
+    
+    <div class="scroll-stack-card" #footerCard>
+      <app-app-footer #footerSection />
+    </div>
+    
+    <!-- Spacer so the last pin can release cleanly -->
+    <div class="scroll-stack-end"></div>
+  </div>
+</div>

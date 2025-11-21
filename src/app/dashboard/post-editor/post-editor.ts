@@ -17,11 +17,12 @@ import { Platform, SocialAccount } from '../../models/social.models';
 import { Client } from '../../models/client.models';
 import { PhotoCropComponent } from './photo-crop/photo-crop.component';
 import { PostPreviewComponent } from '../posts-page/post-preview/post-preview.component';
+import { FileUploadComponent, UploadedFile } from '../../shared/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-post-editor',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, DatePipe, PhotoCropComponent, PostPreviewComponent],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, DatePipe, PhotoCropComponent, PostPreviewComponent, FileUploadComponent],
   templateUrl: './post-editor.html',
   styleUrl: './post-editor.css',
 })
@@ -52,6 +53,7 @@ export class PostEditor implements OnInit {
   uploading = this.mediaService.uploading;
   isDragging = signal(false);
   isVideo = signal(false);
+  uploadedFiles = signal<UploadedFile[]>([]);
 
   // Social accounts
   socialAccounts = signal<SocialAccount[]>([]);
@@ -415,17 +417,69 @@ export class PostEditor implements OnInit {
       return;
     }
 
-      this.selectedFile.set(file);
+    this.selectedFile.set(file);
     this.isVideo.set(isVideo);
 
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const preview = e.target?.result as string;
       // CRITICAL: Setting mediaPreview signal will automatically trigger step1Valid to recalculate
       // The computed signal reactivity handles the update - no manual validation needed
-        this.mediaPreview.set(e.target?.result as string);
+      this.mediaPreview.set(preview);
+      
+      // Add to uploaded files list
+      const fileId = `file-${Date.now()}-${Math.random()}`;
+      const newFile: UploadedFile = {
+        id: fileId,
+        file: file,
+        name: file.name,
+        size: file.size,
+        progress: 0,
+        failed: false,
+        type: file.type,
+        preview: preview
       };
-      reader.readAsDataURL(file);
+      this.uploadedFiles.set([newFile]);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onFilesSelected(files: File[]): void {
+    if (files.length > 0) {
+      const file = files[0]; // For now, handle single file
+      this.handleFile(file);
+    }
+  }
+
+  onUnacceptedFiles(files: File[]): void {
+    this.toastService.error('Invalid file type. Please upload an image or video file.');
+  }
+
+  onSizeLimitExceeded(files: File[]): void {
+    this.toastService.error('File size exceeds 10MB limit. Please choose a smaller file.');
+  }
+
+  onFileDeleted(fileId: string): void {
+    const files = this.uploadedFiles();
+    const fileToDelete = files.find(f => f.id === fileId);
+    if (fileToDelete) {
+      this.uploadedFiles.set(files.filter(f => f.id !== fileId));
+      this.removeMedia();
+    }
+  }
+
+  onFileRetry(fileId: string): void {
+    const files = this.uploadedFiles();
+    const fileToRetry = files.find(f => f.id === fileId);
+    if (fileToRetry) {
+      // Reset progress and retry
+      const updatedFiles = files.map(f => 
+        f.id === fileId ? { ...f, progress: 0, failed: false } : f
+      );
+      this.uploadedFiles.set(updatedFiles);
+      this.handleFile(fileToRetry.file);
+    }
   }
 
   /**

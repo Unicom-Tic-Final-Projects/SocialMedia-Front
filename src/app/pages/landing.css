@@ -1,0 +1,320 @@
+/* Smooth parallax scrolling - Infinite Forward Scroll */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 0;
+  overflow-x: hidden;
+}
+
+/* Infinite Scroll Wrapper */
+.infinite-scroll-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Content blocks for infinite scroll */
+.content-block {
+  position: relative;
+  width: 100%;
+}
+
+/* Duplicate content - seamless continuation */
+.duplicate-content {
+  position: relative;
+}
+
+/* Hide header in duplicates */
+.duplicate-content app-app-header {
+  display: none;
+}
+
+/* Continuous Loop Effect - Seamless Section Transitions */
+section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  transition: all 0.3s ease;
+}
+
+/* Seamless gradient transitions between sections - Loop Effect */
+section + section {
+  margin-top: 0;
+  position: relative;
+}
+
+/* Create seamless loop effect with overlapping gradients */
+section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(to bottom, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.8) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(to top, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.8) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Parallax performance optimization */
+[class*="parallax"] {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Smooth continuous scroll effect - Infinite Loop */
+body {
+  overflow-x: hidden;
+  scroll-snap-type: none;
+  position: relative;
+}
+
+/* Scroll Stack Effect */
+.scroll-stack-wrapper {
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.scroll-stack-inner {
+  padding-top: 20vh;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-bottom: 50rem;
+  min-height: 100vh;
+}
+
+.scroll-stack-card {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+  margin-bottom: 100px;
+  padding: 2rem;
+  border-radius: 40px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  background: white;
+  transform-origin: top center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: none; /* Disable CSS transitions for smooth manual control */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border: 2px solid transparent;
+}
+
+/* Glowing border effect for active stack card */
+.scroll-stack-card.stack-card-active {
+  border: 2px solid #4C6FFF;
+  box-shadow: 
+    0 0 30px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(76, 111, 255, 0.3),
+    0 0 40px rgba(76, 111, 255, 0.2),
+    0 0 60px rgba(76, 111, 255, 0.1);
+  animation: borderGlow 2s ease-in-out infinite;
+}
+
+@keyframes borderGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 30px rgba(0, 0, 0, 0.1),
+      0 0 20px rgba(76, 111, 255, 0.3),
+      0 0 40px rgba(76, 111, 255, 0.2),
+      0 0 60px rgba(76, 111, 255, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(0, 0, 0, 0.1),
+      0 0 30px rgba(76, 111, 255, 0.5),
+      0 0 50px rgba(76, 111, 255, 0.3),
+      0 0 80px rgba(76, 111, 255, 0.2);
+  }
+}
+
+.scroll-stack-card:first-child {
+  margin-top: 0;
+}
+
+.scroll-stack-end {
+  width: 100%;
+  height: 1px;
+  margin-top: 20vh;
+}
+
+/* Ensure header stays on top */
+app-app-header {
+  position: relative;
+  z-index: 1000;
+}
+
+/* Responsive adjustments for scroll stack */
+@media (max-width: 1024px) {
+  .scroll-stack-inner {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 15vh;
+  }
+
+  .scroll-stack-card {
+    padding: 1.5rem;
+    border-radius: 30px;
+    min-height: 70vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .scroll-stack-inner {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 10vh;
+    padding-bottom: 30rem;
+  }
+
+  .scroll-stack-card {
+    padding: 1rem;
+    border-radius: 24px;
+    min-height: 60vh;
+    margin-bottom: 60px;
+  }
+}
+
+/* Smooth scrolling for seamless loop */
+html {
+  scroll-behavior: auto; /* Disable default smooth scroll, we use custom */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+}
+
+/* Smooth scroll performance optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scroll-stack-card {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+}
+
+/* Ensure sections flow naturally */
+section {
+  position: relative;
+}
+
+/* Smooth infinite forward scroll indicator animation */
+@keyframes infiniteScroll {
+  0% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(20px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+}
+
+/* Continuous forward flow effect */
+@keyframes continuousForward {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Ensure smooth scrolling experience */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Performance optimization for infinite scroll */
+.content-block {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Enhanced hover image effects with smooth animations */
+.group img {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center center;
+}
+
+.group:hover img {
+  animation: floatIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 20;
+}
+
+@keyframes floatIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--rotation, 0deg));
+  }
+}
+
+/* Continuous flow animation for loop effect */
+@keyframes continuousFlow {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100vh);
+  }
+}
+
+/* Smooth section fade transitions */
+section {
+  opacity: 1;
+  transition: opacity 0.6s ease-in-out;
+}
+
+/* Enhanced parallax for loop feeling */
+.parallax-layer {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
