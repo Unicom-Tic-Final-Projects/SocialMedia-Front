@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-[#F5F7FF] p-4 sm:p-6 lg:p-8">
+<div class="min-h-screen p-4 sm:p-6 lg:p-8">
   <!-- Header -->
   <div class="mb-6 animate-slideDown">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -16,7 +16,7 @@
     </div>
 
     <!-- Search and Filters -->
-    <div class="bg-white rounded-xl p-4 shadow-md border border-[#D9E1FF]">
+    <div class="rounded-xl p-4">
       <!-- Search -->
       <div class="mb-4">
         <div class="relative">
@@ -104,7 +104,7 @@
   <!-- Posts List -->
   @if (!loading() && !error()) {
     @if (filteredPosts().length === 0) {
-      <div class="bg-white rounded-xl p-12 text-center shadow-md border border-[#D9E1FF]">
+      <div class="rounded-xl p-12 text-center">
         <i class="fa-solid fa-inbox text-6xl text-gray-300 mb-4"></i>
         <h3 class="text-xl font-semibold text-gray-700 mb-2">No Published Posts Found</h3>
         <p class="text-gray-500 mb-6">
@@ -127,7 +127,7 @@
     } @else {
       <div class="grid gap-6">
         @for (post of filteredPosts(); track post.id) {
-          <div class="bg-white rounded-xl shadow-md border border-[#D9E1FF] hover:shadow-lg transition-all duration-300 overflow-hidden animate-slideUp">
+          <div class="rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden animate-slideUp">
             <!-- Post Header -->
             <div class="p-6 border-b border-[#D9E1FF]">
               <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -195,7 +195,7 @@
               
               <div class="grid gap-3">
                 @for (detail of post.socialMediaDetails; track detail.publishLogId) {
-                  <div class="bg-white rounded-lg p-4 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-200">
+                  <div class="rounded-lg p-4 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-200">
                     <div class="flex items-start justify-between gap-4">
                       <div class="flex items-start gap-3 flex-1">
                         <!-- Platform Icon -->

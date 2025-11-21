@@ -1,33 +1,40 @@
 <section
-  class="relative overflow-hidden text-[#1A1A1A] py-16 sm:py-24 md:py-32 lg:py-44 px-4 sm:px-6 md:px-8 lg:px-16 bg-[#FFFFFF]"
+  #featuresSection
+  id="features"
+  class="relative overflow-hidden text-[#1A1A1A] py-20 sm:py-28 md:py-36 lg:py-44 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 bg-gradient-to-b from-white via-[#F8FAFF] to-white min-h-screen flex items-center"
+  style="scroll-snap-align: start;"
 >
   <div 
-    class="absolute inset-0 pointer-events-none"
-    style="
-      background:
-        radial-gradient(
-          circle at 50% 50%,
-          rgba(76,111,255,0.25) 0%,
-          rgba(255,214,249,0.25) 30%,
-          rgba(255,255,255,0.9) 70%,
-          #FFFFFF 100%
-        );
-    "
-  ></div>
+    #parallaxBg
+    class="absolute inset-0 pointer-events-none transition-transform duration-100 ease-out will-change-transform gpu-accelerated"
+  >
+    <div class="absolute inset-0 opacity-30"
+      style="background: 
+        radial-gradient(circle at 30% 40%, rgba(76, 111, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 70% 60%, rgba(191, 201, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 214, 232, 0.05) 0%, transparent 60%);">
+    </div>
+    <div class="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-[#4C6FFF] rounded-full mix-blend-multiply filter blur-[120px] opacity-10 animate-blob will-change-transform"></div>
+    <div class="absolute bottom-1/4 left-1/4 w-[450px] h-[450px] bg-[#BFC9FF] rounded-full mix-blend-multiply filter blur-[120px] opacity-10 animate-blob animation-delay-2000 will-change-transform"></div>
+  </div>
 
-  <div class="max-w-7xl mx-auto relative z-10">
+  <div class="max-w-7xl mx-auto relative z-10 w-full">
 
-    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-8 sm:mb-12 md:mb-16 lg:mb-20 px-4">
-      Power Meets <span class="text-[#4C6FFF]">Simplicity</span>
+    <h2 class="text-headline font-extrabold text-center mb-12 sm:mb-16 md:mb-20 px-4" data-aos="fade-up">
+      Power Meets <span class="gradient-text">Simplicity</span>
     </h2>
 
+    <!-- Original Grid Layout with Hover Image Effects -->
     <div class="grid grid-cols-1 sm:grid-cols-6 lg:grid-cols-12 gap-4 sm:gap-6">
 
-      <!-- ROW 1 -->
+      <!-- ROW 1 - Full Width Card -->
       <div
         class="group col-span-1 sm:col-span-6 lg:col-span-12 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-10 md:p-14
-               relative overflow-visible transition-all duration-300 ease-out 
-               lg:hover:bg-[#4C6FFF]"
+               relative overflow-visible transition-all duration-500 ease-out 
+               lg:hover:bg-gradient-to-br lg:hover:from-[#4C6FFF] lg:hover:to-[#3B5BFF]
+               hover:shadow-[0_20px_60px_rgba(76,111,255,0.3)] hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="100"
       >
         <h3
           class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-3 
@@ -44,20 +51,24 @@
           Schedule posts across platforms with AI timing recommendations.
         </p>
 
+        <!-- Hover Image Effect -->
         <img
           src="/assets/image/schedule-instagram (1).png"
           class="hidden md:block absolute -top-12 right-16 w-[200px] md:w-[220px] rounded-2xl shadow-2xl opacity-0
                  lg:group-hover:opacity-100 lg:group-hover:-translate-y-3 
-                 transition-all duration-300 rotate-[4deg]"
-          style="z-index:5;"
+                 transition-all duration-500 rotate-[4deg] z-20 pointer-events-none"
+          style="--rotation: 4deg;"
         />
       </div>
 
       <!-- LEFT CARD -->
       <div
         class="group col-span-1 sm:col-span-3 lg:col-span-4 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12
-               relative overflow-visible transition-all duration-300 ease-out 
-               lg:hover:bg-[#4C6FFF]"
+               relative overflow-visible transition-all duration-500 ease-out 
+               lg:hover:bg-gradient-to-br lg:hover:from-[#4C6FFF] lg:hover:to-[#3B5BFF]
+               hover:shadow-[0_20px_60px_rgba(76,111,255,0.3)] hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="200"
       >
         <h3 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-3
                    transition-colors duration-300 lg:group-hover:text-white">
@@ -72,26 +83,30 @@
           Track engagement, growth, and performance instantly.
         </p>
 
+        <!-- Multiple Hover Images -->
         <img
           src="/assets/image/Real-Time-Analytics.jpg"
           class="hidden lg:block absolute -top-10 -right-32 w-[220px] md:w-[230px] rounded-2xl shadow-2xl opacity-0
-                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-3 transition-all duration-300 rotate-[-6deg]"
-          style="z-index:5;"
+                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-3 transition-all duration-500 rotate-[-6deg] z-20 pointer-events-none"
+          style="--rotation: -6deg;"
         />
 
         <img
           src="/assets/image/realtime-time-analytics.jpg"
           class="hidden lg:block absolute top-[100px] -right-24 w-[200px] md:w-[220px] rounded-2xl shadow-2xl opacity-0
-                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-2 transition-all duration-300 rotate-[6deg]"
-          style="z-index:4;"
+                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-2 transition-all duration-500 rotate-[6deg] z-20 pointer-events-none"
+          style="--rotation: 6deg;"
         />
       </div>
 
       <!-- MIDDLE CARD -->
       <div
         class="group col-span-1 sm:col-span-3 lg:col-span-4 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12 
-               relative overflow-visible transition-all duration-300 ease-out 
-               lg:hover:bg-[#4C6FFF]"
+               relative overflow-visible transition-all duration-500 ease-out 
+               lg:hover:bg-gradient-to-br lg:hover:from-[#4C6FFF] lg:hover:to-[#3B5BFF]
+               hover:shadow-[0_20px_60px_rgba(76,111,255,0.3)] hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="300"
       >
         <h3 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-3
                    transition-colors duration-300 lg:group-hover:text-white">
@@ -106,34 +121,39 @@
           Manage approvals and content strategy together.
         </p>
 
+        <!-- Multiple Hover Images -->
         <img
           src="/assets/image/licensed-image.jpg"
           class="hidden lg:block absolute -top-20 -right-32 w-[260px] md:w-[280px] rounded-2xl shadow-2xl opacity-0 scale-95
                  lg:group-hover:opacity-100 lg:group-hover:scale-100 lg:group-hover:-translate-y-3
-                 transition-all duration-300 rotate-[-8deg]"
-          style="z-index:10;"
+                 transition-all duration-500 rotate-[-8deg] z-20 pointer-events-none"
+          style="--rotation: -8deg;"
         />
 
         <img
           src="/assets/image/team collabration.webp"
           class="hidden lg:block absolute bottom-[-40px] left-[-60px] w-[220px] md:w-[240px] rounded-2xl shadow-xl opacity-0 scale-95
                  lg:group-hover:opacity-100 lg:group-hover:scale-100 lg:group-hover:-translate-y-2
-                 transition-all duration-300 rotate-[8deg]"
-          style="z-index:8;"
+                 transition-all duration-500 rotate-[8deg] z-20 pointer-events-none"
+          style="--rotation: 8deg;"
         />
       </div>
 
       <!-- RIGHT TALL CARD -->
       <div
         class="group col-span-1 sm:col-span-6 lg:col-span-4 lg:row-span-2 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12
-               relative overflow-visible transition-all duration-300 ease-out min-h-[200px] sm:min-h-[300px]
-               lg:hover:bg-[#4C6FFF]"
+               relative overflow-visible transition-all duration-500 ease-out min-h-[200px] sm:min-h-[300px]
+               lg:hover:bg-gradient-to-br lg:hover:from-[#4C6FFF] lg:hover:to-[#3B5BFF]
+               hover:shadow-[0_20px_60px_rgba(76,111,255,0.3)] hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="400"
       >
+        <!-- Hover Image -->
         <img
           src="/assets/image/dashboard.png"
           class="hidden lg:block absolute -top-16 left-6 w-[220px] md:w-[240px] rounded-2xl shadow-2xl opacity-0
-                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-2 transition-all duration-300 rotate-[6deg]"
-          style="z-index:6;"
+                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-2 transition-all duration-500 rotate-[6deg] z-20 pointer-events-none"
+          style="--rotation: 6deg;"
         />
 
         <div class="absolute bottom-6 sm:bottom-10 left-6 sm:left-10">
@@ -155,8 +175,11 @@
       <!-- ROW 3 -->
       <div
         class="group col-span-1 sm:col-span-6 lg:col-span-8 bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-12
-               relative overflow-visible transition-all duration-300 ease-out 
-               lg:hover:bg-[#4C6FFF]"
+               relative overflow-visible transition-all duration-500 ease-out 
+               lg:hover:bg-gradient-to-br lg:hover:from-[#4C6FFF] lg:hover:to-[#3B5BFF]
+               hover:shadow-[0_20px_60px_rgba(76,111,255,0.3)] hover:-translate-y-2"
+        data-aos="fade-up"
+        data-aos-delay="500"
       >
         <h3 class="text-xl sm:text-2xl md:text-3xl font-bold flex items-center gap-3 
                    transition-colors duration-300 lg:group-hover:text-white">
@@ -168,21 +191,22 @@
 
         <p class="mt-4 text-sm sm:text-base md:text-lg text-[#222222]
                   transition-colors duration-300 lg:group-hover:text-gray-100">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit.
+          Get intelligent recommendations powered by advanced AI algorithms.
         </p>
 
+        <!-- Multiple Hover Images -->
         <img
           src="/assets/image/Ai.jpeg"
           class="hidden lg:block absolute -top-12 right-12 w-[200px] md:w-[220px] rounded-2xl shadow-2xl opacity-0
-                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-3 transition-all duration-300 rotate-[-5deg]"
-          style="z-index:5;"
+                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-3 transition-all duration-500 rotate-[-5deg] z-20 pointer-events-none"
+          style="--rotation: -5deg;"
         />
 
         <img
           src="/assets/image/Ai2.jpg"
           class="hidden lg:block absolute top-20 right-[-10px] w-[200px] md:w-[220px] rounded-2xl shadow-2xl opacity-0
-                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-2 transition-all duration-300 rotate-[5deg]"
-          style="z-index:4;"
+                 lg:group-hover:opacity-100 lg:group-hover:-translate-y-2 transition-all duration-500 rotate-[5deg] z-20 pointer-events-none"
+          style="--rotation: 5deg;"
         />
       </div>
 

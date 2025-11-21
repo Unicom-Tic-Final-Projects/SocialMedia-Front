@@ -1,0 +1,135 @@
+<section
+  class="relative bg-gradient-to-br from-[#F8FAFF] via-white to-[#F8FAFF] text-[#1A1A1A] py-16 sm:py-20 md:py-28 lg:py-36 px-4 sm:px-6 md:px-12 overflow-hidden"
+  data-aos="fade-in"
+>
+  <!-- ReactBits-inspired animated gradient background -->
+  <div
+    class="absolute inset-0 pointer-events-none overflow-hidden"
+  >
+    <div
+      class="absolute top-1/4 left-1/4 w-96 h-96 bg-[#4C6FFF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"
+    ></div>
+    <div
+      class="absolute top-1/3 right-1/4 w-96 h-96 bg-[#BFC9FF] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"
+    ></div>
+    <div
+      class="absolute bottom-1/4 left-1/3 w-96 h-96 bg-[#FFD6E8] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"
+    ></div>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center">
+      <!-- Left: 3D Model with ReactBits-style container -->
+      <div
+        class="relative order-2 lg:order-1"
+        data-aos="fade-right"
+        data-aos-delay="200"
+      >
+        <!-- Floating glow effect -->
+        <div
+          class="absolute -inset-4 bg-gradient-to-r from-[#4C6FFF] via-[#BFC9FF] to-[#FFD6E8] rounded-3xl opacity-20 blur-2xl animate-pulse"
+        ></div>
+        
+        <div
+          class="relative bg-white/80 backdrop-blur-sm rounded-3xl p-4 sm:p-6 shadow-2xl border border-[#BFC9FF]/30 hover:shadow-[0_20px_60px_rgba(76,111,255,0.3)] transition-all duration-500 hover:scale-[1.02]"
+        >
+          <app-model-viewer
+            [modelPath]="'assets/models/nexbot_robot_character_concept.glb'"
+            [rotationSpeed]="0.003"
+          ></app-model-viewer>
+        </div>
+      </div>
+
+      <!-- Right: Content with ReactBits-inspired animations -->
+      <div class="text-center lg:text-left order-1 lg:order-2" data-aos="fade-left">
+        <!-- Animated badge -->
+        <div
+          class="inline-flex items-center gap-2 bg-gradient-to-r from-[#4C6FFF] to-[#BFC9FF] text-white px-4 py-2 rounded-full text-sm font-semibold mb-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          data-aos="zoom-in"
+          data-aos-delay="300"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"
+            ></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+          </span>
+          AI-Powered Assistant
+        </div>
+
+        <h2
+          class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 sm:mb-6 leading-tight text-[#1A1A1A]"
+          data-aos="fade-up"
+          data-aos-delay="400"
+        >
+          Meet Your
+          <span
+            class="bg-gradient-to-r from-[#4C6FFF] to-[#BFC9FF] bg-clip-text text-transparent"
+          >
+            AI Companion
+          </span>
+        </h2>
+
+        <p
+          class="text-base sm:text-lg md:text-xl text-[#222222]/90 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto lg:mx-0"
+          data-aos="fade-up"
+          data-aos-delay="500"
+        >
+          Experience the future of social media management with our intelligent AI assistant. 
+          Get personalized recommendations, automate content creation, and boost your engagement.
+        </p>
+
+        <!-- ReactBits-inspired feature cards -->
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10"
+          data-aos="fade-up"
+          data-aos-delay="600"
+        >
+          <div
+            class="group bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-[#BFC9FF]/30 hover:border-[#4C6FFF] hover:bg-white/80 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-[#4C6FFF] to-[#BFC9FF] rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300"
+            >
+              <i class="fas fa-brain text-white text-xl"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-[#1A1A1A]">Smart Insights</h3>
+            <p class="text-sm text-[#222222]/80">
+              AI analyzes your audience and suggests optimal posting times
+            </p>
+          </div>
+
+          <div
+            class="group bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-[#BFC9FF]/30 hover:border-[#4C6FFF] hover:bg-white/80 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+          >
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-[#4C6FFF] to-[#BFC9FF] rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300"
+            >
+              <i class="fas fa-magic text-white text-xl"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-[#1A1A1A]">Auto Content</h3>
+            <p class="text-sm text-[#222222]/80">
+              Generate engaging posts with AI-powered content creation
+            </p>
+          </div>
+        </div>
+
+        <!-- ReactBits-style CTA button -->
+        <button
+          type="button"
+          (click)="navigateTo('/auth/register')"
+          class="group relative inline-flex items-center justify-center px-8 sm:px-10 py-4 sm:py-5 text-base sm:text-lg font-semibold text-white bg-gradient-to-r from-[#4C6FFF] to-[#BFC9FF] rounded-xl overflow-hidden transition-all duration-500 hover:scale-105 hover:shadow-[0_10px_40px_rgba(76,111,255,0.4)]"
+          data-aos="zoom-in"
+          data-aos-delay="700"
+        >
+          <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-[#3B5BFF] to-[#AAB8FF] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></span>
+          <span class="relative flex items-center gap-2">
+            Get Started Free
+            <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+

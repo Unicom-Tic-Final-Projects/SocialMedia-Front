@@ -62,9 +62,9 @@
     </div>
   } @else {
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10 magic-bento-cards">
 
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+      <div #statCard class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden">
         <div class="flex items-center justify-between mb-3">
           <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Total Posts</p>
           <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
@@ -75,7 +75,7 @@
         <p class="text-xs text-gray-600">All your posts</p>
       </div>
 
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+      <div #statCard class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden">
         <div class="flex items-center justify-between mb-3">
           <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Published</p>
           <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
@@ -86,7 +86,7 @@
         <p class="text-xs text-gray-600">{{ getSuccessRate() }}% success rate</p>
       </div>
 
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+      <div #statCard class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden">
         <div class="flex items-center justify-between mb-3">
           <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Pending</p>
           <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
@@ -97,7 +97,7 @@
         <p class="text-xs text-gray-600">Awaiting approval</p>
       </div>
 
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp">
+      <div #statCard class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden">
         <div class="flex items-center justify-between mb-3">
           <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Drafts</p>
           <div class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">

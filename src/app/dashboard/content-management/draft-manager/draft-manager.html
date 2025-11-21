@@ -1,4 +1,4 @@
-<div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 md:p-8 border border-[#D9E1FF]">
+<div class="p-4 sm:p-6 md:p-8">
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A]">Draft Posts</h2>
     <span class="text-sm text-gray-600">{{ drafts().length }} draft{{ drafts().length !== 1 ? 's' : '' }}</span>
@@ -8,7 +8,7 @@
   @if (loading()) {
     <div class="space-y-4">
       @for (item of [1,2,3,4,5]; track item) {
-        <div class="bg-white rounded-lg border border-[#D9E1FF] p-4">
+        <div class="rounded-lg p-4">
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1 space-y-3">
               <div class="skeleton skeleton-text w-3/4"></div>

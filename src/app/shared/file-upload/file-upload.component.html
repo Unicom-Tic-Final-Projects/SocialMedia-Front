@@ -1,0 +1,139 @@
+<div class="file-upload-root">
+  <!-- Drop Zone -->
+  <div
+    class="file-upload-dropzone"
+    [class.dragging]="isDraggingOver()"
+    [class.disabled]="isDisabled"
+    [class.invalid]="isInvalid()"
+    (dragover)="handleDragIn($event)"
+    (dragenter)="handleDragIn($event)"
+    (dragleave)="handleDragOut($event)"
+    (dragend)="handleDragOut($event)"
+    (drop)="handleDrop($event)">
+    <input
+      #fileInput
+      type="file"
+      class="sr-only"
+      [disabled]="isDisabled"
+      [accept]="accept"
+      [multiple]="allowsMultiple"
+      (change)="handleInputFileChange($event)" />
+
+    <div class="dropzone-icon">
+      @if (isDraggingOver()) {
+        <i class="fa-solid fa-file-arrow-down text-4xl text-[#4C6FFF] animate-bounce"></i>
+      } @else {
+        <i class="fa-solid fa-cloud-arrow-up text-4xl text-[#4C6FFF]"></i>
+      }
+    </div>
+
+    <div class="dropzone-content">
+      <div class="dropzone-actions">
+        <button
+          type="button"
+          class="dropzone-button"
+          [disabled]="isDisabled"
+          (click)="triggerFileInput()">
+          Click to upload
+          <span class="md:hidden"> and attach files</span>
+        </button>
+        <span class="dropzone-or max-md:hidden">or drag and drop</span>
+      </div>
+      <p class="dropzone-hint" [class.error]="isInvalid()">
+        {{ hint || 'SVG, PNG, JPG or GIF (max. 800x400px)' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- File List -->
+  @if (uploadedFiles.length > 0) {
+    <ul class="file-upload-list">
+      @for (file of uploadedFiles; track file.id) {
+        <li
+          class="file-list-item"
+          [class.failed]="file.failed">
+          <!-- File Icon -->
+          <div class="file-icon">
+            <i class="fa-solid" [ngClass]="getFileIcon(file)"></i>
+          </div>
+
+          <!-- File Info -->
+          <div class="file-info">
+            <div class="file-header">
+              <div class="file-details">
+                <p class="file-name">{{ file.name }}</p>
+                <div class="file-meta">
+                  <span class="file-size">{{ getReadableFileSize(file.size) }}</span>
+                  <span class="file-meta-separator">•</span>
+                  <div class="file-status">
+                    @if (file.progress === 100 && !file.failed) {
+                      <i class="fa-solid fa-check-circle text-green-500"></i>
+                      <span class="text-green-500 font-medium">Complete</span>
+                    } @else if (file.failed) {
+                      <i class="fa-solid fa-xmark-circle text-red-500"></i>
+                      <span class="text-red-500 font-medium">Failed</span>
+                    } @else {
+                      <i class="fa-solid fa-cloud-arrow-up text-gray-400"></i>
+                      <span class="text-gray-400 font-medium">Uploading...</span>
+                    }
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="file-delete-button"
+                (click)="onDelete(file.id)"
+                aria-label="Delete file">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <!-- Progress Bar -->
+            @if (!file.failed) {
+              <div class="file-progress-container">
+                @if (variant === 'progressBar') {
+                  <div class="progress-bar-wrapper">
+                    <div
+                      class="progress-bar"
+                      [style.width.%]="file.progress"
+                      role="progressbar"
+                      [attr.aria-valuenow]="file.progress"
+                      aria-valuemin="0"
+                      aria-valuemax="100">
+                    </div>
+                  </div>
+                } @else {
+                  <div class="progress-fill-wrapper">
+                    <div
+                      class="progress-fill"
+                      [style.transform]="'translateX(-' + (100 - file.progress) + '%)'"
+                      [class.complete]="file.progress === 100"
+                      role="progressbar"
+                      [attr.aria-valuenow]="file.progress"
+                      aria-valuemin="0"
+                      aria-valuemax="100">
+                    </div>
+                    <div class="progress-fill-inner">
+                      <span class="progress-percentage">{{ file.progress }}%</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Retry Button -->
+            @if (file.failed) {
+              <button
+                type="button"
+                class="file-retry-button"
+                (click)="onRetry(file.id)">
+                Try again
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>
+

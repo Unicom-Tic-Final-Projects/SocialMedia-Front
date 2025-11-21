@@ -1,138 +1,213 @@
 <section
+  #pricingSection
   id="pricing"
-  class="relative bg-[#FFFFFF] text-[#222222] py-12 sm:py-16 md:py-20 lg:py-28 px-4 sm:px-6 md:px-12 overflow-hidden"
+  class="relative bg-gradient-to-b from-white via-[#F8FAFF] to-white text-[#222222] py-20 sm:py-28 md:py-36 lg:py-44 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-hidden min-h-screen flex items-center"
   data-aos="fade-in"
+  style="scroll-snap-align: start;"
 >
-  <!-- ✨ Soft mid glow only (top & bottom remain pure white) -->
+  <!-- Professional Parallax Background -->
   <div
-    class="absolute inset-0 pointer-events-none"
-    style="
-      background:
-        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 25%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
-        radial-gradient(circle at 50% 45%, rgba(191,201,255,0.35) 0%, rgba(255,214,232,0.3) 35%, transparent 70%);
-    ">
+    #parallaxBg
+    class="absolute inset-0 pointer-events-none transition-transform duration-100 ease-out will-change-transform gpu-accelerated"
+  >
+    <div class="absolute inset-0 opacity-20"
+      style="background: 
+        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 20%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
+        radial-gradient(circle at 50% 45%, rgba(191,201,255,0.2) 0%, rgba(255,214,232,0.15) 35%, transparent 70%);">
+    </div>
+    <div class="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-[#4C6FFF] rounded-full mix-blend-multiply filter blur-[120px] opacity-8 animate-blob will-change-transform"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] bg-[#BFC9FF] rounded-full mix-blend-multiply filter blur-[120px] opacity-8 animate-blob animation-delay-2000 will-change-transform"></div>
   </div>
 
-  <div class="max-w-6xl mx-auto relative z-10">
-    <h2
-      class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-8 sm:mb-12 md:mb-16 text-[#1A1A1A]"
-      data-aos="fade-down"
-    >
-      Choose Your Plan
-    </h2>
+  <div class="max-w-7xl mx-auto relative z-10 w-full">
+    
+    <!-- Professional Section Header -->
+    <div class="text-center mb-16 sm:mb-20 md:mb-24" data-aos="fade-up">
+      <div class="inline-flex items-center gap-2 bg-[#F8FAFF] border border-[#BFC9FF]/30 text-[#4C6FFF] px-4 py-2 rounded-full text-sm font-semibold mb-6">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+        </svg>
+        <span>Pricing Plans</span>
+      </div>
+      
+      <h2 class="text-headline font-extrabold mb-6 text-[#1A1A1A]">
+        Choose Your
+        <span class="gradient-text">Perfect Plan</span>
+      </h2>
+      
+      <p class="text-lg sm:text-xl text-[#222222]/70 max-w-2xl mx-auto leading-relaxed">
+        Flexible pricing options designed to scale with your business needs
+      </p>
+    </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+    <!-- Professional Pricing Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+      
       <!-- Free Plan -->
       <div
-        class="group bg-white border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 md:p-10 text-center shadow-md hover:shadow-[0_10px_30px_rgba(76,111,255,0.15)] hover:scale-[1.03] transition-all duration-500"
-        data-aos="fade-right"
+        class="card group text-center relative"
+        data-aos="fade-up"
+        data-aos-delay="100"
       >
-        <h3 class="text-xl sm:text-2xl font-bold mb-2 text-[#1A1A1A]">Free</h3>
-        <div class="text-4xl sm:text-5xl font-extrabold mb-2 text-[#4C6FFF]">$0</div>
-        <p class="text-sm sm:text-base text-[#222222]/70 mb-4 sm:mb-6">Perfect for getting started</p>
+        <div class="mb-6">
+          <h3 class="text-2xl font-bold mb-2 text-[#1A1A1A]">Free</h3>
+          <div class="flex items-baseline justify-center gap-2 mb-2">
+            <span class="text-5xl font-extrabold text-[#4C6FFF]">$0</span>
+          </div>
+          <p class="text-sm text-[#222222]/60">Perfect for getting started</p>
+        </div>
 
-        <ul class="space-y-2 sm:space-y-3 mb-6 sm:mb-8 text-[#222222]/80 text-xs sm:text-sm">
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> 3 connected accounts
+        <ul class="space-y-4 mb-8 text-left">
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">3 connected accounts</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> 10 scheduled posts/month
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">10 scheduled posts/month</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Basic analytics
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Basic analytics</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Community support
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Community support</span>
           </li>
         </ul>
 
-        <button
-          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all hover:scale-105 shadow-[0_0_20px_rgba(76,111,255,0.4)]"
-        >
+        <button class="btn-primary w-full">
           Get Started
         </button>
       </div>
 
-      <!-- Pro Plan -->
+      <!-- Pro Plan - Featured -->
       <div
-        class="group bg-[#F8FAFF] border-2 border-[#4C6FFF] rounded-2xl p-6 sm:p-8 md:p-10 text-center shadow-lg hover:shadow-[0_10px_40px_rgba(76,111,255,0.2)] transform sm:scale-105 transition-all duration-500 relative overflow-hidden"
+        class="card group text-center relative border-2 border-[#4C6FFF] shadow-primary-lg transform scale-105"
         data-aos="fade-up"
+        data-aos-delay="200"
       >
-        <span
-          class="absolute top-3 sm:top-4 right-3 sm:right-4 bg-[#4C6FFF] text-white px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold shadow-md"
-        >
-          POPULAR
-        </span>
-        <h3 class="text-xl sm:text-2xl font-bold mb-2 text-[#1A1A1A]">Pro</h3>
-        <div class="text-4xl sm:text-5xl font-extrabold mb-2 text-[#4C6FFF]">
-          $19<span class="text-base sm:text-lg text-[#222222]/60">/mo</span>
+        <!-- Popular Badge -->
+        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+          <span class="bg-gradient-to-r from-[#4C6FFF] to-[#6F8AFF] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg">
+            MOST POPULAR
+          </span>
         </div>
-        <p class="text-sm sm:text-base text-[#222222]/70 mb-4 sm:mb-6">For professionals & teams</p>
 
-        <ul class="space-y-2 sm:space-y-3 mb-6 sm:mb-8 text-[#222222]/80 text-xs sm:text-sm">
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Unlimited accounts
+        <div class="mb-6">
+          <h3 class="text-2xl font-bold mb-2 text-[#1A1A1A]">Pro</h3>
+          <div class="flex items-baseline justify-center gap-2 mb-2">
+            <span class="text-5xl font-extrabold text-[#4C6FFF]">$19</span>
+            <span class="text-lg text-[#222222]/60">/mo</span>
+          </div>
+          <p class="text-sm text-[#222222]/60">For professionals & teams</p>
+        </div>
+
+        <ul class="space-y-4 mb-8 text-left">
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Unlimited accounts</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Unlimited posts
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Unlimited posts</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Advanced analytics
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Advanced analytics</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Team collaboration
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Team collaboration</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Priority support
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Priority support</span>
           </li>
         </ul>
 
-        <button
-          class="w-full bg-gradient-to-r from-[#4C6FFF] to-[#BFC9FF] hover:from-[#3B5BFF] hover:to-[#AAB8FF] text-white py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all hover:scale-105 shadow-[0_0_25px_rgba(76,111,255,0.4)]"
-        >
+        <button class="btn-primary w-full">
           Get Pro
         </button>
       </div>
 
       <!-- Enterprise Plan -->
       <div
-        class="group bg-white border border-[#E5E7EB] rounded-2xl p-6 sm:p-8 md:p-10 text-center shadow-md hover:shadow-[0_10px_30px_rgba(76,111,255,0.15)] hover:scale-[1.03] transition-all duration-500"
-        data-aos="fade-left"
+        class="card group text-center relative"
+        data-aos="fade-up"
+        data-aos-delay="300"
       >
-        <h3 class="text-xl sm:text-2xl font-bold mb-2 text-[#1A1A1A]">Enterprise</h3>
-        <div class="text-4xl sm:text-5xl font-extrabold mb-2 text-[#4C6FFF]">Custom</div>
-        <p class="text-sm sm:text-base text-[#222222]/70 mb-4 sm:mb-6">For large organizations</p>
+        <div class="mb-6">
+          <h3 class="text-2xl font-bold mb-2 text-[#1A1A1A]">Enterprise</h3>
+          <div class="flex items-baseline justify-center gap-2 mb-2">
+            <span class="text-5xl font-extrabold text-[#4C6FFF]">Custom</span>
+          </div>
+          <p class="text-sm text-[#222222]/60">For large organizations</p>
+        </div>
 
-        <ul class="space-y-2 sm:space-y-3 mb-6 sm:mb-8 text-[#222222]/80 text-xs sm:text-sm">
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Everything in Pro
+        <ul class="space-y-4 mb-8 text-left">
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Everything in Pro</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Dedicated account manager
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Dedicated account manager</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> Custom integrations
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">Custom integrations</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> API access
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">API access</span>
           </li>
-          <li class="flex items-center justify-center gap-2">
-            <i class="fas fa-check text-[#4C6FFF]"></i> 24/7 phone support
+          <li class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-[#4C6FFF] flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <span class="text-[#222222]/80">24/7 phone support</span>
           </li>
         </ul>
 
-        <button
-          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base transition-all hover:scale-105 shadow-[0_0_20px_rgba(76,111,255,0.4)]"
-        >
+        <button class="btn-primary w-full">
           Contact Sales
         </button>
       </div>
     </div>
-  </div>
 
-  <!-- ✅ White fade bottom for perfect component join -->
-  <div
-    class="absolute bottom-0 left-0 w-full h-[180px] pointer-events-none"
-    style="background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, #FFFFFF 100%);"
-  ></div>
+    <!-- Trust Message -->
+    <div class="text-center mt-12 sm:mt-16">
+      <p class="text-sm text-[#222222]/60">
+        All plans include a 14-day free trial. No credit card required.
+      </p>
+    </div>
+  </div>
 </section>

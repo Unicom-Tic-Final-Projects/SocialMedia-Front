@@ -4,6 +4,49 @@
   min-height: 400px;
 }
 
+/* Collapsible Sidebar - Icon Only by Default, Expand on Hover */
+.content-management-sidebar {
+  width: 80px;
+  transition: width 0.3s ease;
+  position: relative;
+  z-index: 10;
+}
+
+.content-management-sidebar:hover {
+  width: 256px;
+}
+
+.content-management-sidebar:hover .sidebar-nav-text,
+.content-management-sidebar:hover .sidebar-nav-badge {
+  opacity: 1 !important;
+}
+
+.content-management-sidebar > div {
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+.sidebar-nav-item {
+  justify-content: center;
+  position: relative;
+  min-width: fit-content;
+}
+
+.content-management-sidebar:hover .sidebar-nav-item {
+  justify-content: flex-start;
+}
+
+.sidebar-nav-text {
+  transition: opacity 0.3s ease;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-nav-badge {
+  transition: opacity 0.3s ease;
+  white-space: nowrap;
+}
+
 /* Responsive improvements */
 @media (max-width: 640px) {
   .content-tab-container {

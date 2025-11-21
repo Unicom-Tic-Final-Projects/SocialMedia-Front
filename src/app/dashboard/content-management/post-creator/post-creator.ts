@@ -14,11 +14,12 @@ import { CreatePostRequest } from '../../../models/post.models';
 import { SocialAccount } from '../../../models/social.models';
 import { AIAssistantComponent } from '../ai-assistant/ai-assistant';
 import { MediaSelectorComponent } from './media-selector/media-selector';
+import { FileUploadComponent, UploadedFile } from '../../../shared/file-upload/file-upload.component';
 
 @Component({
   selector: 'app-post-creator',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, KeyValuePipe, AIAssistantComponent, MediaSelectorComponent],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, KeyValuePipe, AIAssistantComponent, MediaSelectorComponent, FileUploadComponent],
   templateUrl: './post-creator.html',
   styleUrl: './post-creator.css'
 })
@@ -47,7 +48,7 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
   uploading = signal(false);
   uploadProgress = signal(0);
   showMediaLibrary = signal(false);
-  isDragging = signal(false);
+  uploadedFiles = signal<UploadedFile[]>([]);
 
   // Social accounts
   socialAccounts = signal<SocialAccount[]>([]);
@@ -165,42 +166,73 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      this.mediaPreview.set(e.target?.result as string);
+      const preview = e.target?.result as string;
+      this.mediaPreview.set(preview);
+      
+      // Add to uploaded files list
+      const fileId = `file-${Date.now()}-${Math.random()}`;
+      const newFile: UploadedFile = {
+        id: fileId,
+        file: file,
+        name: file.name,
+        size: file.size,
+        progress: 0,
+        failed: false,
+        type: file.type,
+        preview: preview
+      };
+      this.uploadedFiles.set([newFile]);
+      
+      // Auto-upload
+      this.uploadMedia(file, fileId);
     };
     reader.readAsDataURL(file);
-
-    this.uploadMedia(file);
   }
 
-  onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(true);
-  }
-
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    // Only set dragging to false if we're leaving the drop zone itself
-    const target = event.target as HTMLElement;
-    if (!target.closest('.drop-zone')) {
-      this.isDragging.set(false);
-    }
-  }
-
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDragging.set(false);
-
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      const file = files[0];
+  onFilesSelected(files: File[]): void {
+    if (files.length > 0) {
+      const file = files[0]; // For now, handle single file
       this.handleFile(file);
     }
   }
 
-  uploadMedia(file: File): void {
+  onUnacceptedFiles(files: File[]): void {
+    this.toastService.error('Invalid file type. Please upload images (JPEG, PNG, GIF, WebP) or videos (MP4, MOV, AVI, WebM, etc.)');
+  }
+
+  onSizeLimitExceeded(files: File[]): void {
+    const file = files[0];
+    const isVideo = file.type.startsWith('video/');
+    const sizeLimitMB = isVideo ? 100 : 10;
+    this.toastService.error(`File size exceeds ${sizeLimitMB}MB limit`);
+  }
+
+  onFileDeleted(fileId: string): void {
+    const files = this.uploadedFiles();
+    const fileToDelete = files.find(f => f.id === fileId);
+    if (fileToDelete) {
+      this.uploadedFiles.set(files.filter(f => f.id !== fileId));
+      this.selectedFile.set(null);
+      this.mediaPreview.set(null);
+      this.uploadedMediaId.set(null);
+      this.isVideo.set(false);
+    }
+  }
+
+  onFileRetry(fileId: string): void {
+    const files = this.uploadedFiles();
+    const fileToRetry = files.find(f => f.id === fileId);
+    if (fileToRetry) {
+      // Reset progress and retry upload
+      const updatedFiles = files.map(f => 
+        f.id === fileId ? { ...f, progress: 0, failed: false } : f
+      );
+      this.uploadedFiles.set(updatedFiles);
+      this.uploadMedia(fileToRetry.file);
+    }
+  }
+
+  uploadMedia(file: File, fileId?: string): void {
     // Validate file type first
     let isImage = file.type.startsWith('image/');
     let isVideo = file.type.startsWith('video/');
@@ -237,7 +269,15 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
 
     this.uploading.set(true);
     this.uploadProgress.set(0);
-    // Clear any previous errors
+    
+    // Update file progress in uploadedFiles
+    if (fileId) {
+      const files = this.uploadedFiles();
+      const updatedFiles = files.map(f => 
+        f.id === fileId ? { ...f, progress: 0, failed: false } : f
+      );
+      this.uploadedFiles.set(updatedFiles);
+    }
     
     console.log('Uploading media:', {
       name: file.name,
@@ -250,12 +290,30 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
     
     this.mediaService.uploadMedia(file, (progress) => {
       this.uploadProgress.set(progress);
+      // Update file progress in uploadedFiles
+      if (fileId) {
+        const files = this.uploadedFiles();
+        const updatedFiles = files.map(f => 
+          f.id === fileId ? { ...f, progress } : f
+        );
+        this.uploadedFiles.set(updatedFiles);
+      }
     }).subscribe({
       next: (response) => {
         console.log('Media upload successful:', response);
         this.uploadedMediaId.set(response.id);
         this.uploading.set(false);
         this.uploadProgress.set(100);
+        
+        // Update file as complete
+        if (fileId) {
+          const files = this.uploadedFiles();
+          const updatedFiles = files.map(f => 
+            f.id === fileId ? { ...f, progress: 100, failed: false } : f
+          );
+          this.uploadedFiles.set(updatedFiles);
+        }
+        
         this.toastService.success('Media uploaded successfully!');
         // Reset progress after a short delay
         setTimeout(() => {
@@ -274,9 +332,19 @@ export class PostCreatorComponent implements OnInit, OnDestroy {
         this.toastService.error(errorMsg);
         this.uploading.set(false);
         this.uploadProgress.set(0);
-        this.selectedFile.set(null);
-        this.mediaPreview.set(null);
-        this.isVideo.set(false);
+        
+        // Update file as failed
+        if (fileId) {
+          const files = this.uploadedFiles();
+          const updatedFiles = files.map(f => 
+            f.id === fileId ? { ...f, progress: 0, failed: true } : f
+          );
+          this.uploadedFiles.set(updatedFiles);
+        } else {
+          this.selectedFile.set(null);
+          this.mediaPreview.set(null);
+          this.isVideo.set(false);
+        }
       }
     });
   }

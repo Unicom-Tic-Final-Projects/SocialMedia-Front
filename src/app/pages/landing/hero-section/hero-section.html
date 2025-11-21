@@ -1,71 +1,247 @@
-<section
-  id="hero"
-  class="relative bg-[#FFFFFF] text-[#1A1A1A] pt-4 sm:pt-8 md:pt-12 lg:pt-16 pb-12 sm:pb-16 md:pb-24 lg:pb-32 px-4 sm:px-6 md:px-12 overflow-hidden"
-  data-aos="fade-in"
->
-  <!-- Soft Blue Glow Background -->
-  <div
-    class="absolute inset-0"
-    style="
-      background:
-        radial-gradient(circle at 20% 30%, #BFC9FF40 0%, transparent 60%),
-        radial-gradient(circle at 80% 70%, #BFC9FF40 0%, transparent 60%);
-    "
-  ></div>
+<section #heroSection id="hero"
+  class="relative bg-gradient-to-b from-white via-[#F8FAFF] to-white text-[#1A1A1A] min-h-screen flex items-center pt-20 pb-12 sm:pb-16 md:pb-24 lg:pb-32 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 overflow-hidden"
+  data-aos="fade-in" style="scroll-snap-align: start;">
+  <!-- Professional Parallax Background -->
+  <div #parallaxBg
+    class="absolute inset-0 transition-transform duration-100 ease-out will-change-transform gpu-accelerated">
+    <!-- Sophisticated gradient mesh -->
+    <div class="absolute inset-0 opacity-40" style="background: 
+        radial-gradient(circle at 20% 30%, rgba(76, 111, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(191, 201, 255, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(255, 214, 232, 0.1) 0%, transparent 60%);">
+    </div>
 
-  <div class="relative z-10 max-w-7xl mx-auto">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 items-center">
-      <!-- Left: Text Content -->
-      <div class="text-center lg:text-left order-2 lg:order-1">
-        <h1
-          class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight text-[#1A1A1A]"
-          data-aos="fade-up"
-        >
-          Manage All Your Socials Effortlessly
+    <!-- Animated blob effects with better performance -->
+    <div
+      class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#4C6FFF] rounded-full mix-blend-multiply filter blur-[120px] opacity-15 animate-blob will-change-transform">
+    </div>
+    <div
+      class="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-[#BFC9FF] rounded-full mix-blend-multiply filter blur-[120px] opacity-15 animate-blob animation-delay-2000 will-change-transform">
+    </div>
+    <div
+      class="absolute bottom-1/4 left-1/3 w-[480px] h-[480px] bg-[#FFD6E8] rounded-full mix-blend-multiply filter blur-[120px] opacity-15 animate-blob animation-delay-4000 will-change-transform">
+    </div>
+
+    <!-- Grid pattern overlay for depth -->
+    <div class="absolute inset-0 opacity-[0.02]" style="background-image: 
+        linear-gradient(rgba(76, 111, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(76, 111, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;">
+    </div>
+  </div>
+
+  <!-- Main Content with Parallax -->
+  <div #parallaxContent class="relative z-10 max-w-7xl mx-auto w-full transition-transform duration-100 ease-out">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 md:gap-12 lg:gap-16 items-center">
+
+      <!-- Left: Hero Content -->
+      <div class="lg:col-span-7 text-center lg:text-left">
+
+        <!-- Professional Badge with Rotating Text -->
+        <div
+          class="inline-flex items-center gap-2.5 bg-gradient-to-r from-[#4C6FFF] via-[#6F8AFF] to-[#BFC9FF] text-white px-5 py-2.5 rounded-full text-sm font-semibold mb-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-down"
+          data-aos="zoom-in">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
+          </span>
+          <app-rotating-text
+            [texts]="['AI-Powered Social Media Management', 'Smart Content Scheduling', 'Automated Analytics', 'Multi-Platform Publishing']"
+            [rotationInterval]="3000"
+            [staggerDuration]="0.02"
+            [staggerFrom]="'last'"
+            [loop]="true"
+            [auto]="true"
+            [splitBy]="'characters'"
+            [mainClassName]="'font-medium'"
+            [splitLevelClassName]="'overflow-hidden'"
+            [elementLevelClassName]="'inline-block'"
+          ></app-rotating-text>
+          <svg class="w-4 h-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+
+        <!-- Hero Headline with Rotating Text -->
+        <h1 class="text-display font-extrabold mb-6 sm:mb-8 text-[#1A1A1A] leading-tight animate-fade-in-up"
+          data-aos="fade-up">
+          Manage All Your
+          <br />
+          <span class="gradient-text inline-block">
+            <app-rotating-text
+              [texts]="['Socials Effortlessly', 'Content Seamlessly', 'Posts Automatically', 'Growth Continuously']"
+              [rotationInterval]="2500"
+              [staggerDuration]="0.03"
+              [staggerFrom]="'last'"
+              [loop]="true"
+              [auto]="true"
+              [splitBy]="'characters'"
+              [mainClassName]="'inline-block'"
+              [splitLevelClassName]="'overflow-hidden'"
+              [elementLevelClassName]="'inline-block'"
+            ></app-rotating-text>
+          </span>
         </h1>
 
-        <p
-          class="text-base sm:text-lg md:text-xl text-[#222222]/90 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto lg:mx-0"
-          data-aos="slide-up"
-          data-aos-delay="200"
-        >
+        <!-- Professional Subheadline -->
+        <p class="text-lg sm:text-xl md:text-2xl text-[#222222]/80 mb-8 sm:mb-10 md:mb-12 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light animate-fade-in-up animation-delay-200"
+          data-aos="slide-up" data-aos-delay="200">
           Schedule, publish, and analyze — all from one beautiful dashboard.
+          Experience the future of social media management with AI-powered insights.
         </p>
 
-        <!-- Buttons -->
+        <!-- Professional CTA Buttons -->
         <div
-          class="flex flex-col sm:flex-row gap-3 sm:gap-4 lg:justify-start justify-center"
-        >
-          <!-- Primary Button -->
-          <button
-            type="button"
-            (click)="navigateTo('/auth/register')"
-            class="bg-[#4C6FFF] hover:bg-[#3755FF] text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-500 hover:scale-105 hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)]"
-            data-aos="zoom-in"
-            data-aos-delay="400"
+          class="flex flex-col sm:flex-row gap-4 lg:justify-start justify-center mb-12 sm:mb-16 animate-fade-in-up animation-delay-300"
+          data-aos="zoom-in" data-aos-delay="400">
+          <!-- Primary CTA -->
+          <app-click-spark
+            [sparkColor]="'#4C6FFF'"
+            [sparkSize]="14"
+            [sparkRadius]="25"
+            [sparkCount]="12"
+            [duration]="600"
+            [easing]="'ease-out'"
+            [extraScale]="1.3"
           >
-            Get Started
-          </button>
+            <button type="button" (click)="navigateTo('/auth/register')"
+              class="btn-primary group relative px-8 py-4 text-base sm:text-lg">
+              <span class="relative flex items-center gap-2.5 z-10">
+                Get Started Free
+                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </button>
+          </app-click-spark>
 
-          <!-- Secondary Button -->
-          <button
-            type="button"
-            (click)="navigateTo('/auth/login')"
-            class="border-2 border-[#4C6FFF] text-[#1A1A1A] hover:bg-[#BFC9FF] hover:text-[#1A1A1A] px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-sm sm:text-base transition-all duration-500 hover:scale-105 hover:shadow-[0_8px_25px_rgba(76,111,255,0.3)]"
-            data-aos="zoom-in"
-            data-aos-delay="500"
+          <!-- Secondary CTA -->
+          <app-click-spark
+            [sparkColor]="'#4C6FFF'"
+            [sparkSize]="12"
+            [sparkRadius]="22"
+            [sparkCount]="10"
+            [duration]="500"
+            [easing]="'ease-out'"
+            [extraScale]="1.2"
           >
-            Learn More
-          </button>
+            <button type="button" (click)="navigateTo('/auth/login')"
+              class="group relative inline-flex items-center justify-center px-8 py-4 text-base sm:text-lg font-semibold text-[#1A1A1A] bg-white border-2 border-[#4C6FFF] rounded-xl hover:bg-[#F8FAFF] hover:border-[#3B5BFF] transition-all duration-300 hover:scale-105 hover:shadow-lg">
+              <span class="relative flex items-center gap-2.5">
+                Watch Demo
+                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </span>
+            </button>
+          </app-click-spark>
+        </div>
+
+        <!-- Professional Stats -->
+        <div class="grid grid-cols-3 gap-6 sm:gap-8 animate-fade-in-up animation-delay-500" data-aos="fade-up"
+          data-aos-delay="600">
+          <div class="text-center lg:text-left">
+            <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-[#4C6FFF] mb-1.5">10K+</div>
+            <div class="text-xs sm:text-sm text-[#222222]/60 font-medium uppercase tracking-wider">Active Users</div>
+          </div>
+          <div class="text-center lg:text-left">
+            <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-[#4C6FFF] mb-1.5">50K+</div>
+            <div class="text-xs sm:text-sm text-[#222222]/60 font-medium uppercase tracking-wider">Posts Scheduled</div>
+          </div>
+          <div class="text-center lg:text-left">
+            <div class="text-3xl sm:text-4xl md:text-5xl font-bold text-[#4C6FFF] mb-1.5">99%</div>
+            <div class="text-xs sm:text-sm text-[#222222]/60 font-medium uppercase tracking-wider">Satisfaction</div>
+          </div>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div
+          class="mt-12 sm:mt-16 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-sm text-[#222222]/60 animate-fade-in-up animation-delay-600">
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>No Credit Card Required</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>14-Day Free Trial</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd" />
+            </svg>
+            <span>Cancel Anytime</span>
+          </div>
         </div>
       </div>
 
-      <!-- Right: 3D Model -->
-      <div class="relative flex items-center justify-center lg:justify-end order-first lg:order-last -mt-8 sm:-mt-6 md:-mt-4 lg:mt-0 mb-4 sm:mb-6 md:mb-0" data-aos="zoom-in" data-aos-delay="300">
-        <div class="w-full max-w-md lg:max-w-lg xl:max-w-xl mx-auto">
-          <app-model-viewer></app-model-viewer>
+      <!-- Right: 3D Social Media Orbit -->
+      <div class="lg:col-span-5 relative flex items-start justify-center lg:justify-end pt-8 lg:pt-4" data-aos="zoom-in"
+        data-aos-delay="300">
+        <div class="social-orbit-stage">
+          <div class="social-orbit-ring" #orbitRing>
+            <!-- Social Media Icons in 3D Orbit -->
+            <div class="social-orbit-node" style="color: #1877F2;" title="Facebook">
+              <i class="fa-brands fa-facebook-f"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #E4405F;" title="Instagram">
+              <i class="fa-brands fa-instagram"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #1DA1F2;" title="X / Twitter">
+              <i class="fa-brands fa-x-twitter"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #0077B5;" title="LinkedIn">
+              <i class="fa-brands fa-linkedin-in"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #FF0000;" title="YouTube">
+              <i class="fa-brands fa-youtube"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #000000;" title="TikTok">
+              <i class="fa-brands fa-tiktok"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #BD081C;" title="Pinterest">
+              <i class="fa-brands fa-pinterest-p"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #FFFC00;" title="Snapchat">
+              <i class="fa-brands fa-snapchat"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #0088CC;" title="Telegram">
+              <i class="fa-brands fa-telegram"></i>
+            </div>
+            <div class="social-orbit-node" style="color: #000000;" title="Threads">
+              <i class="fa-brands fa-threads"></i>
+            </div>
+
+            <!-- Center Badge -->
+            <div class="social-orbit-core">
+              ONEVO<br><small>POST</small>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Scroll Indicator -->
+  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden lg:block">
+    <div class="w-6 h-10 border-2 border-[#4C6FFF]/30 rounded-full flex justify-center">
+      <div class="w-1.5 h-1.5 bg-[#4C6FFF] rounded-full mt-2 animate-pulse"></div>
     </div>
   </div>
 </section>

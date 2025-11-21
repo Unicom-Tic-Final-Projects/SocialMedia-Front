@@ -1,0 +1,31 @@
+<div class="bento-section grid gap-2 p-3 max-w-[54rem] select-none relative" 
+     style="font-size: clamp(1rem, 0.9rem + 0.5vw, 1.5rem)"
+     #gridRef>
+  <div class="card-responsive grid gap-2">
+    @for (card of defaultCards; track card.title; let index = $index) {
+      <div
+        #cardRef
+        class="card flex flex-col justify-between relative aspect-[4/3] min-h-[200px] w-full max-w-full p-5 rounded-[20px] border border-solid font-light overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-0.5 hover:shadow-[0_8px_25px_rgba(0,0,0,0.15)] cursor-pointer"
+        [class.card--border-glow]="enableBorderGlow"
+        [style.background-color]="card.color || '#060010'"
+        [style.border-color]="'#392e4e'"
+        [style.color]="'hsl(0, 0%, 100%)'"
+      >
+        <div class="card__header flex justify-between gap-3 relative text-white">
+          <span class="card__label text-base">{{ card.label }}</span>
+        </div>
+        <div class="card__content flex flex-col relative text-white">
+          <h3 class="card__title font-normal text-base m-0 mb-1" 
+              [class.text-clamp-1]="textAutoHide">
+            {{ card.title }}
+          </h3>
+          <p class="card__description text-xs leading-5 opacity-90"
+             [class.text-clamp-2]="textAutoHide">
+            {{ card.description }}
+          </p>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
