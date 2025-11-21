@@ -131,17 +131,17 @@ export class RegisterPage {
   }
   strengthLevel: number = 0;
 
-checkStrength() {
-  const value = this.registerForm.get('password')?.value || '';
+  checkStrength() {
+    const value = this.registerForm.get('password')?.value || '';
 
-  let score = 0;
+    let score = 0;
 
-  if (value.length >= 6) score++;
-  if (/[A-Z]/.test(value)) score++;
-  if (/[0-9]/.test(value) || /[^A-Za-z0-9]/.test(value)) score++;
+    if (value.length >= 6) score++;
+    if (/[A-Z]/.test(value)) score++;
+    if (/[0-9]/.test(value) || /[^A-Za-z0-9]/.test(value)) score++;
 
-  this.strengthLevel = score;
-}
+    this.strengthLevel = score;
+  }
 
 
   // Getters for form controls

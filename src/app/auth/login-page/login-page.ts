@@ -244,6 +244,7 @@ export class LoginPage {
     });
   }
 
+
   get email() {
     return this.isSignupMode() ? this.registerForm.get('email') : this.loginForm.get('email');
   }
