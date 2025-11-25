@@ -22,7 +22,7 @@ import { FileUploadComponent, UploadedFile } from '../../shared/file-upload/file
 @Component({
   selector: 'app-post-editor',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, DatePipe, PhotoCropComponent, PostPreviewComponent, FileUploadComponent],
+  imports: [ReactiveFormsModule, CommonModule, RouterLink, PhotoCropComponent, PostPreviewComponent, FileUploadComponent],
   templateUrl: './post-editor.html',
   styleUrl: './post-editor.css',
 })

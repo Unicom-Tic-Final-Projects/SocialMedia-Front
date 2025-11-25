@@ -99,13 +99,18 @@ export class LoginPage {
     return password.value === confirmPassword.value ? null : { passwordMismatch: true };
   }
 
-  checkStrength(): void {
+  strengthlevel: number = 0;
+
+  checkStrength() {
     const value = this.registerForm.get('password')?.value || '';
+
     let score = 0;
+
     if (value.length >= 6) score++;
     if (/[A-Z]/.test(value)) score++;
     if (/[0-9]/.test(value) || /[^A-Za-z0-9]/.test(value)) score++;
-    this.strengthLevel.set(score);
+
+    this.strengthlevel = score;
   }
 
   checkPasswordMatch(): void {

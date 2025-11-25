@@ -280,15 +280,36 @@
                 }
 
                 <!-- Password Strength Meter -->
-                <div class="flex gap-2 mt-3">
-                  <div class="h-2 w-full rounded-full transition-all duration-300"
-                      [ngClass]="strengthLevel() >= 1 ? 'bg-red-500' : 'bg-gray-300'"></div>
-                  <div class="h-2 w-full rounded-full transition-all duration-300"
-                      [ngClass]="strengthLevel() >= 2 ? 'bg-yellow-400' : 'bg-gray-300'"></div>
-                  <div class="h-2 w-full rounded-full transition-all duration-300"
-                      [ngClass]="strengthLevel() >= 3 ? 'bg-green-500' : 'bg-gray-300'"></div>
-                </div>
+                <div class="flex gap-2 mt-2">
 
+                  <!-- LINE 1 -->
+                  <div class="h-[2px] w-full rounded-full transition-all duration-300"
+                    [ngClass]="{
+                      'bg-red-500': strengthlevel === 1,
+                      'bg-yellow-400': strengthlevel === 2,
+                      'bg-green-500': strengthlevel === 3,
+                      'bg-gray-300': strengthlevel === 0
+                    }">
+                  </div>
+                
+                  <!-- LINE 2 -->
+                  <div class="h-[2px] w-full rounded-full transition-all duration-300"
+                    [ngClass]="{
+                      'bg-yellow-400': strengthlevel === 2,
+                      'bg-green-500': strengthlevel === 3,
+                      'bg-gray-300': strengthlevel !== 2 && strengthlevel !== 3
+                    }">
+                  </div>
+                
+                  <!-- LINE 3 -->
+                  <div class="h-[2px] w-full rounded-full transition-all duration-300"
+                    [ngClass]="{
+                      'bg-green-500': strengthlevel === 3,
+                      'bg-gray-300': strengthlevel !== 3
+                    }">
+                  </div>
+                
+                </div>
                 <!-- Strength Text -->
                 <p class="text-xs mt-1"
                   [ngClass]="{
