@@ -12,6 +12,7 @@ import { ClientContextService } from '../../services/client/client-context.servi
 import { PostDraftService } from '../../services/client/post-draft.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { AIService } from '../../services/client/ai.service';
 import { CreatePostRequest, UpdatePostRequest, SocialPost } from '../../models/post.models';
 import { Platform, SocialAccount } from '../../models/social.models';
 import { Client } from '../../models/client.models';
@@ -36,12 +37,17 @@ export class PostEditor implements OnInit {
   readonly postDraftService = inject(PostDraftService); // Public for template access
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly aiService = inject(AIService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   postForm: FormGroup;
   loading = signal(false);
   saving = signal(false);
+  improvingContent = signal(false);
+  showImprovementModal = signal(false);
+  originalContent = signal<string>('');
+  improvedContent = signal<string>('');
   
   // Content value signal for reactive character count
   private contentValue = signal<string>('');
@@ -242,7 +248,15 @@ export class PostEditor implements OnInit {
     }
 
     // Check if editing existing post
-    const postId = this.route.snapshot.paramMap.get('id');
+    // First check route params (e.g., /dashboard/post-editor/:id)
+    let postId = this.route.snapshot.paramMap.get('id');
+    
+    // If not in route params, check query params (e.g., /dashboard/post-editor?postId=...)
+    if (!postId) {
+      postId = this.route.snapshot.queryParamMap.get('postId') 
+            || this.route.snapshot.queryParamMap.get('id'); // Backward compatibility
+    }
+    
     if (postId) {
       this.postId.set(postId);
       this.loadPost(postId);
@@ -899,15 +913,46 @@ export class PostEditor implements OnInit {
    * Save as draft
    */
   saveDraft(): void {
+    // Prevent multiple simultaneous save requests
+    if (this.saving()) {
+      return;
+    }
+
+    // Validate form
     if (this.postForm.invalid) {
       this.markFormGroupTouched(this.postForm);
       return;
     }
 
+    // Save all current step data to the local draft service first
+    this.saveStep1ToDraft();
+    this.saveStep2ToDraft();
+    this.saveStep3ToDraft();
+
     this.saving.set(true);
 
-    // For draft, don't schedule
-    this.createOrUpdatePost(false);
+    // Save to backend as draft (createOrUpdatePost creates posts with status "Draft" by default)
+    // For draft, don't schedule (isScheduled = false)
+    this.createOrUpdatePost(false).subscribe({
+      next: (post) => {
+        this.saving.set(false);
+        this.toastService.success('Draft saved successfully!');
+        
+        // If this was a new post, update postId so we can edit it later
+        if (!this.postId()) {
+          this.postId.set(post.id);
+        }
+        
+        // Log for debugging
+        console.log('[PostEditor] Draft saved to backend:', post);
+      },
+      error: (error) => {
+        this.saving.set(false);
+        const errorMsg = error?.error?.message || error?.message || 'Failed to save draft';
+        this.toastService.error('Failed to save draft', errorMsg);
+        console.error('[PostEditor] Error saving draft:', error);
+      }
+    });
   }
 
   /**
@@ -1522,6 +1567,11 @@ export class PostEditor implements OnInit {
     return content.length;
   });
 
+  readonly hasContent = computed(() => {
+    const contentValue = this.contentValue() || this.content?.value || '';
+    return typeof contentValue === 'string' && contentValue.trim().length > 0;
+  });
+
   get maxCharacters(): number {
     return 4000;
   }
@@ -1550,6 +1600,187 @@ export class PostEditor implements OnInit {
     const scheduledDate = new Date(dateTime);
     const now = new Date();
     return scheduledDate <= now;
+  }
+
+  /**
+   * Improve content using AI
+   */
+  improveContentWithAI(): void {
+    const currentContent = this.content?.value || '';
+    if (!currentContent.trim()) {
+      this.toastService.warning('Please enter some content to improve');
+      return;
+    }
+
+    const user = this.authService.user();
+    if (!user || !user.tenantId) {
+      this.toastService.error('User not authenticated');
+      return;
+    }
+
+    this.improvingContent.set(true);
+
+    // Use generateCaptions with improvement prompt
+    // We'll use the current content as the topic and ask AI to improve it
+    const request = {
+      tenantId: user.tenantId,
+      topic: currentContent.trim(),
+      context: 'Improve this social media post content to make it more engaging, professional, and optimized for social media. Keep the original message and tone, but enhance clarity, grammar, and appeal.',
+      captionCount: 1,
+      includeHashtags: true, // Include hashtags in the improved content
+      hashtagCount: 5, // Suggest 5 relevant hashtags
+    };
+
+    // Store original content
+    this.originalContent.set(currentContent);
+    
+    // Use improveContent method - this actually improves the existing content (not generate new)
+    this.aiService.improveContent({
+      tenantId: user.tenantId,
+      content: currentContent.trim()
+    }).subscribe({
+      next: (improved: string | undefined) => {
+        // Ensure we have a valid string
+        const improvedContentStr: string = (improved || currentContent.trim() || '');
+        
+        // Clean the improved content - ensure it's always a string
+        let cleanedContentStr: string = this.cleanImprovedContent(improvedContentStr) || improvedContentStr;
+        if (!cleanedContentStr || cleanedContentStr.trim().length === 0) {
+          cleanedContentStr = improvedContentStr;
+        }
+        
+        // The AI response should already include hashtags at the end
+        // Format is: improved content text followed by blank line(s), then hashtags
+        // Parse and ensure proper formatting
+        let finalContent = cleanedContentStr;
+        
+        // Check if hashtags are already included (they should be from backend)
+        // If hashtags are missing, try to extract them or the content is ready as-is
+        // The backend now includes hashtags automatically, so we should be good
+        
+        // Clean up any extra whitespace or formatting issues
+        finalContent = finalContent.trim();
+        
+        // Ensure there's a blank line between content and hashtags if hashtags exist
+        // Find if there are hashtags (lines starting with #)
+        const lines = finalContent.split('\n');
+        const hashtagLines: string[] = [];
+        const contentLines: string[] = [];
+        let foundBlankLine = false;
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (line === '') {
+            foundBlankLine = true;
+            continue;
+          }
+          
+          // If we found a blank line and this line has hashtags, collect hashtag lines
+          if (foundBlankLine && (line.includes('#') || line.match(/^#\w+/))) {
+            hashtagLines.push(line);
+          } else if (!foundBlankLine || hashtagLines.length === 0) {
+            contentLines.push(lines[i]);
+          }
+        }
+        
+        // Reconstruct with proper formatting
+        const mainContent = contentLines.join('\n').trim();
+        if (hashtagLines.length > 0) {
+          const hashtags = hashtagLines.join(' ').trim();
+          finalContent = mainContent + '\n\n' + hashtags;
+        } else {
+          finalContent = mainContent;
+        }
+        
+        // Store improved content and show modal
+        this.improvedContent.set(finalContent);
+        this.showImprovementModal.set(true);
+        this.improvingContent.set(false);
+      },
+      error: (error) => {
+        console.error('Error improving content:', error);
+        const errorMsg = error?.error?.message || error?.message || 'Failed to improve content. Please try again.';
+        this.toastService.error('AI Improvement Failed', errorMsg);
+        this.improvingContent.set(false);
+      }
+    });
+  }
+
+  /**
+   * Accept the improved content
+   */
+  acceptImprovedContent(): void {
+    const improved = this.improvedContent();
+    if (improved) {
+      this.content?.setValue(improved);
+      this.contentValue.set(improved);
+      this.showImprovementModal.set(false);
+      this.toastService.success('Content updated successfully!');
+    }
+  }
+
+  /**
+   * Reject the improved content and keep original
+   */
+  rejectImprovedContent(): void {
+    this.showImprovementModal.set(false);
+  }
+
+  /**
+   * Close the improvement modal
+   */
+  closeImprovementModal(): void {
+    this.showImprovementModal.set(false);
+  }
+
+  /**
+   * Clean up improved content by removing prompt text, JSON formatting, and other artifacts
+   */
+  private cleanImprovedContent(content: string): string {
+    if (!content) return '';
+    
+    let cleaned = content;
+    
+    // Remove common prompt prefixes that might be included in the response
+    cleaned = cleaned.replace(/^Perfect caption for your post:\s*/gi, '');
+    cleaned = cleaned.replace(/^Generate \d+ engaging social media captions for the topic:\s*/gi, '');
+    cleaned = cleaned.replace(/^Context:.*?Return the response in JSON format:.*$/gis, '');
+    cleaned = cleaned.replace(/This caption is designed to maximize engagement.*$/gi, '');
+    cleaned = cleaned.replace(/Each caption should be unique.*$/gi, '');
+    
+    // Remove topic quote patterns like: 'topic text': or 'topic text'
+    cleaned = cleaned.replace(/^'[^']*':\s*/g, '');
+    cleaned = cleaned.replace(/^'([^']*)'$/g, '$1');
+    
+    // Remove JSON wrapper patterns if the response includes raw JSON
+    cleaned = cleaned.replace(/^{"captions":\[\{"caption":"/g, '');
+    cleaned = cleaned.replace(/","hashtags":\[.*?\],"tone":"[^"]*"\}\]}$/g, '');
+    cleaned = cleaned.replace(/\\"/g, '"');
+    cleaned = cleaned.replace(/\\n/g, '\n');
+    
+    // Extract caption from JSON if present (e.g., "caption":"text")
+    const jsonCaptionMatch = cleaned.match(/["']caption["']\s*:\s*["']([^"']+)["']/i);
+    if (jsonCaptionMatch && jsonCaptionMatch[1]) {
+      cleaned = jsonCaptionMatch[1].trim();
+    }
+    
+    // Remove any remaining JSON artifacts
+    cleaned = cleaned.replace(/^\s*[\{\[]\s*/g, '');
+    cleaned = cleaned.replace(/\s*[\}\]]\s*$/g, '');
+    
+    // Remove escape sequences
+    cleaned = cleaned.replace(/\\"/g, '"');
+    cleaned = cleaned.replace(/\\'/g, "'");
+    cleaned = cleaned.replace(/\\n/g, '\n');
+    
+    // Remove quote marks at start/end
+    cleaned = cleaned.replace(/^["']+|["']+$/g, '');
+    
+    // Clean up multiple whitespace
+    cleaned = cleaned.replace(/\s+/g, ' ');
+    cleaned = cleaned.replace(/\n\s*\n/g, '\n\n');
+    
+    return cleaned.trim();
   }
 
 }

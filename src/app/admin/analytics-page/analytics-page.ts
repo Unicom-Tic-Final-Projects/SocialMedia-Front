@@ -23,6 +23,9 @@ export class AdminAnalyticsPage implements OnInit {
 
   loadAnalyticsData() {
     this.loading = true;
+    this.totalViews = 0;
+    this.activeUsers = 0;
+    this.engagement = 0;
     
     // Fetch analytics data
     this.analyticsService.getAnalyticsData().subscribe({
@@ -32,12 +35,12 @@ export class AdminAnalyticsPage implements OnInit {
             this.analyticsService.getEngagementData().subscribe({
               next: (comments) => {
                 // Calculate metrics from API data
+                this.loading = false;
                 this.totalViews = posts.length * 1000; // Mock calculation
                 this.activeUsers = users.length;
                 this.engagement = posts.length > 0 
                   ? ((comments.length / posts.length) * 100) 
                   : 0;
-                this.loading = false;
               },
               error: () => {
                 this.loading = false;

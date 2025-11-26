@@ -3,21 +3,18 @@
        [class.w-20]="isCollapsed">
   <div class="flex flex-col h-full">
     <!-- Logo Section -->
-    <div class="p-6 border-b border-[#D9E1FF] flex items-center justify-between">
-      <div class="flex items-center gap-3" *ngIf="!isCollapsed">
-        <div class="w-8 h-8 bg-[#4C6FFF] rounded-lg flex items-center justify-center">
-          <i class="fas fa-chart-pie text-white text-sm"></i>
+    <div class="p-6 border-b border-[#D9E1FF]">
+      <div class="flex items-center justify-between">
+        <div *ngIf="!isCollapsed" class="flex flex-col gap-1">
+          <h2 class="text-2xl font-bold text-[#4C6FFF] tracking-tight">One<span class="text-[#1A1A1A]">vo</span></h2>
+          <p class="text-xs text-gray-600">Admin Portal</p>
         </div>
-        <span class="text-xl font-bold text-[#4C6FFF]">Admin</span>
+        <button (click)="onToggleCollapse()" 
+                class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50">
+          <i *ngIf="!isCollapsed" class="fas fa-chevron-left"></i>
+          <i *ngIf="isCollapsed" class="fas fa-chevron-right"></i>
+        </button>
       </div>
-      <button *ngIf="!isCollapsed" (click)="onToggleCollapse()" 
-              class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button *ngIf="isCollapsed" (click)="onToggleCollapse()" 
-              class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50 w-full">
-        <i class="fas fa-chevron-right"></i>
-      </button>
     </div>
 
     <!-- Navigation Menu -->
@@ -36,13 +33,17 @@
     <div class="p-4 border-t border-[#D9E1FF]">
       <div class="flex items-center gap-3 p-3 rounded-lg bg-white border border-[#D9E1FF]">
         <div class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-bold">
-          A
+          {{ avatarInitials() }}
         </div>
         <div *ngIf="!isCollapsed" class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-[#1A1A1A] truncate">Admin User</p>
-          <p class="text-xs text-gray-600 truncate">admin@onevo.com</p>
+          <p class="text-sm font-semibold text-[#1A1A1A] truncate">{{ displayName() }}</p>
+          <p class="text-xs text-gray-600 truncate">{{ displayEmail() }}</p>
         </div>
       </div>
+      <button *ngIf="!isCollapsed" (click)="logout()"
+        class="w-full mt-3 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors text-sm font-medium">
+        <i class="fa-solid fa-sign-out-alt"></i> Logout
+      </button>
     </div>
   </div>
 </aside>

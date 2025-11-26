@@ -22,6 +22,15 @@ interface PlatformMeta {
   color: string;
 }
 
+interface ImageAdjustments {
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  rotation: number;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
+}
+
 interface PlatformCropState {
   platform: Platform;
   crop: CropAdjustment;
@@ -31,6 +40,7 @@ interface PlatformCropState {
     left: number;
     top: number;
   };
+  adjustments: ImageAdjustments;
   isConnected: boolean;
   account?: SocialAccount;
 }
@@ -45,6 +55,7 @@ interface PlatformCropState {
 })
 export class PhotoCropComponent implements OnChanges {
   @Input() mediaUrl: string = '';
+  @Input() mediaType: 'image' | 'video' | null = null; // Media type: 'image', 'video', or null for auto-detect
   @Input() caption: string = '';
   @Input() selectedAccountIds: string[] = [];
   @Input() selectedPlatforms: Platform[] = []; // Platforms selected in Step 2
@@ -96,6 +107,16 @@ export class PhotoCropComponent implements OnChanges {
 
   // Default crop adjustment
   private readonly defaultCrop: CropAdjustment = { zoom: 1, offsetX: 0, offsetY: 0 };
+  
+  // Default image adjustments
+  private readonly defaultAdjustments: ImageAdjustments = {
+    brightness: 0,
+    contrast: 0,
+    saturation: 0,
+    rotation: 0,
+    flipHorizontal: false,
+    flipVertical: false,
+  };
 
   constructor(
     private readonly platformPreview: PlatformPreviewService,
@@ -108,9 +129,27 @@ export class PhotoCropComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedAccountIds'] || changes['mediaUrl'] || changes['selectedPlatforms']) {
+    if (changes['selectedAccountIds'] || changes['mediaUrl'] || changes['selectedPlatforms'] || changes['mediaType']) {
       this.initializePlatformStates();
     }
+  }
+
+  /**
+   * Detect if the media is a video
+   */
+  isVideo(): boolean {
+    if (this.mediaType) {
+      return this.mediaType === 'video';
+    }
+    // Auto-detect from URL or file extension
+    if (!this.mediaUrl) return false;
+    const url = this.mediaUrl.toLowerCase();
+    return url.includes('video') || 
+           url.endsWith('.mp4') || 
+           url.endsWith('.mov') || 
+           url.endsWith('.webm') || 
+           url.endsWith('.avi') ||
+           url.startsWith('data:video/');
   }
 
   /**
@@ -148,6 +187,7 @@ export class PhotoCropComponent implements OnChanges {
           left: (displayDims.width - cropBoxWidth) / 2,
           top: (displayDims.height - cropBoxHeight) / 2,
         },
+        adjustments: { ...this.defaultAdjustments },
         isConnected,
         account: isConnected ? account : undefined,
       });
@@ -247,15 +287,180 @@ export class PhotoCropComponent implements OnChanges {
   }
 
   /**
-   * Get image style with crop adjustments
+   * Get image style with crop adjustments and image adjustments
    */
   imageStyle(platform: Platform): { [key: string]: string } {
     const crop = this.getCrop(platform);
-    return {
-      transform: `translate(${crop.offsetX}%, ${crop.offsetY}%) scale(${crop.zoom})`,
+    const adjustments = this.getAdjustments(platform);
+    
+    // Build transform string
+    let transform = `translate(${crop.offsetX}%, ${crop.offsetY}%) scale(${crop.zoom})`;
+    
+    // Add rotation
+    if (adjustments.rotation !== 0) {
+      transform += ` rotate(${adjustments.rotation}deg)`;
+    }
+    
+    // Add flip
+    if (adjustments.flipHorizontal) {
+      transform += ` scaleX(-1)`;
+    }
+    if (adjustments.flipVertical) {
+      transform += ` scaleY(-1)`;
+    }
+    
+    // Build filter string for brightness, contrast, saturation
+    const filters: string[] = [];
+    if (adjustments.brightness !== 0) {
+      filters.push(`brightness(${100 + adjustments.brightness}%)`);
+    }
+    if (adjustments.contrast !== 0) {
+      filters.push(`contrast(${100 + adjustments.contrast}%)`);
+    }
+    if (adjustments.saturation !== 0) {
+      filters.push(`saturate(${100 + adjustments.saturation}%)`);
+    }
+    
+    const style: { [key: string]: string } = {
+      transform,
       transformOrigin: 'center center',
-      willChange: 'transform',
+      willChange: 'transform, filter',
     };
+    
+    if (filters.length > 0) {
+      style['filter'] = filters.join(' ');
+    }
+    
+    return style;
+  }
+  
+  /**
+   * Get image adjustments for platform
+   */
+  getAdjustments(platform: Platform): ImageAdjustments {
+    const state = this.getCropState(platform);
+    return state?.adjustments ?? { ...this.defaultAdjustments };
+  }
+  
+  /**
+   * Get brightness for platform
+   */
+  getBrightness(platform: Platform): number {
+    return this.getAdjustments(platform).brightness;
+  }
+  
+  /**
+   * Get contrast for platform
+   */
+  getContrast(platform: Platform): number {
+    return this.getAdjustments(platform).contrast;
+  }
+  
+  /**
+   * Get saturation for platform
+   */
+  getSaturation(platform: Platform): number {
+    return this.getAdjustments(platform).saturation;
+  }
+  
+  /**
+   * Set brightness for platform
+   */
+  setBrightness(platform: Platform, value: number): void {
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (state) {
+      state.adjustments = { ...state.adjustments, brightness: Math.min(Math.max(value, -50), 50) };
+      states.set(platform, { ...state });
+      this.platformCropStates.set(new Map(states));
+      this.cropConfigsChange.emit(this.getCropConfigurations());
+    }
+  }
+  
+  /**
+   * Set contrast for platform
+   */
+  setContrast(platform: Platform, value: number): void {
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (state) {
+      state.adjustments = { ...state.adjustments, contrast: Math.min(Math.max(value, -50), 50) };
+      states.set(platform, { ...state });
+      this.platformCropStates.set(new Map(states));
+      this.cropConfigsChange.emit(this.getCropConfigurations());
+    }
+  }
+  
+  /**
+   * Set saturation for platform
+   */
+  setSaturation(platform: Platform, value: number): void {
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (state) {
+      state.adjustments = { ...state.adjustments, saturation: Math.min(Math.max(value, -50), 50) };
+      states.set(platform, { ...state });
+      this.platformCropStates.set(new Map(states));
+      this.cropConfigsChange.emit(this.getCropConfigurations());
+    }
+  }
+  
+  /**
+   * Rotate image for platform
+   */
+  rotateImage(platform: Platform, degrees: number): void {
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (state) {
+      const newRotation = (state.adjustments.rotation + degrees) % 360;
+      state.adjustments = { ...state.adjustments, rotation: newRotation };
+      states.set(platform, { ...state });
+      this.platformCropStates.set(new Map(states));
+      this.cropConfigsChange.emit(this.getCropConfigurations());
+    }
+  }
+  
+  /**
+   * Flip image for platform
+   */
+  flipImage(platform: Platform, direction: 'horizontal' | 'vertical'): void {
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (state) {
+      if (direction === 'horizontal') {
+        state.adjustments = { ...state.adjustments, flipHorizontal: !state.adjustments.flipHorizontal };
+      } else {
+        state.adjustments = { ...state.adjustments, flipVertical: !state.adjustments.flipVertical };
+      }
+      states.set(platform, { ...state });
+      this.platformCropStates.set(new Map(states));
+      this.cropConfigsChange.emit(this.getCropConfigurations());
+    }
+  }
+  
+  /**
+   * Reset image adjustments for platform
+   */
+  resetImage(platform: Platform): void {
+    const states = this.platformCropStates();
+    const state = states.get(platform);
+    if (state) {
+      state.crop = { ...this.defaultCrop };
+      state.adjustments = { ...this.defaultAdjustments };
+      const displayDims = this.getDisplayDimensions(platform);
+      const cropBoxWidth = Math.min(displayDims.width * 0.8, 280);
+      const cropBoxHeight = Math.min(displayDims.height * 0.8, 300);
+      state.cropBox = {
+        width: cropBoxWidth,
+        height: cropBoxHeight,
+        left: (displayDims.width - cropBoxWidth) / 2,
+        top: (displayDims.height - cropBoxHeight) / 2,
+      };
+      states.set(platform, { ...state });
+      this.platformCropStates.set(new Map(states));
+      this.cropBox.set({ ...state.cropBox });
+      this.cropConfigsChange.emit(this.getCropConfigurations());
+    }
   }
 
   /**
@@ -496,24 +701,51 @@ export class PhotoCropComponent implements OnChanges {
 
   /**
    * Crop image for a specific platform and return base64 string
-   * This crops the image exactly as shown in the preview
+   * This crops the image exactly as shown in the preview with all adjustments applied
    * 
    * The crop calculation:
    * 1. Maps cropBox (container coordinates) to displayed image coordinates
    * 2. Accounts for zoom/pan transform applied to the image
    * 3. Maps displayed coordinates to original image coordinates
    * 4. Extracts exact region and scales to crop box dimensions
+   * 5. Applies all image adjustments (brightness, contrast, saturation, rotation, flip)
    */
   async cropImageForPlatform(platform: Platform): Promise<string | null> {
     if (!this.mediaUrl || !this.imageLoaded()) return null;
 
     const state = this.platformCropStates().get(platform);
     if (!state) return null;
+    
+    const adjustments = state.adjustments;
 
     return new Promise((resolve) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
+      // Helper function to process the image/video frame
+      const processMedia = async () => {
+        let img: HTMLImageElement;
+        
+        // For videos, extract a frame first
+        if (this.isVideo()) {
+          const frameImage = await this.extractVideoFrame();
+          if (!frameImage) {
+            resolve(null);
+            return;
+          }
+          img = frameImage;
+          // Continue with cropping logic below
+        } else {
+          // For images, load normally
+          img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          // Wait for image to load
+          await new Promise<void>((imgResolve, imgReject) => {
+            img.onload = () => imgResolve();
+            img.onerror = () => imgReject(new Error('Failed to load image'));
+            img.src = this.mediaUrl;
+          });
+        }
+        
+        // Now crop the image (works for both images and video frames)
         try {
           const displayDims = this.getDisplayDimensions(platform);
           const containerWidth = displayDims.width;
@@ -621,15 +853,95 @@ export class PhotoCropComponent implements OnChanges {
             return;
           }
 
-          // Step 10: Draw the cropped region scaled to fill the platform container
-          // The crop box defines what portion of the transformed image is visible
-          // We extract that exact region and scale it to fill the canvas (platform dimensions)
-          // This matches what the user sees: the crop box content filling the platform container
+          // Step 10: Draw the cropped region first
           ctx.drawImage(
             img,
             sourceX, sourceY, finalSourceWidth, finalSourceHeight, // Source rectangle in original image
             0, 0, canvas.width, canvas.height // Destination rectangle (platform dimensions - fills container)
           );
+          
+          // Step 11: Apply brightness, contrast, and saturation adjustments first (before transforms)
+          if (adjustments.brightness !== 0 || adjustments.contrast !== 0 || adjustments.saturation !== 0) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            const brightness = adjustments.brightness;
+            const contrast = adjustments.contrast;
+            const saturation = adjustments.saturation;
+            
+            // Brightness and contrast multipliers
+            const brightnessMult = 1 + (brightness / 100);
+            const contrastMult = 1 + (contrast / 100);
+            
+            for (let i = 0; i < data.length; i += 4) {
+              // Apply brightness
+              let r = data[i] * brightnessMult;
+              let g = data[i + 1] * brightnessMult;
+              let b = data[i + 2] * brightnessMult;
+              
+              // Apply contrast
+              r = ((r - 128) * contrastMult) + 128;
+              g = ((g - 128) * contrastMult) + 128;
+              b = ((b - 128) * contrastMult) + 128;
+              
+              // Apply saturation
+              if (saturation !== 0) {
+                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                const satMult = 1 + (saturation / 100);
+                r = gray + (r - gray) * satMult;
+                g = gray + (g - gray) * satMult;
+                b = gray + (b - gray) * satMult;
+              }
+              
+              // Clamp values
+              data[i] = Math.max(0, Math.min(255, r));
+              data[i + 1] = Math.max(0, Math.min(255, g));
+              data[i + 2] = Math.max(0, Math.min(255, b));
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+          }
+          
+          // Step 12: Apply rotation and flip transformations
+          // Create a temporary canvas to apply transforms
+          if (adjustments.rotation !== 0 || adjustments.flipHorizontal || adjustments.flipVertical) {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            if (tempCtx) {
+              // Copy current canvas to temp
+              tempCtx.drawImage(canvas, 0, 0);
+              
+              // Clear main canvas
+              ctx.clearRect(0, 0, canvas.width, canvas.height);
+              
+              // Apply transformations
+              ctx.save();
+              
+              // Move to center for rotation
+              ctx.translate(canvas.width / 2, canvas.height / 2);
+              
+              // Apply rotation
+              if (adjustments.rotation !== 0) {
+                ctx.rotate((adjustments.rotation * Math.PI) / 180);
+              }
+              
+              // Apply flip (after rotation)
+              if (adjustments.flipHorizontal || adjustments.flipVertical) {
+                ctx.scale(
+                  adjustments.flipHorizontal ? -1 : 1,
+                  adjustments.flipVertical ? -1 : 1
+                );
+              }
+              
+              // Draw transformed image
+              ctx.drawImage(tempCanvas, -canvas.width / 2, -canvas.height / 2);
+              
+              ctx.restore();
+            }
+          }
 
           // Convert to base64 PNG for consistent quality
           const base64 = canvas.toDataURL('image/png');
@@ -639,11 +951,71 @@ export class PhotoCropComponent implements OnChanges {
           resolve(null);
         }
       };
-      img.onerror = () => {
-        console.error('Error loading image for cropping');
+      
+      // Execute the async processing
+      processMedia().catch((error) => {
+        console.error('Error processing media:', error);
         resolve(null);
-      };
-      img.src = this.mediaUrl;
+      });
+    });
+  }
+
+  /**
+   * Extract a frame from video (first frame)
+   */
+  private extractVideoFrame(): Promise<HTMLImageElement | null> {
+    return new Promise((resolve) => {
+      try {
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.src = this.mediaUrl;
+        video.currentTime = 0.1; // Seek to a small time to ensure frame is loaded
+        video.muted = true;
+        video.playsInline = true;
+        
+        video.onloadedmetadata = () => {
+          video.currentTime = 0.1; // Seek to first frame
+        };
+        
+        video.onseeked = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            
+            if (!ctx || canvas.width === 0 || canvas.height === 0) {
+              resolve(null);
+              return;
+            }
+            
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas to image
+            const img = new Image();
+            img.onload = () => {
+              resolve(img);
+            };
+            img.onerror = () => {
+              resolve(null);
+            };
+            img.src = canvas.toDataURL('image/png');
+          } catch (error) {
+            console.error('Error extracting video frame:', error);
+            resolve(null);
+          }
+        };
+        
+        video.onerror = () => {
+          console.error('Error loading video');
+          resolve(null);
+        };
+        
+        video.load();
+      } catch (error) {
+        console.error('Error extracting video frame:', error);
+        resolve(null);
+      }
     });
   }
 

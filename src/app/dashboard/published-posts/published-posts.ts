@@ -129,7 +129,7 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
   }
 
   editPost(post: PublishedPostResponse): void {
-    this.router.navigate(['/dashboard/post-editor'], { queryParams: { id: post.id } });
+    this.router.navigate(['/dashboard/post-editor'], { queryParams: { postId: post.id, edit: 'true' } });
   }
 
   async deletePost(post: PublishedPostResponse): Promise<void> {

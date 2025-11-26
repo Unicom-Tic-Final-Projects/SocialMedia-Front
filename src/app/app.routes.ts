@@ -24,7 +24,6 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
       { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
-      { path: 'published-posts', loadComponent: () => import('./dashboard/published-posts/published-posts').then((m) => m.PublishedPostsComponent) },
       { path: 'clients', loadComponent: () => import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage) },
       { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
       { path: 'content-management', loadComponent: () => import('./dashboard/content-management/content-management').then((m) => m.ContentManagementComponent) },
@@ -40,6 +39,8 @@ export const routes: Routes = [
       { path: 'social-account/callback', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
       { path: 'social-account/success', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
       { path: 'social-account/connected', loadComponent: () => import('./dashboard/social-account-page/connected-accounts/connected-accounts').then((m) => m.ConnectedAccounts) },
+      { path: 'webhooks', loadComponent: () => import('./dashboard/webhooks-page/webhooks-page').then((m) => m.WebhooksPage) },
+      { path: 'billing', loadComponent: () => import('./dashboard/billing-page/billing-page').then((m) => m.BillingPage) },
     ],
   },
   {
@@ -51,6 +52,7 @@ export const routes: Routes = [
       { path: 'clients', loadComponent: () => import('./agency/clients-page/clients-page').then((m) => m.AgencyClientsPage) },
       { path: 'team-members', loadComponent: () => import('./agency/team-members-page/team-members-page').then((m) => m.AgencyTeamMembersPage) },
       { path: 'tasks', loadComponent: () => import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage) },
+      { path: 'billing', loadComponent: () => import('./agency/billing-page/billing-page').then((m) => m.AgencyBillingPage) },
       // Client dashboard routes (individual user features within agency context)
       {
         path: 'client/:clientId',

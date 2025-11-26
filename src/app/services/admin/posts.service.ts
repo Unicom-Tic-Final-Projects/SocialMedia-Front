@@ -1,39 +1,87 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { API_BASE_URL } from '../../config/api.config';
+import { ApiResponse } from '../../models/auth.models';
+
+export interface AdminPostResponse {
+  id: string;
+  clientId: string;
+  createdByUserId: string;
+  mediaId?: string;
+  content: string;
+  status: string;
+  scheduledAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+  clientName?: string;
+  title?: string; // For compatibility with existing code
+}
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
-  private baseUrl = 'https://jsonplaceholder.typicode.com';
+  private http = inject(HttpClient);
+  private baseUrl = inject(API_BASE_URL);
 
-  constructor(private http: HttpClient) {}
-
-  getPosts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/posts`);
+  getPosts(): Observable<AdminPostResponse[]> {
+    return this.http.get<ApiResponse<AdminPostResponse[]>>(`${this.baseUrl}/api/admin/posts`).pipe(
+      map(response => {
+        if (response.success && response.data) {
+          // Map backend data to match frontend expectations
+          return response.data.map(post => ({
+            ...post,
+            title: post.content?.substring(0, 50) || 'Untitled Post'
+          }));
+        }
+        return [];
+      })
+    );
   }
 
-  getPostById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/posts/${id}`);
+  getPostById(id: string): Observable<AdminPostResponse | null> {
+    return this.http.get<ApiResponse<AdminPostResponse>>(`${this.baseUrl}/api/admin/posts/${id}`).pipe(
+      map(response => {
+        if (response.success && response.data) {
+          return {
+            ...response.data,
+            title: response.data.content?.substring(0, 50) || 'Untitled Post'
+          };
+        }
+        return null;
+      })
+    );
   }
 
-  createPost(post: any): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/posts`, post);
+  createPost(post: CreatePostRequest): Observable<ApiResponse<AdminPostResponse>> {
+    return this.http.post<ApiResponse<AdminPostResponse>>(`${this.baseUrl}/api/admin/posts`, post);
   }
 
-  updatePost(id: number, post: any): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/posts/${id}`, post);
+  updatePost(id: string, post: UpdatePostRequest): Observable<ApiResponse<AdminPostResponse>> {
+    return this.http.put<ApiResponse<AdminPostResponse>>(`${this.baseUrl}/api/admin/posts/${id}`, post);
   }
 
-  deletePost(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/posts/${id}`);
+  deletePost(id: string): Observable<ApiResponse<boolean>> {
+    return this.http.delete<ApiResponse<boolean>>(`${this.baseUrl}/api/admin/posts/${id}`);
   }
+}
 
-  getPostComments(postId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/posts/${postId}/comments`);
-  }
+export interface CreatePostRequest {
+  clientId: string;
+  createdByUserId: string;
+  mediaId?: string;
+  content: string;
+  status?: string;
+  scheduledAt?: string;
+  socialAccountIds?: string[];
+}
 
-  getUserPosts(userId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/posts?userId=${userId}`);
-  }
+export interface UpdatePostRequest {
+  clientId?: string;
+  mediaId?: string;
+  content?: string;
+  status?: string;
+  scheduledAt?: string;
+  isDeleted?: boolean;
 }
 

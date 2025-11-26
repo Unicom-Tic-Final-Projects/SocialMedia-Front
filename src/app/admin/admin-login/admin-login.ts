@@ -43,30 +43,19 @@ export class AdminLogin {
       password: this.loginForm.value.password,
     };
 
-    this.authService.login(loginRequest).subscribe({
+    this.authService.adminLogin(loginRequest).subscribe({
       next: (response) => {
         if (response.success) {
-          // Check if user is admin
-          const user = this.authService.user();
-          const isAdmin = user?.role?.toLowerCase().includes('admin') || 
-                         user?.role?.toLowerCase() === 'owner' ||
-                         user?.role?.toLowerCase() === 'administrator';
-          
-          if (isAdmin) {
-            // Get return URL from query params or default to admin overview
-            const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin/overview';
-            this.router.navigate([returnUrl]);
-          } else {
-            this.errorMessage.set('Access denied. Admin access required.');
-            this.authService.logout();
-          }
+          // Get return URL from query params or default to admin overview
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/admin/overview';
+          this.router.navigate([returnUrl]);
         } else {
           this.errorMessage.set(response.message || 'Login failed. Please try again.');
         }
         this.loading.set(false);
       },
       error: (error) => {
-        const message = error?.userMessage || error?.message || 'An error occurred during login.';
+        const message = error?.error?.message || error?.userMessage || error?.message || 'An error occurred during login.';
         this.errorMessage.set(message);
         this.loading.set(false);
       },

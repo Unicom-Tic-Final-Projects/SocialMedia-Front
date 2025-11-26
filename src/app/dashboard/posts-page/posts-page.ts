@@ -232,8 +232,10 @@ export class PostsPage implements OnInit, OnDestroy {
 
   editPost(postId: string): void {
     const route = this.getPostEditorRoute();
-    // Navigate to post editor with post ID as route parameter
-    this.router.navigate([...route, postId]);
+    // Navigate to post editor with post ID as query parameter (consistent with content management)
+    this.router.navigate(route, {
+      queryParams: { postId, edit: 'true' }
+    });
   }
 
   setStatusFilter(filter: PostStatus | 'all'): void {

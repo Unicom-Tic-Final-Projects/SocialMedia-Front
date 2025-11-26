@@ -161,18 +161,44 @@
 
           <!-- Content Editor with Floating Label -->
           <div class="space-y-4">
-            <div class="input-group-float">
+            <div class="input-group-float relative">
               <textarea
                 formControlName="content"
                 placeholder=" "
                 rows="8"
-                class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-xl px-4 py-3 
-                       focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm transition-all resize-none"
+                class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-xl px-4 py-3 pr-14
+                       focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm transition-all resize-none relative"
                 style="min-height: 200px;"
                 [class.border-red-500]="content?.invalid && content?.touched"
                 (input)="onContentInput($event)"
               ></textarea>
               <label class="input-label-float">Post Content *</label>
+              
+              <!-- AI Improve Content Button -->
+              @if (hasContent()) {
+                <button
+                  type="button"
+                  (click)="improveContentWithAI(); $event.stopPropagation()"
+                  [disabled]="improvingContent()"
+                  class="absolute top-3 right-3 z-20 p-2 rounded-lg transition-all duration-200 
+                         bg-white border-2 border-[#4C6FFF] hover:bg-[#4C6FFF]
+                         shadow-md hover:shadow-lg hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                         group pointer-events-auto"
+                  [title]="improvingContent() ? 'Improving content...' : 'Improve content with AI'">
+                  @if (improvingContent()) {
+                    <i class="fa-solid fa-spinner fa-spin text-sm text-[#4C6FFF] group-hover:text-white transition-colors"></i>
+                  } @else {
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm text-[#4C6FFF] group-hover:text-white transition-colors"></i>
+                  }
+                  
+                  <!-- Tooltip -->
+                  <span class="absolute right-full mr-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg 
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                    Improve content with AI
+                    <span class="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>
+                  </span>
+                </button>
+              }
               @if (content?.invalid && content?.touched) {
                 <p class="mt-2 text-sm text-red-600 flex items-center gap-2">
                   <i class="fa-solid fa-circle-exclamation"></i>
@@ -402,55 +428,16 @@
             </p>
           </div>
 
-          <!-- Free-Form Crop Component (Images Only) -->
-          @if (!isVideo()) {
-            <app-photo-crop
-              [mediaUrl]="mediaPreview() || ''"
-              [caption]="postForm.value.content || ''"
-              [selectedAccountIds]="[]"
-              [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
-              (cropConfigsChange)="onCropConfigsChange($event)"
-              (croppedImagesChange)="onCroppedImagesChange($event)"
-            ></app-photo-crop>
-          } @else {
-            <!-- Video Preview (No Crop Available) -->
-            <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
-              <div class="mb-4">
-                <h3 class="text-lg font-semibold text-[#1A1A1A] mb-2 flex items-center gap-2">
-                  <i class="fa-solid fa-video text-[#4C6FFF]"></i>
-                  Video Preview
-                </h3>
-                <p class="text-sm text-gray-600 mb-4">
-                  Videos cannot be cropped. The full video will be published to all selected platforms.
-                </p>
-              </div>
-              
-              @if (mediaPreview()) {
-                <div class="relative rounded-lg overflow-hidden border-2 border-[#D9E1FF] bg-black">
-                  <video 
-                    [src]="mediaPreview()!" 
-                    class="w-full max-h-96 object-contain"
-                    controls
-                    preload="metadata"
-                  ></video>
-                  <div class="absolute top-2 right-2 bg-[#4C6FFF] text-white px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
-                    <i class="fa-solid fa-video"></i>
-                    Video
-                  </div>
-                </div>
-              }
-              
-              <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p class="text-sm text-blue-800 flex items-start gap-2">
-                  <i class="fa-solid fa-info-circle mt-0.5"></i>
-                  <span>
-                    <strong>Note:</strong> Video cropping is not available. The original video will be published as-is to all selected platforms. 
-                    Make sure your video meets the requirements for each platform before uploading.
-                  </span>
-                </p>
-              </div>
-            </div>
-          }
+          <!-- Free-Form Crop Component (Images and Videos) -->
+          <app-photo-crop
+            [mediaUrl]="mediaPreview() || ''"
+            [mediaType]="isVideo() ? 'video' : 'image'"
+            [caption]="postForm.value.content || ''"
+            [selectedAccountIds]="[]"
+            [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
+            (cropConfigsChange)="onCropConfigsChange($event)"
+            (croppedImagesChange)="onCroppedImagesChange($event)"
+          ></app-photo-crop>
         </div>
       }
 
@@ -597,4 +584,77 @@
       </div>
     </div>
   </div>
+
+  <!-- AI Content Improvement Modal -->
+  @if (showImprovementModal()) {
+    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeImprovementModal()">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col" 
+           (click)="$event.stopPropagation()">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-wand-magic-sparkles text-white"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">AI Content Improvement</h3>
+              <p class="text-sm text-white/80">Review and accept the improved content</p>
+            </div>
+          </div>
+          <button 
+            (click)="closeImprovementModal()"
+            class="text-white hover:bg-white/20 rounded-lg p-2 transition-colors">
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+          <!-- Original Content -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-file-lines text-gray-500"></i>
+              <h4 class="font-semibold text-gray-700">Original Content</h4>
+            </div>
+            <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 min-h-[120px]">
+              <p class="text-gray-700 whitespace-pre-wrap">{{ originalContent() }}</p>
+            </div>
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex justify-center">
+            <div class="w-12 h-12 bg-gradient-to-br from-[#4C6FFF] to-[#3A56CC] rounded-full flex items-center justify-center shadow-lg">
+              <i class="fa-solid fa-arrow-down text-white"></i>
+            </div>
+          </div>
+
+          <!-- Improved Content -->
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-sparkles text-[#4C6FFF]"></i>
+              <h4 class="font-semibold text-[#4C6FFF]">Improved Content</h4>
+            </div>
+            <div class="bg-[#F5F7FF] border-2 border-[#4C6FFF] rounded-xl p-4 min-h-[120px]">
+              <p class="text-[#1A1A1A] whitespace-pre-wrap">{{ improvedContent() }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="border-t border-[#D9E1FF] px-6 py-4 flex items-center justify-end gap-3">
+          <button
+            (click)="rejectImprovedContent()"
+            class="px-6 py-2.5 rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+            Keep Original
+          </button>
+          <button
+            (click)="acceptImprovedContent()"
+            class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white font-medium hover:shadow-lg transition-all flex items-center gap-2">
+            <i class="fa-solid fa-check"></i>
+            Use Improved Content
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -21,8 +21,10 @@ export class AdminReportsPage implements OnInit {
 
   loadReports() {
     this.loading = true;
+    this.reports = []; // Clear existing reports while loading
     this.reportsService.getReports().subscribe({
       next: (reports) => {
+        this.loading = false;
         // Transform API data to match template structure
         this.reports = reports.map((report, index) => ({
           id: report.id,
@@ -31,11 +33,11 @@ export class AdminReportsPage implements OnInit {
           type: index === 0 ? 'Analytics' : index === 1 ? 'Users' : 'Posts',
           status: index < 2 ? 'Generated' : 'Pending'
         }));
-        this.loading = false;
       },
       error: (error) => {
         console.error('Error loading reports:', error);
         this.loading = false;
+        this.reports = []; // Clear reports on error
       }
     });
   }

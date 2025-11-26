@@ -10,11 +10,15 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
   // Skip unwrapping for auth endpoints - they need the full ApiResponse structure
   // Client user creation endpoint needs full ApiResponse to extract password from message
   // Client user access endpoint should be unwrapped to get AuthResponse
+  // Admin endpoints also need full ApiResponse structure
   const isAuthEndpoint = req.url.includes('/api/auth/login') || 
+                         req.url.includes('/api/auth/admin-login') ||
                          req.url.includes('/api/auth/register') || 
                          req.url.includes('/api/auth/refresh') ||
                          req.url.includes('/api/auth/logout') ||
                          (req.url.includes('/api/auth/client-user') && !req.url.includes('/access'));
+  
+  const isAdminEndpoint = req.url.includes('/api/admin/');
 
   return next(req).pipe(
     // Filter for HttpResponse events only (ignore HttpSentEvent, HttpHeaderResponse, etc.)
@@ -25,9 +29,9 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
         return response;
       }
       
-      // Skip unwrapping for auth endpoints - return full ApiResponse structure
-      if (isAuthEndpoint) {
-        console.log('[ResponseInterceptor] Auth endpoint - returning full ApiResponse:', response.body);
+      // Skip unwrapping for auth and admin endpoints - return full ApiResponse structure
+      if (isAuthEndpoint || isAdminEndpoint) {
+        console.log('[ResponseInterceptor] Auth/Admin endpoint - returning full ApiResponse:', response.body);
         return response;
       }
       

@@ -1,17 +1,17 @@
-<div class="bg-[#1E1E1E] rounded-xl p-6 border border-[#2a2a2a] hover:border-[#00B78E]/30 transition-all duration-300 hover:shadow-lg hover:shadow-[#00B78E]/10 group">
+<div class="bg-white rounded-xl p-6 border border-[#D9E1FF] hover:border-[#4C6FFF]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#4C6FFF]/10 group">
   <div class="flex items-center justify-between mb-4">
-    <div class="p-3 rounded-lg bg-gradient-to-r from-[#004C3F] to-[#00B78E] group-hover:scale-110 transition-transform duration-300">
+    <div class="p-3 rounded-lg bg-gradient-to-r from-[#4C6FFF] to-[#6C8FFF] group-hover:scale-110 transition-transform duration-300">
       <i [class]="icon" class="text-white text-xl"></i>
     </div>
-    <div *ngIf="trend" class="flex items-center gap-1 text-sm" 
-         [class.text-[#00B78E]]="trend === 'up'"
-         [class.text-red-400]="trend === 'down'">
+    <div *ngIf="trend" class="flex items-center gap-1 text-sm font-semibold" 
+         [class.text-green-600]="trend === 'up'"
+         [class.text-red-600]="trend === 'down'">
       <i class="fas" [class.fa-arrow-up]="trend === 'up'" [class.fa-arrow-down]="trend === 'down'"></i>
       <span>{{ trendValue }}</span>
     </div>
   </div>
   
-  <h3 class="text-gray-400 text-sm mb-2">{{ title }}</h3>
-  <p class="text-3xl font-bold text-[#F2F2F2]">{{ value }}</p>
+  <h3 class="text-gray-600 text-sm mb-2 font-medium">{{ title }}</h3>
+  <p class="text-3xl font-bold text-[#1A1A1A]">{{ value }}</p>
 </div>
 

@@ -219,10 +219,9 @@ export class ContentLibraryComponent implements OnInit {
   }
 
   useInPost(mediaId: string): void {
-    // Navigate to post creator with this media pre-selected
-    this.router.navigate(['/dashboard/content-management'], {
+    // Navigate to post editor with this media pre-selected
+    this.router.navigate(['/dashboard/post-editor'], {
       queryParams: { 
-        tab: 'create', 
         mediaId 
       }
     });

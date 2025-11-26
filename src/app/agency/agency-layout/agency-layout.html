@@ -258,6 +258,22 @@
           Settings
         </a>
         <a
+          routerLink="/agency/billing"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center rounded-xl text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+          [class.gap-3]="!isAgencySidebarCollapsed()"
+          [class.gap-0]="isAgencySidebarCollapsed()"
+          [class.px-4]="!isAgencySidebarCollapsed()"
+          [class.px-0]="isAgencySidebarCollapsed()"
+          [class.justify-center]="isAgencySidebarCollapsed()"
+          [class.justify-start]="!isAgencySidebarCollapsed()"
+          [class.py-3]="!isAgencySidebarCollapsed()"
+          [class.py-2.5]="isAgencySidebarCollapsed()"
+        >
+          <i class="fa-solid fa-credit-card w-5 text-center text-[#4C6FFF]"></i>
+          Billing
+        </a>
+        <a
           [routerLink]="['/agency/client', selectedClient()?.id, 'profile']"
           routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
           class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"

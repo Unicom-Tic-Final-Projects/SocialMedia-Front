@@ -317,6 +317,55 @@ export class AIService {
   }
 
   /**
+   * Improve existing content using AI
+   */
+  improveContent(request: { tenantId: string; content: string; platform?: string }): Observable<string> {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    const generateRequest = {
+      tenantId: request.tenantId,
+      generationType: 'ContentImprovement',
+      prompt: request.content // The content to improve - backend will handle the improvement prompt
+    };
+
+    console.log('[AIService] Calling improveContent endpoint:', `${this.baseUrl}/api/ai/generate`);
+    console.log('[AIService] Request payload:', generateRequest);
+
+    // Response interceptor unwraps ApiResponse, so we get the AIGenerationResponse directly
+    return this.http.post<any>(
+      `${this.baseUrl}/api/ai/generate`,
+      generateRequest
+    ).pipe(
+      map((response) => {
+        console.log('[AIService] Response received:', response);
+        // Response interceptor unwraps ApiResponse, so response is the AIGenerationResponse object
+        // Check for generatedContent directly (not response.data.generatedContent)
+        if (response?.generatedContent) {
+          this.loadingSignal.set(false);
+          return response.generatedContent || '';
+        }
+        // If response structure is different, log it for debugging
+        console.error('[AIService] Invalid response structure:', response);
+        throw new Error('Invalid response from server: missing generatedContent');
+      }),
+      catchError((error) => {
+        console.error('[AIService] Error improving content:', error);
+        console.error('[AIService] Error details:', {
+          status: error?.status,
+          statusText: error?.statusText,
+          error: error?.error,
+          message: error?.message
+        });
+        const errorMsg = error?.error?.message || error?.message || 'Failed to improve content';
+        this.errorSignal.set(errorMsg);
+        this.loadingSignal.set(false);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Suggest hashtags (existing method - keeping for compatibility)
    */
   suggestHashtags(tenantId: string, postId: string, content: string, maxCount: number = 10): Observable<any> {

@@ -22,6 +22,7 @@ export class LoginPage {
   registerForm: FormGroup;
   loading = signal(false);
   errorMessage = signal<string | null>(null);
+  showAdminLoginLink = signal(false);
   isSignupMode = signal(false);
   strengthLevel = signal(0);
   passwordMismatch = signal(false);
@@ -180,6 +181,7 @@ export class LoginPage {
 
     this.loading.set(true);
     this.errorMessage.set(null);
+    this.showAdminLoginLink.set(false);
 
     const loginRequest: LoginRequest = {
       email: this.loginForm.value.email,
@@ -230,8 +232,16 @@ export class LoginPage {
         this.loading.set(false);
       },
       error: (error) => {
-        const message = error?.userMessage || error?.message || 'An error occurred during login.';
-        this.errorMessage.set(message);
+        const errorMessage = error?.error?.message || error?.userMessage || error?.message || 'An error occurred during login.';
+        
+        // Check if the error indicates admin user trying to login via regular login
+        if (errorMessage.toLowerCase().includes('admin') && (errorMessage.toLowerCase().includes('portal') || errorMessage.toLowerCase().includes('login'))) {
+          this.errorMessage.set('Admin users must login through the admin portal.');
+          this.showAdminLoginLink.set(true);
+        } else {
+          this.errorMessage.set(errorMessage);
+          this.showAdminLoginLink.set(false);
+        }
         this.loading.set(false);
       },
     });

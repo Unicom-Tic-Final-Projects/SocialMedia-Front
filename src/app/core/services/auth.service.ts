@@ -35,7 +35,7 @@ export class AuthService {
   }
 
   /**
-   * Login user
+   * Login user (regular users only)
    */
   login(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
     console.log('[AuthService] Login request:', request);
@@ -50,6 +50,40 @@ export class AuthService {
       }),
       catchError(error => {
         console.error('[AuthService] Login error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Admin login (System tenant users only)
+   */
+  adminLogin(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
+    console.log('[AuthService] Admin login request:', request);
+    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/admin-login`, request).pipe(
+      tap(response => {
+        console.log('[AuthService] Admin login response:', response);
+        // Handle both wrapped (ApiResponse<AuthResponse>) and unwrapped (AuthResponse) responses
+        let authResponse: AuthResponse | null = null;
+        
+        if (response && 'success' in response && 'data' in response) {
+          // Response is wrapped in ApiResponse
+          if (response.success && response.data) {
+            authResponse = response.data;
+          }
+        } else if (response && 'accessToken' in response && 'refreshToken' in response && 'user' in response) {
+          // Response is unwrapped (direct AuthResponse)
+          authResponse = response as unknown as AuthResponse;
+        }
+        
+        if (authResponse) {
+          this.setAuthData(authResponse);
+        } else {
+          console.warn('[AuthService] Admin login response missing required data:', response);
+        }
+      }),
+      catchError(error => {
+        console.error('[AuthService] Admin login error:', error);
         return throwError(() => error);
       })
     );

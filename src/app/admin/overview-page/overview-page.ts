@@ -22,59 +22,65 @@ export class AdminOverviewPage implements OnInit {
 
   loadOverviewData() {
     this.loading = true;
+    this.metrics = []; // Clear existing metrics while loading
     
-    // Fetch all data in parallel
-    this.overviewService.getTotalUsers().subscribe({
-      next: (users) => {
-        this.overviewService.getTotalPosts().subscribe({
-          next: (posts) => {
-            this.overviewService.getTotalComments().subscribe({
-              next: (comments) => {
-                // Calculate metrics from API data
-                this.metrics = [
-                  { 
-                    title: 'Total Users', 
-                    value: users.length.toString(), 
-                    icon: 'fas fa-users', 
-                    trend: 'up', 
-                    trendValue: '+12%' 
-                  },
-                  { 
-                    title: 'Active Posts', 
-                    value: posts.length.toString(), 
-                    icon: 'fas fa-file-alt', 
-                    trend: 'up', 
-                    trendValue: '+8%' 
-                  },
-                  { 
-                    title: 'Total Comments', 
-                    value: comments.length.toString(), 
-                    icon: 'fas fa-heart', 
-                    trend: 'up', 
-                    trendValue: '+5%' 
-                  },
-                  { 
-                    title: 'Engagement Rate', 
-                    value: `${((comments.length / posts.length) * 100).toFixed(1)}%`, 
-                    icon: 'fas fa-chart-line', 
-                    trend: 'up', 
-                    trendValue: '+23%' 
-                  },
-                ];
-                this.loading = false;
-              },
-              error: () => {
-                this.loading = false;
-              }
-            });
-          },
-          error: () => {
-            this.loading = false;
-          }
-        });
-      },
-      error: () => {
+    this.overviewService.getOverviewData().subscribe({
+      next: (response) => {
         this.loading = false;
+        if (response.success && response.data) {
+          const stats = response.data;
+          this.metrics = [
+            { 
+              title: 'Total Users', 
+              value: stats.totalUsers.toString(), 
+              icon: 'fas fa-users', 
+              trend: 'up', 
+              trendValue: '+12%' 
+            },
+            { 
+              title: 'Total Tenants', 
+              value: stats.totalTenants.toString(), 
+              icon: 'fas fa-building', 
+              trend: 'up', 
+              trendValue: '+8%' 
+            },
+            { 
+              title: 'Published Posts', 
+              value: stats.publishedPosts.toString(), 
+              icon: 'fas fa-file-alt', 
+              trend: 'up', 
+              trendValue: '+5%' 
+            },
+            { 
+              title: 'Social Accounts', 
+              value: stats.totalSocialAccounts.toString(), 
+              icon: 'fas fa-link', 
+              trend: 'up', 
+              trendValue: '+23%' 
+            },
+            {
+              title: 'Individual Tenants',
+              value: stats.individualTenants.toString(),
+              icon: 'fas fa-user',
+              trend: 'up',
+              trendValue: '+5%'
+            },
+            {
+              title: 'Agency Tenants',
+              value: stats.agencyTenants.toString(),
+              icon: 'fas fa-briefcase',
+              trend: 'up',
+              trendValue: '+8%'
+            }
+          ];
+        } else {
+          this.metrics = []; // Ensure metrics array is empty if no data
+        }
+      },
+      error: (error) => {
+        console.error('Error loading overview data:', error);
+        this.loading = false;
+        this.metrics = []; // Clear metrics on error
       }
     });
   }

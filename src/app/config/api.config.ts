@@ -10,8 +10,8 @@ export function provideApiBaseUrl(url?: string): Provider {
     // Production: Azure backend URL
     //'https://nexuspost-api-dev-896.azurewebsites.net';
     // Local development: Uncomment below for local development
-     //'http://localhost:5000'
-    'https://nexuspost-api-dev-896.azurewebsites.net';
+     'http://localhost:5000'
+    //'https://nexuspost-api-dev-896.azurewebsites.net';
   return { provide: API_BASE_URL, useValue: resolved };
 }
 

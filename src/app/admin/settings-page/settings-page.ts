@@ -38,11 +38,11 @@ export class AdminSettingsPage implements OnInit {
         };
         this.settingsService.getSecuritySettings().subscribe({
           next: (security) => {
+            this.loading = false;
             this.securitySettings = {
               twoFactorAuth: security.id % 2 === 0,
               emailNotifications: true
             };
-            this.loading = false;
           },
           error: () => {
             this.loading = false;

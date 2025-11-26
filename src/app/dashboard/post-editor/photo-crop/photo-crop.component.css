@@ -1,2 +1,78 @@
 /* Platform Crop Editor Styles */
 
+/* Professional Slider Styling */
+.slider {
+  appearance: none;
+  -webkit-appearance: none;
+  background: linear-gradient(to right, #DDE3FF 0%, #4C6FFF 0%);
+  outline: none;
+  transition: background 0.3s;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4C6FFF;
+  cursor: pointer;
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(76, 111, 255, 0.3);
+  transition: all 0.2s;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  background: #3B56CC;
+  box-shadow: 0 3px 8px rgba(76, 111, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4C6FFF;
+  cursor: pointer;
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(76, 111, 255, 0.3);
+  transition: all 0.2s;
+}
+
+.slider::-moz-range-thumb:hover {
+  background: #3B56CC;
+  box-shadow: 0 3px 8px rgba(76, 111, 255, 0.5);
+  transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb:active {
+  transform: scale(0.95);
+}
+
+.slider::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background: #DDE3FF;
+  border-radius: 4px;
+}
+
+.slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background: #DDE3FF;
+  border-radius: 4px;
+}
+
+/* Update slider fill dynamically */
+.slider[type="range"] {
+  background: linear-gradient(to right, 
+    #4C6FFF 0%, 
+    #4C6FFF var(--value, 0%), 
+    #DDE3FF var(--value, 0%), 
+    #DDE3FF 100%);
+}
+
