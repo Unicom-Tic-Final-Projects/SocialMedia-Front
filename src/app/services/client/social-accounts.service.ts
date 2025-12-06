@@ -281,12 +281,31 @@ export class SocialAccountsService {
           return throwError(() => new Error('Failed to initiate social account connection'));
         }
 
-        // Open OAuth authorization in a new tab/window so the app stays on the dashboard
-        const oauthWindow = window.open(authUrl, '_blank', 'noopener,noreferrer');
+        // Open OAuth authorization in a small popup window so the app stays on the dashboard
+        // Calculate center position for popup
+        const width = 600;
+        const height = 700;
+        const left = (window.screen.width / 2) - (width / 2);
+        const top = (window.screen.height / 2) - (height / 2);
+        
+        const popupFeatures = `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,status=no`;
+        const oauthWindow = window.open(authUrl, 'oauthPopup', popupFeatures);
 
         // Fallback: if the browser blocks popups, fall back to full-page redirect
         if (!oauthWindow) {
           window.location.href = authUrl;
+        } else {
+          // Monitor the popup window to detect when it closes or redirects
+          // This helps handle the OAuth callback
+          const checkClosed = setInterval(() => {
+            if (oauthWindow.closed) {
+              clearInterval(checkClosed);
+              // Refresh accounts when popup closes (OAuth might have completed)
+              setTimeout(() => {
+                this.getSocialAccounts().subscribe();
+              }, 1000);
+            }
+          }, 500);
         }
         
         // Return a placeholder observable that never completes

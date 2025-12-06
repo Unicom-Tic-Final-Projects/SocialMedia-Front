@@ -80,41 +80,36 @@
       </ul>
     </div>
 
-    <!-- Social Links -->
+    <!-- Legal Links -->
     <div data-aos="fade-up" data-aos-delay="200">
       <h3
         class="text-lg font-semibold mb-4 bg-gradient-to-r from-[#4C6FFF] via-[#BFC9FF] to-[#FFD6E8] bg-clip-text text-transparent"
       >
-        Follow Us
+        Legal
       </h3>
-      <div
-        class="flex justify-center md:justify-start space-x-6 text-2xl"
-      >
-        <a
-          href="#"
-          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
-        >
-          <i class="fa-brands fa-facebook-f"></i>
-        </a>
-        <a
-          href="#"
-          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
-        >
-          <i class="fa-brands fa-twitter"></i>
-        </a>
-        <a
-          href="#"
-          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
-        >
-          <i class="fa-brands fa-instagram"></i>
-        </a>
-        <a
-          href="#"
-          class="hover:text-[#4C6FFF] transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_12px_rgba(76,111,255,0.4)]"
-        >
-          <i class="fa-brands fa-linkedin-in"></i>
-        </a>
-      </div>
+      <ul class="space-y-2 text-[#222222]/70 font-medium">
+        <li>
+          <a
+            routerLink="/privacy-policy"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Privacy Policy</a
+          >
+        </li>
+        <li>
+          <a
+            routerLink="/cookie-policy"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Cookie Policy</a
+          >
+        </li>
+        <li>
+          <a
+            href="#"
+            class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Terms of Service</a
+          >
+        </li>
+      </ul>
     </div>
   </div>
 
@@ -124,8 +119,15 @@
     data-aos="fade-up"
     data-aos-delay="300"
   >
-    © 2025 <span class="text-[#4C6FFF] font-semibold">Onevo</span>. All rights
-    reserved.
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2">
+      <span>© 2025 <span class="text-[#4C6FFF] font-semibold">Onevo</span>. All rights reserved.</span>
+      <span class="hidden sm:inline">•</span>
+      <div class="flex items-center gap-3 text-xs">
+        <a routerLink="/privacy-policy" class="hover:text-[#4C6FFF] transition-colors duration-300">Privacy</a>
+        <span class="text-[#222222]/40">•</span>
+        <a routerLink="/cookie-policy" class="hover:text-[#4C6FFF] transition-colors duration-300">Cookies</a>
+      </div>
+    </div>
   </div>
 
   <!-- Infinite Forward Scroll Indicator -->

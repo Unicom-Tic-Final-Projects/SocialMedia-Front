@@ -68,6 +68,31 @@ export class SocialAccountPage implements OnInit, OnDestroy {
   ];
 
   async ngOnInit(): Promise<void> {
+    // Listen for OAuth success messages from popup window
+    window.addEventListener('message', (event) => {
+      // Verify message is from same origin
+      if (event.origin !== window.location.origin) {
+        return;
+      }
+
+      if (event.data?.type === 'OAUTH_SUCCESS') {
+        console.log('OAuth success message received from popup:', event.data);
+        // Refresh accounts list
+        this.socialAccountsService.refresh().subscribe({
+          next: () => {
+            console.log('Accounts refreshed after OAuth success');
+            this.toastService.success(`Successfully connected ${event.data.platform} account!`);
+          },
+          error: (error) => {
+            console.error('Failed to refresh accounts after OAuth:', error);
+          }
+        });
+      } else if (event.data?.type === 'OAUTH_ERROR') {
+        console.error('OAuth error message received from popup:', event.data);
+        this.toastService.error(`Failed to connect account: ${event.data.error || 'Unknown error'}`);
+      }
+    });
+
     // Extract clientId from route if available
     let route = this.route;
     while (route.firstChild) {

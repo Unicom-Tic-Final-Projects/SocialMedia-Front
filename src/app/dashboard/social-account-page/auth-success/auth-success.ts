@@ -22,6 +22,9 @@ export class AuthSuccess implements OnInit {
   loading = true;
 
   ngOnInit(): void {
+    // Check if we're in a popup window
+    const isPopup = window.opener !== null && !window.opener.closed;
+
     // Check query parameters
     this.route.queryParams.subscribe((params) => {
       this.success = params['success'] === 'true';
@@ -31,7 +34,49 @@ export class AuthSuccess implements OnInit {
 
       this.loading = false;
 
-      // Determine redirect route based on current URL
+      // If we're in a popup window, handle it differently
+      if (isPopup) {
+        if (this.success) {
+          // Notify parent window that connection was successful
+          if (window.opener) {
+            // Send message to parent window
+            window.opener.postMessage({
+              type: 'OAUTH_SUCCESS',
+              platform: this.platform,
+              success: true
+            }, window.location.origin);
+            
+            // Refresh accounts in parent window
+            try {
+              // Try to call parent's refresh method if available
+              (window.opener as any)?.location?.reload?.();
+            } catch (e) {
+              console.log('Could not reload parent window');
+            }
+          }
+          
+          // Close popup after a short delay
+          setTimeout(() => {
+            window.close();
+          }, 1500);
+        } else if (this.error) {
+          // Show error in popup, user can close manually
+          // Or close after showing error
+          setTimeout(() => {
+            if (window.opener) {
+              window.opener.postMessage({
+                type: 'OAUTH_ERROR',
+                error: this.error,
+                errorDescription: this.errorDescription
+              }, window.location.origin);
+            }
+            // Don't auto-close on error, let user see the error message
+          }, 2000);
+        }
+        return; // Don't proceed with normal navigation in popup
+      }
+
+      // Normal flow (not in popup) - determine redirect route based on current URL
       const currentUrl = this.router.url;
       const isAgencyClientRoute = currentUrl.includes('/agency/client/');
       let redirectRoute: string[];

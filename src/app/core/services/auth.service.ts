@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, map, of } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { LoginRequest, RegisterRequest, AuthResponse, UserDto, ApiResponse } from '../../models/auth.models';
+import { FirebaseService } from './firebase.service';
 
 const TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -16,6 +17,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly baseUrl = inject(API_BASE_URL);
+  private readonly firebaseService = inject(FirebaseService);
 
   // User state signals
   private readonly userSignal = signal<UserDto | null>(this.loadUserFromStorage());
@@ -122,6 +124,11 @@ export class AuthService {
         .subscribe();
     }
 
+    // Unregister FCM token on logout
+    this.firebaseService.unregisterToken().catch(error => {
+      console.error('Error unregistering FCM token:', error);
+    });
+
     this.clearAuthData();
     const isAdmin = currentRole.includes('admin');
     this.router.navigate([isAdmin ? '/admin/login' : '/auth/login']);
@@ -212,6 +219,10 @@ export class AuthService {
 
     this.tokenSignal.set(authResponse.accessToken);
     this.userSignal.set(authResponse.user);
+
+    // Note: Push notifications are now initialized in app.ts via effect
+    // that checks cookieConsentService.functionalAccepted()
+    // This ensures push notifications only work if functional cookies are accepted
   }
 
   /**

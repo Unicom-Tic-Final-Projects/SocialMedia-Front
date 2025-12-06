@@ -118,5 +118,7 @@ export const routes: Routes = [
       }
     ]
   },
+  { path: 'privacy-policy', loadComponent: () => import('./pages/privacy-policy/privacy-policy').then(m => m.PrivacyPolicyComponent) },
+  { path: 'cookie-policy', loadComponent: () => import('./pages/cookie-policy/cookie-policy').then(m => m.CookiePolicyComponent) },
   { path: '**', redirectTo: '' }
 ];
