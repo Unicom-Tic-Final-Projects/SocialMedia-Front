@@ -8,8 +8,7 @@ AOS.init({
   duration: 1000,
   easing: 'ease-out-cubic',
   once: false,
-  mirror: true
+  mirror: true,
 });
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+bootstrapApplication(App, appConfig).catch((err) => console.error(err));

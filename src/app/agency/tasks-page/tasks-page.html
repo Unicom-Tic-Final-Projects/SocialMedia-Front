@@ -7,8 +7,10 @@
       </p>
     </div>
     <button
+      type="button"
       (click)="openCreateModal()"
-      class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600">
+      class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600"
+    >
       <i class="fa-solid fa-plus"></i>
       New Task
     </button>
@@ -36,30 +38,40 @@
   } @else {
     <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
       @for (lane of lanes; track lane.status) {
-        <article class="flex h-full flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <article
+          class="flex h-full flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+        >
           <header class="flex items-center justify-between">
             <h2 class="text-lg font-semibold text-slate-900">{{ lane.title }}</h2>
-            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+            <span
+              class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+            >
               {{ lane.tasks().length }}
             </span>
           </header>
 
           <div class="flex flex-col gap-4">
             @for (task of lane.tasks(); track trackTaskById($index, task)) {
-              <div class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50 transition hover:-translate-y-0.5 hover:shadow-md">
+              <div
+                class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-200/50 transition hover:-translate-y-0.5 hover:shadow-md"
+              >
                 <div class="flex items-start justify-between">
                   <h3 class="text-sm font-semibold text-slate-900 flex-1">{{ task.title }}</h3>
                   <div class="flex items-center gap-2">
                     <button
+                      type="button"
                       (click)="openEditModal(task)"
                       class="text-slate-400 hover:text-slate-600 transition"
-                      title="Edit task">
+                      title="Edit task"
+                    >
                       <i class="fa-solid fa-edit text-xs"></i>
                     </button>
                     <button
+                      type="button"
                       (click)="deleteTask(task)"
                       class="text-red-400 hover:text-red-600 transition"
-                      title="Delete task">
+                      title="Delete task"
+                    >
                       <i class="fa-solid fa-trash text-xs"></i>
                     </button>
                   </div>
@@ -71,13 +83,17 @@
 
                 <div class="flex flex-wrap gap-2">
                   @if (task.clientId) {
-                    <span class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700">
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700"
+                    >
                       <i class="fa-solid fa-building"></i>
                       {{ getClientName(task.clientId) }}
                     </span>
                   }
                   @if (task.assignedToUserId) {
-                    <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+                    <span
+                      class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700"
+                    >
                       <i class="fa-solid fa-user"></i>
                       {{ getTeamMemberEmail(task.assignedToUserId) }}
                     </span>
@@ -87,13 +103,14 @@
                 <div class="flex items-center justify-between">
                   <span
                     class="inline-flex items-center rounded-full border px-2 py-1 text-xs font-semibold"
-                    [ngClass]="getPriorityBadgeClass(task.priority)">
+                    [ngClass]="getPriorityBadgeClass(task.priority)"
+                  >
                     {{ task.priority }}
                   </span>
                   @if (task.dueDate) {
                     <span class="inline-flex items-center gap-1 text-xs text-slate-500">
                       <i class="fa-regular fa-calendar"></i>
-                      {{ task.dueDate | date:'shortDate' }}
+                      {{ task.dueDate | date: 'shortDate' }}
                     </span>
                   }
                 </div>
@@ -103,7 +120,8 @@
                   <select
                     [value]="task.status"
                     (change)="updateTaskStatus(task, $any($event.target).value)"
-                    class="flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    class="flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
                     @for (status of statuses; track status.value) {
                       <option [value]="status.value">{{ status.label }}</option>
                     }
@@ -113,7 +131,9 @@
             }
 
             @if (lane.tasks().length === 0) {
-              <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-6 text-sm font-medium text-slate-400">
+              <div
+                class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-6 text-sm font-medium text-slate-400"
+              >
                 <i class="fa-regular fa-circle text-lg"></i>
                 No tasks yet. Add one to get started.
               </div>
@@ -126,15 +146,25 @@
 
   <!-- Task Creation/Edit Modal -->
   @if (showModal()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" (click)="closeModal()">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-        <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      (click)="closeModal()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between"
+        >
           <h2 class="text-xl font-semibold text-slate-900">
             {{ isEditing() ? 'Edit Task' : 'Create New Task' }}
           </h2>
           <button
+            type="button"
             (click)="closeModal()"
-            class="text-slate-400 hover:text-slate-600 transition">
+            class="text-slate-400 hover:text-slate-600 transition"
+          >
             <i class="fa-solid fa-times text-xl"></i>
           </button>
         </div>
@@ -156,7 +186,8 @@
               type="text"
               formControlName="title"
               class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="Enter task title">
+              placeholder="Enter task title"
+            />
             @if (taskForm.controls.title.invalid && taskForm.controls.title.touched) {
               <p class="mt-1 text-sm text-red-500">
                 @if (taskForm.controls.title.errors?.['required']) {
@@ -177,7 +208,8 @@
               formControlName="description"
               rows="4"
               class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="Enter task description"></textarea>
+              placeholder="Enter task description"
+            ></textarea>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -188,7 +220,8 @@
               <select
                 id="clientId"
                 formControlName="clientId"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
                 <option value="">Select a client</option>
                 @for (client of clients(); track client.id) {
                   <option [value]="client.id">{{ client.name }}</option>
@@ -203,7 +236,8 @@
               <select
                 id="assignedToUserId"
                 formControlName="assignedToUserId"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
                 <option value="">Unassigned</option>
                 @for (member of teamMembers(); track member.userId) {
                   <option [value]="member.userId">{{ member.email }} ({{ member.role }})</option>
@@ -221,7 +255,8 @@
                 id="dueDate"
                 type="date"
                 formControlName="dueDate"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              />
             </div>
 
             <div>
@@ -231,7 +266,8 @@
               <select
                 id="priority"
                 formControlName="priority"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
                 @for (priority of priorities; track priority.value) {
                   <option [value]="priority.value">{{ priority.label }}</option>
                 }
@@ -243,13 +279,15 @@
             <button
               type="button"
               (click)="closeModal()"
-              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition">
+              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
+            >
               Cancel
             </button>
             <button
               type="submit"
               [disabled]="taskForm.invalid || loading()"
-              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               @if (loading()) {
                 <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
                 {{ isEditing() ? 'Updating...' : 'Creating...' }}

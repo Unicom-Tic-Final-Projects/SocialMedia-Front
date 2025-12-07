@@ -46,12 +46,11 @@
 }
 
 /* Notification Item Hover */
-div[class*="rounded-2xl"][class*="hover:bg-\[#BFC9FF\]"] {
+div[class*='rounded-2xl'][class*='hover:bg-\[#BFC9FF\]'] {
   transition: all 0.3s ease;
 }
 
-div[class*="rounded-2xl"][class*="hover:bg-\[#BFC9FF\]"]:hover {
+div[class*='rounded-2xl'][class*='hover:bg-\[#BFC9FF\]']:hover {
   transform: translateX(4px);
   box-shadow: 0 4px 12px rgba(76, 111, 255, 0.15);
 }
-

@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BillingService } from '../../services/client/billing.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ClientsService } from '../../services/client/clients.service';
-import { BillingPlan, Subscription, Invoice, PaymentMethod } from '../../models/billing.models';
+import { BillingPlan } from '../../models/billing.models';
 
 @Component({
   selector: 'app-agency-billing-page',
@@ -149,7 +149,11 @@ export class AgencyBillingPage implements OnInit {
       return;
     }
 
-    if (confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current billing period.')) {
+    if (
+      confirm(
+        'Are you sure you want to cancel your subscription? It will remain active until the end of the current billing period.',
+      )
+    ) {
       this.billingService
         .cancelSubscription({
           subscriptionId: subscription.id,
@@ -158,7 +162,9 @@ export class AgencyBillingPage implements OnInit {
         .subscribe({
           next: (success) => {
             if (success) {
-              this.toastService.success('Subscription will be cancelled at the end of the billing period');
+              this.toastService.success(
+                'Subscription will be cancelled at the end of the billing period',
+              );
               this.closeCancelModal();
               this.loadData();
             } else {
@@ -176,18 +182,20 @@ export class AgencyBillingPage implements OnInit {
       return;
     }
 
-    this.billingService.updateAgencyAccountCount(subscription.id, this.newAccountCount()).subscribe({
-      next: (success) => {
-        if (success) {
-          this.toastService.success('Account count updated successfully');
-          this.closeAccountCountModal();
-          this.loadData();
-        } else {
-          this.toastService.error('Failed to update account count');
-        }
-      },
-      error: (err) => this.toastService.error(err.message || 'Failed to update account count'),
-    });
+    this.billingService
+      .updateAgencyAccountCount(subscription.id, this.newAccountCount())
+      .subscribe({
+        next: (success) => {
+          if (success) {
+            this.toastService.success('Account count updated successfully');
+            this.closeAccountCountModal();
+            this.loadData();
+          } else {
+            this.toastService.error('Failed to update account count');
+          }
+        },
+        error: (err) => this.toastService.error(err.message || 'Failed to update account count'),
+      });
   }
 
   getStatusColor(status: string): string {
@@ -248,4 +256,3 @@ export class AgencyBillingPage implements OnInit {
     return plan.monthlyPrice * accountCount;
   }
 }
-

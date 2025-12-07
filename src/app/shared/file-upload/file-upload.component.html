@@ -9,7 +9,8 @@
     (dragenter)="handleDragIn($event)"
     (dragleave)="handleDragOut($event)"
     (dragend)="handleDragOut($event)"
-    (drop)="handleDrop($event)">
+    (drop)="handleDrop($event)"
+  >
     <input
       #fileInput
       type="file"
@@ -17,7 +18,8 @@
       [disabled]="isDisabled"
       [accept]="accept"
       [multiple]="allowsMultiple"
-      (change)="handleInputFileChange($event)" />
+      (change)="handleInputFileChange($event)"
+    />
 
     <div class="dropzone-icon">
       @if (isDraggingOver()) {
@@ -33,7 +35,8 @@
           type="button"
           class="dropzone-button"
           [disabled]="isDisabled"
-          (click)="triggerFileInput()">
+          (click)="triggerFileInput()"
+        >
           Click to upload
           <span class="md:hidden"> and attach files</span>
         </button>
@@ -49,9 +52,7 @@
   @if (uploadedFiles.length > 0) {
     <ul class="file-upload-list">
       @for (file of uploadedFiles; track file.id) {
-        <li
-          class="file-list-item"
-          [class.failed]="file.failed">
+        <li class="file-list-item" [class.failed]="file.failed">
           <!-- File Icon -->
           <div class="file-icon">
             <i class="fa-solid" [ngClass]="getFileIcon(file)"></i>
@@ -83,7 +84,8 @@
                 type="button"
                 class="file-delete-button"
                 (click)="onDelete(file.id)"
-                aria-label="Delete file">
+                aria-label="Delete file"
+              >
                 <i class="fa-solid fa-trash"></i>
               </button>
             </div>
@@ -99,8 +101,8 @@
                       role="progressbar"
                       [attr.aria-valuenow]="file.progress"
                       aria-valuemin="0"
-                      aria-valuemax="100">
-                    </div>
+                      aria-valuemax="100"
+                    ></div>
                   </div>
                 } @else {
                   <div class="progress-fill-wrapper">
@@ -111,8 +113,8 @@
                       role="progressbar"
                       [attr.aria-valuenow]="file.progress"
                       aria-valuemin="0"
-                      aria-valuemax="100">
-                    </div>
+                      aria-valuemax="100"
+                    ></div>
                     <div class="progress-fill-inner">
                       <span class="progress-percentage">{{ file.progress }}%</span>
                     </div>
@@ -123,10 +125,7 @@
 
             <!-- Retry Button -->
             @if (file.failed) {
-              <button
-                type="button"
-                class="file-retry-button"
-                (click)="onRetry(file.id)">
+              <button type="button" class="file-retry-button" (click)="onRetry(file.id)">
                 Try again
               </button>
             }
@@ -136,4 +135,3 @@
     </ul>
   }
 </div>
-

@@ -4,53 +4,74 @@
       <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2">Reports</h1>
       <p class="text-gray-600">Generate and manage platform reports.</p>
     </div>
-    <button class="bg-[#4C6FFF] hover:bg-[#3755FF] text-white px-6 py-2 rounded-lg font-semibold transition-all hover:scale-105 shadow-md hover:shadow-lg">
+    <button
+      type="button"
+      class="bg-[#4C6FFF] hover:bg-[#3755FF] text-white px-6 py-2 rounded-lg font-semibold transition-all hover:scale-105 shadow-md hover:shadow-lg"
+    >
       <i class="fas fa-file-export mr-2"></i>Generate Report
     </button>
   </div>
 
   <!-- Reports List -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <div *ngIf="loading" class="col-span-3 text-center py-8 text-gray-600">
-      <i class="fas fa-spinner fa-spin text-2xl mb-2 text-[#4C6FFF]"></i>
-      <p>Loading reports...</p>
-    </div>
-    <div *ngIf="!loading && reports.length === 0" class="col-span-3 text-center py-8 text-gray-600">
-      <i class="fas fa-file-alt text-4xl mb-4 text-gray-400"></i>
-      <p>No reports found</p>
-    </div>
-    <ng-container *ngIf="!loading && reports.length > 0">
-      <div *ngFor="let report of reports" 
-         class="bg-white rounded-xl p-6 border border-[#D9E1FF] hover:border-[#4C6FFF]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#4C6FFF]/10">
-      <div class="flex items-start justify-between mb-4">
-        <div class="p-3 rounded-lg bg-gradient-to-r from-[#4C6FFF] to-[#6C8FFF]">
-          <i class="fas fa-file-alt text-white"></i>
-        </div>
-        <span class="px-3 py-1 rounded-full text-xs font-semibold"
+    @if (loading) {
+      <div class="col-span-3 text-center py-8 text-gray-600">
+        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-[#4C6FFF]"></i>
+        <p>Loading reports...</p>
+      </div>
+    }
+    @if (!loading && reports.length === 0) {
+      <div class="col-span-3 text-center py-8 text-gray-600">
+        <i class="fas fa-file-alt text-4xl mb-4 text-gray-400"></i>
+        <p>No reports found</p>
+      </div>
+    }
+    @if (!loading && reports.length > 0) {
+      @for (report of reports; track report.id) {
+        <div
+          class="bg-white rounded-xl p-6 border border-[#D9E1FF] hover:border-[#4C6FFF]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#4C6FFF]/10"
+        >
+          <div class="flex items-start justify-between mb-4">
+            <div class="p-3 rounded-lg bg-gradient-to-r from-[#4C6FFF] to-[#6C8FFF]">
+              <i class="fas fa-file-alt text-white"></i>
+            </div>
+            <span
+              class="px-3 py-1 rounded-full text-xs font-semibold"
               [class.bg-green-100]="report.status === 'Generated'"
               [class.text-green-700]="report.status === 'Generated'"
               [class.bg-yellow-100]="report.status === 'Pending'"
-              [class.text-yellow-700]="report.status === 'Pending'">
-          {{ report.status }}
-        </span>
-      </div>
-      <h3 class="text-lg font-semibold text-[#1A1A1A] mb-2">{{ report.title }}</h3>
-      <p class="text-sm text-gray-600 mb-4">{{ report.type }} • {{ report.date }}</p>
-      <div class="flex gap-2">
-        <button class="flex-1 bg-[#4C6FFF] hover:bg-[#3755FF] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md hover:shadow-lg">
-          View
-        </button>
-        <button class="px-4 py-2 border border-[#D9E1FF] hover:border-[#4C6FFF] text-gray-600 hover:text-[#4C6FFF] rounded-lg transition-all hover:bg-[#BFC9FF]/30" (click)="downloadReport(report.id)">
-          <i class="fas fa-download"></i>
-        </button>
-      </div>
-    </div>
-    </ng-container>
+              [class.text-yellow-700]="report.status === 'Pending'"
+            >
+              {{ report.status }}
+            </span>
+          </div>
+          <h3 class="text-lg font-semibold text-[#1A1A1A] mb-2">{{ report.title }}</h3>
+          <p class="text-sm text-gray-600 mb-4">{{ report.type }} • {{ report.date }}</p>
+          <div class="flex gap-2">
+            <button
+              type="button"
+              class="flex-1 bg-[#4C6FFF] hover:bg-[#3755FF] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-md hover:shadow-lg"
+            >
+              View
+            </button>
+            <button
+              type="button"
+              class="px-4 py-2 border border-[#D9E1FF] hover:border-[#4C6FFF] text-gray-600 hover:text-[#4C6FFF] rounded-lg transition-all hover:bg-[#BFC9FF]/30"
+              (click)="downloadReport(report.id)"
+            >
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
+        </div>
+      }
+    }
   </div>
 
   <!-- Chart Section -->
   <app-admin-chart-section title="Report Analytics" subtitle="Last 6 months">
-    <div class="h-64 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg flex items-center justify-center text-gray-600">
+    <div
+      class="h-64 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg flex items-center justify-center text-gray-600"
+    >
       <div class="text-center">
         <i class="fas fa-chart-area text-4xl mb-4 text-[#4C6FFF]"></i>
         <p>Report analytics chart will go here</p>
@@ -58,4 +79,3 @@
     </div>
   </app-admin-chart-section>
 </div>
-

@@ -11,4 +11,3 @@ export class AdminChartSection {
   @Input() title = '';
   @Input() subtitle = '';
 }
-

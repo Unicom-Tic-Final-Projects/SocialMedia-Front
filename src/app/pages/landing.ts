@@ -1,11 +1,19 @@
-import { Component, AfterViewInit, OnDestroy, ViewChild, ElementRef, NgZone } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnDestroy,
+  ViewChild,
+  ElementRef,
+  NgZone,
+  inject,
+} from '@angular/core';
 import { AppHeader } from '../shared/app-header/app-header';
 import { HeroSection } from './landing/hero-section/hero-section';
 import { FeaturesSection } from './landing/features-section/features-section';
 import { TestimonialsSection } from './landing/testimonials-section/testimonials-section';
 import { PricingSection } from './landing/pricing-section/pricing-section';
 import { CtaBand } from './landing/cta-band/cta-band';
-import { WhyOnevo } from './landing/why-onevo/why-onevo'
+import { WhyOnevo } from './landing/why-onevo/why-onevo';
 import { AppFooter } from '../shared/app-footer/app-footer';
 import { AosService } from '../shared/services/aos.service';
 import { ScrollStackService } from '../shared/services/scroll-stack.service';
@@ -13,7 +21,16 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-landing',
-  imports: [AppHeader, HeroSection, FeaturesSection, TestimonialsSection, PricingSection, CtaBand, WhyOnevo, AppFooter],
+  imports: [
+    AppHeader,
+    HeroSection,
+    FeaturesSection,
+    TestimonialsSection,
+    PricingSection,
+    CtaBand,
+    WhyOnevo,
+    AppFooter,
+  ],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })
@@ -28,7 +45,7 @@ export class Landing implements AfterViewInit, OnDestroy {
   @ViewChild('whyCard', { static: false }) whyCard!: ElementRef<HTMLElement>;
   @ViewChild('footerCard', { static: false }) footerCard!: ElementRef<HTMLElement>;
   @ViewChild(AppHeader, { static: false }) appHeader!: AppHeader;
-  
+
   private scrollSubscription?: Subscription;
   private isLooping = false;
   private lastScrollY = 0;
@@ -37,27 +54,25 @@ export class Landing implements AfterViewInit, OnDestroy {
     ['hero', 0],
     ['features', 1],
     ['testimonials', 2],
-    ['pricing', 3]
+    ['pricing', 3],
   ]);
 
-  constructor(
-    private aosService: AosService,
-    private ngZone: NgZone,
-    private scrollStackService: ScrollStackService
-  ) {}
+  private aosService = inject(AosService);
+  private ngZone = inject(NgZone);
+  private scrollStackService = inject(ScrollStackService);
 
   ngAfterViewInit() {
     // Refresh AOS when landing page is rendered
     setTimeout(() => {
       this.aosService.refreshAos();
     }, 100);
-    
+
     // Initialize scroll stack
     this.initializeScrollStack();
-    
+
     // Setup infinite scroll loop
     this.setupInfiniteLoop();
-    
+
     // Initial nav update
     setTimeout(() => {
       this.updateActiveNavItem();
@@ -78,8 +93,10 @@ export class Landing implements AfterViewInit, OnDestroy {
         this.pricingCard,
         this.ctaCard,
         this.whyCard,
-        this.footerCard
-      ].filter(card => card?.nativeElement).map(card => card!.nativeElement);
+        this.footerCard,
+      ]
+        .filter((card) => card?.nativeElement)
+        .map((card) => card!.nativeElement);
 
       if (cards.length === 0) return;
 
@@ -110,7 +127,7 @@ export class Landing implements AfterViewInit, OnDestroy {
       scaleEndPosition: '10%',
       baseScale: 0.85,
       rotationAmount: 0,
-      blurAmount: 0.5
+      blurAmount: 0.5,
     });
   }
 
@@ -125,12 +142,12 @@ export class Landing implements AfterViewInit, OnDestroy {
     const documentHeight = document.documentElement.scrollHeight;
     const windowHeight = window.innerHeight;
     const maxScroll = documentHeight - windowHeight;
-    
+
     // Detect if we've reached the bottom (within 10px)
     if (currentScrollY >= maxScroll - 10 && currentScrollY > this.lastScrollY) {
       this.loopToHero();
     }
-    
+
     this.lastScrollY = currentScrollY;
   }
 
@@ -148,7 +165,7 @@ export class Landing implements AfterViewInit, OnDestroy {
       const section = document.getElementById(sectionId);
       if (section) {
         const rect = section.getBoundingClientRect();
-        
+
         // Calculate how much of the section is visible in viewport
         const visibleTop = Math.max(0, -rect.top);
         const visibleBottom = Math.min(rect.height, windowHeight - rect.top);
@@ -157,7 +174,7 @@ export class Landing implements AfterViewInit, OnDestroy {
 
         // Check if section is in the upper portion of viewport (more weight)
         const isInUpperViewport = rect.top < viewportThreshold && rect.bottom > 0;
-        
+
         // Calculate a score that favors sections in the upper viewport
         const score = isInUpperViewport ? visibilityRatio * 1.5 : visibilityRatio;
 
@@ -174,20 +191,20 @@ export class Landing implements AfterViewInit, OnDestroy {
 
   private loopToHero() {
     if (this.isLooping) return;
-    
+
     this.isLooping = true;
-    
+
     const heroElement = this.heroSection?.nativeElement;
     if (!heroElement) {
       this.isLooping = false;
       return;
     }
-    
+
     const heroTop = heroElement.getBoundingClientRect().top + window.scrollY;
-    
+
     // Use Lenis for smooth scroll to hero
     this.scrollStackService.scrollTo(heroTop, { immediate: true });
-    
+
     setTimeout(() => {
       this.isLooping = false;
       this.lastScrollY = this.scrollStackService.getScrollY();

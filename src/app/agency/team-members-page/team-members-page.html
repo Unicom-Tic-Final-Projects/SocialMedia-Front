@@ -3,12 +3,15 @@
     <div class="space-y-2">
       <h1 class="text-3xl font-semibold text-slate-900">Team Members</h1>
       <p class="text-sm text-slate-500 md:text-base">
-        Manage your agency team members. Add editors, admins, and other roles to collaborate on client work.
+        Manage your agency team members. Add editors, admins, and other roles to collaborate on
+        client work.
       </p>
     </div>
-    <button 
+    <button
+      type="button"
       (click)="openCreateModal()"
-      class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600">
+      class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600"
+    >
       <i class="fa-solid fa-user-plus"></i>
       Add Team Member
     </button>
@@ -41,7 +44,9 @@
       </div>
     } @else {
       <table class="min-w-full divide-y divide-slate-200">
-        <thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <thead
+          class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+        >
           <tr>
             <th class="px-6 py-4">Email</th>
             <th class="px-6 py-4">Role</th>
@@ -56,26 +61,31 @@
               <td class="px-6 py-4">
                 <span
                   class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                  [ngClass]="getRoleBadgeClass(member.role)">
+                  [ngClass]="getRoleBadgeClass(member.role)"
+                >
                   {{ member.role }}
                 </span>
               </td>
               <td class="px-6 py-4 text-slate-600">
-                {{ member.createdAt | date:'short' }}
+                {{ member.createdAt | date: 'short' }}
               </td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <button
+                    type="button"
                     (click)="openEditModal(member)"
                     class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
-                    title="Edit team member">
+                    title="Edit team member"
+                  >
                     <i class="fa-solid fa-edit"></i>
                     Edit
                   </button>
                   <button
+                    type="button"
                     (click)="deleteTeamMember(member)"
                     class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
-                    title="Remove team member">
+                    title="Remove team member"
+                  >
                     <i class="fa-solid fa-trash"></i>
                     Remove
                   </button>
@@ -90,15 +100,25 @@
 
   <!-- Team Member Creation Modal -->
   @if (showModal()) {
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" (click)="closeModal()">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4" (click)="$event.stopPropagation()">
-        <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      (click)="closeModal()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between"
+        >
           <h2 class="text-xl font-semibold text-slate-900">
             {{ isEditing() ? 'Edit Team Member' : 'Add Team Member' }}
           </h2>
           <button
+            type="button"
             (click)="closeModal()"
-            class="text-slate-400 hover:text-slate-600 transition">
+            class="text-slate-400 hover:text-slate-600 transition"
+          >
             <i class="fa-solid fa-times text-xl"></i>
           </button>
         </div>
@@ -120,7 +140,8 @@
               type="email"
               formControlName="email"
               class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="team.member@example.com">
+              placeholder="team.member@example.com"
+            />
             @if (teamMemberForm.controls.email.invalid && teamMemberForm.controls.email.touched) {
               <p class="mt-1 text-sm text-red-500">
                 @if (teamMemberForm.controls.email.errors?.['required']) {
@@ -139,7 +160,8 @@
             <select
               id="role"
               formControlName="role"
-              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            >
               @for (role of roles; track role.value) {
                 <option [value]="role.value">{{ role.label }}</option>
               }
@@ -159,8 +181,11 @@
                 type="password"
                 formControlName="password"
                 class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Minimum 6 characters">
-              @if (teamMemberForm.controls.password.invalid && teamMemberForm.controls.password.touched) {
+                placeholder="Minimum 6 characters"
+              />
+              @if (
+                teamMemberForm.controls.password.invalid && teamMemberForm.controls.password.touched
+              ) {
                 <p class="mt-1 text-sm text-red-500">
                   @if (teamMemberForm.controls.password.errors?.['required']) {
                     Password is required.
@@ -180,15 +205,23 @@
                 type="password"
                 formControlName="confirmPassword"
                 class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Re-enter password">
-              @if (teamMemberForm.controls.confirmPassword.invalid && teamMemberForm.controls.confirmPassword.touched) {
+                placeholder="Re-enter password"
+              />
+              @if (
+                teamMemberForm.controls.confirmPassword.invalid &&
+                teamMemberForm.controls.confirmPassword.touched
+              ) {
                 <p class="mt-1 text-sm text-red-500">
                   @if (teamMemberForm.controls.confirmPassword.errors?.['required']) {
                     Please confirm the password.
                   }
                 </p>
               }
-              @if (teamMemberForm.errors?.['passwordMismatch'] && (teamMemberForm.controls.password.touched || teamMemberForm.controls.confirmPassword.touched)) {
+              @if (
+                teamMemberForm.errors?.['passwordMismatch'] &&
+                (teamMemberForm.controls.password.touched ||
+                  teamMemberForm.controls.confirmPassword.touched)
+              ) {
                 <p class="mt-1 text-sm text-red-500">Passwords do not match.</p>
               }
             </div>
@@ -202,15 +235,20 @@
                 type="password"
                 formControlName="password"
                 class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Leave blank to keep current password">
-              @if (teamMemberForm.controls.password.invalid && teamMemberForm.controls.password.touched) {
+                placeholder="Leave blank to keep current password"
+              />
+              @if (
+                teamMemberForm.controls.password.invalid && teamMemberForm.controls.password.touched
+              ) {
                 <p class="mt-1 text-sm text-red-500">
                   @if (teamMemberForm.controls.password.errors?.['minlength']) {
                     Password must be at least 6 characters.
                   }
                 </p>
               }
-              <p class="mt-1 text-xs text-slate-500">Leave blank to keep the current password unchanged.</p>
+              <p class="mt-1 text-xs text-slate-500">
+                Leave blank to keep the current password unchanged.
+              </p>
             </div>
           }
 
@@ -218,13 +256,15 @@
             <button
               type="button"
               (click)="closeModal()"
-              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition">
+              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
+            >
               Cancel
             </button>
             <button
               type="submit"
               [disabled]="teamMemberForm.invalid || loading()"
-              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               @if (loading()) {
                 <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
                 {{ isEditing() ? 'Updating...' : 'Creating...' }}
@@ -239,4 +279,3 @@
     </div>
   }
 </section>
-

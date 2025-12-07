@@ -60,11 +60,9 @@ export class TeamLayout implements OnInit {
     });
 
     // Watch for route changes to set client context
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.updateClientContextFromRoute();
-      });
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.updateClientContextFromRoute();
+    });
   }
 
   ngOnInit(): void {
@@ -95,7 +93,7 @@ export class TeamLayout implements OnInit {
 
   private updateClientContextFromRoute(): void {
     const url = this.router.url;
-    const clientMatch = url.match(/\/team\/client\/([^\/]+)/);
+    const clientMatch = url.match(/\/team\/client\/([^/]+)/);
 
     if (clientMatch) {
       const clientId = clientMatch[1];
@@ -127,4 +125,3 @@ export class TeamLayout implements OnInit {
     }
   }
 }
-

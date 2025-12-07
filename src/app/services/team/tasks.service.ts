@@ -36,7 +36,7 @@ export class TasksService {
         this.errorSignal.set(error?.message || 'Failed to load tasks');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -50,7 +50,7 @@ export class TasksService {
     return this.http.patch<Task>(`${this.baseUrl}/api/tasks/${taskId}/status`, request).pipe(
       tap((updatedTask) => {
         this.tasksSignal.update((tasks) =>
-          tasks.map((task) => (task.id === taskId ? updatedTask : task))
+          tasks.map((task) => (task.id === taskId ? updatedTask : task)),
         );
         this.loadingSignal.set(false);
       }),
@@ -58,7 +58,7 @@ export class TasksService {
         this.errorSignal.set(error?.message || 'Failed to update task status');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -84,8 +84,7 @@ export class TasksService {
       catchError((error) => {
         this.errorSignal.set(error?.message || 'Failed to get client access for task');
         return throwError(() => error);
-      })
+      }),
     );
   }
 }
-

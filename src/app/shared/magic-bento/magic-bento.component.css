@@ -29,17 +29,17 @@
   .card-responsive {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .card-responsive .card:nth-child(3) {
     grid-column: span 2;
     grid-row: span 2;
   }
-  
+
   .card-responsive .card:nth-child(4) {
     grid-column: 1 / span 2;
     grid-row: 2 / span 2;
   }
-  
+
   .card-responsive .card:nth-child(6) {
     grid-column: 4;
     grid-row: 3;
@@ -51,14 +51,20 @@
   position: absolute;
   inset: 0;
   padding: 6px;
-  background: radial-gradient(var(--glow-radius) circle at var(--glow-x) var(--glow-y),
-      rgba(var(--glow-color), calc(var(--glow-intensity) * 0.8)) 0%,
-      rgba(var(--glow-color), calc(var(--glow-intensity) * 0.4)) 30%,
-      transparent 60%);
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.8)) 0%,
+    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.4)) 30%,
+    transparent 60%
+  );
   border-radius: inherit;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: subtract;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -70,7 +76,9 @@
 }
 
 .card--border-glow:hover {
-  box-shadow: 0 4px 20px rgba(46, 24, 78, 0.4), 0 0 30px rgba(var(--glow-color), 0.2);
+  box-shadow:
+    0 4px 20px rgba(46, 24, 78, 0.4),
+    0 0 30px rgba(var(--glow-color), 0.2);
 }
 
 .text-clamp-1 {
@@ -98,10 +106,9 @@
     margin: 0 auto;
     padding: 0.5rem;
   }
-  
+
   .card-responsive .card {
     width: 100%;
     min-height: 180px;
   }
 }
-

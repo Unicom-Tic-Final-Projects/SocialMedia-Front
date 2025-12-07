@@ -1,5 +1,4 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
 import { catchError } from 'rxjs';
 import { throwError } from 'rxjs';
 
@@ -45,7 +44,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             }
             break;
           case 403:
-            errorMessage = errorMessage || 'Forbidden. You do not have permission to access this resource.';
+            errorMessage =
+              errorMessage || 'Forbidden. You do not have permission to access this resource.';
             break;
           case 404:
             errorMessage = errorMessage || 'Resource not found.';
@@ -65,8 +65,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         status: error.status,
         message: errorMessage,
         error: error.error,
-        errorKeys: error.error && typeof error.error === 'object' ? Object.keys(error.error) : 'N/A',
-        fullError: error
+        errorKeys:
+          error.error && typeof error.error === 'object' ? Object.keys(error.error) : 'N/A',
+        fullError: error,
       });
 
       // You can inject a toast service here to show error messages
@@ -75,9 +76,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       return throwError(() => ({
         ...error,
-        userMessage: errorMessage
+        userMessage: errorMessage,
       }));
-    })
+    }),
   );
 };
-

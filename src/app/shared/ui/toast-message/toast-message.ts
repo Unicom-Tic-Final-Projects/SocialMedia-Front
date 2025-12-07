@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastService, Toast, ToastType } from '../../../core/services/toast.service';
 
@@ -9,10 +9,10 @@ import { ToastService, Toast, ToastType } from '../../../core/services/toast.ser
   templateUrl: './toast-message.html',
   styleUrl: './toast-message.css',
 })
-export class ToastMessageComponent implements OnInit, OnDestroy {
+export class ToastMessageComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
-  
+
   toasts: Toast[] = [];
 
   constructor() {
@@ -32,17 +32,14 @@ export class ToastMessageComponent implements OnInit, OnDestroy {
     this.toasts = toastsSignal();
   }
 
-  ngOnDestroy(): void {
-    // Cleanup handled by signal subscription
-  }
-
   removeToast(id: string): void {
     this.toastService.remove(id);
   }
 
   getToastClasses(type: ToastType): string {
-    const baseClasses = 'flex items-start gap-3 p-4 rounded-lg shadow-lg border backdrop-blur-sm transition-all duration-300 animate-slideInRight';
-    
+    const baseClasses =
+      'flex items-start gap-3 p-4 rounded-lg shadow-lg border backdrop-blur-sm transition-all duration-300 animate-slideInRight';
+
     switch (type) {
       case 'success':
         return `${baseClasses} bg-green-50 border-green-200 text-green-800`;
@@ -59,7 +56,7 @@ export class ToastMessageComponent implements OnInit, OnDestroy {
 
   getIconClasses(type: ToastType): string {
     const baseClasses = 'fa-solid flex-shrink-0 mt-0.5';
-    
+
     switch (type) {
       case 'success':
         return `${baseClasses} fa-circle-check text-green-600`;

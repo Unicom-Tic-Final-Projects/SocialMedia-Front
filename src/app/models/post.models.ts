@@ -10,7 +10,7 @@ export interface PostResponse {
   scheduledAt?: string; // ISO date string
   createdAt: string; // ISO date string
   updatedAt?: string; // ISO date string
-  
+
   // Related data
   media?: MediaAssetResponse;
   postTargets: PostTargetResponse[];
@@ -19,12 +19,7 @@ export interface PostResponse {
   publishLogs: PublishLogResponse[];
 }
 
-export type PostStatus = 
-  | 'Draft' 
-  | 'PendingApproval' 
-  | 'Approved' 
-  | 'Scheduled' 
-  | 'Published';
+export type PostStatus = 'Draft' | 'PendingApproval' | 'Approved' | 'Scheduled' | 'Published';
 
 export interface CreatePostRequest {
   clientId: string; // GUID as string
@@ -33,10 +28,13 @@ export interface CreatePostRequest {
   mediaId?: string; // GUID as string
   socialAccountIds: string[]; // GUIDs as strings
   scheduledAt?: string; // ISO date string
-  platformCropConfigs?: Record<string, {
-    crop: { zoom: number; offsetX: number; offsetY: number };
-    cropBox: { width: number; height: number; left: number; top: number };
-  }>;
+  platformCropConfigs?: Record<
+    string,
+    {
+      crop: { zoom: number; offsetX: number; offsetY: number };
+      cropBox: { width: number; height: number; left: number; top: number };
+    }
+  >;
 }
 
 export interface UpdatePostRequest {
@@ -44,10 +42,13 @@ export interface UpdatePostRequest {
   mediaId?: string; // GUID as string
   socialAccountIds: string[]; // GUIDs as strings
   scheduledAt?: string; // ISO date string
-  platformCropConfigs?: Record<string, {
-    crop: { zoom: number; offsetX: number; offsetY: number };
-    cropBox: { width: number; height: number; left: number; top: number };
-  }>;
+  platformCropConfigs?: Record<
+    string,
+    {
+      crop: { zoom: number; offsetX: number; offsetY: number };
+      cropBox: { width: number; height: number; left: number; top: number };
+    }
+  >;
 }
 
 export interface SchedulePostRequest {
@@ -113,7 +114,7 @@ export interface SocialPost {
   scheduledAt?: string;
   createdAt: string;
   updatedAt?: string;
-  
+
   // UI-friendly fields
   title?: string; // Extracted from content or generated
   mediaUrl?: string;
@@ -122,4 +123,3 @@ export interface SocialPost {
   reactions?: number; // From analytics (future)
   views?: number; // From analytics (future)
 }
-

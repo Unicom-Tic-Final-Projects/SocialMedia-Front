@@ -4,14 +4,20 @@
     <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div class="flex-1 min-w-0">
-          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3">
+          <h1
+            class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3"
+          >
             <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
             <span class="truncate">{{ isEditMode() ? 'Edit Post' : 'Create Post' }}</span>
           </h1>
-          <p class="text-gray-600 text-xs sm:text-sm">Follow the steps below to create and schedule your social media posts</p>
+          <p class="text-gray-600 text-xs sm:text-sm">
+            Follow the steps below to create and schedule your social media posts
+          </p>
         </div>
-        <a routerLink="/dashboard/posts" 
-           class="flex items-center gap-2 text-gray-500 hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#F5F7FF]">
+        <a
+          routerLink="/dashboard/posts"
+          class="flex items-center gap-2 text-gray-500 hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#F5F7FF]"
+        >
           <i class="fa-solid fa-times text-xl"></i>
           <span class="hidden sm:inline">Cancel</span>
         </a>
@@ -28,7 +34,9 @@
         </div>
         <div>
           <p class="text-sm font-semibold text-blue-900">Creating Post for Client</p>
-          <p class="text-xs text-blue-700">{{ selectedClient()?.name }} - {{ clientContextService.clientUser()?.email }}</p>
+          <p class="text-xs text-blue-700">
+            {{ selectedClient()?.name }} - {{ clientContextService.clientUser()?.email }}
+          </p>
         </div>
       </div>
     </div>
@@ -67,32 +75,50 @@
                   {{ step }}
                 }
               </button>
-              
+
               <!-- Step Label -->
-              <span class="mt-2 text-[10px] sm:text-xs font-medium text-center whitespace-nowrap max-w-[80px] sm:max-w-none truncate"
-                    [class.text-[#4C6FFF]]="currentStep() === step"
-                    [class.font-semibold]="currentStep() === step"
-                    [class.text-gray-600]="currentStep() !== step && isStepComplete(step)"
-                    [class.text-gray-400]="currentStep() !== step && !isStepComplete(step)">
+              <span
+                class="mt-2 text-[10px] sm:text-xs font-medium text-center whitespace-nowrap max-w-[80px] sm:max-w-none truncate"
+                [class.text-[#4C6FFF]]="currentStep() === step"
+                [class.font-semibold]="currentStep() === step"
+                [class.text-gray-600]="currentStep() !== step && isStepComplete(step)"
+                [class.text-gray-400]="currentStep() !== step && !isStepComplete(step)"
+              >
                 @switch (step) {
-                  @case (1) { <span class="hidden sm:inline">Content & Media</span><span class="sm:hidden">Content</span> }
-                  @case (2) { <span class="hidden sm:inline">Select Platforms</span><span class="sm:hidden">Platforms</span> }
-                  @case (3) { <span class="hidden sm:inline">Crop & Edit</span><span class="sm:hidden">Crop</span> }
-                  @case (4) { <span class="hidden sm:inline">Preview</span><span class="sm:hidden">Preview</span> }
-                  @case (5) { <span class="hidden sm:inline">Publish/Schedule</span><span class="sm:hidden">Publish</span> }
+                  @case (1) {
+                    <span class="hidden sm:inline">Content & Media</span
+                    ><span class="sm:hidden">Content</span>
+                  }
+                  @case (2) {
+                    <span class="hidden sm:inline">Select Platforms</span
+                    ><span class="sm:hidden">Platforms</span>
+                  }
+                  @case (3) {
+                    <span class="hidden sm:inline">Crop & Edit</span
+                    ><span class="sm:hidden">Crop</span>
+                  }
+                  @case (4) {
+                    <span class="hidden sm:inline">Preview</span
+                    ><span class="sm:hidden">Preview</span>
+                  }
+                  @case (5) {
+                    <span class="hidden sm:inline">Publish/Schedule</span
+                    ><span class="sm:hidden">Publish</span>
+                  }
                 }
               </span>
             </div>
 
             <!-- Connector Line -->
             @if (step < 5) {
-              <div class="flex-1 h-0.5 mx-2 sm:mx-4 -mt-6 transition-all duration-300"
-                   [class.bg-gradient-to-r]="currentStep() > step"
-                   [class.from-[#4C6FFF]]="currentStep() > step"
-                   [class.to-[#3A56CC]]="currentStep() > step"
-                   [class.bg-[#4C6FFF]]="currentStep() > step"
-                   [class.bg-gray-300]="currentStep() <= step">
-              </div>
+              <div
+                class="flex-1 h-0.5 mx-2 sm:mx-4 -mt-6 transition-all duration-300"
+                [class.bg-gradient-to-r]="currentStep() > step"
+                [class.from-[#4C6FFF]]="currentStep() > step"
+                [class.to-[#3A56CC]]="currentStep() > step"
+                [class.bg-[#4C6FFF]]="currentStep() > step"
+                [class.bg-gray-300]="currentStep() <= step"
+              ></div>
             }
           </div>
         }
@@ -113,7 +139,9 @@
                 Loading clients...
               </div>
             } @else if (clients().length === 0) {
-              <p class="text-gray-600 text-sm">No clients found. Create your first client to get started.</p>
+              <p class="text-gray-600 text-sm">
+                No clients found. Create your first client to get started.
+              </p>
             } @else {
               <select
                 class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-2.5 text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] transition-all"
@@ -145,387 +173,52 @@
 
     <!-- Step Content Container -->
     <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-4 sm:p-6 md:p-8">
-      
       <!-- STEP 1: Content & Media -->
       @if (currentStep() === 1) {
-        <div class="space-y-6" [formGroup]="postForm">
-          <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-              <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-                <i class="fa-solid fa-edit text-[#4C6FFF]"></i>
-              </div>
-              Step 1: Write Your Post
-            </h2>
-            <p class="text-gray-600 text-sm ml-[58px]">Create your content and add media (both required)</p>
-          </div>
-
-          <!-- Content Editor with Floating Label -->
-          <div class="space-y-4">
-            <div class="input-group-float relative">
-              <textarea
-                formControlName="content"
-                placeholder=" "
-                rows="8"
-                class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-xl px-4 py-3 pr-14
-                       focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm transition-all resize-none relative"
-                style="min-height: 200px;"
-                [class.border-red-500]="content?.invalid && content?.touched"
-                (input)="onContentInput($event)"
-              ></textarea>
-              <label class="input-label-float">Post Content *</label>
-              
-              <!-- AI Improve Content Button -->
-              @if (hasContent()) {
-                <button
-                  type="button"
-                  (click)="improveContentWithAI(); $event.stopPropagation()"
-                  [disabled]="improvingContent()"
-                  class="absolute top-3 right-3 z-20 p-2 rounded-lg transition-all duration-200 
-                         bg-white border-2 border-[#4C6FFF] hover:bg-[#4C6FFF]
-                         shadow-md hover:shadow-lg hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                         group pointer-events-auto"
-                  [title]="improvingContent() ? 'Improving content...' : 'Improve content with AI'">
-                  @if (improvingContent()) {
-                    <i class="fa-solid fa-spinner fa-spin text-sm text-[#4C6FFF] group-hover:text-white transition-colors"></i>
-                  } @else {
-                    <i class="fa-solid fa-wand-magic-sparkles text-sm text-[#4C6FFF] group-hover:text-white transition-colors"></i>
-                  }
-                  
-                  <!-- Tooltip -->
-                  <span class="absolute right-full mr-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg 
-                              opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
-                    Improve content with AI
-                    <span class="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"></span>
-                  </span>
-                </button>
-              }
-              @if (content?.invalid && content?.touched) {
-                <p class="mt-2 text-sm text-red-600 flex items-center gap-2">
-                  <i class="fa-solid fa-circle-exclamation"></i>
-                  @if (content?.errors?.['maxlength']) {
-                    Content must be less than 4000 characters
-                  } @else {
-                    Content is required
-                  }
-                </p>
-              }
-            </div>
-
-            <div class="flex justify-between items-center text-xs">
-              <p class="text-gray-500">
-                {{ characterCount() }} / {{ maxCharacters }} characters
-              </p>
-              @if (characterCount() > maxCharacters * 0.9) {
-                <p class="text-amber-600 flex items-center gap-1">
-                  <i class="fa-solid fa-exclamation-triangle"></i>
-                  Approaching character limit
-                </p>
-              }
-            </div>
-
-            @if (!step1Valid() && currentStep() === 1) {
-              <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-3">
-                <i class="fa-solid fa-info-circle text-amber-600 mt-0.5"></i>
-                <p class="text-sm text-amber-700">Please enter a caption and upload at least one image/video to continue</p>
-              </div>
-            }
-          </div>
-
-          <!-- Enhanced Media Upload Section -->
-          <div class="space-y-4">
-            <label class="block text-[#1A1A1A] font-semibold text-sm uppercase tracking-wider">
-              <i class="fa-solid fa-photo-film mr-2"></i>Add Media (Image or Video) *
-            </label>
-
-            @if (mediaPreview()) {
-              <div class="relative group rounded-xl overflow-hidden border-2 border-[#D9E1FF]">
-                @if (isVideo()) {
-                  <video 
-                    [src]="mediaPreview()!" 
-                    class="w-full h-48 sm:h-64 object-cover"
-                    controls
-                    preload="metadata"
-                  ></video>
-                } @else {
-                  <img [src]="mediaPreview()!" class="w-full h-48 sm:h-64 object-cover" />
-                }
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <button
-                    (click)="removeMedia()"
-                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2 shadow-lg"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                    Remove
-                  </button>
-                </div>
-                @if (isVideo()) {
-                  <div class="absolute top-2 right-2 bg-[#4C6FFF] text-white px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
-                    <i class="fa-solid fa-video"></i>
-                    Video
-                  </div>
-                }
-              </div>
-            } @else {
-              <app-file-upload
-                [hint]="'Images (PNG, JPG, GIF) & Videos (MP4, MOV) - MAX. 10MB'"
-                [accept]="'image/*,video/*'"
-                [allowsMultiple]="false"
-                [maxSize]="10 * 1024 * 1024"
-                [variant]="'progressBar'"
-                [uploadedFiles]="uploadedFiles()"
-                (filesSelected)="onFilesSelected($event)"
-                (unacceptedFiles)="onUnacceptedFiles($event)"
-                (sizeLimitExceeded)="onSizeLimitExceeded($event)"
-                (fileDeleted)="onFileDeleted($event)"
-                (fileRetry)="onFileRetry($event)">
-              </app-file-upload>
-            }
-          </div>
-        </div>
+        <app-step1-content-media
+          [postForm]="postForm"
+          [improvingContent]="improvingContent()"
+          [showImprovementModal]="showImprovementModal()"
+          (contentInput)="onContentInput($event)"
+          (improveContent)="improveContentWithAI()"
+          (filesSelected)="onFilesSelected($event)"
+          (unacceptedFiles)="onUnacceptedFiles($event)"
+          (sizeLimitExceeded)="onSizeLimitExceeded($event)"
+          (fileDeleted)="onFileDeleted($event)"
+          (fileRetry)="onFileRetry($event)"
+          (removeMedia)="removeMedia()"
+        />
       }
 
       <!-- STEP 2: Select Platforms -->
       @if (currentStep() === 2) {
-        <div class="space-y-6">
-          <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-              <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-                <i class="fa-solid fa-share-nodes text-[#4C6FFF]"></i>
-              </div>
-              Step 2: Choose Platforms
-            </h2>
-            <p class="text-gray-600 text-sm ml-[58px]">Select which social media platforms to publish to</p>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @for (platform of getAllPlatforms(); track platform) {
-              @let isSelected = isPlatformSelected(platform);
-              @let accounts = getConnectedAccountsForPlatform(platform);
-              @let isConnected = accounts.length > 0;
-              
-              <button
-                type="button"
-                (click)="togglePlatform(platform)"
-                class="relative p-5 rounded-xl border-2 transition-all duration-300 text-left group hover:shadow-lg hover:scale-[1.02]"
-                [class.bg-gradient-to-br]="isSelected"
-                [class.from-[#4C6FFF]]="isSelected"
-                [class.to-[#3A56CC]]="isSelected"
-                [class.text-white]="isSelected"
-                [class.border-[#4C6FFF]]="isSelected"
-                [class.shadow-md]="isSelected"
-                [class.bg-white]="!isSelected"
-                [class.text-[#1A1A1A]]="!isSelected"
-                [class.border-[#D9E1FF]]="!isSelected"
-                [class.opacity-60]="!isConnected"
-                [class.cursor-not-allowed]="!isConnected"
-              >
-                <div class="flex items-center gap-3 mb-3">
-                  @switch (platform) {
-                    @case ('facebook') {
-                      <i class="fa-brands fa-facebook text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#1877F2'"></i>
-                    }
-                    @case ('instagram') {
-                      <i class="fa-brands fa-instagram text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#E4405F'"></i>
-                    }
-                    @case ('linkedin') {
-                      <i class="fa-brands fa-linkedin text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#0077B5'"></i>
-                    }
-                    @case ('twitter') {
-                      <i class="fa-brands fa-x-twitter text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#1DA1F2'"></i>
-                    }
-                    @case ('youtube') {
-                      <i class="fa-brands fa-youtube text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#FF0000'"></i>
-                    }
-                    @case ('tiktok') {
-                      <i class="fa-brands fa-tiktok text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#000000'"></i>
-                    }
-                    @case ('pinterest') {
-                      <i class="fa-brands fa-pinterest text-3xl" [style.color]="isSelected ? '#FFFFFF' : '#E60023'"></i>
-                    }
-                  }
-                  <div class="flex-1">
-                    <h3 class="font-bold text-lg capitalize">{{ platform }}</h3>
-                    @if (!isConnected) {
-                      <p class="text-xs opacity-75 mt-1">Not connected</p>
-                    } @else {
-                      <p class="text-xs opacity-75 mt-1">{{ accounts.length }} {{ accounts.length === 1 ? 'account' : 'accounts' }}</p>
-                    }
-                  </div>
-                  @if (isSelected) {
-                    <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                      <i class="fa-solid fa-check text-sm"></i>
-                    </div>
-                  }
-                </div>
-              </button>
-            }
-          </div>
-
-          @if (step2ValidationError()) {
-            <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-              <i class="fa-solid fa-exclamation-triangle text-red-600 mt-0.5"></i>
-              <p class="text-sm text-red-700 font-medium">Please select at least one platform to continue</p>
-            </div>
-          } @else if (postDraftService.getActiveDraft()?.selectedPlatforms?.length === 0) {
-            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-              <i class="fa-solid fa-info-circle text-amber-600 mt-0.5"></i>
-              <p class="text-sm text-amber-700">Please select at least one platform to continue</p>
-            </div>
-          } @else {
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
-              <i class="fa-solid fa-check-circle text-green-600 mt-0.5"></i>
-              <p class="text-sm text-green-700 font-medium">
-                {{ postDraftService.getActiveDraft()?.selectedPlatforms?.length || 0 }} {{ (postDraftService.getActiveDraft()?.selectedPlatforms?.length || 0) === 1 ? 'platform' : 'platforms' }} selected
-              </p>
-            </div>
-          }
-        </div>
+        <app-step2-platform-selection />
       }
 
       <!-- STEP 3: Crop & Edit per Platform -->
       @if (currentStep() === 3) {
-        <div class="space-y-6" [formGroup]="postForm">
-          <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-              <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-                @if (isVideo()) {
-                  <i class="fa-solid fa-video text-[#4C6FFF]"></i>
-                } @else {
-                  <i class="fa-solid fa-crop text-[#4C6FFF]"></i>
-                }
-              </div>
-              @if (isVideo()) {
-                Step 3: Review Video & Edit Caption
-              } @else {
-                Step 3: Crop & Edit per Platform
-              }
-            </h2>
-            <p class="text-gray-600 text-sm ml-[58px]">
-              @if (isVideo()) {
-                Review your video and edit the caption for all platforms
-              } @else {
-                Adjust crops and edit caption for each platform
-              }
-            </p>
-          </div>
-
-          <!-- Single Caption Field -->
-          <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
-            <div class="input-group-float">
-              <textarea
-                formControlName="content"
-                placeholder=" "
-                rows="4"
-                class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-4 py-3 
-                       focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm resize-none"
-                (input)="onContentInput($event)"
-              ></textarea>
-              <label class="input-label-float">Caption</label>
-            </div>
-            <p class="text-xs text-gray-500 mt-3 flex items-center gap-2">
-              <i class="fa-solid fa-info-circle"></i>
-              This caption will be used for all selected platforms.
-            </p>
-          </div>
-
-          <!-- Free-Form Crop Component (Images and Videos) -->
-          <app-photo-crop
-            [mediaUrl]="mediaPreview() || ''"
-            [mediaType]="isVideo() ? 'video' : 'image'"
-            [caption]="postForm.value.content || ''"
-            [selectedAccountIds]="[]"
-            [selectedPlatforms]="postDraftService.getActiveDraft()?.selectedPlatforms || []"
-            (cropConfigsChange)="onCropConfigsChange($event)"
-            (croppedImagesChange)="onCroppedImagesChange($event)"
-          ></app-photo-crop>
-        </div>
+        <app-step3-crop-edit
+          [postForm]="postForm"
+          (contentInput)="onContentInput($event)"
+          (cropConfigsChange)="onCropConfigsChange($event)"
+          (croppedImagesChange)="onCroppedImagesChange($event)"
+        />
       }
 
       <!-- STEP 4: Preview -->
       @if (currentStep() === 4) {
-        <div class="space-y-6">
-          <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-              <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-                <i class="fa-solid fa-eye text-[#4C6FFF]"></i>
-              </div>
-              Step 4: Preview
-            </h2>
-            <p class="text-gray-600 text-sm ml-[58px]">Review your post before publishing</p>
-          </div>
-
-          <app-post-preview
-            [draft]="postDraftService.getActiveDraft()"
-          ></app-post-preview>
-        </div>
+        <app-step4-preview />
       }
 
       <!-- STEP 5: Publish/Schedule -->
       @if (currentStep() === 5) {
-        <div class="space-y-6" [formGroup]="postForm">
-          <div class="mb-6">
-            <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-              <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
-                <i class="fa-solid fa-paper-plane text-[#4C6FFF]"></i>
-              </div>
-              Step 5: Publish or Schedule
-            </h2>
-            <p class="text-gray-600 text-sm ml-[58px]">Choose when to publish your post</p>
-          </div>
-
-          <!-- Publish Mode Selection -->
-          <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
-            <div class="flex flex-col sm:flex-row gap-4">
-              <button
-                type="button"
-                (click)="scheduleMode.set('now')"
-                class="flex-1 p-4 rounded-lg border-2 transition-all duration-300 text-left"
-                [class.bg-white]="scheduleMode() === 'now'"
-                [class.border-[#4C6FFF]]="scheduleMode() === 'now'"
-                [class.shadow-md]="scheduleMode() === 'now'"
-                [class.bg-transparent]="scheduleMode() !== 'now'"
-                [class.border-[#D9E1FF]]="scheduleMode() !== 'now'"
-              >
-                <div class="flex items-center gap-3 mb-2">
-                  <i class="fa-solid fa-bolt text-[#4C6FFF] text-xl"></i>
-                  <h3 class="font-bold text-[#1A1A1A]">Publish Now</h3>
-                </div>
-                <p class="text-sm text-gray-600">Publish immediately to all selected platforms</p>
-              </button>
-
-              <button
-                type="button"
-                (click)="scheduleMode.set('later')"
-                class="flex-1 p-4 rounded-lg border-2 transition-all duration-300 text-left"
-                [class.bg-white]="scheduleMode() === 'later'"
-                [class.border-[#4C6FFF]]="scheduleMode() === 'later'"
-                [class.shadow-md]="scheduleMode() === 'later'"
-                [class.bg-transparent]="scheduleMode() !== 'later'"
-                [class.border-[#D9E1FF]]="scheduleMode() !== 'later'"
-              >
-                <div class="flex items-center gap-3 mb-2">
-                  <i class="fa-solid fa-clock text-[#4C6FFF] text-xl"></i>
-                  <h3 class="font-bold text-[#1A1A1A]">Schedule Later</h3>
-                </div>
-                <p class="text-sm text-gray-600">Schedule your post for a specific date and time</p>
-              </button>
-            </div>
-
-            @if (scheduleMode() === 'later') {
-              <div class="mt-6 pt-6 border-t border-[#D9E1FF]">
-                <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
-                  <i class="fa-solid fa-calendar-days mr-2"></i>Schedule Date & Time
-                </label>
-                <input
-                  type="datetime-local"
-                  [value]="scheduledDateTime()"
-                  (input)="scheduledDateTime.set($any($event.target).value)"
-                  class="w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 transition-all"
-                />
-              </div>
-            }
-          </div>
-        </div>
+        <app-step5-publish-schedule
+          [scheduleMode]="scheduleMode()"
+          [scheduledDateTime]="scheduledDateTime()"
+          [saving]="saving()"
+          (scheduleModeChange)="scheduleMode.set($event)"
+          (scheduledDateTimeChange)="scheduledDateTime.set($event)"
+        />
       }
 
       <!-- Navigation Buttons -->
@@ -534,8 +227,7 @@
           type="button"
           (click)="previousStep()"
           [disabled]="currentStep() === 1"
-          class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                 bg-white border-2 border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#F5F7FF] hover:border-[#4C6FFF]"
+          class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border-2 border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#F5F7FF] hover:border-[#4C6FFF]"
         >
           <i class="fa-solid fa-arrow-left"></i>
           <span class="hidden sm:inline">Previous</span>
@@ -545,8 +237,7 @@
           <button
             type="button"
             (click)="saveDraft()"
-            class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all
-                   bg-[#F5F7FF] border-2 border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#D9E1FF]"
+            class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all bg-[#F5F7FF] border-2 border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#D9E1FF]"
           >
             <i class="fa-solid fa-save"></i>
             <span class="hidden sm:inline">Save Draft</span>
@@ -557,8 +248,7 @@
               type="button"
               (click)="nextStep()"
               [disabled]="!canGoToNextStep()"
-              class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                     bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white hover:shadow-lg hover:scale-105"
+              class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white hover:shadow-lg hover:scale-105"
             >
               <span class="hidden sm:inline">Next</span>
               <i class="fa-solid fa-arrow-right"></i>
@@ -568,14 +258,17 @@
               type="button"
               (click)="scheduleMode() === 'now' ? publishNow() : schedulePost()"
               [disabled]="saving()"
-              class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                     bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white hover:shadow-lg hover:scale-105"
+              class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white hover:shadow-lg hover:scale-105"
             >
               @if (saving()) {
                 <i class="fa-solid fa-circle-notch animate-spin"></i>
                 <span>Processing...</span>
               } @else {
-                <i [class]="scheduleMode() === 'now' ? 'fa-solid fa-paper-plane' : 'fa-solid fa-clock'"></i>
+                <i
+                  [class]="
+                    scheduleMode() === 'now' ? 'fa-solid fa-paper-plane' : 'fa-solid fa-clock'
+                  "
+                ></i>
                 <span>{{ scheduleMode() === 'now' ? 'Publish Now' : 'Schedule Post' }}</span>
               }
             </button>
@@ -587,11 +280,18 @@
 
   <!-- AI Content Improvement Modal -->
   @if (showImprovementModal()) {
-    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeImprovementModal()">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col" 
-           (click)="$event.stopPropagation()">
+    <div
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      (click)="closeImprovementModal()"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        (click)="$event.stopPropagation()"
+      >
         <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] px-6 py-4 flex items-center justify-between">
+        <div
+          class="bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] px-6 py-4 flex items-center justify-between"
+        >
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
               <i class="fa-solid fa-wand-magic-sparkles text-white"></i>
@@ -601,9 +301,11 @@
               <p class="text-sm text-white/80">Review and accept the improved content</p>
             </div>
           </div>
-          <button 
+          <button
+            type="button"
             (click)="closeImprovementModal()"
-            class="text-white hover:bg-white/20 rounded-lg p-2 transition-colors">
+            class="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+          >
             <i class="fa-solid fa-times text-xl"></i>
           </button>
         </div>
@@ -623,7 +325,9 @@
 
           <!-- Arrow -->
           <div class="flex justify-center">
-            <div class="w-12 h-12 bg-gradient-to-br from-[#4C6FFF] to-[#3A56CC] rounded-full flex items-center justify-center shadow-lg">
+            <div
+              class="w-12 h-12 bg-gradient-to-br from-[#4C6FFF] to-[#3A56CC] rounded-full flex items-center justify-center shadow-lg"
+            >
               <i class="fa-solid fa-arrow-down text-white"></i>
             </div>
           </div>
@@ -643,13 +347,17 @@
         <!-- Modal Footer -->
         <div class="border-t border-[#D9E1FF] px-6 py-4 flex items-center justify-end gap-3">
           <button
+            type="button"
             (click)="rejectImprovedContent()"
-            class="px-6 py-2.5 rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+            class="px-6 py-2.5 rounded-lg border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+          >
             Keep Original
           </button>
           <button
+            type="button"
             (click)="acceptImprovedContent()"
-            class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white font-medium hover:shadow-lg transition-all flex items-center gap-2">
+            class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white font-medium hover:shadow-lg transition-all flex items-center gap-2"
+          >
             <i class="fa-solid fa-check"></i>
             Use Improved Content
           </button>

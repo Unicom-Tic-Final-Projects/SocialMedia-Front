@@ -13,7 +13,7 @@ export const agencyGuard: CanActivateFn = (route, state) => {
 
   if (!authService.isLoggedIn()) {
     router.navigate(['/auth/login'], {
-      queryParams: { returnUrl: state.url }
+      queryParams: { returnUrl: state.url },
     });
     return false;
   }
@@ -25,7 +25,8 @@ export const agencyGuard: CanActivateFn = (route, state) => {
   }
 
   // Check if user is a team member (Editor or Admin in Agency tenant)
-  const isTeamMember = user.tenantType === 'Agency' && (user.role === 'Editor' || user.role === 'Admin');
+  const isTeamMember =
+    user.tenantType === 'Agency' && (user.role === 'Editor' || user.role === 'Admin');
   if (isTeamMember) {
     // Team members should use the team dashboard
     router.navigate(['/team']);
@@ -40,4 +41,3 @@ export const agencyGuard: CanActivateFn = (route, state) => {
   router.navigate(['/dashboard']);
   return false;
 };
-

@@ -1,4 +1,12 @@
-import { Component, AfterViewInit, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AosService } from '../../../shared/services/aos.service';
 import { ParallaxService } from '../../../shared/services/parallax.service';
@@ -13,21 +21,18 @@ import { Subscription } from 'rxjs';
 export class TestimonialsSection implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('testimonialsSection', { static: true }) testimonialsSection!: ElementRef<HTMLElement>;
   @ViewChild('parallaxBg', { static: true }) parallaxBg!: ElementRef<HTMLElement>;
-  
+
   scrollY = 0;
   private subscriptions = new Subscription();
-
-  constructor(
-    private aosService: AosService,
-    private parallaxService: ParallaxService
-  ) {}
+  private aosService = inject(AosService);
+  private parallaxService = inject(ParallaxService);
 
   ngOnInit() {
     this.subscriptions.add(
-      this.parallaxService.scroll$.subscribe(scrollY => {
+      this.parallaxService.scroll$.subscribe((scrollY) => {
         this.scrollY = scrollY;
         this.updateParallax();
-      })
+      }),
     );
   }
 
@@ -43,7 +48,9 @@ export class TestimonialsSection implements AfterViewInit, OnInit, OnDestroy {
 
   private updateParallax() {
     if (!this.testimonialsSection || !this.parallaxBg) return;
-    const elementOffset = this.parallaxService.getElementOffset(this.testimonialsSection.nativeElement);
+    const elementOffset = this.parallaxService.getElementOffset(
+      this.testimonialsSection.nativeElement,
+    );
     const bgOffset = this.parallaxService.calculateParallax(this.scrollY, elementOffset, 0.25);
     this.parallaxBg.nativeElement.style.transform = `translateY(${bgOffset}px)`;
   }

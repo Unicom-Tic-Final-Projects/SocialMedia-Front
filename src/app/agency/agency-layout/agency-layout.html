@@ -1,10 +1,12 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] md:grid" 
-     [ngClass]="{
-       'md:grid-cols-[72px,1fr]': isAgencySidebarCollapsed() && !showClientSidebar(),
-       'md:grid-cols-[72px,260px,1fr]': isAgencySidebarCollapsed() && showClientSidebar(),
-       'md:grid-cols-[260px,1fr]': !isAgencySidebarCollapsed() && !showClientSidebar(),
-       'md:grid-cols-[260px,260px,1fr]': !isAgencySidebarCollapsed() && showClientSidebar()
-     }">
+<div
+  class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] md:grid"
+  [ngClass]="{
+    'md:grid-cols-[72px,1fr]': isAgencySidebarCollapsed() && !showClientSidebar(),
+    'md:grid-cols-[72px,260px,1fr]': isAgencySidebarCollapsed() && showClientSidebar(),
+    'md:grid-cols-[260px,1fr]': !isAgencySidebarCollapsed() && !showClientSidebar(),
+    'md:grid-cols-[260px,260px,1fr]': !isAgencySidebarCollapsed() && showClientSidebar(),
+  }"
+>
   <!-- Main Agency Sidebar -->
   <aside
     class="fixed inset-y-0 left-0 z-30 flex flex-col gap-10 bg-[#F5F7FF] border-r border-[#D9E1FF] text-[#1A1A1A] shadow-xl transition-all duration-300 md:static md:translate-x-0 md:shadow-none group"
@@ -22,7 +24,9 @@
     <!-- Logo/Header -->
     <div class="flex flex-col gap-1.5">
       @if (!isAgencySidebarCollapsed()) {
-        <div class="text-2xl font-bold tracking-wide text-[#4C6FFF]">One<span class="text-[#1A1A1A]">vo</span></div>
+        <div class="text-2xl font-bold tracking-wide text-[#4C6FFF]">
+          One<span class="text-[#1A1A1A]">vo</span>
+        </div>
         <div>
           <div class="text-lg font-semibold text-[#1A1A1A]">{{ getTenantName() }}</div>
           <div class="text-sm text-gray-600">Agency Workspace</div>
@@ -127,6 +131,7 @@
         <div class="flex flex-col gap-1">
           @for (client of clientsWithAccounts(); track client.id) {
             <button
+              type="button"
               (click)="selectClient(client); showMenu.set(false)"
               [class.bg-[#4C6FFF]]="selectedClient()?.id === client.id"
               [class.text-white]="selectedClient()?.id === client.id"
@@ -135,7 +140,9 @@
             >
               <div class="text-sm font-medium">{{ client.name }}</div>
               @if (clientContextService.getUserAccount(client.id)) {
-                <div class="text-xs opacity-75 truncate">{{ clientContextService.getUserAccount(client.id)?.email }}</div>
+                <div class="text-xs opacity-75 truncate">
+                  {{ clientContextService.getUserAccount(client.id)?.email }}
+                </div>
               }
             </button>
           }
@@ -147,6 +154,7 @@
         <div class="flex flex-col gap-1">
           @for (client of clientsWithAccounts(); track client.id) {
             <button
+              type="button"
               (click)="selectClient(client); showMenu.set(false)"
               [class.bg-[#4C6FFF]]="selectedClient()?.id === client.id"
               [class.text-white]="selectedClient()?.id === client.id"
@@ -162,6 +170,7 @@
     }
 
     <button
+      type="button"
       class="mt-auto inline-flex items-center rounded-xl border border-red-200 bg-red-50 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-100"
       [class.gap-3]="!isAgencySidebarCollapsed()"
       [class.gap-0]="isAgencySidebarCollapsed()"
@@ -197,6 +206,7 @@
             <div class="text-sm text-gray-600">{{ getClientEmail() }}</div>
           </div>
           <button
+            type="button"
             (click)="clearClientSelection()"
             class="p-1.5 rounded-lg hover:bg-[#D9E1FF] transition text-gray-600 hover:text-[#4C6FFF]"
             title="Back to agency view"
@@ -286,8 +296,14 @@
   }
 
   <div class="flex min-h-screen flex-col">
-    <header class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6">
-      <button class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition" (click)="toggleMenu()">
+    <header
+      class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6"
+    >
+      <button
+        type="button"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition"
+        (click)="toggleMenu()"
+      >
         <i class="fa-solid fa-bars text-lg"></i>
       </button>
 
@@ -301,4 +317,3 @@
     </main>
   </div>
 </div>
-

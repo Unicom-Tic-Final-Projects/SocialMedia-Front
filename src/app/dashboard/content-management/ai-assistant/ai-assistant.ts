@@ -1,28 +1,41 @@
-import { Component, inject, signal, output } from '@angular/core';
+import { Component, inject, signal, output, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AIService, GenerateCaptionResponse, BestTimeToPostResponse, GenerateImageResponse, GenerateContentPlanResponse } from '../../../services/client/ai.service';
+import {
+  AIService,
+  GenerateCaptionResponse,
+  BestTimeToPostResponse,
+  GenerateImageResponse,
+  GenerateContentPlanResponse,
+} from '../../../services/client/ai.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AIImageEditorComponent } from '../../ai-image-editor/ai-image-editor';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../core/services/logging.service';
+import { BaseComponent } from '../../../core/base/base.component';
 
 @Component({
   selector: 'app-ai-assistant',
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule, AIImageEditorComponent],
   templateUrl: './ai-assistant.html',
-  styleUrl: './ai-assistant.css'
+  styleUrl: './ai-assistant.css',
 })
-export class AIAssistantComponent {
+export class AIAssistantComponent extends BaseComponent {
   private readonly fb = inject(FormBuilder);
   private readonly aiService = inject(AIService);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly loggingService = inject(LoggingService);
 
   contentGenerated = output<string>();
 
   // Active tab
-  activeTab = signal<'captions' | 'content-plan' | 'best-time' | 'image' | 'image-editor'>('captions');
+  activeTab = signal<'captions' | 'content-plan' | 'best-time' | 'image' | 'image-editor'>(
+    'captions',
+  );
 
   // Loading states
   loading = signal(false);
@@ -44,13 +57,14 @@ export class AIAssistantComponent {
   generatedImage = signal<GenerateImageResponse | null>(null);
 
   constructor() {
+    super();
     this.captionForm = this.fb.group({
       topic: ['', [Validators.required, Validators.maxLength(500)]],
       context: ['', [Validators.maxLength(1000)]],
       platform: [''],
       captionCount: [3, [Validators.min(1), Validators.max(10)]],
       includeHashtags: [true],
-      hashtagCount: [10, [Validators.min(1), Validators.max(30)]]
+      hashtagCount: [10, [Validators.min(1), Validators.max(30)]],
     });
 
     this.contentPlanForm = this.fb.group({
@@ -58,7 +72,7 @@ export class AIAssistantComponent {
       businessContext: ['', [Validators.maxLength(2000)]],
       platform: [''],
       postsPerWeek: [5, [Validators.min(1), Validators.max(20)]],
-      weeks: [4, [Validators.min(1), Validators.max(12)]]
+      weeks: [4, [Validators.min(1), Validators.max(12)]],
     });
 
     this.imageForm = this.fb.group({
@@ -66,7 +80,7 @@ export class AIAssistantComponent {
       style: [''],
       aspectRatio: ['1:1'],
       width: [1024],
-      height: [1024]
+      height: [1024],
     });
   }
 
@@ -111,20 +125,26 @@ export class AIAssistantComponent {
       platform: formValue.platform || undefined,
       captionCount: formValue.captionCount || 3,
       includeHashtags: formValue.includeHashtags !== false,
-      hashtagCount: formValue.hashtagCount || 10
+      hashtagCount: formValue.hashtagCount || 10,
     };
 
-    this.aiService.generateCaptions(request).subscribe({
+    this.aiService
+      .generateCaptions(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.aiCaptions.set(response);
         this.loading.set(false);
         this.toastService.success('Captions generated successfully!');
       },
       error: (error) => {
-        const errorMsg = error?.error?.message || error?.message || 'Failed to generate captions. Please try again.';
+        const errorMsg =
+          error?.error?.message ||
+          error?.message ||
+          'Failed to generate captions. Please try again.';
         this.toastService.error(errorMsg);
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -143,24 +163,27 @@ export class AIAssistantComponent {
     this.loading.set(true);
 
     const formValue = this.contentPlanForm.value;
-    this.aiService.generateContentPlan({
-      tenantId: user.tenantId,
-      topic: formValue.topic,
-      businessContext: formValue.businessContext || undefined,
-      platform: formValue.platform || undefined,
-      postsPerWeek: formValue.postsPerWeek || 5,
-      weeks: formValue.weeks || 4
-    }).subscribe({
-      next: (response) => {
-        this.contentPlan.set(response);
-        this.loading.set(false);
-        this.toastService.success('Content plan generated successfully!');
-      },
-      error: (error) => {
-        this.toastService.error('Failed to generate content plan. Please try again.');
-        this.loading.set(false);
-      }
-    });
+    this.aiService
+      .generateContentPlan({
+        tenantId: user.tenantId,
+        topic: formValue.topic,
+        businessContext: formValue.businessContext || undefined,
+        platform: formValue.platform || undefined,
+        postsPerWeek: formValue.postsPerWeek || 5,
+        weeks: formValue.weeks || 4,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.contentPlan.set(response);
+          this.loading.set(false);
+          this.toastService.success('Content plan generated successfully!');
+        },
+        error: (_error) => {
+          this.toastService.error('Failed to generate content plan. Please try again.');
+          this.loading.set(false);
+        },
+      });
   }
 
   loadBestTimeToPost(): void {
@@ -170,19 +193,22 @@ export class AIAssistantComponent {
     }
 
     this.loading.set(true);
-    this.aiService.getBestTimeToPost({
-      tenantId: user.tenantId,
-      userId: user.userId,
-      lookbackDays: 30
-    }).subscribe({
-      next: (response) => {
-        this.bestTimeToPost.set(response);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
-      }
-    });
+    this.aiService
+      .getBestTimeToPost({
+        tenantId: user.tenantId,
+        userId: user.userId,
+        lookbackDays: 30,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.bestTimeToPost.set(response);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loading.set(false);
+        },
+      });
   }
 
   generateImage(): void {
@@ -200,24 +226,27 @@ export class AIAssistantComponent {
     this.loading.set(true);
 
     const formValue = this.imageForm.value;
-    this.aiService.generateImage({
-      tenantId: user.tenantId,
-      prompt: formValue.prompt,
-      style: formValue.style || undefined,
-      aspectRatio: formValue.aspectRatio || undefined,
-      width: formValue.width || undefined,
-      height: formValue.height || undefined
-    }).subscribe({
-      next: (response) => {
-        this.generatedImage.set(response);
-        this.loading.set(false);
-        this.toastService.success('Image generated successfully!');
-      },
-      error: (error) => {
-        this.toastService.error('Failed to generate image. Please try again.');
-        this.loading.set(false);
-      }
-    });
+    this.aiService
+      .generateImage({
+        tenantId: user.tenantId,
+        prompt: formValue.prompt,
+        style: formValue.style || undefined,
+        aspectRatio: formValue.aspectRatio || undefined,
+        width: formValue.width || undefined,
+        height: formValue.height || undefined,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.generatedImage.set(response);
+          this.loading.set(false);
+          this.toastService.success('Image generated successfully!');
+        },
+        error: (_error) => {
+          this.toastService.error('Failed to generate image. Please try again.');
+          this.loading.set(false);
+        },
+      });
   }
-}
 
+}

@@ -1,0 +1,15 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  @for (platform of platforms; track platform.value) {
+    <app-social-account-card
+      [platform]="platform"
+      [connecting]="isConnecting(platform.value)"
+      [disconnecting]="isDisconnecting(platform.value)"
+      [profileImageError]="hasProfileImageError(platform.value)"
+      (connect)="onConnect($event)"
+      (disconnect)="onDisconnect($event)"
+      (manage)="onManage($event)"
+      (profileImageErrorChange)="onProfileImageError($event)"
+    />
+  }
+</div>
+

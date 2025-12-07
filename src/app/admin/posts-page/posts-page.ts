@@ -1,7 +1,15 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { PostsService, AdminPostResponse, CreatePostRequest, UpdatePostRequest } from '../../services/admin/posts.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import {
+  PostsService,
+  AdminPostResponse,
+  CreatePostRequest,
+  UpdatePostRequest,
+} from '../../services/admin/posts.service';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -10,10 +18,12 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './posts-page.html',
   styleUrl: './posts-page.css',
 })
-export class AdminPostsPage implements OnInit {
+export class AdminPostsPage implements OnInit, OnDestroy {
   private postsService = inject(PostsService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
+  private readonly loggingService = inject(LoggingService);
+  private readonly destroy$ = new Subject<void>();
 
   posts: AdminPostResponse[] = [];
   clients: { id: string; name: string }[] = [];
@@ -23,7 +33,7 @@ export class AdminPostsPage implements OnInit {
   editingPost: AdminPostResponse | null = null;
   saving = signal(false);
   errorMessage = signal<string | null>(null);
-  
+
   postForm: FormGroup;
 
   constructor() {
@@ -31,7 +41,7 @@ export class AdminPostsPage implements OnInit {
       clientId: ['', [Validators.required]],
       content: ['', [Validators.required, Validators.minLength(1)]],
       status: ['Draft', [Validators.required]],
-      scheduledAt: ['']
+      scheduledAt: [''],
     });
   }
 
@@ -42,28 +52,33 @@ export class AdminPostsPage implements OnInit {
   loadPosts() {
     this.loading.set(true);
     this.posts = []; // Clear existing posts while loading
-    this.postsService.getPosts().subscribe({
+    this.postsService
+      .getPosts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (posts) => {
         this.loading.set(false);
-        this.posts = posts.map(post => ({
+        this.posts = posts.map((post) => ({
           ...post,
-          createdAt: post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString()
+          createdAt: post.createdAt
+            ? new Date(post.createdAt).toISOString()
+            : new Date().toISOString(),
         }));
-        
+
         // Extract unique clients from posts
         const uniqueClients = new Map<string, string>();
-        posts.forEach(post => {
+        posts.forEach((post) => {
           if (post.clientId && post.clientName) {
             uniqueClients.set(post.clientId, post.clientName);
           }
         });
         this.clients = Array.from(uniqueClients.entries()).map(([id, name]) => ({ id, name }));
       },
-      error: (error: any) => {
-        console.error('Error loading posts:', error);
+      error: (error: unknown) => {
+        this.loggingService.error('Error loading posts', error, 'AdminPostsPage');
         this.loading.set(false);
         this.posts = []; // Clear posts on error
-      }
+      },
     });
   }
 
@@ -75,7 +90,7 @@ export class AdminPostsPage implements OnInit {
       clientId: '',
       content: '',
       status: 'Draft',
-      scheduledAt: ''
+      scheduledAt: '',
     });
     this.showModal.set(true);
   }
@@ -88,7 +103,7 @@ export class AdminPostsPage implements OnInit {
       clientId: post.clientId,
       content: post.content,
       status: post.status,
-      scheduledAt: post.scheduledAt ? new Date(post.scheduledAt).toISOString().slice(0, 16) : ''
+      scheduledAt: post.scheduledAt ? new Date(post.scheduledAt).toISOString().slice(0, 16) : '',
     });
     this.showModal.set(true);
   }
@@ -111,7 +126,7 @@ export class AdminPostsPage implements OnInit {
     const formValue = this.postForm.value;
     const currentUser = this.authService.user();
     const currentUserId = currentUser?.userId || '';
-    
+
     if (!currentUserId) {
       this.errorMessage.set('User ID not found. Please log in again.');
       this.saving.set(false);
@@ -124,7 +139,9 @@ export class AdminPostsPage implements OnInit {
         clientId: formValue.clientId,
         content: formValue.content,
         status: formValue.status,
-        scheduledAt: formValue.scheduledAt ? new Date(formValue.scheduledAt).toISOString() : undefined
+        scheduledAt: formValue.scheduledAt
+          ? new Date(formValue.scheduledAt).toISOString()
+          : undefined,
       };
 
       this.postsService.updatePost(this.editingPost.id, updateRequest).subscribe({
@@ -137,11 +154,12 @@ export class AdminPostsPage implements OnInit {
           }
           this.saving.set(false);
         },
-        error: (error: any) => {
-          console.error('Error updating post:', error);
-          this.errorMessage.set(error.error?.message || 'Failed to update post');
+        error: (error: unknown) => {
+          this.loggingService.error('Error updating post', error, 'AdminPostsPage');
+          const httpError = error as { error?: { message?: string } };
+          this.errorMessage.set(httpError.error?.message || 'Failed to update post');
           this.saving.set(false);
-        }
+        },
       });
     } else {
       // Create post
@@ -150,10 +168,15 @@ export class AdminPostsPage implements OnInit {
         createdByUserId: currentUserId,
         content: formValue.content,
         status: formValue.status,
-        scheduledAt: formValue.scheduledAt ? new Date(formValue.scheduledAt).toISOString() : undefined
+        scheduledAt: formValue.scheduledAt
+          ? new Date(formValue.scheduledAt).toISOString()
+          : undefined,
       };
 
-      this.postsService.createPost(createRequest).subscribe({
+      this.postsService
+        .createPost(createRequest)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
         next: (response) => {
           if (response.success) {
             this.closeModal();
@@ -163,18 +186,22 @@ export class AdminPostsPage implements OnInit {
           }
           this.saving.set(false);
         },
-        error: (error: any) => {
-          console.error('Error creating post:', error);
-          this.errorMessage.set(error.error?.message || 'Failed to create post');
+        error: (error: unknown) => {
+          this.loggingService.error('Error creating post', error, 'AdminPostsPage');
+          const httpError = error as { error?: { message?: string } };
+          this.errorMessage.set(httpError.error?.message || 'Failed to create post');
           this.saving.set(false);
-        }
+        },
       });
     }
   }
 
   deletePost(id: string) {
     if (confirm('Are you sure you want to delete this post?')) {
-      this.postsService.deletePost(id).subscribe({
+      this.postsService
+        .deletePost(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
         next: (response) => {
           if (response.success) {
             this.loadPosts();
@@ -182,12 +209,16 @@ export class AdminPostsPage implements OnInit {
             alert(response.message || 'Failed to delete post');
           }
         },
-        error: (error: any) => {
-          console.error('Error deleting post:', error);
+        error: (error: unknown) => {
+          this.loggingService.error('Error deleting post', error, 'AdminPostsPage');
           alert('Failed to delete post. Please try again.');
-        }
+        },
       });
     }
   }
-}
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+}

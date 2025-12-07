@@ -1,34 +1,39 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
-import { AnalyticsSummary, EngagementMetric, PlatformPerformance } from '../../models/social.models';
+import {
+  AnalyticsSummary,
+  EngagementMetric,
+  PlatformPerformance,
+} from '../../models/social.models';
 import { API_BASE_URL } from '../../config/api.config';
 import { ClientContextService } from './client-context.service';
+import { LoggingService } from '../../core/services/logging.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AnalyticsService {
   private readonly baseUrl = inject(API_BASE_URL);
   private readonly clientContextService = inject(ClientContextService);
-
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly loggingService = inject(LoggingService);
 
   loadSummary(): Observable<AnalyticsSummary> {
     // Check if viewing client dashboard and get client userId
     const clientUserId = this.clientContextService.getCurrentClientUserId();
-    
+
     let apiCall: Observable<any>;
-    
+
     if (clientUserId) {
       // Use records endpoint with userId for client dashboard
-      let params = new HttpParams()
+      const params = new HttpParams()
         .set('userId', clientUserId)
         .set('pageSize', '10')
         .set('pageNumber', '1')
         .set('sortBy', 'EngagementRate')
         .set('sortOrder', 'desc');
-      
+
       apiCall = this.http.get<any>(`${this.baseUrl}/api/analytics/records`, { params });
     } else {
       // Use top-performing endpoint for regular dashboard (uses tenantId from JWT)
@@ -37,11 +42,14 @@ export class AnalyticsService {
 
     return apiCall.pipe(
       map((response) => {
-        console.log('[AnalyticsService] Summary response:', response);
+        this.loggingService.debug('Summary response', response, 'AnalyticsService');
         const records = response?.data || response || [];
         const totalPosts = Array.isArray(records) ? records.length : 0;
         const totalEngagement = Array.isArray(records)
-          ? records.reduce((sum: number, r: any) => sum + (r.totalEngagement || r.engagementRate || 0), 0)
+          ? records.reduce(
+              (sum: number, r: any) => sum + (r.totalEngagement || r.engagementRate || 0),
+              0,
+            )
           : 0;
         return {
           totalPosts,
@@ -51,32 +59,32 @@ export class AnalyticsService {
         };
       }),
       catchError((error) => {
-        console.error('[AnalyticsService] Error loading summary:', error);
+        this.loggingService.error('Error loading summary', error, 'AnalyticsService');
         return of({
           totalPosts: 0,
           totalEngagement: 0,
           followerGrowth: 0,
           conversionRate: 0,
         });
-      })
+      }),
     );
   }
 
   loadEngagementMetrics(): Observable<EngagementMetric[]> {
     // Check if viewing client dashboard and get client userId
     const clientUserId = this.clientContextService.getCurrentClientUserId();
-    
+
     let apiCall: Observable<any>;
-    
+
     if (clientUserId) {
       // Use records endpoint with userId for client dashboard
-      let params = new HttpParams()
+      const params = new HttpParams()
         .set('userId', clientUserId)
         .set('pageSize', '10')
         .set('pageNumber', '1')
         .set('sortBy', 'EngagementRate')
         .set('sortOrder', 'desc');
-      
+
       apiCall = this.http.get<any>(`${this.baseUrl}/api/analytics/records`, { params });
     } else {
       // Use top-performing endpoint for regular dashboard
@@ -85,7 +93,7 @@ export class AnalyticsService {
 
     return apiCall.pipe(
       map((response) => {
-        console.log('[AnalyticsService] Engagement metrics response:', response);
+        this.loggingService.debug('Engagement metrics response', response, 'AnalyticsService');
         const records = response?.data || response || [];
         return Array.isArray(records)
           ? records.map((record: any) => ({
@@ -97,9 +105,9 @@ export class AnalyticsService {
           : [];
       }),
       catchError((error) => {
-        console.error('[AnalyticsService] Error loading engagement metrics:', error);
+        this.loggingService.error('Error loading engagement metrics', error, 'AnalyticsService');
         return of([]);
-      })
+      }),
     );
   }
 

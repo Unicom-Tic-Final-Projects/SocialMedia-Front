@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './loader-spinner.html',
   styleUrl: './loader-spinner.css',
 })
-export class LoaderSpinner {
-
-}
+export class LoaderSpinner {}

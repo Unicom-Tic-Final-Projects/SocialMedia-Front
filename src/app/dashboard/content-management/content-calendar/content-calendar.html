@@ -3,16 +3,20 @@
     <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A]">Content Calendar</h2>
     <div class="flex items-center gap-3">
       <button
+        type="button"
         (click)="previousMonth()"
-        class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition">
+        class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition"
+      >
         <i class="fa-solid fa-chevron-left text-[#4C6FFF]"></i>
       </button>
       <span class="text-sm font-semibold text-[#1A1A1A] min-w-[150px] text-center">
-        {{ currentDate() | date:'MMMM yyyy' }}
+        {{ currentDate() | date: 'MMMM yyyy' }}
       </span>
       <button
+        type="button"
         (click)="nextMonth()"
-        class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition">
+        class="p-2 rounded-lg border border-[#D9E1FF] hover:bg-white transition"
+      >
         <i class="fa-solid fa-chevron-right text-[#4C6FFF]"></i>
       </button>
     </div>
@@ -37,13 +41,15 @@
           [class.bg-gray-50]="!isCurrentMonth(date)"
           [class.bg-white]="isCurrentMonth(date)"
           [class.border-[#4C6FFF]]="isToday(date)"
-          [class.border-2]="isToday(date)">
+          [class.border-2]="isToday(date)"
+        >
           <div class="flex items-center justify-between mb-1">
             <span
               class="text-xs font-medium"
               [class.text-[#4C6FFF]]="isToday(date)"
               [class.text-gray-400]="!isCurrentMonth(date)"
-              [class.text-[#1A1A1A]]="isCurrentMonth(date) && !isToday(date)">
+              [class.text-[#1A1A1A]]="isCurrentMonth(date) && !isToday(date)"
+            >
               {{ date.getDate() }}
             </span>
             @if (getPostsForDate(date).length > 0) {
@@ -52,19 +58,21 @@
               </span>
             }
           </div>
-          <div 
+          <div
             class="space-y-1 min-h-[60px]"
             (dragover)="onDragOver($event)"
             (drop)="onDrop(date, $event)"
-            [class.bg-[#E8EDFF]/30]="draggedPost() !== null">
+            [class.bg-[#E8EDFF]/30]="draggedPost() !== null"
+          >
             @for (post of getPostsForDate(date).slice(0, 2); track post.id) {
-              <div 
+              <div
                 class="text-xs p-1 bg-[#E8EDFF] rounded truncate cursor-move hover:bg-[#D9E1FF] transition"
                 [title]="post.content"
                 draggable="true"
                 (dragstart)="onDragStart(post, $event)"
                 (dragend)="onDragEnd()"
-                (click)="editPost(post.id)">
+                (click)="editPost(post.id)"
+              >
                 {{ post.content.substring(0, 20) }}...
               </div>
             }
@@ -79,4 +87,3 @@
     </div>
   </div>
 </div>
-

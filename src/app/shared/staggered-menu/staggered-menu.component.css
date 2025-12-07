@@ -30,22 +30,22 @@
 }
 
 .sm-scope .sm-logo-closed {
-  color: #4C6FFF;
+  color: #4c6fff;
   transition: color 0.3s ease;
 }
 
 .sm-scope .sm-logo-vo-closed {
-  color: #1A1A1A;
+  color: #1a1a1a;
   transition: color 0.3s ease;
 }
 
 .sm-scope .sm-toggle-closed {
-  color: #4C6FFF;
+  color: #4c6fff;
   transition: color 0.3s ease;
 }
 
 .sm-scope .sm-icon-closed .sm-icon-line {
-  background-color: #4C6FFF;
+  background-color: #4c6fff;
   transition: background-color 0.3s ease;
 }
 
@@ -195,7 +195,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 500;
-  color: var(--sm-accent, #4C6FFF);
+  color: var(--sm-accent, #4c6fff);
 }
 
 .sm-scope .sm-socials-list {
@@ -225,11 +225,11 @@
 .sm-scope .sm-socials-list .sm-socials-link:hover,
 .sm-scope .sm-socials-list .sm-socials-link:focus-visible {
   opacity: 1;
-  color: var(--sm-accent, #4C6FFF);
+  color: var(--sm-accent, #4c6fff);
 }
 
 .sm-scope .sm-socials-link:focus-visible {
-  outline: 2px solid var(--sm-accent, #4C6FFF);
+  outline: 2px solid var(--sm-accent, #4c6fff);
   outline-offset: 3px;
 }
 
@@ -241,7 +241,9 @@
   position: relative;
   padding: 2px 0;
   display: inline-block;
-  transition: color 0.3s ease, opacity 0.3s ease;
+  transition:
+    color 0.3s ease,
+    opacity 0.3s ease;
 }
 
 .sm-scope .sm-panel-list {
@@ -262,7 +264,9 @@
   line-height: 1;
   letter-spacing: -2px;
   text-transform: uppercase;
-  transition: background 0.25s, color 0.25s;
+  transition:
+    background 0.25s,
+    color 0.25s;
   display: inline-block;
   text-decoration: none;
   padding-right: 1.4em;
@@ -275,7 +279,7 @@
 }
 
 .sm-scope .sm-panel-item:hover {
-  color: var(--sm-accent, #4C6FFF);
+  color: var(--sm-accent, #4c6fff);
 }
 
 .sm-scope .sm-panel-list[data-numbering] {
@@ -290,7 +294,7 @@
   right: 3.2em;
   font-size: 18px;
   font-weight: 400;
-  color: var(--sm-accent, #4C6FFF);
+  color: var(--sm-accent, #4c6fff);
   letter-spacing: 0;
   pointer-events: none;
   user-select: none;
@@ -303,7 +307,7 @@
     left: 0;
     right: 0;
   }
-  
+
   .sm-scope .sm-prelayers {
     width: 100%;
     left: 0;
@@ -317,15 +321,14 @@
     left: 0;
     right: 0;
   }
-  
+
   .sm-scope .sm-prelayers {
     width: 100%;
     left: 0;
     right: 0;
   }
-  
+
   .sm-scope .sm-panel-item {
     font-size: 3rem;
   }
 }
-

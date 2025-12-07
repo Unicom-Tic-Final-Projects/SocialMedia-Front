@@ -1,10 +1,14 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BillingService } from '../../services/client/billing.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { BillingPlan, Subscription, Invoice, PaymentMethod } from '../../models/billing.models';
+import { BillingPlan } from '../../models/billing.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-billing-page',
@@ -13,10 +17,11 @@ import { BillingPlan, Subscription, Invoice, PaymentMethod } from '../../models/
   templateUrl: './billing-page.html',
   styleUrl: './billing-page.css',
 })
-export class BillingPage implements OnInit {
+export class BillingPage extends BaseComponent implements OnInit {
   private readonly billingService = inject(BillingService);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly loggingService = inject(LoggingService);
 
   readonly plans = this.billingService.plans;
   readonly subscription = this.billingService.subscription;
@@ -43,12 +48,18 @@ export class BillingPage implements OnInit {
 
     // Load plans based on user type
     const subscriptionType = user.role === 'Agency' ? 'Agency' : 'User';
-    this.billingService.getPlans(subscriptionType).subscribe({
+    this.billingService
+      .getPlans(subscriptionType)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       error: (err) => this.toastService.error(err.message || 'Failed to load plans'),
     });
 
     // Load subscription
-    this.billingService.getSubscription(user.tenantId).subscribe({
+    this.billingService
+      .getSubscription(user.tenantId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       error: (err) => {
         // Subscription might not exist yet, which is okay
         if (err.status !== 404) {
@@ -58,12 +69,18 @@ export class BillingPage implements OnInit {
     });
 
     // Load invoices
-    this.billingService.getInvoices(user.tenantId).subscribe({
+    this.billingService
+      .getInvoices(user.tenantId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       error: (err) => this.toastService.error(err.message || 'Failed to load invoices'),
     });
 
     // Load payment methods
-    this.billingService.getPaymentMethods(user.tenantId).subscribe({
+    this.billingService
+      .getPaymentMethods(user.tenantId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       error: (err) => {
         // Payment methods might not exist yet
         if (err.status !== 404) {
@@ -109,6 +126,7 @@ export class BillingPage implements OnInit {
         successUrl,
         cancelUrl,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (checkoutResponse) => {
           if (checkoutResponse?.url) {
@@ -127,16 +145,23 @@ export class BillingPage implements OnInit {
       return;
     }
 
-    if (confirm('Are you sure you want to cancel your subscription? It will remain active until the end of the current billing period.')) {
+    if (
+      confirm(
+        'Are you sure you want to cancel your subscription? It will remain active until the end of the current billing period.',
+      )
+    ) {
       this.billingService
         .cancelSubscription({
           subscriptionId: subscription.id,
           cancelImmediately: false,
         })
+        .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (success) => {
             if (success) {
-              this.toastService.success('Subscription will be cancelled at the end of the billing period');
+              this.toastService.success(
+                'Subscription will be cancelled at the end of the billing period',
+              );
               this.closeCancelModal();
               this.loadData();
             } else {
@@ -205,5 +230,5 @@ export class BillingPage implements OnInit {
 
     return targetIndex > currentIndex || subscription.status === 'Trial';
   }
-}
 
+}

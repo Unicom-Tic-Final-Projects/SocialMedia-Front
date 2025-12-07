@@ -8,9 +8,8 @@ describe('WhyOnevo', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [WhyOnevo]
-    })
-    .compileComponents();
+      imports: [WhyOnevo],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(WhyOnevo);
     component = fixture.componentInstance;

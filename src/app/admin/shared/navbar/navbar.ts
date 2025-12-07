@@ -57,7 +57,7 @@ export class AdminNavbar {
     { id: 2, message: 'Post scheduled successfully', time: '1h ago', unread: true },
   ];
 
-  unreadCount = this.notifications.filter(n => n.unread).length;
+  unreadCount = this.notifications.filter((n) => n.unread).length;
 
   onToggleSidebar() {
     this.toggleSidebar.emit();
@@ -67,4 +67,3 @@ export class AdminNavbar {
     this.authService.logout();
   }
 }
-

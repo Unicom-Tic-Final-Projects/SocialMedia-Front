@@ -19,7 +19,7 @@
 .input-field:not(:placeholder-shown) + .input-label {
   top: 0.5rem;
   font-size: 0.75rem;
-  color: #4C6FFF;
+  color: #4c6fff;
   transform: translateY(0);
 }
 
@@ -37,4 +37,3 @@ textarea.input-field:not(:placeholder-shown) + .input-label {
   top: 0.5rem;
   font-size: 0.75rem;
 }
-

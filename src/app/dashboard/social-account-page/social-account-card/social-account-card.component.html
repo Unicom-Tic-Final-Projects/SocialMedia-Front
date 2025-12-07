@@ -1,0 +1,146 @@
+<div
+  class="platform-card bg-[#F5F7FF] p-6 rounded-xl shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp"
+>
+  <div class="flex items-start justify-between mb-4">
+    <div class="flex-1">
+      <span class="text-3xl block mb-3" [style.color]="platform.color">
+        <i [class]="platform.icon"></i>
+      </span>
+      <p class="font-semibold text-[#1A1A1A]">{{ platform.name }}</p>
+
+      <!-- Connected Account Profile -->
+      @if (isConnected()) {
+        <div class="mt-3 flex items-center gap-2 pt-3 border-t border-[#D9E1FF]">
+          <!-- Profile Picture -->
+          <div
+            class="w-8 h-8 rounded-full overflow-hidden bg-[#E2E7FF] flex-shrink-0 flex items-center justify-center relative"
+          >
+            <!-- Profile Image -->
+            @if (shouldShowProfilePicture()) {
+              <img
+                [src]="connectedAccount()?.profilePictureUrl"
+                [alt]="connectedAccount()?.displayName || platform.name"
+                class="w-full h-full object-cover absolute inset-0"
+                (error)="onProfileImageError($event)"
+              />
+            }
+            <!-- Icon Fallback -->
+            @if (shouldShowIconFallback()) {
+              <i
+                [class]="platform.icon + ' text-xs'"
+                [style.color]="platform.color"
+                class="absolute inset-0 flex items-center justify-center"
+              ></i>
+            }
+          </div>
+          <!-- Account Name -->
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium text-[#1A1A1A] truncate">
+              {{
+                connectedAccount()?.displayName ||
+                  connectedAccount()?.accountName ||
+                  'Connected Account'
+              }}
+            </p>
+            @if (connectedAccount()?.platformUsername) {
+              <p class="text-xs text-gray-500 truncate">
+                @{{ connectedAccount()?.platformUsername }}
+              </p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (isConnected()) {
+      <span
+        class="text-xs px-3 py-1 rounded-full border border-[#4C6FFF] text-[#4C6FFF] bg-[#4C6FFF]/10 font-semibold ml-2 flex-shrink-0"
+      >
+        Connected
+      </span>
+    }
+  </div>
+
+  <div class="flex gap-2">
+    <!-- Instagram Info Message (accessed through Facebook) -->
+    @if (isInstagram() && !isConnected() && !isReadOnly()) {
+      <div
+        class="flex-1 bg-blue-50 border border-blue-200 text-blue-800 py-2 px-3 rounded-xl text-xs"
+      >
+        <div class="flex items-start gap-2">
+          <i class="fa-solid fa-info-circle mt-0.5"></i>
+          <div>
+            <p class="font-semibold mb-1">Connect via Facebook</p>
+            <p>
+              Instagram is accessed through Facebook. Connect Facebook (with a Page) and link your
+              Instagram Business account to that Page.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Connect/Connected Button (hidden for team members in client dashboard context and Instagram) -->
+    @if (!isConnected() && !isReadOnly() && !isInstagram()) {
+      <button
+        type="button"
+        (click)="onConnect()"
+        class="flex-1 bg-[#4C6FFF] text-white py-2 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
+        [disabled]="connecting"
+        [class.opacity-60]="connecting"
+        [class.cursor-not-allowed]="connecting"
+      >
+        <i class="fa-solid fa-link"></i>
+        @if (!connecting) {
+          <span> Connect </span>
+        } @else {
+          <span>Connecting…</span>
+        }
+      </button>
+    }
+
+    <!-- Instagram Connected via Facebook Indicator -->
+    @if (isInstagram() && isConnected()) {
+      <div
+        class="flex-1 bg-green-50 border border-green-200 text-green-800 py-2 px-3 rounded-xl text-xs"
+      >
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>Connected via Facebook</span>
+        </div>
+      </div>
+    }
+
+    <!-- Disconnect Button (hidden for team members in client dashboard context) -->
+    @if (isConnected() && !isReadOnly()) {
+      <button
+        type="button"
+        (click)="onDisconnect()"
+        [disabled]="disconnecting"
+        class="flex-1 bg-red-600 text-white py-2 rounded-xl hover:bg-red-700 transition-all duration-200 flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg text-sm"
+        [class.opacity-60]="disconnecting"
+        [class.cursor-not-allowed]="disconnecting"
+      >
+        <i class="fa-solid fa-unlink"></i>
+        @if (!disconnecting) {
+          <span>Disconnect</span>
+        } @else {
+          <span>Disconnecting...</span>
+        }
+      </button>
+    }
+
+    <!-- Manage Button (only when connected, hidden for team members in client dashboard context) -->
+    @if (isConnected() && !isReadOnly()) {
+      <button
+        type="button"
+        (click)="onManage()"
+        class="px-4 bg-white border border-[#D9E1FF] text-[#1A1A1A] py-2 rounded-xl hover:bg-[#E2E7FF] hover:border-[#4C6FFF] transition-all duration-200"
+        title="Manage Account"
+      >
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    }
+  </div>
+</div>
+

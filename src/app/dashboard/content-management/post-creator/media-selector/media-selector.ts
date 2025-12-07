@@ -1,8 +1,12 @@
-import { Component, OnInit, inject, signal, output } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { MediaService } from '../../../../services/client/media.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../../core/services/logging.service';
+import { BaseComponent } from '../../../../core/base/base.component';
 
 interface MediaItem {
   id: string;
@@ -19,15 +23,16 @@ interface MediaItem {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './media-selector.html',
-  styleUrl: './media-selector.css'
+  styleUrl: './media-selector.css',
 })
-export class MediaSelectorComponent implements OnInit {
+export class MediaSelectorComponent extends BaseComponent implements OnInit {
   private readonly mediaService = inject(MediaService);
   private readonly toastService = inject(ToastService);
+  private readonly loggingService = inject(LoggingService);
 
   mediaSelected = output<{ id: string; url: string; fileType?: string }>();
-  close = output<void>();
-  
+  closeModal = output<void>();
+
   mediaItems = signal<MediaItem[]>([]);
   loading = signal(false);
   searchQuery = signal('');
@@ -39,42 +44,43 @@ export class MediaSelectorComponent implements OnInit {
 
   loadMedia(): void {
     this.loading.set(true);
-    
-    this.mediaService.getMediaByTenant().subscribe({
+
+    this.mediaService
+      .getMediaByTenant()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (mediaAssets) => {
-        const items: MediaItem[] = mediaAssets.map(asset => ({
+        const items: MediaItem[] = mediaAssets.map((asset) => ({
           id: asset.id,
           url: asset.url,
           thumbnailUrl: asset.url,
           fileName: asset.fileName,
           fileType: asset.fileType,
           fileSize: asset.fileSize,
-          uploadedAt: new Date(asset.uploadedAt)
+          uploadedAt: new Date(asset.uploadedAt),
         }));
-        
+
         // Apply filters
         let filtered = items;
-        
+
         if (this.selectedFilter() === 'images') {
-          filtered = filtered.filter(item => item.fileType.startsWith('image/'));
+          filtered = filtered.filter((item) => item.fileType.startsWith('image/'));
         } else if (this.selectedFilter() === 'videos') {
-          filtered = filtered.filter(item => item.fileType.startsWith('video/'));
+          filtered = filtered.filter((item) => item.fileType.startsWith('video/'));
         }
-        
+
         if (this.searchQuery()) {
           const query = this.searchQuery().toLowerCase();
-          filtered = filtered.filter(item => 
-            item.fileName.toLowerCase().includes(query)
-          );
+          filtered = filtered.filter((item) => item.fileName.toLowerCase().includes(query));
         }
-        
+
         this.mediaItems.set(filtered);
         this.loading.set(false);
       },
-      error: (error: HttpErrorResponse) => {
+      error: (_error: HttpErrorResponse) => {
         this.toastService.error('Failed to load media library');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -95,5 +101,5 @@ export class MediaSelectorComponent implements OnInit {
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
-}
 
+}

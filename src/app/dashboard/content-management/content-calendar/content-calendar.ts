@@ -1,20 +1,23 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { PostsService } from '../../../services/client/posts.service';
 import { SocialPost } from '../../../models/post.models';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../core/services/logging.service';
+import { BaseComponent } from '../../../core/base/base.component';
 
 @Component({
   selector: 'app-content-calendar',
   standalone: true,
   imports: [CommonModule, DatePipe],
   templateUrl: './content-calendar.html',
-  styleUrl: './content-calendar.css'
+  styleUrl: './content-calendar.css',
 })
-export class ContentCalendarComponent implements OnInit {
+export class ContentCalendarComponent extends BaseComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly router = inject(Router);
+  private readonly loggingService = inject(LoggingService);
 
   currentDate = signal(new Date());
   scheduledPosts = signal<SocialPost[]>([]);
@@ -27,20 +30,23 @@ export class ContentCalendarComponent implements OnInit {
 
   loadScheduledPosts(): void {
     this.loading.set(true);
-    this.postsService.getPostsByStatus('Scheduled').subscribe({
+    this.postsService
+      .getPostsByStatus('Scheduled')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (posts) => {
         this.scheduledPosts.set(posts);
         this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);
-      }
+      },
     });
   }
 
   getPostsForDate(date: Date): SocialPost[] {
     const dateStr = date.toISOString().split('T')[0];
-    return this.scheduledPosts().filter(post => {
+    return this.scheduledPosts().filter((post) => {
       if (!post.scheduledAt) return false;
       const postDate = new Date(post.scheduledAt).toISOString().split('T')[0];
       return postDate === dateStr;
@@ -53,24 +59,24 @@ export class ContentCalendarComponent implements OnInit {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const days: Date[] = [];
-    
+
     // Add days from previous month to fill first week
     const startDay = firstDay.getDay();
     for (let i = startDay - 1; i >= 0; i--) {
       days.push(new Date(year, month, -i));
     }
-    
+
     // Add days of current month
     for (let day = 1; day <= lastDay.getDate(); day++) {
       days.push(new Date(year, month, day));
     }
-    
+
     // Add days from next month to fill last week
     const remainingDays = 42 - days.length; // 6 weeks * 7 days
     for (let day = 1; day <= remainingDays; day++) {
       days.push(new Date(year, month + 1, day));
     }
-    
+
     return days;
   }
 
@@ -114,7 +120,7 @@ export class ContentCalendarComponent implements OnInit {
   onDrop(date: Date, event: DragEvent): void {
     event.preventDefault();
     const post = this.draggedPost();
-    
+
     if (!post) return;
 
     // Create new date with time from original scheduled date
@@ -139,24 +145,23 @@ export class ContentCalendarComponent implements OnInit {
 
   reschedulePost(postId: string, newScheduledAt: string): void {
     this.loading.set(true);
-    
+
     // Navigate to post editor to reschedule
     // In a full implementation, you might want to call an API directly
     this.router.navigate(['/dashboard/post-editor'], {
       queryParams: {
         postId,
         reschedule: 'true',
-        scheduledAt: newScheduledAt
-      }
+        scheduledAt: newScheduledAt,
+      },
     });
-    
+
     this.loading.set(false);
   }
 
   editPost(postId: string): void {
     this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId, edit: 'true' }
+      queryParams: { postId, edit: 'true' },
     });
   }
 }
-

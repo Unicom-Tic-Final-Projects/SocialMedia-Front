@@ -1,0 +1,65 @@
+<div class="space-y-6">
+  <div class="mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-paper-plane text-[#4C6FFF]"></i>
+      </div>
+      Step 5: Publish or Schedule
+    </h2>
+    <p class="text-gray-600 text-sm ml-[58px]">Choose when to publish your post</p>
+  </div>
+
+  <!-- Publish Mode Selection -->
+  <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
+    <div class="flex flex-col sm:flex-row gap-4">
+      <button
+        type="button"
+        (click)="onScheduleModeChange('now')"
+        class="flex-1 p-4 rounded-lg border-2 transition-all duration-300 text-left"
+        [class.bg-white]="scheduleMode === 'now'"
+        [class.border-[#4C6FFF]]="scheduleMode === 'now'"
+        [class.shadow-md]="scheduleMode === 'now'"
+        [class.bg-transparent]="scheduleMode !== 'now'"
+        [class.border-[#D9E1FF]]="scheduleMode !== 'now'"
+      >
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fa-solid fa-bolt text-[#4C6FFF] text-xl"></i>
+          <h3 class="font-bold text-[#1A1A1A]">Publish Now</h3>
+        </div>
+        <p class="text-sm text-gray-600">Publish immediately to all selected platforms</p>
+      </button>
+
+      <button
+        type="button"
+        (click)="onScheduleModeChange('later')"
+        class="flex-1 p-4 rounded-lg border-2 transition-all duration-300 text-left"
+        [class.bg-white]="scheduleMode === 'later'"
+        [class.border-[#4C6FFF]]="scheduleMode === 'later'"
+        [class.shadow-md]="scheduleMode === 'later'"
+        [class.bg-transparent]="scheduleMode !== 'later'"
+        [class.border-[#D9E1FF]]="scheduleMode !== 'later'"
+      >
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fa-solid fa-clock text-[#4C6FFF] text-xl"></i>
+          <h3 class="font-bold text-[#1A1A1A]">Schedule Later</h3>
+        </div>
+        <p class="text-sm text-gray-600">Schedule your post for a specific date and time</p>
+      </button>
+    </div>
+
+    @if (scheduleMode === 'later') {
+      <div class="mt-6 pt-6 border-t border-[#D9E1FF]">
+        <label class="block text-[#1A1A1A] font-semibold mb-3 text-sm uppercase tracking-wider">
+          <i class="fa-solid fa-calendar-days mr-2"></i>Schedule Date & Time
+        </label>
+        <input
+          type="datetime-local"
+          [value]="scheduledDateTime"
+          (input)="onScheduledDateTimeChange($any($event.target).value)"
+          class="w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 transition-all"
+        />
+      </div>
+    }
+  </div>
+</div>
+

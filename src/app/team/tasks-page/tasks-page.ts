@@ -153,4 +153,3 @@ export class TeamTasksPage implements OnInit, OnDestroy {
     });
   }
 }
-

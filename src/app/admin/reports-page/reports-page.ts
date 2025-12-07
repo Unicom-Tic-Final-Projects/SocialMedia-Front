@@ -1,7 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminChartSection } from '../shared/chart-section/chart-section';
 import { ReportsService } from '../../services/admin/reports.service';
+
+interface Report {
+  id: number;
+  title: string;
+  date: string;
+  type: string;
+  status: string;
+}
 
 @Component({
   selector: 'app-admin-reports-page',
@@ -10,10 +18,10 @@ import { ReportsService } from '../../services/admin/reports.service';
   styleUrl: './reports-page.css',
 })
 export class AdminReportsPage implements OnInit {
-  reports: any[] = [];
-  loading = true;
+  private readonly reportsService = inject(ReportsService);
 
-  constructor(private reportsService: ReportsService) {}
+  reports: Report[] = [];
+  loading = true;
 
   ngOnInit() {
     this.loadReports();
@@ -31,14 +39,14 @@ export class AdminReportsPage implements OnInit {
           title: report.title || `Report ${index + 1}`,
           date: new Date().toISOString().split('T')[0],
           type: index === 0 ? 'Analytics' : index === 1 ? 'Users' : 'Posts',
-          status: index < 2 ? 'Generated' : 'Pending'
+          status: index < 2 ? 'Generated' : 'Pending',
         }));
       },
       error: (error) => {
         console.error('Error loading reports:', error);
         this.loading = false;
         this.reports = []; // Clear reports on error
-      }
+      },
     });
   }
 
@@ -54,8 +62,7 @@ export class AdminReportsPage implements OnInit {
       },
       error: (error) => {
         console.error('Error downloading report:', error);
-      }
+      },
     });
   }
 }
-

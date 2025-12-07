@@ -68,7 +68,7 @@ app-rotating-text span {
 
 /* For gradient text parent - ensure gradient works */
 .gradient-text app-rotating-text {
-  background: linear-gradient(135deg, #4C6FFF 0%, #BFC9FF 100%);
+  background: linear-gradient(135deg, #4c6fff 0%, #bfc9ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -78,11 +78,10 @@ app-rotating-text span {
 
 .gradient-text app-rotating-text span,
 .gradient-text app-rotating-text .rotating-char {
-  background: linear-gradient(135deg, #4C6FFF 0%, #BFC9FF 100%);
+  background: linear-gradient(135deg, #4c6fff 0%, #bfc9ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   background-size: 200% 200%;
   color: transparent;
 }
-

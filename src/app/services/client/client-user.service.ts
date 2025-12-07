@@ -17,15 +17,20 @@ export class ClientUserService {
    * Note: This endpoint returns full ApiResponse structure (not unwrapped by interceptor)
    */
   createClientUser(request: CreateClientUserRequest) {
-    return this.http.post<{ success: boolean; data: ClientUser; message?: string }>(`${this.baseUrl}/api/auth/client-user`, {
-      clientId: request.clientId,
-      email: request.email,
-      password: request.password, // Optional - will be auto-generated if not provided
-    }).pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<{ success: boolean; data: ClientUser; message?: string }>(
+        `${this.baseUrl}/api/auth/client-user`,
+        {
+          clientId: request.clientId,
+          email: request.email,
+          password: request.password, // Optional - will be auto-generated if not provided
+        },
+      )
+      .pipe(
+        catchError((error) => {
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
@@ -33,19 +38,25 @@ export class ClientUserService {
    * Returns ApiResponse<ClientUser> - success=false if client doesn't have a user account (expected)
    */
   getClientUser(clientId: string) {
-    return this.http.get<{ success: boolean; data: ClientUser | null; message?: string }>(`${this.baseUrl}/api/auth/client-user/${clientId}`).pipe(
-      map((response) => {
-        // If success is false, it means the client doesn't have a user account yet (expected)
-        // Return null to indicate no account exists
-        if (!response.success || !response.data) {
-          return null;
-        }
-        return response.data;
-      }),
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .get<{
+        success: boolean;
+        data: ClientUser | null;
+        message?: string;
+      }>(`${this.baseUrl}/api/auth/client-user/${clientId}`)
+      .pipe(
+        map((response) => {
+          // If success is false, it means the client doesn't have a user account yet (expected)
+          // Return null to indicate no account exists
+          if (!response.success || !response.data) {
+            return null;
+          }
+          return response.data;
+        }),
+        catchError((error) => {
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
@@ -53,11 +64,12 @@ export class ClientUserService {
    * Returns auth tokens to login as the client user
    */
   accessClientDashboard(clientId: string) {
-    return this.http.post<AuthResponse>(`${this.baseUrl}/api/auth/client-user/${clientId}/access`, {}).pipe(
-      catchError((error) => {
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<AuthResponse>(`${this.baseUrl}/api/auth/client-user/${clientId}/access`, {})
+      .pipe(
+        catchError((error) => {
+          return throwError(() => error);
+        }),
+      );
   }
 }
-

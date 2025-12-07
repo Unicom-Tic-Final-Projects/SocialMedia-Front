@@ -1,4 +1,16 @@
-import { Component, Input, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone, QueryList, ViewChildren } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  NgZone,
+  QueryList,
+  ViewChildren,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { gsap } from 'gsap';
@@ -46,11 +58,8 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly DEFAULT_PARTICLE_COUNT = 12;
   private readonly DEFAULT_SPOTLIGHT_RADIUS = 300;
   private readonly MOBILE_BREAKPOINT = 768;
-
-  constructor(
-    private ngZone: NgZone,
-    private router: Router
-  ) {}
+  private ngZone = inject(NgZone);
+  private router = inject(Router);
 
   ngOnInit() {
     this.checkMobile();
@@ -132,7 +141,11 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
     const section = this.gridRef.nativeElement.closest('.bento-section');
     const rect = section?.getBoundingClientRect();
     const mouseInside =
-      rect && e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      rect &&
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom;
 
     const cards = this.gridRef.nativeElement.querySelectorAll('.card');
 
@@ -140,9 +153,9 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
       gsap.to(this.spotlightElement, {
         opacity: 0,
         duration: 0.3,
-        ease: 'power2.out'
+        ease: 'power2.out',
       });
-      cards.forEach(card => {
+      cards.forEach((card) => {
         (card as HTMLElement).style.setProperty('--glow-intensity', '0');
       });
       return;
@@ -152,13 +165,14 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
     const fadeDistance = this.spotlightRadius * 0.75;
     let minDistance = Infinity;
 
-    cards.forEach(card => {
+    cards.forEach((card) => {
       const cardElement = card as HTMLElement;
       const cardRect = cardElement.getBoundingClientRect();
       const centerX = cardRect.left + cardRect.width / 2;
       const centerY = cardRect.top + cardRect.height / 2;
       const distance =
-        Math.hypot(e.clientX - centerX, e.clientY - centerY) - Math.max(cardRect.width, cardRect.height) / 2;
+        Math.hypot(e.clientX - centerX, e.clientY - centerY) -
+        Math.max(cardRect.width, cardRect.height) / 2;
       const effectiveDistance = Math.max(0, distance);
 
       minDistance = Math.min(minDistance, effectiveDistance);
@@ -170,14 +184,20 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
         glowIntensity = (fadeDistance - effectiveDistance) / (fadeDistance - proximity);
       }
 
-      this.updateCardGlowProperties(cardElement, e.clientX, e.clientY, glowIntensity, this.spotlightRadius);
+      this.updateCardGlowProperties(
+        cardElement,
+        e.clientX,
+        e.clientY,
+        glowIntensity,
+        this.spotlightRadius,
+      );
     });
 
     gsap.to(this.spotlightElement, {
       left: e.clientX,
       top: e.clientY,
       duration: 0.1,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
 
     const targetOpacity =
@@ -190,25 +210,31 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
     gsap.to(this.spotlightElement, {
       opacity: targetOpacity,
       duration: targetOpacity > 0 ? 0.2 : 0.5,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
   }
 
   private handleSpotlightLeave(): void {
     if (!this.gridRef?.nativeElement) return;
-    this.gridRef.nativeElement.querySelectorAll('.card').forEach(card => {
+    this.gridRef.nativeElement.querySelectorAll('.card').forEach((card) => {
       (card as HTMLElement).style.setProperty('--glow-intensity', '0');
     });
     if (this.spotlightElement) {
       gsap.to(this.spotlightElement, {
         opacity: 0,
         duration: 0.3,
-        ease: 'power2.out'
+        ease: 'power2.out',
       });
     }
   }
 
-  private updateCardGlowProperties(card: HTMLElement, mouseX: number, mouseY: number, glow: number, radius: number): void {
+  private updateCardGlowProperties(
+    card: HTMLElement,
+    mouseX: number,
+    mouseY: number,
+    glow: number,
+    radius: number,
+  ): void {
     const rect = card.getBoundingClientRect();
     const relativeX = ((mouseX - rect.left) / rect.width) * 100;
     const relativeY = ((mouseY - rect.top) / rect.height) * 100;
@@ -267,7 +293,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
       timeouts.forEach(clearTimeout);
       timeouts.length = 0;
 
-      particles.forEach(particle => {
+      particles.forEach((particle) => {
         gsap.to(particle, {
           scale: 0,
           opacity: 0,
@@ -275,7 +301,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
           ease: 'back.in(1.7)',
           onComplete: () => {
             particle.parentNode?.removeChild(particle);
-          }
+          },
         });
       });
       particles.length = 0;
@@ -286,7 +312,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const { width, height } = card.getBoundingClientRect();
       const memoizedParticles = Array.from({ length: this.particleCount }, () =>
-        createParticleElement(Math.random() * width, Math.random() * height)
+        createParticleElement(Math.random() * width, Math.random() * height),
       );
 
       memoizedParticles.forEach((particle, i) => {
@@ -297,7 +323,11 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
           card.appendChild(clone);
           particles.push(clone);
 
-          gsap.fromTo(clone, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' });
+          gsap.fromTo(
+            clone,
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' },
+          );
 
           gsap.to(clone, {
             x: (Math.random() - 0.5) * 100,
@@ -306,7 +336,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
             duration: 2 + Math.random() * 2,
             ease: 'none',
             repeat: -1,
-            yoyo: true
+            yoyo: true,
           });
 
           gsap.to(clone, {
@@ -314,7 +344,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
             duration: 1.5,
             ease: 'power2.inOut',
             repeat: -1,
-            yoyo: true
+            yoyo: true,
           });
         }, i * 100);
 
@@ -359,7 +389,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
           rotateY,
           duration: 0.1,
           ease: 'power2.out',
-          transformPerspective: 1000
+          transformPerspective: 1000,
         });
       }
 
@@ -371,7 +401,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
           x: magnetX,
           y: magnetY,
           duration: 0.3,
-          ease: 'power2.out'
+          ease: 'power2.out',
         });
       }
     };
@@ -382,7 +412,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
           rotateX: 0,
           rotateY: 0,
           duration: 0.3,
-          ease: 'power2.out'
+          ease: 'power2.out',
         });
       }
 
@@ -391,7 +421,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
           x: 0,
           y: 0,
           duration: 0.3,
-          ease: 'power2.out'
+          ease: 'power2.out',
         });
       }
     };
@@ -399,7 +429,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
     const handleClick = (e: MouseEvent) => {
       // Get card data
       const cardData = this.defaultCards[index];
-      
+
       // Navigate if route is provided
       if (cardData?.route) {
         this.ngZone.run(() => {
@@ -418,7 +448,7 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
         Math.hypot(x, y),
         Math.hypot(x - rect.width, y),
         Math.hypot(x, y - rect.height),
-        Math.hypot(x - rect.width, y - rect.height)
+        Math.hypot(x - rect.width, y - rect.height),
       );
 
       const ripple = document.createElement('div');
@@ -440,15 +470,15 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
         ripple,
         {
           scale: 0,
-          opacity: 1
+          opacity: 1,
         },
         {
           scale: 1,
           opacity: 0,
           duration: 0.8,
           ease: 'power2.out',
-          onComplete: () => ripple.remove()
-        }
+          onComplete: () => ripple.remove(),
+        },
       );
     };
 
@@ -466,39 +496,38 @@ export class MagicBentoComponent implements OnInit, AfterViewInit, OnDestroy {
         color: '#060010',
         title: 'Analytics',
         description: 'Track user behavior',
-        label: 'Insights'
+        label: 'Insights',
       },
       {
         color: '#060010',
         title: 'Dashboard',
         description: 'Centralized data view',
-        label: 'Overview'
+        label: 'Overview',
       },
       {
         color: '#060010',
         title: 'Collaboration',
         description: 'Work together seamlessly',
-        label: 'Teamwork'
+        label: 'Teamwork',
       },
       {
         color: '#060010',
         title: 'Automation',
         description: 'Streamline workflows',
-        label: 'Efficiency'
+        label: 'Efficiency',
       },
       {
         color: '#060010',
         title: 'Integration',
         description: 'Connect favorite tools',
-        label: 'Connectivity'
+        label: 'Connectivity',
       },
       {
         color: '#060010',
         title: 'Security',
         description: 'Enterprise-grade protection',
-        label: 'Protection'
-      }
+        label: 'Protection',
+      },
     ];
   }
 }
-

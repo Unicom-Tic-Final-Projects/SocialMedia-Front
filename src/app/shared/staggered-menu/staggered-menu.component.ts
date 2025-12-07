@@ -1,4 +1,15 @@
-import { Component, Input, Output, EventEmitter, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  NgZone,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { gsap } from 'gsap';
@@ -55,15 +66,13 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
   private colorTween: gsap.core.Tween | null = null;
   private busy = false;
   textLines: string[] = ['Menu', 'Close'];
-
-  constructor(
-    private ngZone: NgZone,
-    private router: Router
-  ) {}
+  private ngZone = inject(NgZone);
+  private router = inject(Router);
 
   getPreLayerColors(): string[] {
-    const raw = this.colors && this.colors.length ? this.colors.slice(0, 4) : ['#1e1e22', '#35353c'];
-    let arr = [...raw];
+    const raw =
+      this.colors && this.colors.length ? this.colors.slice(0, 4) : ['#1e1e22', '#35353c'];
+    const arr = [...raw];
     if (arr.length >= 3) {
       const mid = Math.floor(arr.length / 2);
       arr.splice(mid, 1);
@@ -122,12 +131,15 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
 
     const itemEls = Array.from(panel.querySelectorAll('.sm-panel-itemLabel')) as HTMLElement[];
     const numberEls = Array.from(
-      panel.querySelectorAll('.sm-panel-list[data-numbering] .sm-panel-item')
+      panel.querySelectorAll('.sm-panel-list[data-numbering] .sm-panel-item'),
     ) as HTMLElement[];
     const socialTitle = panel.querySelector('.sm-socials-title') as HTMLElement | null;
     const socialLinks = Array.from(panel.querySelectorAll('.sm-socials-link')) as HTMLElement[];
 
-    const layerStates = layers.map(el => ({ el, start: Number(gsap.getProperty(el, 'xPercent')) }));
+    const layerStates = layers.map((el) => ({
+      el,
+      start: Number(gsap.getProperty(el, 'xPercent')),
+    }));
     const panelStart = Number(gsap.getProperty(panel, 'xPercent'));
 
     if (itemEls.length) gsap.set(itemEls, { yPercent: 140, rotate: 10 });
@@ -142,7 +154,7 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
         ls.el,
         { xPercent: ls.start },
         { xPercent: 0, duration: 0.5, ease: 'power4.out' },
-        i * 0.07
+        i * 0.07,
       );
     });
 
@@ -154,7 +166,7 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
       panel,
       { xPercent: panelStart },
       { xPercent: 0, duration: panelDuration, ease: 'power4.out' },
-      panelInsertTime
+      panelInsertTime,
     );
 
     if (itemEls.length) {
@@ -168,9 +180,9 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
           rotate: 0,
           duration: 1,
           ease: 'power4.out',
-          stagger: { each: 0.1, from: 'start' }
+          stagger: { each: 0.1, from: 'start' },
         },
-        itemsStart
+        itemsStart,
       );
 
       if (numberEls.length) {
@@ -180,9 +192,9 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
             duration: 0.6,
             ease: 'power2.out',
             ['--sm-num-opacity' as any]: 1,
-            stagger: { each: 0.08, from: 'start' }
+            stagger: { each: 0.08, from: 'start' },
           },
-          itemsStart + 0.1
+          itemsStart + 0.1,
         );
       }
     }
@@ -204,9 +216,9 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
             stagger: { each: 0.08, from: 'start' },
             onComplete: () => {
               gsap.set(socialLinks, { clearProps: 'opacity' });
-            }
+            },
           },
-          socialsStart + 0.04
+          socialsStart + 0.04,
         );
       }
     }
@@ -252,7 +264,7 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
         if (itemEls.length) gsap.set(itemEls, { yPercent: 140, rotate: 10 });
 
         const numberEls = Array.from(
-          panel.querySelectorAll('.sm-panel-list[data-numbering] .sm-panel-item')
+          panel.querySelectorAll('.sm-panel-list[data-numbering] .sm-panel-item'),
         ) as HTMLElement[];
         if (numberEls.length) gsap.set(numberEls, { ['--sm-num-opacity' as any]: 0 });
 
@@ -262,7 +274,7 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
         if (socialLinks.length) gsap.set(socialLinks, { y: 25, opacity: 0 });
 
         this.busy = false;
-      }
+      },
     });
   }
 
@@ -289,11 +301,11 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  private animateColor(opening: boolean): void {
+  private animateColor(_opening: boolean): void {
     const btn = this.toggleBtnRef?.nativeElement;
     if (!btn) return;
     this.colorTween?.kill();
-    
+
     // Use CSS classes for color transitions instead of GSAP
     // The classes handle the color change automatically
     if (this.changeMenuColorOnOpen) {
@@ -333,7 +345,7 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
     this.textCycleAnim = gsap.to(inner, {
       yPercent: -finalShift,
       duration: 0.5 + lineCount * 0.07,
-      ease: 'power4.out'
+      ease: 'power4.out',
     });
   }
 
@@ -358,7 +370,7 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
   handleItemClick(item: StaggeredMenuItem, event: Event): void {
     event.preventDefault();
     this.toggleMenu();
-    
+
     if (item.link.startsWith('#')) {
       // Scroll to section
       const sectionId = item.link.substring(1);
@@ -382,4 +394,3 @@ export class StaggeredMenuComponent implements AfterViewInit, OnDestroy {
     this.colorTween?.kill();
   }
 }
-

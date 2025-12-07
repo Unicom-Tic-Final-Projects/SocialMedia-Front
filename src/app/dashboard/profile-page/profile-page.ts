@@ -1,12 +1,16 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ProfileService } from '../../services/client/profile.service';
 import { ClientContextService } from '../../services/client/client-context.service';
 import { UserProfile } from '../../models/social.models';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-profile-page',
@@ -14,25 +18,26 @@ import { UserProfile } from '../../models/social.models';
   templateUrl: './profile-page.html',
   styleUrl: './profile-page.css',
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage extends BaseComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly profileService = inject(ProfileService);
   private readonly toastService = inject(ToastService);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   readonly clientContextService = inject(ClientContextService);
+  private readonly loggingService = inject(LoggingService);
 
   // Initialize form immediately to avoid template errors
   profileForm = this.fb.group({
     fullName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
   });
-  
+
   loading = signal(false);
   saving = signal(false);
   profile = signal<UserProfile | null>(null);
   user = this.authService.user;
-  
+
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
   readonly selectedClient = this.clientContextService.selectedClient;
@@ -44,7 +49,7 @@ export class ProfilePage implements OnInit {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    
+
     // Check parent routes for clientId
     let parentRoute = this.route.parent;
     while (parentRoute) {
@@ -61,12 +66,12 @@ export class ProfilePage implements OnInit {
 
   private loadProfile(): void {
     this.loading.set(true);
-    
+
     // Check if viewing client dashboard
     const isViewingClient = this.isViewingClient();
     const client = this.selectedClient();
     const clientUser = this.clientUser();
-    
+
     if (isViewingClient && client && clientUser) {
       // Show client's information
       this.profileForm.patchValue({
@@ -76,13 +81,16 @@ export class ProfilePage implements OnInit {
       this.loading.set(false);
       return;
     }
-    
+
     // Get user from auth service (agency owner or individual user)
     const currentUser = this.authService.user();
-    
+
     if (currentUser) {
       // Load profile using profile service
-      this.profileService.loadProfile().subscribe({
+      this.profileService
+        .loadProfile()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
         next: (profile) => {
           this.profile.set(profile);
           this.profileForm.patchValue({
@@ -92,18 +100,21 @@ export class ProfilePage implements OnInit {
           this.loading.set(false);
         },
         error: (error) => {
-          console.error('Error loading profile:', error);
+          this.loggingService.error('Error loading profile', error, 'ProfilePage');
           // Fallback to auth user data
           this.profileForm.patchValue({
             fullName: currentUser.tenantName || currentUser.email?.split('@')[0] || 'User',
             email: currentUser.email || '',
           });
           this.loading.set(false);
-        }
+        },
       });
     } else {
       // Try to load current user from API
-      this.authService.loadCurrentUser().subscribe({
+      this.authService
+        .loadCurrentUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
         next: (user) => {
           if (user) {
             this.profileForm.patchValue({
@@ -114,9 +125,9 @@ export class ProfilePage implements OnInit {
           this.loading.set(false);
         },
         error: (error) => {
-          console.error('Error loading user:', error);
+          this.loggingService.error('Error loading user', error, 'ProfilePage');
           this.loading.set(false);
-        }
+        },
       });
     }
   }
@@ -129,7 +140,9 @@ export class ProfilePage implements OnInit {
 
     // If viewing client dashboard, don't allow saving (read-only view)
     if (this.isViewingClient()) {
-      this.toastService.warning('Cannot edit client profile from agency dashboard. This is a read-only view.');
+      this.toastService.warning(
+        'Cannot edit client profile from agency dashboard. This is a read-only view.',
+      );
       return;
     }
 
@@ -137,21 +150,24 @@ export class ProfilePage implements OnInit {
     const formValue = this.profileForm.value;
     const userId = this.profile()?.id || 0;
 
-    this.profileService.updateProfile(userId, {
-      fullName: formValue.fullName ?? undefined,
-      email: formValue.email ?? undefined,
-    }).subscribe({
-      next: (updatedProfile) => {
-        this.profile.set(updatedProfile);
-        this.saving.set(false);
-        this.toastService.success('Profile updated successfully!');
-      },
-      error: (error) => {
-        console.error('Error updating profile:', error);
-        this.saving.set(false);
-        this.toastService.error('Failed to update profile. Please try again.');
-      }
-    });
+    this.profileService
+      .updateProfile(userId, {
+        fullName: formValue.fullName ?? undefined,
+        email: formValue.email ?? undefined,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedProfile) => {
+          this.profile.set(updatedProfile);
+          this.saving.set(false);
+          this.toastService.success('Profile updated successfully!');
+        },
+        error: (error) => {
+          this.loggingService.error('Error updating profile', error, 'ProfilePage');
+          this.saving.set(false);
+          this.toastService.error('Failed to update profile. Please try again.');
+        },
+      });
   }
 
   getDisplayName(): string {
@@ -159,7 +175,7 @@ export class ProfilePage implements OnInit {
     if (this.isViewingClient() && this.selectedClient()) {
       return this.selectedClient()!.name;
     }
-    
+
     const profile = this.profile();
     const user = this.user();
     return profile?.fullName || user?.tenantName || user?.email?.split('@')[0] || 'User';
@@ -170,7 +186,7 @@ export class ProfilePage implements OnInit {
     if (this.isViewingClient() && this.clientUser()) {
       return this.clientUser()!.role || 'Client';
     }
-    
+
     const user = this.user();
     if (user?.tenantType === 'Agency') {
       return 'Agency Owner';
@@ -184,6 +200,12 @@ export class ProfilePage implements OnInit {
 
   getAvatarUrl(): string {
     const profile = this.profile();
-    return profile?.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(this.getDisplayName()) + '&background=4C6FFF&color=fff';
+    return (
+      profile?.avatarUrl ||
+      'https://ui-avatars.com/api/?name=' +
+        encodeURIComponent(this.getDisplayName()) +
+        '&background=4C6FFF&color=fff'
+    );
   }
+
 }

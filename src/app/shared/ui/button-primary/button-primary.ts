@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './button-primary.html',
   styleUrl: './button-primary.css',
 })
-export class ButtonPrimary {
-
-}
+export class ButtonPrimary {}

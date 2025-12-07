@@ -7,6 +7,4 @@ import { RouterLink } from '@angular/router';
   templateUrl: './app-footer.html',
   styleUrl: './app-footer.css',
 })
-export class AppFooter {
-
-}
+export class AppFooter {}

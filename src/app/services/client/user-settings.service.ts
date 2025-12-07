@@ -7,18 +7,18 @@ import { ApiResponse } from '../../models/auth.models';
 export interface UserSettingsDto {
   id: string;
   userId: string;
-  
+
   // Appearance
   themeMode: 'light' | 'dark';
   colorTheme: 'blue' | 'purple' | 'pink';
-  
+
   // General
   timezone: string;
   dateFormat: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
   timeFormat: '12' | '24';
   language: string;
   dashboardRefreshInterval: number;
-  
+
   // Post Settings
   defaultPlatforms: string;
   autoSaveDrafts: boolean;
@@ -27,7 +27,7 @@ export interface UserSettingsDto {
   autoHashtagSuggestions: boolean;
   defaultHashtagCount: number;
   defaultSchedulingTime?: string;
-  
+
   // Notifications
   emailNotificationsEnabled: boolean;
   emailPostApprovals: boolean;
@@ -39,26 +39,26 @@ export interface UserSettingsDto {
   notificationFrequency: 'Immediate' | 'Daily' | 'Weekly' | 'Never';
   quietHoursStart?: string;
   quietHoursEnd?: string;
-  
+
   // Analytics
   defaultAnalyticsDateRange: '1d' | '7d' | '30d' | '90d' | 'custom';
   autoRefreshAnalytics: boolean;
   analyticsRefreshInterval: number;
   defaultMetrics: string;
-  
+
   // Social Account
   autoRefreshTokens: boolean;
   tokenRefreshBeforeExpiry: number;
-  
+
   // Security
   twoFactorEnabled: boolean;
   sessionTimeoutMinutes: number;
-  
+
   // AI
   aiContentSuggestionsEnabled: boolean;
   defaultAIModel: 'gpt-4' | 'gpt-3.5-turbo' | 'claude' | 'gemini';
   maxAISuggestionsPerRequest: number;
-  
+
   createdAt: string;
   updatedAt?: string;
 }
@@ -67,14 +67,14 @@ export interface UpdateUserSettingsRequest {
   // Appearance
   themeMode?: 'light' | 'dark';
   colorTheme?: 'blue' | 'purple' | 'pink';
-  
+
   // General
   timezone?: string;
   dateFormat?: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
   timeFormat?: '12' | '24';
   language?: string;
   dashboardRefreshInterval?: number;
-  
+
   // Post Settings
   defaultPlatforms?: string;
   autoSaveDrafts?: boolean;
@@ -83,7 +83,7 @@ export interface UpdateUserSettingsRequest {
   autoHashtagSuggestions?: boolean;
   defaultHashtagCount?: number;
   defaultSchedulingTime?: string;
-  
+
   // Notifications
   emailNotificationsEnabled?: boolean;
   emailPostApprovals?: boolean;
@@ -95,21 +95,21 @@ export interface UpdateUserSettingsRequest {
   notificationFrequency?: 'Immediate' | 'Daily' | 'Weekly' | 'Never';
   quietHoursStart?: string;
   quietHoursEnd?: string;
-  
+
   // Analytics
   defaultAnalyticsDateRange?: '1d' | '7d' | '30d' | '90d' | 'custom';
   autoRefreshAnalytics?: boolean;
   analyticsRefreshInterval?: number;
   defaultMetrics?: string;
-  
+
   // Social Account
   autoRefreshTokens?: boolean;
   tokenRefreshBeforeExpiry?: number;
-  
+
   // Security
   twoFactorEnabled?: boolean;
   sessionTimeoutMinutes?: number;
-  
+
   // AI
   aiContentSuggestionsEnabled?: boolean;
   defaultAIModel?: 'gpt-4' | 'gpt-3.5-turbo' | 'claude' | 'gemini';
@@ -117,7 +117,7 @@ export interface UpdateUserSettingsRequest {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserSettingsService {
   private readonly http = inject(HttpClient);
@@ -158,7 +158,7 @@ export class UserSettingsService {
           return response.data;
         }
         throw new Error(response.message || 'Invalid response format');
-      })
+      }),
     );
   }
 
@@ -169,27 +169,29 @@ export class UserSettingsService {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    return this.http.put<ApiResponse<UserSettingsDto>>(`${this.baseUrl}/api/usersettings`, request).pipe(
-      tap((response) => {
-        if (response.success && response.data) {
-          this.settingsSignal.set(response.data);
-        }
-        this.loadingSignal.set(false);
-      }),
-      catchError((error) => {
-        const errorMsg = error?.error?.message || error?.message || 'Failed to update settings';
-        this.errorSignal.set(errorMsg);
-        this.loadingSignal.set(false);
-        return throwError(() => error);
-      }),
-      // Map to extract data from ApiResponse
-      map((response) => {
-        if (response.success && response.data) {
-          return response.data;
-        }
-        throw new Error(response.message || 'Invalid response format');
-      })
-    );
+    return this.http
+      .put<ApiResponse<UserSettingsDto>>(`${this.baseUrl}/api/usersettings`, request)
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data) {
+            this.settingsSignal.set(response.data);
+          }
+          this.loadingSignal.set(false);
+        }),
+        catchError((error) => {
+          const errorMsg = error?.error?.message || error?.message || 'Failed to update settings';
+          this.errorSignal.set(errorMsg);
+          this.loadingSignal.set(false);
+          return throwError(() => error);
+        }),
+        // Map to extract data from ApiResponse
+        map((response) => {
+          if (response.success && response.data) {
+            return response.data;
+          }
+          throw new Error(response.message || 'Invalid response format');
+        }),
+      );
   }
 
   /**
@@ -234,12 +236,11 @@ export class UserSettingsService {
           aiContentSuggestionsEnabled: true,
           defaultAIModel: 'gpt-4',
           maxAISuggestionsPerRequest: 3,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         };
         this.settingsSignal.set(defaultSettings);
         return of(defaultSettings);
-      })
+      }),
     );
   }
 }
-

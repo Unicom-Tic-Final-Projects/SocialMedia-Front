@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../services/admin/settings.service';
@@ -10,18 +10,18 @@ import { SettingsService } from '../../services/admin/settings.service';
   styleUrl: './settings-page.css',
 })
 export class AdminSettingsPage implements OnInit {
+  private readonly settingsService = inject(SettingsService);
+
   generalSettings = {
     platformName: '',
-    platformDescription: ''
+    platformDescription: '',
   };
   securitySettings = {
     twoFactorAuth: false,
-    emailNotifications: true
+    emailNotifications: true,
   };
   loading = true;
   saving = false;
-
-  constructor(private settingsService: SettingsService) {}
 
   ngOnInit() {
     this.loadSettings();
@@ -34,24 +34,24 @@ export class AdminSettingsPage implements OnInit {
         // Transform API data
         this.generalSettings = {
           platformName: settings.title || 'Onevo',
-          platformDescription: settings.body || 'Social media management platform'
+          platformDescription: settings.body || 'Social media management platform',
         };
         this.settingsService.getSecuritySettings().subscribe({
           next: (security) => {
             this.loading = false;
             this.securitySettings = {
-              twoFactorAuth: security.id % 2 === 0,
-              emailNotifications: true
+              twoFactorAuth: security.id ? security.id % 2 === 0 : false,
+              emailNotifications: true,
             };
           },
           error: () => {
             this.loading = false;
-          }
+          },
         });
       },
       error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -67,14 +67,13 @@ export class AdminSettingsPage implements OnInit {
           error: () => {
             this.saving = false;
             alert('Error saving security settings');
-          }
+          },
         });
       },
       error: () => {
         this.saving = false;
         alert('Error saving general settings');
-      }
+      },
     });
   }
 }
-

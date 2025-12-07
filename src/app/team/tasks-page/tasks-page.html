@@ -43,12 +43,14 @@
                   <h3 class="text-lg font-semibold text-slate-900">{{ task.title }}</h3>
                   <span
                     class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                    [ngClass]="getStatusBadgeClass(task.status)">
+                    [ngClass]="getStatusBadgeClass(task.status)"
+                  >
                     {{ task.status }}
                   </span>
                   <span
                     class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                    [ngClass]="getPriorityBadgeClass(task.priority)">
+                    [ngClass]="getPriorityBadgeClass(task.priority)"
+                  >
                     {{ task.priority }} Priority
                   </span>
                 </div>
@@ -59,12 +61,12 @@
                   @if (task.dueDate) {
                     <span>
                       <i class="fa-solid fa-calendar mr-1"></i>
-                      Due: {{ task.dueDate | date:'short' }}
+                      Due: {{ task.dueDate | date: 'short' }}
                     </span>
                   }
                   <span>
                     <i class="fa-solid fa-clock mr-1"></i>
-                    Created: {{ task.createdAt | date:'short' }}
+                    Created: {{ task.createdAt | date: 'short' }}
                   </span>
                 </div>
               </div>
@@ -72,24 +74,30 @@
                 <!-- Open client dashboard (only if task has client and is active) -->
                 @if (canOpenClientDashboard(task)) {
                   <button
+                    type="button"
                     (click)="openClientDashboard(task)"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition">
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition"
+                  >
                     <i class="fa-solid fa-external-link-alt"></i>
                     Client Dashboard
                   </button>
                 }
                 @if (canStartTask(task)) {
                   <button
+                    type="button"
                     (click)="startTask(task)"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+                  >
                     <i class="fa-solid fa-play"></i>
                     Start
                   </button>
                 }
                 @if (canCompleteTask(task)) {
                   <button
+                    type="button"
                     (click)="completeTask(task)"
-                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition"
+                  >
                     <i class="fa-solid fa-check"></i>
                     Complete
                   </button>
@@ -102,4 +110,3 @@
     }
   </div>
 </section>
-

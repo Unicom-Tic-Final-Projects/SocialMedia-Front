@@ -1,26 +1,33 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PublishedPostsService } from '../../services/client/published-posts.service';
-import { PublishedPostResponse, SocialMediaPublishDetail } from '../../models/published-post.models';
+import {
+  PublishedPostResponse,
+  SocialMediaPublishDetail,
+} from '../../models/published-post.models';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
 import { PostsService } from '../../services/client/posts.service';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-published-posts',
   standalone: true,
   imports: [CommonModule, FormsModule, DatePipe],
   templateUrl: './published-posts.html',
-  styleUrl: './published-posts.css'
+  styleUrl: './published-posts.css',
 })
-export class PublishedPostsComponent implements OnInit, OnDestroy {
+export class PublishedPostsComponent extends BaseComponent implements OnInit {
   private readonly publishedPostsService = inject(PublishedPostsService);
   private readonly postsService = inject(PostsService);
   readonly router = inject(Router); // Made public for template access
   private readonly toastService = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly loggingService = inject(LoggingService);
 
   // State
   readonly publishedPosts = signal<PublishedPostResponse[]>([]);
@@ -44,9 +51,24 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
   // Status options
   readonly statusFilters = [
     { value: 'all' as const, label: 'All Status', icon: 'fa-solid fa-list' },
-    { value: 'Success' as const, label: 'Success', icon: 'fa-solid fa-check-circle', color: 'text-green-600' },
-    { value: 'Failed' as const, label: 'Failed', icon: 'fa-solid fa-times-circle', color: 'text-red-600' },
-    { value: 'Pending' as const, label: 'Pending', icon: 'fa-solid fa-clock', color: 'text-yellow-600' },
+    {
+      value: 'Success' as const,
+      label: 'Success',
+      icon: 'fa-solid fa-check-circle',
+      color: 'text-green-600',
+    },
+    {
+      value: 'Failed' as const,
+      label: 'Failed',
+      icon: 'fa-solid fa-times-circle',
+      color: 'text-red-600',
+    },
+    {
+      value: 'Pending' as const,
+      label: 'Pending',
+      icon: 'fa-solid fa-clock',
+      color: 'text-yellow-600',
+    },
   ];
 
   // Filtered posts
@@ -58,23 +80,26 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
 
     // Filter by search query
     if (query) {
-      posts = posts.filter(post =>
-        post.content.toLowerCase().includes(query) ||
-        post.socialMediaDetails.some(detail => detail.platform.toLowerCase().includes(query))
+      posts = posts.filter(
+        (post) =>
+          post.content.toLowerCase().includes(query) ||
+          post.socialMediaDetails.some((detail) => detail.platform.toLowerCase().includes(query)),
       );
     }
 
     // Filter by platform
     if (platform !== 'all') {
-      posts = posts.filter(post =>
-        post.socialMediaDetails.some(detail => detail.platform.toLowerCase() === platform.toLowerCase())
+      posts = posts.filter((post) =>
+        post.socialMediaDetails.some(
+          (detail) => detail.platform.toLowerCase() === platform.toLowerCase(),
+        ),
       );
     }
 
     // Filter by status
     if (status !== 'all') {
-      posts = posts.filter(post =>
-        post.socialMediaDetails.some(detail => detail.status === status)
+      posts = posts.filter((post) =>
+        post.socialMediaDetails.some((detail) => detail.status === status),
       );
     }
 
@@ -85,15 +110,14 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
     this.loadPublishedPosts();
   }
 
-  ngOnDestroy(): void {
-    // Cleanup if needed
-  }
-
   loadPublishedPosts(): void {
     this.loading.set(true);
     this.error.set(null);
 
-    this.publishedPostsService.getPublishedPosts().subscribe({
+    this.publishedPostsService
+      .getPublishedPosts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (posts) => {
         this.publishedPosts.set(posts);
         this.loading.set(false);
@@ -102,7 +126,7 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
         this.error.set(err.message || 'Failed to load published posts');
         this.loading.set(false);
         this.toastService.error('Failed to load published posts', err.message || 'Unknown error');
-      }
+      },
     });
   }
 
@@ -129,7 +153,9 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
   }
 
   editPost(post: PublishedPostResponse): void {
-    this.router.navigate(['/dashboard/post-editor'], { queryParams: { postId: post.id, edit: 'true' } });
+    this.router.navigate(['/dashboard/post-editor'], {
+      queryParams: { postId: post.id, edit: 'true' },
+    });
   }
 
   async deletePost(post: PublishedPostResponse): Promise<void> {
@@ -137,21 +163,24 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
       title: 'Delete Published Post',
       message: `Are you sure you want to delete this post? This will remove it from your posts list, but it will remain on social media platforms.`,
       confirmText: 'Delete',
-      cancelText: 'Cancel'
+      cancelText: 'Cancel',
     });
 
     if (!confirmed) {
       return;
     }
 
-    this.postsService.deletePost(post.id).subscribe({
+    this.postsService
+      .deletePost(post.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.toastService.success('Post deleted successfully');
         this.loadPublishedPosts();
       },
       error: (err) => {
         this.toastService.error('Failed to delete post', err.error?.message || err.message);
-      }
+      },
     });
   }
 
@@ -162,7 +191,7 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
       twitter: 'fa-brands fa-x-twitter',
       linkedin: 'fa-brands fa-linkedin',
       youtube: 'fa-brands fa-youtube',
-      tiktok: 'fa-brands fa-tiktok'
+      tiktok: 'fa-brands fa-tiktok',
     };
     return platformMap[platform.toLowerCase()] || 'fa-solid fa-share';
   }
@@ -174,16 +203,16 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
       twitter: 'text-black',
       linkedin: 'text-blue-700',
       youtube: 'text-red-600',
-      tiktok: 'text-black'
+      tiktok: 'text-black',
     };
     return colorMap[platform.toLowerCase()] || 'text-gray-600';
   }
 
   getStatusColor(status: string): string {
     const colorMap: Record<string, string> = {
-      'Success': 'text-green-600 bg-green-50 border-green-200',
-      'Failed': 'text-red-600 bg-red-50 border-red-200',
-      'Pending': 'text-yellow-600 bg-yellow-50 border-yellow-200'
+      Success: 'text-green-600 bg-green-50 border-green-200',
+      Failed: 'text-red-600 bg-red-50 border-red-200',
+      Pending: 'text-yellow-600 bg-yellow-50 border-yellow-200',
     };
     return colorMap[status] || 'text-gray-600 bg-gray-50 border-gray-200';
   }
@@ -192,20 +221,21 @@ export class PublishedPostsComponent implements OnInit, OnDestroy {
     if (detail.platformUrl) {
       window.open(detail.platformUrl, '_blank', 'noopener,noreferrer');
     } else {
-      this.toastService.warning('Platform URL not available. This post does not have a direct link to the platform.');
+      this.toastService.warning(
+        'Platform URL not available. This post does not have a direct link to the platform.',
+      );
     }
   }
 
   getSuccessCount(post: PublishedPostResponse): number {
-    return post.socialMediaDetails.filter(d => d.status === 'Success').length;
+    return post.socialMediaDetails.filter((d) => d.status === 'Success').length;
   }
 
   getFailedCount(post: PublishedPostResponse): number {
-    return post.socialMediaDetails.filter(d => d.status === 'Failed').length;
+    return post.socialMediaDetails.filter((d) => d.status === 'Failed').length;
   }
 
   getTotalPlatforms(post: PublishedPostResponse): number {
     return post.socialMediaDetails.length;
   }
 }
-

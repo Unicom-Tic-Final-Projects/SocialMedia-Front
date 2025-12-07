@@ -28,4 +28,3 @@ export class OverviewService {
     return this.http.get<ApiResponse<AdminOverviewResponse>>(`${this.baseUrl}/api/admin/overview`);
   }
 }
-

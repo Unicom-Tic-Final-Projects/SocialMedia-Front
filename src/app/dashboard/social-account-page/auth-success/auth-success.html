@@ -1,9 +1,13 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222] flex flex-col items-center justify-center p-6">
-  <div class="bg-[#F5F7FF] p-8 rounded-xl shadow-md text-center w-full max-w-md border border-[#D9E1FF]">
+  <div
+    class="bg-[#F5F7FF] p-8 rounded-xl shadow-md text-center w-full max-w-md border border-[#D9E1FF]"
+  >
     <!-- Loading State -->
     @if (loading) {
       <div class="py-8">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C6FFF] mx-auto mb-4"></div>
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C6FFF] mx-auto mb-4"
+        ></div>
         <p class="text-gray-600">Processing connection...</p>
       </div>
     }
@@ -28,10 +32,9 @@
 
       <!-- CTA Button -->
       <button
+        type="button"
         (click)="goToSocialAccounts()"
-        class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl
-               hover:bg-[#3A56CC] transition-all duration-200 font-semibold
-               shadow-sm hover:shadow-md cursor-pointer"
+        class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 font-semibold shadow-sm hover:shadow-md cursor-pointer"
       >
         Go to Social Accounts
       </button>
@@ -53,16 +56,13 @@
           Failed to connect your account. Please try again.
         }
       </p>
-      <p class="text-sm text-gray-500 mb-6">
-        Error: {{ error }}
-      </p>
+      <p class="text-sm text-gray-500 mb-6">Error: {{ error }}</p>
 
       <!-- CTA Button -->
       <button
+        type="button"
         (click)="goToSocialAccounts()"
-        class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl
-               hover:bg-[#3A56CC] transition-all duration-200 font-semibold
-               shadow-sm hover:shadow-md cursor-pointer"
+        class="inline-block bg-[#4C6FFF] text-white px-6 py-3 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 font-semibold shadow-sm hover:shadow-md cursor-pointer"
       >
         Back to Social Accounts
       </button>

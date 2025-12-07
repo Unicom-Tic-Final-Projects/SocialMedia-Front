@@ -1,0 +1,145 @@
+<div class="space-y-6" [formGroup]="postForm">
+  <div class="mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-edit text-[#4C6FFF]"></i>
+      </div>
+      Step 1: Write Your Post
+    </h2>
+    <p class="text-gray-600 text-sm ml-[58px]">Create your content and add media (both required)</p>
+  </div>
+
+  <!-- Content Editor with Floating Label -->
+  <div class="space-y-4">
+    <div class="input-group-float relative">
+      <textarea
+        formControlName="content"
+        placeholder=" "
+        rows="8"
+        class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-xl px-4 py-3 pr-14 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm transition-all resize-none relative"
+        style="min-height: 200px"
+        [class.border-red-500]="content?.invalid && content?.touched"
+        (input)="onContentInput($event)"
+      ></textarea>
+      <label class="input-label-float">Post Content *</label>
+
+      <!-- AI Improve Content Button -->
+      @if (hasContent()) {
+        <button
+          type="button"
+          (click)="onImproveContent(); $event.stopPropagation()"
+          [disabled]="improvingContent"
+          class="absolute top-3 right-3 z-20 p-2 rounded-lg transition-all duration-200 bg-white border-2 border-[#4C6FFF] hover:bg-[#4C6FFF] shadow-md hover:shadow-lg hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 group pointer-events-auto"
+          [title]="improvingContent ? 'Improving content...' : 'Improve content with AI'"
+        >
+          @if (improvingContent) {
+            <i
+              class="fa-solid fa-spinner fa-spin text-sm text-[#4C6FFF] group-hover:text-white transition-colors"
+            ></i>
+          } @else {
+            <i
+              class="fa-solid fa-wand-magic-sparkles text-sm text-[#4C6FFF] group-hover:text-white transition-colors"
+            ></i>
+          }
+
+          <!-- Tooltip -->
+          <span
+            class="absolute right-full mr-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50"
+          >
+            Improve content with AI
+            <span
+              class="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-gray-900"
+            ></span>
+          </span>
+        </button>
+      }
+      @if (content?.invalid && content?.touched) {
+        <p class="mt-2 text-sm text-red-600 flex items-center gap-2">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          @if (content?.errors?.['maxlength']) {
+            Content must be less than 4000 characters
+          } @else {
+            Content is required
+          }
+        </p>
+      }
+    </div>
+
+    <div class="flex justify-between items-center text-xs">
+      <p class="text-gray-500">{{ characterCount() }} / {{ maxCharacters }} characters</p>
+      @if (characterCount() > maxCharacters * 0.9) {
+        <p class="text-amber-600 flex items-center gap-1">
+          <i class="fa-solid fa-exclamation-triangle"></i>
+          Approaching character limit
+        </p>
+      }
+    </div>
+
+    @if (step1ValidationError()) {
+      <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-3">
+        <i class="fa-solid fa-info-circle text-amber-600 mt-0.5"></i>
+        <p class="text-sm text-amber-700">
+          Please enter a caption and upload at least one image/video to continue
+        </p>
+      </div>
+    }
+  </div>
+
+  <!-- Enhanced Media Upload Section -->
+  <div class="space-y-4">
+    <label class="block text-[#1A1A1A] font-semibold text-sm uppercase tracking-wider">
+      <i class="fa-solid fa-photo-film mr-2"></i>Add Media (Image or Video) *
+    </label>
+
+    @if (mediaPreview()) {
+      <div class="relative group rounded-xl overflow-hidden border-2 border-[#D9E1FF]">
+        @if (isVideo()) {
+          <video
+            [src]="mediaPreview()!"
+            class="w-full h-48 sm:h-64 object-cover"
+            controls
+            preload="metadata"
+          ></video>
+        } @else {
+          <img [src]="mediaPreview()!" class="w-full h-48 sm:h-64 object-cover" />
+        }
+        <div
+          class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+        >
+          <button
+            type="button"
+            (click)="onRemoveMedia()"
+            class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all flex items-center gap-2 shadow-lg"
+          >
+            <i class="fa-solid fa-trash"></i>
+            Remove
+          </button>
+        </div>
+        @if (isVideo()) {
+          <div
+            class="absolute top-2 right-2 bg-[#4C6FFF] text-white px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1"
+          >
+            <i class="fa-solid fa-video"></i>
+            Video
+          </div>
+        }
+      </div>
+    } @else {
+      <app-file-upload
+        [hint]="'Images (PNG, JPG, GIF) & Videos (MP4, MOV) - MAX. 10MB'"
+        [accept]="'image/*,video/*'"
+        [allowsMultiple]="false"
+        [maxSize]="10 * 1024 * 1024"
+        [variant]="'progressBar'"
+        [uploadedFiles]="uploadedFiles()"
+        (filesSelected)="onFilesSelected($event)"
+        (unacceptedFiles)="onUnacceptedFiles($event)"
+        (sizeLimitExceeded)="onSizeLimitExceeded($event)"
+        (fileDeleted)="onFileDeleted($event)"
+        (fileRetry)="onFileRetry($event)"
+      >
+      </app-file-upload>
+    }
+  </div>
+</div>
+

@@ -1,37 +1,37 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
-
   <h2 class="text-2xl font-semibold mb-6 text-[#4C6FFF] font-medium flex items-center gap-2">
     <i class="fa-solid fa-folder-open"></i> Media Library
   </h2>
 
   <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-
     <!-- Search -->
     <div class="relative w-72">
-      <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+      <i
+        class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+      ></i>
       <input
         type="text"
         placeholder="Search media..."
-        class="bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2 w-full
-               text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+        class="bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg pl-10 pr-4 py-2 w-full text-[#222222] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
       />
     </div>
 
     <!-- Upload -->
-    <button class="bg-[#4C6FFF] text-white font-semibold px-4 py-2 rounded-lg 
-                   hover:bg-[#3B56CC] transition flex items-center gap-2">
+    <button
+      type="button"
+      class="bg-[#4C6FFF] text-white font-semibold px-4 py-2 rounded-lg hover:bg-[#3B56CC] transition flex items-center gap-2"
+    >
       <i class="fa-solid fa-upload"></i> Upload Media
     </button>
   </div>
 
   <!-- Library Grid -->
   <div class="bg-[#F5F7FF] rounded-2xl shadow-md p-6 border border-[#D9E1FF]">
-
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-
       <!-- Item 1 -->
-      <div class="bg-white rounded-lg p-4 aspect-square flex items-center justify-center 
-                  border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition cursor-pointer">
+      <div
+        class="bg-white rounded-lg p-4 aspect-square flex items-center justify-center border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition cursor-pointer"
+      >
         <div class="text-center">
           <i class="fa-solid fa-image text-4xl text-gray-500 mb-2"></i>
           <p class="text-sm text-gray-600">Image Placeholder</p>
@@ -39,15 +39,14 @@
       </div>
 
       <!-- Item 2 -->
-      <div class="bg-white rounded-lg p-4 aspect-square flex items-center justify-center 
-                  border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition cursor-pointer">
+      <div
+        class="bg-white rounded-lg p-4 aspect-square flex items-center justify-center border border-[#D9E1FF] hover:bg-[#BFC9FF]/30 transition cursor-pointer"
+      >
         <div class="text-center">
           <i class="fa-solid fa-video text-4xl text-gray-500 mb-2"></i>
           <p class="text-sm text-gray-600">Video Placeholder</p>
         </div>
       </div>
-
     </div>
-
   </div>
 </div>

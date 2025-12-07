@@ -1,9 +1,19 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { LoginRequest, RegisterRequest } from '../../models/auth.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
 
 @Component({
   selector: 'app-login-page',
@@ -12,11 +22,13 @@ import { LoginRequest, RegisterRequest } from '../../models/auth.models';
   templateUrl: './login-page.html',
   styleUrl: './login-page.css',
 })
-export class LoginPage {
+export class LoginPage implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly loggingService = inject(LoggingService);
+  private readonly destroy$ = new Subject<void>();
 
   loginForm: FormGroup;
   registerForm: FormGroup;
@@ -33,23 +45,29 @@ export class LoginPage {
       password: ['', [Validators.required, Validators.minLength(6)]],
     });
 
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]],
-      tenantName: ['', [Validators.required, Validators.minLength(2)]],
-      tenantType: ['Individual', [Validators.required]],
-      acceptTerms: [false, [Validators.requiredTrue]],
-    }, {
-      validators: [this.passwordMatchValidator]
-    });
+    this.registerForm = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', [Validators.required]],
+        tenantName: ['', [Validators.required, Validators.minLength(2)]],
+        tenantType: ['Individual', [Validators.required]],
+        acceptTerms: [false, [Validators.requiredTrue]],
+      },
+      {
+        validators: [this.passwordMatchValidator],
+      },
+    );
 
     // Watch password changes for strength and mismatch
     this.registerForm.get('password')?.valueChanges.subscribe(() => {
       this.checkStrength();
       this.checkPasswordMatch();
     });
-    this.registerForm.get('confirmPassword')?.valueChanges.subscribe(() => {
+    this.registerForm
+      .get('confirmPassword')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.checkPasswordMatch();
     });
   }
@@ -58,25 +76,25 @@ export class LoginPage {
     // Reset animations by toggling the mode
     const newMode = !this.isSignupMode();
     this.errorMessage.set(null);
-    
+
     // Force reflow to restart animations
     const imageSection = document.querySelector('.auth-image-section') as HTMLElement;
     const formSection = document.querySelector('.auth-form-section') as HTMLElement;
-    
+
     if (imageSection) {
       imageSection.style.animation = 'none';
       void imageSection.offsetWidth; // Trigger reflow
     }
-    
+
     if (formSection) {
       formSection.style.animation = 'none';
       void formSection.offsetWidth; // Trigger reflow
     }
-    
+
     // Now toggle the mode and restart animations
     setTimeout(() => {
       this.isSignupMode.set(newMode);
-      
+
       // Restart animations after a tiny delay
       setTimeout(() => {
         if (imageSection) {
@@ -132,7 +150,10 @@ export class LoginPage {
       tenantType: formValue.tenantType,
     };
 
-    this.authService.register(registerRequest).subscribe({
+    this.authService
+      .register(registerRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
         this.loading.set(false);
         if (response.success && response.data) {
@@ -188,22 +209,29 @@ export class LoginPage {
       password: this.loginForm.value.password,
     };
 
-    this.authService.login(loginRequest).subscribe({
+    this.authService
+      .login(loginRequest)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (response) => {
-        console.log('[LoginPage] Login response received:', response);
+        this.loggingService.debug('Login response received', response, 'LoginPage');
         if (response && response.success) {
           const returnUrl: string | undefined = this.route.snapshot.queryParams['returnUrl'];
           const responseTenantType = response.data?.user?.tenantType;
 
-          const handleNavigation = (tenantType?: 'Agency' | 'Individual' | 'System', userRole?: string) => {
+          const handleNavigation = (
+            tenantType?: 'Agency' | 'Individual' | 'System',
+            userRole?: string,
+          ) => {
             if (tenantType === 'System') {
               this.router.navigateByUrl('/admin');
               return;
             }
 
             // Check if user is a team member (Editor or Admin in Agency tenant)
-            const isTeamMember = tenantType === 'Agency' && (userRole === 'Editor' || userRole === 'Admin');
-            
+            const isTeamMember =
+              tenantType === 'Agency' && (userRole === 'Editor' || userRole === 'Admin');
+
             if (isTeamMember) {
               this.router.navigateByUrl(returnUrl ?? '/team');
               return;
@@ -232,10 +260,18 @@ export class LoginPage {
         this.loading.set(false);
       },
       error: (error) => {
-        const errorMessage = error?.error?.message || error?.userMessage || error?.message || 'An error occurred during login.';
-        
+        const errorMessage =
+          error?.error?.message ||
+          error?.userMessage ||
+          error?.message ||
+          'An error occurred during login.';
+
         // Check if the error indicates admin user trying to login via regular login
-        if (errorMessage.toLowerCase().includes('admin') && (errorMessage.toLowerCase().includes('portal') || errorMessage.toLowerCase().includes('login'))) {
+        if (
+          errorMessage.toLowerCase().includes('admin') &&
+          (errorMessage.toLowerCase().includes('portal') ||
+            errorMessage.toLowerCase().includes('login'))
+        ) {
           this.errorMessage.set('Admin users must login through the admin portal.');
           this.showAdminLoginLink.set(true);
         } else {
@@ -253,7 +289,6 @@ export class LoginPage {
       control?.markAsTouched();
     });
   }
-
 
   get email() {
     return this.isSignupMode() ? this.registerForm.get('email') : this.loginForm.get('email');
@@ -277,5 +312,10 @@ export class LoginPage {
 
   get acceptTerms() {
     return this.registerForm.get('acceptTerms');
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

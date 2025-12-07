@@ -1,10 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Platform } from '../../../models/social.models';
 import { SocialAccountsService } from '../../../services/client/social-accounts.service';
-import { finalize } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../core/services/logging.service';
+import { BaseComponent } from '../../../core/base/base.component';
 
 type AccountType = 'business' | 'personal' | 'creator';
 
@@ -15,11 +18,12 @@ type AccountType = 'business' | 'personal' | 'creator';
   templateUrl: './connect-account.html',
   styleUrl: './connect-account.css',
 })
-export class ConnectAccount {
+export class ConnectAccount extends BaseComponent {
   selectedPlatform: Platform | null = null;
   accountName = '';
   accountType: AccountType = 'business';
   isSubmitting = false;
+  private readonly loggingService = inject(LoggingService);
 
   readonly platforms: Array<{
     value: Platform;
@@ -35,11 +39,12 @@ export class ConnectAccount {
     { value: 'tiktok', name: 'TikTok', icon: 'fa-brands fa-tiktok', color: '#000000' },
   ];
 
-  constructor(
-    private readonly router: Router,
-    private readonly route: ActivatedRoute,
-    private readonly socialAccounts: SocialAccountsService
-  ) {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly socialAccounts = inject(SocialAccountsService);
+
+  constructor() {
+    super();
     this.route.queryParamMap.subscribe((params) => {
       const platform = params.get('platform') as Platform | null;
       if (platform) {
@@ -64,10 +69,14 @@ export class ConnectAccount {
     this.isSubmitting = true;
     this.socialAccounts
       .connect(this.selectedPlatform, this.accountName.trim(), this.accountType)
-      .pipe(finalize(() => (this.isSubmitting = false)))
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isSubmitting = false))
+      )
       .subscribe({
         next: () => this.router.navigate(['/dashboard/social-account/success']),
-        error: (error) => console.error('Failed to connect account', error),
+        error: (error) => this.loggingService.error('Failed to connect account', error, 'ConnectAccount'),
       });
   }
+
 }

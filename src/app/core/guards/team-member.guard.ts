@@ -12,7 +12,7 @@ export const teamMemberGuard: CanActivateFn = (route, state) => {
 
   if (!authService.isLoggedIn()) {
     router.navigate(['/auth/login'], {
-      queryParams: { returnUrl: state.url }
+      queryParams: { returnUrl: state.url },
     });
     return false;
   }
@@ -37,4 +37,3 @@ export const teamMemberGuard: CanActivateFn = (route, state) => {
   }
   return false;
 };
-

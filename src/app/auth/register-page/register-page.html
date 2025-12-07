@@ -1,30 +1,26 @@
 <div class="min-h-screen relative overflow-hidden bg-[#F4F6FF] text-[#1A1A1A]">
-
   <!-- Soft Background -->
   <div
     class="absolute inset-0 pointer-events-none"
     style="
       background:
-        linear-gradient(to bottom right, #F6F8FF 0%, #EDEFFF 50%, #F8F9FF 100%),
-        radial-gradient(circle at 20% 30%, #BFC9FF40 0%, transparent 60%),
-        radial-gradient(circle at 80% 70%, #BFC9FF40 0%, transparent 60%);
-    ">
-  </div>
+        linear-gradient(to bottom right, #f6f8ff 0%, #edefff 50%, #f8f9ff 100%),
+        radial-gradient(circle at 20% 30%, #bfc9ff40 0%, transparent 60%),
+        radial-gradient(circle at 80% 70%, #bfc9ff40 0%, transparent 60%);
+    "
+  ></div>
 
   <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 min-h-screen">
-
     <!-- =================================
          LEFT IMAGE – 3 SECOND ROLL SLIDER
     ================================== -->
     <div class="hidden lg:flex lg:col-span-5 items-center justify-center relative overflow-hidden">
       <div class="absolute inset-0 m-4">
-
         <!-- Roll Image 1 -->
         <img src="/assets/image/login2.jpg" class="cinemaSlide" />
 
         <!-- Roll Image 2 -->
         <img src="/assets/image/login1.jpg" class="cinemaSlide" />
-
       </div>
     </div>
 
@@ -32,9 +28,7 @@
          RIGHT SIDE – REGISTER FORM
     ================================== -->
     <div class="flex lg:col-span-7 items-center justify-center px-6 py-12">
-
       <div class="w-full max-w-md">
-
         <!-- Logo -->
         <div class="text-center mb-8">
           <h1 class="text-6xl font-extrabold">
@@ -45,7 +39,6 @@
 
         <!-- Register Section (NO CARD BOX) -->
         <div class="p-2">
-
           <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-4">Create Account</h2>
 
           <!-- Error -->
@@ -57,313 +50,315 @@
 
           <!-- FORM -->
           <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
-
             <!-- Email -->
-             <!-- Email -->
-        <div>
-          <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Email Address
-          </label>
-          <input
-            type="email"
-            formControlName="email"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-            placeholder="you@example.com"
-            [class.border-red-500]="email?.invalid && email?.touched"
-          />
-          @if (email?.invalid && email?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (email?.errors?.['required']) {
-                Email is required
-              } @else if (email?.errors?.['email']) {
-                Please enter a valid email
-              }
-            </p>
-          }
-        </div>
-
-        <!-- Display Name -->
-        <div>
-          <label for="tenantName" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Display Name
-          </label>
-          <input
-            type="text"
-            formControlName="tenantName"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-            placeholder="My Account"
-            [class.border-red-500]="tenantName?.invalid && tenantName?.touched"
-          />
-          @if (tenantName?.invalid && tenantName?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (tenantName?.errors?.['required']) {
-                Display name is required
-              } @else if (tenantName?.errors?.['minlength']) {
-                Name must be at least 2 characters
-              }
-            </p>
-          }
-        </div>
-
-        <!-- Tenant Type -->
-        <div>
-          <label class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Account Type
-          </label>
-          <div class="grid grid-cols-2 gap-3">
-            <label
-              class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
-              [class.border-[#4C6FFF]]="tenantType?.value === 'Individual'"
-              [class.bg-[#BFC9FF]/30]="tenantType?.value === 'Individual'"
-              [class.border-[#D9E1FF]]="tenantType?.value !== 'Individual'"
-            >
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                Email Address
+              </label>
               <input
-                type="radio"
-                class="hidden"
-                value="Individual"
-                formControlName="tenantType"
-                checked
+                type="email"
+                formControlName="email"
+                class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                placeholder="you@example.com"
+                [class.border-red-500]="email?.invalid && email?.touched"
               />
-              <span class="text-sm font-semibold text-[#1A1A1A]">Individual</span>
-              <span class="text-xs text-[#222222]/70">For solo creators managing their own channels.</span>
-            </label>
+              @if (email?.invalid && email?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (email?.errors?.['required']) {
+                    Email is required
+                  } @else if (email?.errors?.['email']) {
+                    Please enter a valid email
+                  }
+                </p>
+              }
+            </div>
 
-            <!-- Agency -->
-            <label
-              class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
-              [class.border-[#4C6FFF]]="tenantType?.value === 'Agency'"
-              [class.bg-[#BFC9FF]/30]="tenantType?.value === 'Agency'"
-              [class.border-[#D9E1FF]]="tenantType?.value !== 'Agency'"
-            >
+            <!-- Display Name -->
+            <div>
+              <label for="tenantName" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                Display Name
+              </label>
               <input
-                type="radio"
-                class="hidden"
-                value="Agency"
-                formControlName="tenantType"
+                type="text"
+                formControlName="tenantName"
+                class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                placeholder="My Account"
+                [class.border-red-500]="tenantName?.invalid && tenantName?.touched"
               />
-              <span class="text-sm font-semibold text-[#1A1A1A]">Agency</span>
-              <span class="text-xs text-[#222222]/70">For marketing teams managing multiple clients.</span>
-            </label>
-
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div>
-          <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Password
-          </label>
-
-          <input
-            type="password"
-            formControlName="password"
-            (input)="checkStrength()"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg
-                  text-[#1A1A1A] placeholder-[#666]
-                  focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-            placeholder="At least 6 characters"
-            [class.border-red-500]="password?.invalid && password?.touched"
-          />
-
-          <!-- Angular Errors -->
-          @if (password?.invalid && password?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (password?.errors?.['required']) {
-                Password is required
-              } @else if (password?.errors?.['minlength']) {
-                Password must be at least 6 characters
+              @if (tenantName?.invalid && tenantName?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (tenantName?.errors?.['required']) {
+                    Display name is required
+                  } @else if (tenantName?.errors?.['minlength']) {
+                    Name must be at least 2 characters
+                  }
+                </p>
               }
-            </p>
-          }
-
-          <div class="flex gap-2 mt-2">
-
-            <!-- LINE 1 -->
-            <div class="h-[2px] w-full rounded-full transition-all duration-300"
-              [ngClass]="{
-                'bg-red-500': strengthLevel === 1,
-                'bg-yellow-400': strengthLevel === 2,
-                'bg-green-500': strengthLevel === 3,
-                'bg-gray-300': strengthLevel === 0
-              }">
             </div>
-          
-            <!-- LINE 2 -->
-            <div class="h-[2px] w-full rounded-full transition-all duration-300"
-              [ngClass]="{
-                'bg-yellow-400': strengthLevel === 2,
-                'bg-green-500': strengthLevel === 3,
-                'bg-gray-300': strengthLevel !== 2 && strengthLevel !== 3
-              }">
+
+            <!-- Tenant Type -->
+            <div>
+              <label class="block text-sm font-medium text-[#1A1A1A] mb-2"> Account Type </label>
+              <div class="grid grid-cols-2 gap-3">
+                <label
+                  class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
+                  [class.border-[#4C6FFF]]="tenantType?.value === 'Individual'"
+                  [class.bg-[#BFC9FF]/30]="tenantType?.value === 'Individual'"
+                  [class.border-[#D9E1FF]]="tenantType?.value !== 'Individual'"
+                >
+                  <input
+                    type="radio"
+                    class="hidden"
+                    value="Individual"
+                    formControlName="tenantType"
+                    checked
+                  />
+                  <span class="text-sm font-semibold text-[#1A1A1A]">Individual</span>
+                  <span class="text-xs text-[#222222]/70"
+                    >For solo creators managing their own channels.</span
+                  >
+                </label>
+
+                <!-- Agency -->
+                <label
+                  class="flex flex-col items-start gap-2 px-4 py-3 rounded-lg border transition cursor-pointer"
+                  [class.border-[#4C6FFF]]="tenantType?.value === 'Agency'"
+                  [class.bg-[#BFC9FF]/30]="tenantType?.value === 'Agency'"
+                  [class.border-[#D9E1FF]]="tenantType?.value !== 'Agency'"
+                >
+                  <input type="radio" class="hidden" value="Agency" formControlName="tenantType" />
+                  <span class="text-sm font-semibold text-[#1A1A1A]">Agency</span>
+                  <span class="text-xs text-[#222222]/70"
+                    >For marketing teams managing multiple clients.</span
+                  >
+                </label>
+              </div>
             </div>
-          
-            <!-- LINE 3 -->
-            <div class="h-[2px] w-full rounded-full transition-all duration-300"
-              [ngClass]="{
-                'bg-green-500': strengthLevel === 3,
-                'bg-gray-300': strengthLevel !== 3
-              }">
-            </div>
-          
-          </div>
-          
 
-          <!-- Strength Text -->
-          <p class="text-xs mt-1"
-            [ngClass]="{
-              'text-red-500': strengthLevel === 1,
-              'text-yellow-500': strengthLevel === 2,
-              'text-green-600': strengthLevel === 3
-            }">
-            @if (strengthLevel === 1) { Weak Password }
-            @if (strengthLevel === 2) { Medium Password }
-            @if (strengthLevel === 3) { Strong Password }
-          </p>
-        </div>
+            <!-- Password -->
+            <div>
+              <label for="password" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                Password
+              </label>
 
+              <input
+                type="password"
+                formControlName="password"
+                (input)="checkStrength()"
+                class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                placeholder="At least 6 characters"
+                [class.border-red-500]="password?.invalid && password?.touched"
+              />
 
-        <!-- Confirm Password -->
-        <div>
-          <label for="confirmPassword" class="block text-sm font-medium text-[#1A1A1A] mb-2">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            formControlName="confirmPassword"
-            class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
-            placeholder="Re-enter your password"
-            [class.border-red-500]="(confirmPassword?.invalid || passwordMismatch) && confirmPassword?.touched"
-          />
-          @if (confirmPassword?.invalid && confirmPassword?.touched) {
-            <p class="mt-1 text-sm text-red-600">
-              @if (confirmPassword?.errors?.['required']) {
-                Please confirm your password
+              <!-- Angular Errors -->
+              @if (password?.invalid && password?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (password?.errors?.['required']) {
+                    Password is required
+                  } @else if (password?.errors?.['minlength']) {
+                    Password must be at least 6 characters
+                  }
+                </p>
               }
-            </p>
-          }
-          @if (passwordMismatch) {
-            <p class="mt-1 text-sm text-red-600">
-              Passwords do not match
-            </p>
-          }
-        </div>
 
-        <!-- Terms -->
-        <div class="flex items-start">
-          <input
-            id="acceptTerms"
-            type="checkbox"
-            formControlName="acceptTerms"
-            class="mt-1 h-4 w-4 text-[#4C6FFF] focus:ring-[#4C6FFF] border-[#D9E1FF] rounded bg-[#F5F7FF]"
-          />
-          <label for="acceptTerms" class="ml-2 block text-sm text-[#222222]">
-            I agree to the
-            <a href="#" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors">Terms of Service</a>
-            and
-            <a routerLink="/privacy-policy" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors">Privacy Policy</a>
-          </label>
-        </div>
-        @if (acceptTerms?.invalid && acceptTerms?.touched) {
-          <p class="text-sm text-red-600">You must accept the terms and conditions</p>
-        }
+              <div class="flex gap-2 mt-2">
+                <!-- LINE 1 -->
+                <div
+                  class="h-[2px] w-full rounded-full transition-all duration-300"
+                  [ngClass]="{
+                    'bg-red-500': strengthLevel === 1,
+                    'bg-yellow-400': strengthLevel === 2,
+                    'bg-green-500': strengthLevel === 3,
+                    'bg-gray-300': strengthLevel === 0,
+                  }"
+                ></div>
 
-        <!-- Submit Button -->
-        <button
-          type="submit"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white font-semibold py-3 rounded-lg transition
-                 shadow-[0_0_25px_rgba(76,111,255,0.4)]"
-          [disabled]="loading() || registerForm.invalid"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
-        >
-          @if (loading()) {
-            Creating account...
-          } @else {
-            Create Account
-          }
-        </button>
+                <!-- LINE 2 -->
+                <div
+                  class="h-[2px] w-full rounded-full transition-all duration-300"
+                  [ngClass]="{
+                    'bg-yellow-400': strengthLevel === 2,
+                    'bg-green-500': strengthLevel === 3,
+                    'bg-gray-300': strengthLevel !== 2 && strengthLevel !== 3,
+                  }"
+                ></div>
 
+                <!-- LINE 3 -->
+                <div
+                  class="h-[2px] w-full rounded-full transition-all duration-300"
+                  [ngClass]="{
+                    'bg-green-500': strengthLevel === 3,
+                    'bg-gray-300': strengthLevel !== 3,
+                  }"
+                ></div>
+              </div>
+
+              <!-- Strength Text -->
+              <p
+                class="text-xs mt-1"
+                [ngClass]="{
+                  'text-red-500': strengthLevel === 1,
+                  'text-yellow-500': strengthLevel === 2,
+                  'text-green-600': strengthLevel === 3,
+                }"
+              >
+                @if (strengthLevel === 1) {
+                  Weak Password
+                }
+                @if (strengthLevel === 2) {
+                  Medium Password
+                }
+                @if (strengthLevel === 3) {
+                  Strong Password
+                }
+              </p>
+            </div>
+
+            <!-- Confirm Password -->
+            <div>
+              <label for="confirmPassword" class="block text-sm font-medium text-[#1A1A1A] mb-2">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                formControlName="confirmPassword"
+                class="w-full px-4 py-3 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg text-[#1A1A1A] placeholder-[#666] focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-[#4C6FFF] transition"
+                placeholder="Re-enter your password"
+                [class.border-red-500]="
+                  (confirmPassword?.invalid || passwordMismatch) && confirmPassword?.touched
+                "
+              />
+              @if (confirmPassword?.invalid && confirmPassword?.touched) {
+                <p class="mt-1 text-sm text-red-600">
+                  @if (confirmPassword?.errors?.['required']) {
+                    Please confirm your password
+                  }
+                </p>
+              }
+              @if (passwordMismatch) {
+                <p class="mt-1 text-sm text-red-600">Passwords do not match</p>
+              }
+            </div>
+
+            <!-- Terms -->
+            <div class="flex items-start">
+              <input
+                id="acceptTerms"
+                type="checkbox"
+                formControlName="acceptTerms"
+                class="mt-1 h-4 w-4 text-[#4C6FFF] focus:ring-[#4C6FFF] border-[#D9E1FF] rounded bg-[#F5F7FF]"
+              />
+              <label for="acceptTerms" class="ml-2 block text-sm text-[#222222]">
+                I agree to the
+                <a
+                  href="#"
+                  class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors"
+                  >Terms of Service</a
+                >
+                and
+                <a
+                  routerLink="/privacy-policy"
+                  class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors"
+                  >Privacy Policy</a
+                >
+              </label>
+            </div>
+            @if (acceptTerms?.invalid && acceptTerms?.touched) {
+              <p class="text-sm text-red-600">You must accept the terms and conditions</p>
+            }
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="w-full bg-[#4C6FFF] hover:bg-[#3B5BFF] text-white font-semibold py-3 rounded-lg transition shadow-[0_0_25px_rgba(76,111,255,0.4)]"
+              [disabled]="loading() || registerForm.invalid"
+              class="w-full bg-[#4C6FFF] hover:bg-[#3755FF] text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center hover:shadow-[0_10px_30px_rgba(76,111,255,0.4)] hover:scale-[1.02]"
+            >
+              @if (loading()) {
+                Creating account...
+              } @else {
+                Create Account
+              }
+            </button>
           </form>
 
           <div class="mt-6 text-center">
             <p class="text-sm text-[#222]">
               Already have an account?
-              <a routerLink="/auth/login" class="text-[#4C6FFF] hover:underline">
-                Sign in
-              </a>
+              <a routerLink="/auth/login" class="text-[#4C6FFF] hover:underline"> Sign in </a>
             </p>
           </div>
-
         </div>
 
         <div class="mt-6 text-center">
           <a routerLink="/" class="text-[#222] hover:text-[#4C6FFF] text-sm">← Back to Home</a>
         </div>
-
       </div>
     </div>
-
   </div>
 </div>
 
 <!-- ========== IMAGE ROLL STYLE ========== -->
 <style>
-  
-/* Ultra-Premium Cinematic Depth Slide */
-.cinemaSlide {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  /* Ultra-Premium Cinematic Depth Slide */
+  .cinemaSlide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 
-  opacity: 0;
-  transform: translateZ(-80px) scale(1.15) rotateY(10deg);
-  filter: blur(8px);
-
-  animation: cinemaSwitch 6s infinite ease-in-out;
-}
-
-/* Slide order */
-.cinemaSlide:nth-child(1) { animation-delay: 0s; }
-.cinemaSlide:nth-child(2) { animation-delay: 3s; }
-
-/* 🎬 CINEMATIC KEYFRAMES (3 seconds per slide) */
-@keyframes cinemaSwitch {
-
-  /* Starting hidden with depth */
-  0% {
     opacity: 0;
     transform: translateZ(-80px) scale(1.15) rotateY(10deg);
     filter: blur(8px);
+
+    animation: cinemaSwitch 6s infinite ease-in-out;
   }
 
-  /* Smooth cinematic reveal */
-  12% {
-    opacity: 1;
-    transform: translateZ(0px) scale(1) rotateY(0deg);
-    filter: blur(1px);
+  /* Slide order */
+  .cinemaSlide:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .cinemaSlide:nth-child(2) {
+    animation-delay: 3s;
   }
 
-  /* Hold clean */
-  45% {
-    opacity: 1;
-    transform: translateZ(0px) scale(1) rotateY(0deg);
-    filter: blur(0px);
-  }
+  /* 🎬 CINEMATIC KEYFRAMES (3 seconds per slide) */
+  @keyframes cinemaSwitch {
+    /* Starting hidden with depth */
+    0% {
+      opacity: 0;
+      transform: translateZ(-80px) scale(1.15) rotateY(10deg);
+      filter: blur(8px);
+    }
 
-  /* Cinematic exit */
-  60% {
-    opacity: 0;
-    transform: translateZ(-60px) scale(1.10) rotateY(-8deg);
-    filter: blur(6px);
-  }
+    /* Smooth cinematic reveal */
+    12% {
+      opacity: 1;
+      transform: translateZ(0px) scale(1) rotateY(0deg);
+      filter: blur(1px);
+    }
 
-  /* Repeat hidden */
-  100% {
-    opacity: 0;
-    transform: translateZ(-60px) scale(1.10) rotateY(-8deg);
-    filter: blur(6px);
-  }
-}
+    /* Hold clean */
+    45% {
+      opacity: 1;
+      transform: translateZ(0px) scale(1) rotateY(0deg);
+      filter: blur(0px);
+    }
 
+    /* Cinematic exit */
+    60% {
+      opacity: 0;
+      transform: translateZ(-60px) scale(1.1) rotateY(-8deg);
+      filter: blur(6px);
+    }
+
+    /* Repeat hidden */
+    100% {
+      opacity: 0;
+      transform: translateZ(-60px) scale(1.1) rotateY(-8deg);
+      filter: blur(6px);
+    }
+  }
 </style>

@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] p-6">
-
   <!-- Header -->
   <div class="mb-6">
     <a
@@ -15,121 +14,100 @@
       Connected Accounts
     </h1>
 
-    <p class="text-gray-600 text-sm">
-      Manage your authenticated profiles across every platform.
-    </p>
+    <p class="text-gray-600 text-sm">Manage your authenticated profiles across every platform.</p>
   </div>
 
   <!-- Connected Accounts -->
-  <ng-container *ngIf="accounts$ | async as accounts; else emptyState">
-
+  @if (accounts$ | async; as accounts) {
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-      <div
-        *ngFor="let account of accounts"
-        class="bg-[#F5F7FF] p-6 rounded-xl shadow-md border border-[#D9E1FF]
-               hover:border-[#4C6FFF]/40 transition-all duration-300 space-y-4"
-      >
-        
-        <!-- Top row -->
-        <div class="flex items-start justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl" [style.color]="platformColor(account.platform)">
-              <i [class]="iconFor(account.platform)"></i>
-            </span>
-            <div>
-              <p class="font-semibold text-[#1A1A1A] leading-tight">
-                {{ account.accountName }}
-              </p>
-              <p class="text-xs text-gray-500">
-                {{ platformName(account.platform) }} • {{ account.accountType | titlecase }}
-              </p>
+      @for (account of accounts; track account.accountId) {
+        <div
+          class="bg-[#F5F7FF] p-6 rounded-xl shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 space-y-4"
+        >
+          <!-- Top row -->
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl" [style.color]="platformColor(account.platform)">
+                <i [class]="iconFor(account.platform)"></i>
+              </span>
+              <div>
+                <p class="font-semibold text-[#1A1A1A] leading-tight">
+                  {{ account.accountName }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ platformName(account.platform) }} • {{ account.accountType | titlecase }}
+                </p>
+              </div>
             </div>
+
+            <!-- Status Pill -->
+            <span
+              class="text-xs px-3 py-1 rounded-full border"
+              [ngClass]="{
+                'border-green-500 text-green-600 bg-green-100': account.status === 'connected',
+                'border-amber-500 text-amber-600 bg-amber-100': account.status === 'reconnecting',
+                'border-red-500 text-red-600 bg-red-100': account.status === 'error',
+              }"
+            >
+              {{ account.status | titlecase }}
+            </span>
           </div>
 
-          <!-- Status Pill -->
-          <span
-            class="text-xs px-3 py-1 rounded-full border"
-            [ngClass]="{
-              'border-green-500 text-green-600 bg-green-100': account.status === 'connected',
-              'border-amber-500 text-amber-600 bg-amber-100': account.status === 'reconnecting',
-              'border-red-500 text-red-600 bg-red-100': account.status === 'error'
-            }"
-          >
-            {{ account.status | titlecase }}
-          </span>
+          <!-- Meta info -->
+          <div class="flex items-center justify-between text-xs text-gray-600">
+            <span>Connected: {{ account.connectedAt | date: 'mediumDate' }}</span>
+            <span>ID: {{ account.accountId }}</span>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="flex-1 bg-[#4C6FFF] text-white px-4 py-2 rounded-lg hover:bg-[#3A56CC] transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg"
+              (click)="reconnect(account)"
+            >
+              Reconnect
+            </button>
+
+            <button
+              type="button"
+              class="bg-white text-[#1A1A1A] border border-[#D9E1FF] px-4 py-2 rounded-lg hover:border-[#4C6FFF] transition-all text-sm font-semibold"
+              (click)="goToSettings(account)"
+            >
+              Settings
+            </button>
+
+            <button
+              type="button"
+              class="bg-red-100 text-red-600 border border-red-300 px-4 py-2 rounded-lg hover:bg-red-200 transition-all duration-200 text-sm font-semibold"
+              (click)="disconnect(account)"
+            >
+              Disconnect
+            </button>
+          </div>
         </div>
-
-        <!-- Meta info -->
-        <div class="flex items-center justify-between text-xs text-gray-600">
-          <span>Connected: {{ account.connectedAt | date: 'mediumDate' }}</span>
-          <span>ID: {{ account.accountId }}</span>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center gap-2">
-
-          <button
-            type="button"
-            class="flex-1 bg-[#4C6FFF] text-white px-4 py-2 rounded-lg
-                   hover:bg-[#3A56CC] transition-all duration-200 text-sm font-semibold
-                   shadow-md hover:shadow-lg"
-            (click)="reconnect(account)"
-          >
-            Reconnect
-          </button>
-
-          <button
-            type="button"
-            class="bg-white text-[#1A1A1A] border border-[#D9E1FF]
-                   px-4 py-2 rounded-lg hover:border-[#4C6FFF] transition-all
-                   text-sm font-semibold"
-            (click)="goToSettings(account)"
-          >
-            Settings
-          </button>
-
-          <button
-            type="button"
-            class="bg-red-100 text-red-600 border border-red-300
-                   px-4 py-2 rounded-lg hover:bg-red-200 transition-all duration-200
-                   text-sm font-semibold"
-            (click)="disconnect(account)"
-          >
-            Disconnect
-          </button>
-
-        </div>
-      </div>
+      }
     </div>
-
-  </ng-container>
-
-  <!-- Empty State -->
-  <ng-template #emptyState>
+  } @else {
     <div
-      class="bg-[#F5F7FF] border border-dashed border-[#D9E1FF]
-             rounded-xl p-10 text-center max-w-3xl mx-auto"
+      class="bg-[#F5F7FF] border border-dashed border-[#D9E1FF] rounded-xl p-10 text-center max-w-3xl mx-auto"
     >
       <i class="fa-solid fa-plug-circle-xmark text-4xl text-gray-400 mb-4"></i>
 
-      <h3 class="text-xl font-semibold text-[#1A1A1A] mb-2">
-        No Accounts Connected Yet
-      </h3>
+      <h3 class="text-xl font-semibold text-[#1A1A1A] mb-2">No Accounts Connected Yet</h3>
 
       <p class="text-gray-600 text-sm max-w-xl mx-auto mb-6">
-        Connect your first social account to start scheduling posts, collaborating
-        with your team, and tracking performance in Onevo.
+        Connect your first social account to start scheduling posts, collaborating with your team,
+        and tracking performance in Onevo.
       </p>
 
       <a
         routerLink="/dashboard/social-account"
-        class="inline-flex items-center gap-2 px-5 py-3 bg-[#4C6FFF] text-white
-               rounded-xl font-semibold hover:bg-[#3A56CC] transition-all duration-200"
+        class="inline-flex items-center gap-2 px-5 py-3 bg-[#4C6FFF] text-white rounded-xl font-semibold hover:bg-[#3A56CC] transition-all duration-200"
       >
         <i class="fa-solid fa-link"></i>
         Browse Platforms
       </a>
     </div>
-  </ng-template>
-
+  }
 </div>

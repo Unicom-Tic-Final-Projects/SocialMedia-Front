@@ -1,7 +1,5 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] flex items-center justify-center p-6">
-
   <div class="bg-[#F5F7FF] p-8 rounded-xl shadow-md w-full max-w-4xl border border-[#D9E1FF]">
-
     <!-- Header -->
     <div class="mb-6">
       <a
@@ -16,9 +14,7 @@
         <i class="fa-solid fa-link"></i> Connect Account
       </h2>
 
-      <p class="text-gray-600 text-sm">
-        Pick a platform and account type to integrate with Onevo.
-      </p>
+      <p class="text-gray-600 text-sm">Pick a platform and account type to integrate with Onevo.</p>
     </div>
 
     <!-- Platform Grid -->
@@ -26,90 +22,90 @@
       <p class="text-sm font-semibold text-[#1A1A1A] mb-3">Choose Platform</p>
 
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <button
-          *ngFor="let platform of platforms"
-          type="button"
-          (click)="selectPlatform(platform.value)"
-          class="p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2"
-          [class.bg-[#4C6FFF]]="selectedPlatform === platform.value"
-          [class.text-white]="selectedPlatform === platform.value"
-          [class.border-[#4C6FFF]]="selectedPlatform === platform.value"
-
-          [class.bg-white]="selectedPlatform !== platform.value"
-          [class.border-[#D9E1FF]]="selectedPlatform !== platform.value"
-          [class.text-[#1A1A1A]]="selectedPlatform !== platform.value"
-          class="hover:border-[#4C6FFF]"
-        >
-          <span class="text-2xl" [style.color]="selectedPlatform === platform.value ? '#FFFFFF' : platform.color">
-            <i [class]="platform.icon"></i>
-          </span>
-          <span class="text-xs font-medium text-center">{{ platform.name }}</span>
-        </button>
+        @for (platform of platforms; track platform.value) {
+          <button
+            type="button"
+            (click)="selectPlatform(platform.value)"
+            class="p-4 rounded-xl border-2 transition-all duration-200 flex flex-col items-center gap-2"
+            [class.bg-[#4C6FFF]]="selectedPlatform === platform.value"
+            [class.text-white]="selectedPlatform === platform.value"
+            [class.border-[#4C6FFF]]="selectedPlatform === platform.value"
+            [class.bg-white]="selectedPlatform !== platform.value"
+            [class.border-[#D9E1FF]]="selectedPlatform !== platform.value"
+            [class.text-[#1A1A1A]]="selectedPlatform !== platform.value"
+            class="hover:border-[#4C6FFF]"
+          >
+            <span
+              class="text-2xl"
+              [style.color]="selectedPlatform === platform.value ? '#FFFFFF' : platform.color"
+            >
+              <i [class]="platform.icon"></i>
+            </span>
+            <span class="text-xs font-medium text-center">{{ platform.name }}</span>
+          </button>
+        }
       </div>
     </div>
 
     <!-- Account Details -->
-    <div *ngIf="selectedPlatform" class="grid gap-6 md:grid-cols-2">
+    @if (selectedPlatform) {
+      <div class="grid gap-6 md:grid-cols-2">
+        <!-- Account Name -->
+        <div>
+          <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">Account Name</label>
+          <input
+            type="text"
+            [(ngModel)]="accountName"
+            class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#1A1A1A] focus:outline-none focus:border-[#4C6FFF]"
+            placeholder="e.g. Brand Official"
+          />
+          <p class="text-xs text-gray-500 mt-2">
+            This name helps you identify the connected profile inside Onevo.
+          </p>
+        </div>
 
-      <!-- Account Name -->
-      <div>
-        <label class="block text-sm font-semibold text-[#1A1A1A] mb-2">Account Name</label>
-        <input
-          type="text"
-          [(ngModel)]="accountName"
-          class="w-full bg-white border border-[#D9E1FF] rounded-lg px-4 py-3 text-[#1A1A1A] 
-                 focus:outline-none focus:border-[#4C6FFF]"
-          placeholder="e.g. Brand Official"
-        />
-        <p class="text-xs text-gray-500 mt-2">
-          This name helps you identify the connected profile inside Onevo.
-        </p>
-      </div>
+        <!-- Account Type -->
+        <div>
+          <label class="block text-sm font-semibold text-[#1A1A1A] mb-3">Account Type</label>
+          <div class="space-y-2">
+            <label
+              class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#D9E1FF] cursor-pointer hover:border-[#4C6FFF]/50 transition-colors"
+            >
+              <input type="radio" name="accountType" value="business" [(ngModel)]="accountType" />
+              <span class="text-sm text-[#1A1A1A]">Business Page</span>
+            </label>
 
-      <!-- Account Type -->
-      <div>
-        <label class="block text-sm font-semibold text-[#1A1A1A] mb-3">Account Type</label>
-        <div class="space-y-2">
+            <label
+              class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#D9E1FF] cursor-pointer hover:border-[#4C6FFF]/50 transition-colors"
+            >
+              <input type="radio" name="accountType" value="personal" [(ngModel)]="accountType" />
+              <span class="text-sm text-[#1A1A1A]">Personal Profile</span>
+            </label>
 
-          <label class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#D9E1FF] cursor-pointer hover:border-[#4C6FFF]/50 transition-colors">
-            <input type="radio" name="accountType" value="business" [(ngModel)]="accountType" />
-            <span class="text-sm text-[#1A1A1A]">Business Page</span>
-          </label>
-
-          <label class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#D9E1FF] cursor-pointer hover:border-[#4C6FFF]/50 transition-colors">
-            <input type="radio" name="accountType" value="personal" [(ngModel)]="accountType" />
-            <span class="text-sm text-[#1A1A1A]">Personal Profile</span>
-          </label>
-
-          <label class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#D9E1FF] cursor-pointer hover:border-[#4C6FFF]/50 transition-colors">
-            <input type="radio" name="accountType" value="creator" [(ngModel)]="accountType" />
-            <span class="text-sm text-[#1A1A1A]">Creator Account</span>
-          </label>
-
+            <label
+              class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[#D9E1FF] cursor-pointer hover:border-[#4C6FFF]/50 transition-colors"
+            >
+              <input type="radio" name="accountType" value="creator" [(ngModel)]="accountType" />
+              <span class="text-sm text-[#1A1A1A]">Creator Account</span>
+            </label>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Footer + CTA -->
+    }
     <div class="mt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
       <p class="text-xs text-gray-500 flex-1">
-        You will be redirected to the platform’s authentication screen to finish the connection.
-        You can manage the account anytime from Connected Accounts.
+        You will be redirected to the platform’s authentication screen to finish the connection. You
+        can manage the account anytime from Connected Accounts.
       </p>
 
       <button
         type="button"
         (click)="connectAccount()"
         [disabled]="!selectedPlatform || !accountName.trim() || isSubmitting"
-        class="px-6 py-3 rounded-xl bg-[#4C6FFF] text-white font-semibold
-               hover:bg-[#3A56CC] transition-all duration-200 shadow-md
-               disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-6 py-3 rounded-xl bg-[#4C6FFF] text-white font-semibold hover:bg-[#3A56CC] transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {{ isSubmitting ? 'Connecting...' : 'Connect Account' }}
       </button>
-
     </div>
-
   </div>
 </div>

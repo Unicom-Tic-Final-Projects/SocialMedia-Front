@@ -4,48 +4,56 @@
   <!-- Tabs -->
   <div class="flex flex-wrap gap-2 mb-6">
     <button
+      type="button"
       (click)="setActiveTab('captions')"
       [class.bg-[#4C6FFF]]="activeTab() === 'captions'"
       [class.text-white]="activeTab() === 'captions'"
       [class.text-[#1A1A1A]]="activeTab() !== 'captions'"
-      class="px-4 py-2 rounded-lg font-medium transition text-sm">
+      class="px-4 py-2 rounded-lg font-medium transition text-sm"
+    >
       Captions
     </button>
     <button
+      type="button"
       (click)="setActiveTab('content-plan')"
       [class.bg-[#4C6FFF]]="activeTab() === 'content-plan'"
       [class.text-white]="activeTab() === 'content-plan'"
       [class.text-[#1A1A1A]]="activeTab() !== 'content-plan'"
-      class="px-4 py-2 rounded-lg font-medium transition text-sm">
+      class="px-4 py-2 rounded-lg font-medium transition text-sm"
+    >
       Content Plan
     </button>
     <button
-      (click)="setActiveTab('best-time')"
-      (click)="loadBestTimeToPost()"
+      type="button"
+      (click)="setActiveTab('best-time'); loadBestTimeToPost()"
       [class.bg-[#4C6FFF]]="activeTab() === 'best-time'"
       [class.text-white]="activeTab() === 'best-time'"
       [class.text-[#1A1A1A]]="activeTab() !== 'best-time'"
-      class="px-4 py-2 rounded-lg font-medium transition text-sm">
+      class="px-4 py-2 rounded-lg font-medium transition text-sm"
+    >
       Best Time to Post
     </button>
     <button
+      type="button"
       (click)="setActiveTab('image')"
       [class.bg-[#4C6FFF]]="activeTab() === 'image'"
       [class.text-white]="activeTab() === 'image'"
       [class.text-[#1A1A1A]]="activeTab() !== 'image'"
-      class="px-4 py-2 rounded-lg font-medium transition text-sm">
+      class="px-4 py-2 rounded-lg font-medium transition text-sm"
+    >
       Generate Image
     </button>
     <button
+      type="button"
       (click)="setActiveTab('image-editor')"
       [class.bg-[#4C6FFF]]="activeTab() === 'image-editor'"
       [class.text-white]="activeTab() === 'image-editor'"
       [class.text-[#1A1A1A]]="activeTab() !== 'image-editor'"
-      class="px-4 py-2 rounded-lg font-medium transition text-sm">
+      class="px-4 py-2 rounded-lg font-medium transition text-sm"
+    >
       Image Editor
     </button>
   </div>
-
 
   <!-- Caption Generation -->
   @if (activeTab() === 'captions') {
@@ -59,7 +67,9 @@
               placeholder=" "
               class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
             />
-            <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+            <label
+              class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+            >
               Topic <span class="text-red-500">*</span>
             </label>
           </div>
@@ -72,7 +82,9 @@
               placeholder=" "
               class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white resize-none"
             ></textarea>
-            <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+            <label
+              class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+            >
               Context <span class="text-gray-400">(Optional)</span>
             </label>
           </div>
@@ -88,7 +100,9 @@
                 placeholder=" "
                 class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
               />
-              <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              <label
+                class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+              >
                 Number of Captions
               </label>
             </div>
@@ -103,7 +117,9 @@
                 placeholder=" "
                 class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
               />
-              <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+              <label
+                class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+              >
                 Hashtags Count
               </label>
             </div>
@@ -112,7 +128,8 @@
         <button
           type="submit"
           [disabled]="loading() || captionForm.invalid"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50">
+          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50"
+        >
           @if (loading()) {
             <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
             Generating...
@@ -132,13 +149,17 @@
               @if (item.hashtags && item.hashtags.length > 0) {
                 <div class="flex flex-wrap gap-2 mb-3">
                   @for (tag of item.hashtags; track tag) {
-                    <span class="px-2 py-1 bg-[#E8EDFF] text-[#4C6FFF] rounded text-xs">#{{ tag }}</span>
+                    <span class="px-2 py-1 bg-[#E8EDFF] text-[#4C6FFF] rounded text-xs"
+                      >#{{ tag }}</span
+                    >
                   }
                 </div>
               }
               <button
+                type="button"
                 (click)="useCaption(item.caption, item.hashtags || [])"
-                class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg text-sm transition">
+                class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg text-sm transition"
+              >
                 Use This Caption
               </button>
             </div>
@@ -162,7 +183,9 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">Business Context (Optional)</label>
+          <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]"
+            >Business Context (Optional)</label
+          >
           <textarea
             formControlName="businessContext"
             rows="4"
@@ -195,7 +218,8 @@
         <button
           type="submit"
           [disabled]="loading() || contentPlanForm.invalid"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50">
+          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50"
+        >
           @if (loading()) {
             <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
             Generating...
@@ -211,7 +235,9 @@
           <h3 class="font-semibold text-[#1A1A1A]">Content Plan</h3>
           @for (weeklyPlan of contentPlan()!.weeklyPlans; track weeklyPlan.weekNumber) {
             <div class="mb-6">
-              <h4 class="text-md font-semibold text-[#1A1A1A] mb-3">Week {{ weeklyPlan.weekNumber }}</h4>
+              <h4 class="text-md font-semibold text-[#1A1A1A] mb-3">
+                Week {{ weeklyPlan.weekNumber }}
+              </h4>
               @for (item of weeklyPlan.posts; track $index) {
                 <div class="bg-white rounded-lg border border-[#D9E1FF] p-4 mb-3">
                   <div class="flex items-center justify-between mb-2">
@@ -220,17 +246,28 @@
                       <span class="text-xs text-gray-600">{{ item.suggestedDay }}</span>
                     }
                   </div>
-                  <p class="text-sm text-[#1A1A1A] mb-3">{{ item.suggestedCaption || item.description }}</p>
+                  <p class="text-sm text-[#1A1A1A] mb-3">
+                    {{ item.suggestedCaption || item.description }}
+                  </p>
                   @if (item.suggestedHashtags && item.suggestedHashtags.length > 0) {
                     <div class="flex flex-wrap gap-2 mb-3">
                       @for (tag of item.suggestedHashtags; track tag) {
-                        <span class="px-2 py-1 bg-[#E8EDFF] text-[#4C6FFF] rounded text-xs">#{{ tag }}</span>
+                        <span class="px-2 py-1 bg-[#E8EDFF] text-[#4C6FFF] rounded text-xs"
+                          >#{{ tag }}</span
+                        >
                       }
                     </div>
                   }
                   <button
-                    (click)="useCaption(item.suggestedCaption || item.description, item.suggestedHashtags || [])"
-                    class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg text-sm transition">
+                    type="button"
+                    (click)="
+                      useCaption(
+                        item.suggestedCaption || item.description,
+                        item.suggestedHashtags || []
+                      )
+                    "
+                    class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg text-sm transition"
+                  >
                     Use This
                   </button>
                 </div>
@@ -294,7 +331,8 @@
             <label class="block text-sm font-semibold mb-2 text-[#1A1A1A]">Aspect Ratio</label>
             <select
               formControlName="aspectRatio"
-              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm">
+              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
+            >
               <option value="1:1">1:1 (Square)</option>
               <option value="16:9">16:9 (Widescreen)</option>
               <option value="9:16">9:16 (Story)</option>
@@ -314,7 +352,8 @@
         <button
           type="submit"
           [disabled]="loading() || imageForm.invalid"
-          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50">
+          class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50"
+        >
           @if (loading()) {
             <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
             Generating...
@@ -330,13 +369,23 @@
           <h3 class="font-semibold text-[#1A1A1A] mb-4">Generated Image</h3>
           <div class="bg-white rounded-lg border border-[#D9E1FF] p-4">
             @if (generatedImage()!.imageUrl) {
-              <img [src]="generatedImage()!.imageUrl" alt="Generated" class="w-full rounded-lg mb-4" />
+              <img
+                [src]="generatedImage()!.imageUrl"
+                alt="Generated"
+                class="w-full rounded-lg mb-4"
+              />
             } @else if (generatedImage()!.imageBase64) {
-              <img [src]="'data:image/png;base64,' + generatedImage()!.imageBase64" alt="Generated" class="w-full rounded-lg mb-4" />
+              <img
+                [src]="'data:image/png;base64,' + generatedImage()!.imageBase64"
+                alt="Generated"
+                class="w-full rounded-lg mb-4"
+              />
             }
             <button
+              type="button"
               (click)="useGeneratedImage()"
-              class="w-full px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg text-sm transition">
+              class="w-full px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg text-sm transition"
+            >
               Use This Image
             </button>
           </div>
@@ -350,4 +399,3 @@
     <app-ai-image-editor></app-ai-image-editor>
   }
 </div>
-

@@ -1,4 +1,14 @@
-import { Component, Input, OnInit, AfterViewInit, OnDestroy, ElementRef, ViewChild, NgZone } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  NgZone,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
@@ -32,11 +42,8 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
   activeIndex: number = 0;
   private resizeObserver?: ResizeObserver;
   private scrollUpdateTimeout?: number;
-
-  constructor(
-    private router: Router,
-    private ngZone: NgZone
-  ) {}
+  private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   ngOnInit() {
     this.activeIndex = this.initialActiveIndex;
@@ -47,12 +54,14 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
       setTimeout(() => {
         // Set initial active state
         if (this.navRef?.nativeElement) {
-          const activeLi = this.navRef.nativeElement.querySelectorAll('li')[this.activeIndex] as HTMLElement;
+          const activeLi = this.navRef.nativeElement.querySelectorAll('li')[
+            this.activeIndex
+          ] as HTMLElement;
           if (activeLi) {
             activeLi.classList.add('active');
           }
         }
-        
+
         this.updateEffectPosition();
         if (this.textRef?.nativeElement) {
           this.textRef.nativeElement.classList.add('active');
@@ -88,14 +97,14 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private createParticle(i: number, t: number, d: [number, number], r: number) {
-    let rotate = this.noise(r / 10);
+    const rotate = this.noise(r / 10);
     return {
       start: this.getXY(d[0], this.particleCount - i, this.particleCount),
       end: this.getXY(d[1] + this.noise(7), this.particleCount - i, this.particleCount),
       time: t,
       scale: 1 + this.noise(0.2),
       color: this.colors[Math.floor(Math.random() * this.colors.length)],
-      rotate: rotate > 0 ? (rotate + r / 20) * 10 : (rotate - r / 20) * 10
+      rotate: rotate > 0 ? (rotate + r / 20) * 10 : (rotate - r / 20) * 10,
     };
   }
 
@@ -104,12 +113,12 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
     const r = this.particleR;
     const bubbleTime = this.animationTime * 2 + this.timeVariance;
     element.style.setProperty('--time', `${bubbleTime}ms`);
-    
+
     for (let i = 0; i < this.particleCount; i++) {
       const t = this.animationTime * 2 + this.noise(this.timeVariance * 2);
       const p = this.createParticle(i, t, d, r);
       element.classList.remove('active');
-      
+
       setTimeout(() => {
         const particle = document.createElement('span');
         const point = document.createElement('span');
@@ -125,27 +134,36 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
         point.classList.add('point');
         particle.appendChild(point);
         element.appendChild(particle);
-        
+
         requestAnimationFrame(() => {
           element.classList.add('active');
         });
-        
+
         setTimeout(() => {
           try {
             element.removeChild(particle);
-          } catch {}
+          } catch {
+            // Ignore errors when removing particles
+          }
         }, t);
       }, 30);
     }
   }
 
   private updateEffectPosition(): void {
-    if (!this.containerRef?.nativeElement || !this.filterRef?.nativeElement || !this.textRef?.nativeElement) return;
+    if (
+      !this.containerRef?.nativeElement ||
+      !this.filterRef?.nativeElement ||
+      !this.textRef?.nativeElement
+    )
+      return;
     if (!this.navRef?.nativeElement) return;
 
     const containerRect = this.containerRef.nativeElement.getBoundingClientRect();
-    const activeLi = this.navRef.nativeElement.querySelectorAll('li')[this.activeIndex] as HTMLElement;
-    
+    const activeLi = this.navRef.nativeElement.querySelectorAll('li')[
+      this.activeIndex
+    ] as HTMLElement;
+
     if (!activeLi) return;
 
     const pos = activeLi.getBoundingClientRect();
@@ -153,9 +171,9 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
       left: `${pos.x - containerRect.x}px`,
       top: `${pos.y - containerRect.y}px`,
       width: `${pos.width}px`,
-      height: `${pos.height}px`
+      height: `${pos.height}px`,
     };
-    
+
     Object.assign(this.filterRef.nativeElement.style, styles);
     Object.assign(this.textRef.nativeElement.style, styles);
     this.textRef.nativeElement.innerText = activeLi.innerText;
@@ -164,27 +182,29 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
   handleClick(event: Event, index: number): void {
     event.preventDefault();
     const anchorEl = event.currentTarget as HTMLElement; // This is the anchor element, matching React's e.currentTarget
-    
+
     if (this.activeIndex === index) return;
-    
+
     this.activeIndex = index;
     this.updateEffectPositionFromElement(anchorEl);
-    
+
     if (this.filterRef?.nativeElement) {
       const particles = this.filterRef.nativeElement.querySelectorAll('.particle');
-      particles.forEach(p => {
+      particles.forEach((p) => {
         try {
           this.filterRef.nativeElement.removeChild(p);
-        } catch {}
+        } catch {
+          // Ignore errors when removing particles
+        }
       });
     }
-    
+
     if (this.textRef?.nativeElement) {
       this.textRef.nativeElement.classList.remove('active');
       void this.textRef.nativeElement.offsetWidth;
       this.textRef.nativeElement.classList.add('active');
     }
-    
+
     if (this.filterRef?.nativeElement) {
       this.makeParticles(this.filterRef.nativeElement);
     }
@@ -212,7 +232,12 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private updateEffectPositionFromElement(element: HTMLElement): void {
-    if (!this.containerRef?.nativeElement || !this.filterRef?.nativeElement || !this.textRef?.nativeElement) return;
+    if (
+      !this.containerRef?.nativeElement ||
+      !this.filterRef?.nativeElement ||
+      !this.textRef?.nativeElement
+    )
+      return;
 
     const containerRect = this.containerRef.nativeElement.getBoundingClientRect();
     const pos = element.getBoundingClientRect();
@@ -220,9 +245,9 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
       left: `${pos.x - containerRect.x}px`,
       top: `${pos.y - containerRect.y}px`,
       width: `${pos.width}px`,
-      height: `${pos.height}px`
+      height: `${pos.height}px`,
     };
-    
+
     Object.assign(this.filterRef.nativeElement.style, styles);
     Object.assign(this.textRef.nativeElement.style, styles);
     this.textRef.nativeElement.innerText = element.innerText;
@@ -246,14 +271,14 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
   // Method to update active index programmatically (for scroll detection)
   setActiveIndex(index: number, skipAnimation: boolean = false): void {
     if (this.activeIndex === index) return;
-    
+
     this.activeIndex = index;
-    
+
     // Clear any pending scroll updates
     if (this.scrollUpdateTimeout) {
       clearTimeout(this.scrollUpdateTimeout);
     }
-    
+
     // Update active class on nav items
     if (this.navRef?.nativeElement) {
       const allItems = this.navRef.nativeElement.querySelectorAll('li');
@@ -265,27 +290,28 @@ export class GooeyNavComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
     }
-    
+
     // Update effect position
     this.updateEffectPosition();
-    
+
     // Trigger particles if not skipping animation
     if (!skipAnimation && this.filterRef?.nativeElement) {
       const particles = this.filterRef.nativeElement.querySelectorAll('.particle');
-      particles.forEach(p => {
+      particles.forEach((p) => {
         try {
           this.filterRef.nativeElement.removeChild(p);
-        } catch {}
+        } catch {
+          // Ignore errors when removing particles
+        }
       });
-      
+
       if (this.textRef?.nativeElement) {
         this.textRef.nativeElement.classList.remove('active');
         void this.textRef.nativeElement.offsetWidth;
         this.textRef.nativeElement.classList.add('active');
       }
-      
+
       this.makeParticles(this.filterRef.nativeElement);
     }
   }
 }
-

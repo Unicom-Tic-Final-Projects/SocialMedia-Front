@@ -1,7 +1,11 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SocialAccountsService } from '../../../services/client/social-accounts.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../core/services/logging.service';
+import { BaseComponent } from '../../../core/base/base.component';
 
 @Component({
   selector: 'app-auth-success',
@@ -10,10 +14,11 @@ import { SocialAccountsService } from '../../../services/client/social-accounts.
   templateUrl: './auth-success.html',
   styleUrl: './auth-success.css',
 })
-export class AuthSuccess implements OnInit {
+export class AuthSuccess extends BaseComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly socialAccountsService = inject(SocialAccountsService);
+  private readonly loggingService = inject(LoggingService);
 
   success = false;
   error: string | null = null;
@@ -26,7 +31,9 @@ export class AuthSuccess implements OnInit {
     const isPopup = window.opener !== null && !window.opener.closed;
 
     // Check query parameters
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
       this.success = params['success'] === 'true';
       this.error = params['error'] || null;
       this.errorDescription = params['error_description'] || null;
@@ -40,21 +47,24 @@ export class AuthSuccess implements OnInit {
           // Notify parent window that connection was successful
           if (window.opener) {
             // Send message to parent window
-            window.opener.postMessage({
-              type: 'OAUTH_SUCCESS',
-              platform: this.platform,
-              success: true
-            }, window.location.origin);
-            
+            window.opener.postMessage(
+              {
+                type: 'OAUTH_SUCCESS',
+                platform: this.platform,
+                success: true,
+              },
+              window.location.origin,
+            );
+
             // Refresh accounts in parent window
             try {
               // Try to call parent's refresh method if available
               (window.opener as any)?.location?.reload?.();
-            } catch (e) {
-              console.log('Could not reload parent window');
+            } catch {
+              this.loggingService.debug('Could not reload parent window', undefined, 'AuthSuccess');
             }
           }
-          
+
           // Close popup after a short delay
           setTimeout(() => {
             window.close();
@@ -64,11 +74,14 @@ export class AuthSuccess implements OnInit {
           // Or close after showing error
           setTimeout(() => {
             if (window.opener) {
-              window.opener.postMessage({
-                type: 'OAUTH_ERROR',
-                error: this.error,
-                errorDescription: this.errorDescription
-              }, window.location.origin);
+              window.opener.postMessage(
+                {
+                  type: 'OAUTH_ERROR',
+                  error: this.error,
+                  errorDescription: this.errorDescription,
+                },
+                window.location.origin,
+              );
             }
             // Don't auto-close on error, let user see the error message
           }, 2000);
@@ -83,7 +96,7 @@ export class AuthSuccess implements OnInit {
 
       if (isAgencyClientRoute) {
         // Extract clientId from current route
-        const clientMatch = currentUrl.match(/\/agency\/client\/([^\/]+)/);
+        const clientMatch = currentUrl.match(/\/agency\/client\/([^/]+)/);
         if (clientMatch) {
           const clientId = clientMatch[1];
           redirectRoute = ['/agency/client', clientId, 'social-account'];
@@ -99,7 +112,10 @@ export class AuthSuccess implements OnInit {
       // If success, refresh accounts list and redirect immediately with connected parameter
       if (this.success) {
         // Refresh accounts first to ensure they're loaded
-        this.socialAccountsService.refresh().subscribe({
+        this.socialAccountsService
+          .refresh()
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
           next: () => {
             // Auto-redirect to social-account page after 2 seconds (reduced from 3)
             // with connected=true to trigger refresh on social account page
@@ -111,7 +127,7 @@ export class AuthSuccess implements OnInit {
             }, 2000);
           },
           error: (error) => {
-            console.error('Failed to refresh accounts:', error);
+            this.loggingService.error('Failed to refresh accounts', error, 'AuthSuccess');
             // Still redirect even if refresh fails
             setTimeout(() => {
               this.router.navigate(redirectRoute, {
@@ -136,7 +152,7 @@ export class AuthSuccess implements OnInit {
 
     if (isAgencyClientRoute) {
       // Extract clientId from current route
-      const clientMatch = currentUrl.match(/\/agency\/client\/([^\/]+)/);
+      const clientMatch = currentUrl.match(/\/agency\/client\/([^/]+)/);
       if (clientMatch) {
         const clientId = clientMatch[1];
         redirectRoute = ['/agency/client', clientId, 'social-account'];
@@ -155,4 +171,5 @@ export class AuthSuccess implements OnInit {
       replaceUrl: true,
     });
   }
+
 }

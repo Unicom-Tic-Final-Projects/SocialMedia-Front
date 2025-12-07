@@ -1,15 +1,15 @@
 import { Injectable, signal, computed } from '@angular/core';
 
 export interface CookiePreferences {
-  essential: boolean;    // Always true (required)
-  functional: boolean;   // Push notifications, enhanced features
-  analytics: boolean;    // Analytics tracking (not currently used)
-  marketing: boolean;    // Marketing tracking (not currently used)
-  timestamp: string;     // When consent was given
+  essential: boolean; // Always true (required)
+  functional: boolean; // Push notifications, enhanced features
+  analytics: boolean; // Analytics tracking (not currently used)
+  marketing: boolean; // Marketing tracking (not currently used)
+  timestamp: string; // When consent was given
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CookieConsentService {
   private readonly CONSENT_KEY = 'cookieConsent';
@@ -58,7 +58,7 @@ export class CookieConsentService {
       functional: false,
       analytics: false,
       marketing: false,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
     this.savePreferences(preferences);
   }
@@ -72,7 +72,7 @@ export class CookieConsentService {
       functional: true,
       analytics: true,
       marketing: true,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
     this.savePreferences(preferences);
   }
@@ -86,14 +86,14 @@ export class CookieConsentService {
       functional: false,
       analytics: false,
       marketing: false,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     const updated: CookiePreferences = {
       ...current,
       ...preferences,
       essential: true, // Always required
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     this.savePreferences(updated);
@@ -113,10 +113,9 @@ export class CookieConsentService {
   isCategoryAccepted(category: keyof Omit<CookiePreferences, 'timestamp'>): boolean {
     const prefs = this.preferencesSignal();
     if (!prefs) return false;
-    
+
     if (category === 'essential') return true; // Always true
-    
+
     return prefs[category] ?? false;
   }
 }
-

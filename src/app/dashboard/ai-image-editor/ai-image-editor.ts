@@ -4,6 +4,9 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { AIService, EditImageRequest, EditImageResponse } from '../../services/client/ai.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 interface EditHistoryItem {
   id: string;
@@ -19,13 +22,14 @@ interface EditHistoryItem {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './ai-image-editor.html',
-  styleUrl: './ai-image-editor.css'
+  styleUrl: './ai-image-editor.css',
 })
-export class AIImageEditorComponent {
+export class AIImageEditorComponent extends BaseComponent {
   private fb = inject(FormBuilder);
   private aiService = inject(AIService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private readonly loggingService = inject(LoggingService);
 
   // Form
   editForm: FormGroup;
@@ -35,19 +39,34 @@ export class AIImageEditorComponent {
   originalImageBase64 = signal<string | null>(null);
   currentImageUrl = signal<string | null>(null);
   loading = signal(false);
-  
+
   // Edit history
   editHistory = signal<EditHistoryItem[]>([]);
   currentHistoryIndex = signal<number>(-1);
-  
+
   // Presets
   readonly presets = [
     { value: 'instagram-post', label: 'Instagram Post (1:1)', icon: 'fa-instagram', isBrand: true },
-    { value: 'story', label: 'IG/TikTok Story (9:16)', icon: 'fa-mobile-screen-button', isBrand: false },
-    { value: 'twitter-header', label: 'X (Twitter) Header (3:1)', icon: 'fa-x-twitter', isBrand: true },
+    {
+      value: 'story',
+      label: 'IG/TikTok Story (9:16)',
+      icon: 'fa-mobile-screen-button',
+      isBrand: false,
+    },
+    {
+      value: 'twitter-header',
+      label: 'X (Twitter) Header (3:1)',
+      icon: 'fa-x-twitter',
+      isBrand: true,
+    },
     { value: 'facebook-post', label: 'Facebook Post (4:3)', icon: 'fa-facebook', isBrand: true },
-    { value: 'desktop-wallpaper', label: 'Desktop Wallpaper (16:9)', icon: 'fa-desktop', isBrand: false },
-    { value: 'magic-expand', label: 'Magic Expand', icon: 'fa-expand', isBrand: false }
+    {
+      value: 'desktop-wallpaper',
+      label: 'Desktop Wallpaper (16:9)',
+      icon: 'fa-desktop',
+      isBrand: false,
+    },
+    { value: 'magic-expand', label: 'Magic Expand', icon: 'fa-expand', isBrand: false },
   ];
 
   // Quick prompts
@@ -59,17 +78,20 @@ export class AIImageEditorComponent {
     { text: 'make it black and white', icon: 'fa-circle' },
     { text: 'add blur effect', icon: 'fa-droplet' },
     { text: 'increase saturation', icon: 'fa-paintbrush' },
-    { text: 'add vintage filter', icon: 'fa-camera' }
+    { text: 'add vintage filter', icon: 'fa-camera' },
   ];
 
   canUndo = computed(() => this.currentHistoryIndex() > 0);
   canRedo = computed(() => this.currentHistoryIndex() < this.editHistory().length - 1);
-  canReset = computed(() => this.originalImageUrl() !== null && this.currentImageUrl() !== this.originalImageUrl());
+  canReset = computed(
+    () => this.originalImageUrl() !== null && this.currentImageUrl() !== this.originalImageUrl(),
+  );
 
   constructor() {
+    super();
     this.editForm = this.fb.group({
       prompt: ['', [Validators.required, Validators.maxLength(2000)]],
-      preset: ['']
+      preset: [''],
     });
   }
 
@@ -77,7 +99,7 @@ export class AIImageEditorComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+
       if (!file.type.startsWith('image/')) {
         this.toastService.error('Please upload a valid image file');
         return;
@@ -104,7 +126,7 @@ export class AIImageEditorComponent {
   selectPreset(preset: string): void {
     const previousPreset = this.editForm.get('preset')?.value;
     this.editForm.patchValue({ preset });
-    
+
     // If preset changed and we have an image, regenerate it with AI to fit the aspect ratio
     if (this.currentImageUrl() && this.originalImageBase64() && previousPreset !== preset) {
       this.regenerateImageForPreset(preset);
@@ -166,24 +188,18 @@ export class AIImageEditorComponent {
       aspectRatio: aspectRatioInfo.aspectRatio,
       width: aspectRatioInfo.width,
       height: aspectRatioInfo.height,
-      model: 'gemini-2.0-flash-exp'
+      model: 'gemini-2.0-flash-exp',
     };
 
-    console.log('[AI Image Editor] Regenerating image for preset:', preset);
-    console.log('[AI Image Editor] Request details:', {
-      tenantId: request.tenantId,
-      prompt: request.prompt,
-      preset: request.preset,
-      aspectRatio: request.aspectRatio,
-      width: request.width,
-      height: request.height,
-      imageUrlLength: request.imageUrl?.length || 0
-    });
+    this.loggingService.debug('Regenerating image for preset', { preset, request: { ...request, imageUrlLength: request.imageUrl?.length || 0 } }, 'AIImageEditor');
 
-    this.aiService.editImage(request).subscribe({
-      next: (response: EditImageResponse) => {
-        console.log('[AI Image Editor] Image regenerated successfully:', response);
-        
+    this.aiService
+      .editImage(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: EditImageResponse) => {
+          this.loggingService.debug('Image regenerated successfully', response, 'AIImageEditor');
+
         // Convert base64 to data URL if needed
         let editedImageUrl: string;
         if (response.editedImageBase64) {
@@ -202,15 +218,15 @@ export class AIImageEditorComponent {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('[AI Image Editor] Error regenerating image:', error);
-        console.error('[AI Image Editor] Full error details:', {
+        this.loggingService.error('Error regenerating image', error, 'AIImageEditor');
+        this.loggingService.error('Full error details', {
           status: error?.status,
           statusText: error?.statusText,
           error: error?.error,
           message: error?.message,
-          url: error?.url
-        });
-        
+          url: error?.url,
+        }, 'AIImageEditor');
+
         let errorMsg = 'Failed to regenerate image. Please try again.';
         if (error?.error) {
           if (typeof error.error === 'string') {
@@ -223,23 +239,35 @@ export class AIImageEditorComponent {
         } else if (error?.message) {
           errorMsg = error.message;
         }
-        
+
         this.toastService.error(errorMsg);
         this.loading.set(false);
-      }
+      },
     });
   }
 
-  getPresetAspectRatioInfo(preset: string): { aspectRatio: string; description: string; width?: number; height?: number } | null {
+  getPresetAspectRatioInfo(
+    preset: string,
+  ): { aspectRatio: string; description: string; width?: number; height?: number } | null {
     switch (preset) {
       case 'instagram-post':
         return { aspectRatio: '1:1', description: 'square format', width: 1080, height: 1080 };
       case 'story':
-        return { aspectRatio: '9:16', description: 'vertical story format', width: 1080, height: 1920 };
+        return {
+          aspectRatio: '9:16',
+          description: 'vertical story format',
+          width: 1080,
+          height: 1920,
+        };
       case 'twitter-header':
         return { aspectRatio: '3:1', description: 'wide header format', width: 1500, height: 500 };
       case 'facebook-post':
-        return { aspectRatio: '4:3', description: 'standard post format', width: 1200, height: 900 };
+        return {
+          aspectRatio: '4:3',
+          description: 'standard post format',
+          width: 1200,
+          height: 900,
+        };
       case 'desktop-wallpaper':
         return { aspectRatio: '16:9', description: 'widescreen format', width: 1920, height: 1080 };
       case 'magic-expand':
@@ -271,15 +299,18 @@ export class AIImageEditorComponent {
       prompt: formValue.prompt,
       imageUrl: imageUrl,
       preset: formValue.preset || undefined,
-      model: 'gemini-2.0-flash-exp'
+      model: 'gemini-2.0-flash-exp',
     };
 
-    console.log('[AI Image Editor] Editing image with request:', request);
+    this.loggingService.debug('Editing image with request', request, 'AIImageEditor');
 
-    this.aiService.editImage(request).subscribe({
-      next: (response: EditImageResponse) => {
-        console.log('[AI Image Editor] Image edited successfully:', response);
-        
+    this.aiService
+      .editImage(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: EditImageResponse) => {
+          this.loggingService.debug('Image edited successfully', response, 'AIImageEditor');
+
         // Convert base64 to data URL if needed
         let editedImageUrl: string;
         if (response.editedImageBase64) {
@@ -299,7 +330,7 @@ export class AIImageEditorComponent {
           preset: formValue.preset,
           imageUrl: editedImageUrl,
           imageBase64: response.editedImageBase64,
-          timestamp: new Date(response.editedAt)
+          timestamp: new Date(response.editedAt),
         };
 
         const newHistory = [...this.editHistory()];
@@ -308,7 +339,7 @@ export class AIImageEditorComponent {
           newHistory.splice(this.currentHistoryIndex() + 1);
         }
         newHistory.push(historyItem);
-        
+
         this.editHistory.set(newHistory);
         this.currentHistoryIndex.set(newHistory.length - 1);
         this.currentImageUrl.set(editedImageUrl);
@@ -316,11 +347,12 @@ export class AIImageEditorComponent {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('[AI Image Editor] Error editing image:', error);
-        const errorMsg = error?.error?.message || error?.message || 'Failed to edit image. Please try again.';
+        this.loggingService.error('Error editing image', error, 'AIImageEditor');
+        const errorMsg =
+          error?.error?.message || error?.message || 'Failed to edit image. Please try again.';
         this.toastService.error(errorMsg);
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -373,5 +405,5 @@ export class AIImageEditorComponent {
     this.currentHistoryIndex.set(-1);
     this.editForm.reset();
   }
-}
 
+}

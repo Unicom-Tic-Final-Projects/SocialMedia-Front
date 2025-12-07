@@ -13,33 +13,33 @@
   gap: 0.75rem;
   padding: 1.5rem;
   border-radius: 0.75rem;
-  background: #F5F7FF;
-  border: 2px dashed #D9E1FF;
+  background: #f5f7ff;
+  border: 2px dashed #d9e1ff;
   transition: all 0.1s ease-linear;
   cursor: pointer;
 }
 
 .file-upload-dropzone:hover:not(.disabled) {
-  border-color: #4C6FFF;
-  background: #EBEFFF;
+  border-color: #4c6fff;
+  background: #ebefff;
 }
 
 .file-upload-dropzone.dragging {
-  border-color: #4C6FFF;
+  border-color: #4c6fff;
   border-width: 2px;
-  background: #EBEFFF;
+  background: #ebefff;
   box-shadow: 0 0 0 4px rgba(76, 111, 255, 0.1);
 }
 
 .file-upload-dropzone.disabled {
   cursor: not-allowed;
-  background: #F5F5F5;
-  border-color: #E5E5E5;
+  background: #f5f5f5;
+  border-color: #e5e5e5;
   opacity: 0.6;
 }
 
 .file-upload-dropzone.invalid {
-  border-color: #EF4444;
+  border-color: #ef4444;
 }
 
 .dropzone-icon {
@@ -64,7 +64,7 @@
 .dropzone-button {
   background: none;
   border: none;
-  color: #4C6FFF;
+  color: #4c6fff;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -73,7 +73,7 @@
 }
 
 .dropzone-button:hover:not(:disabled) {
-  color: #3B5CE8;
+  color: #3b5ce8;
   text-decoration: underline;
 }
 
@@ -84,17 +84,17 @@
 
 .dropzone-or {
   font-size: 0.875rem;
-  color: #6B7280;
+  color: #6b7280;
 }
 
 .dropzone-hint {
   font-size: 0.75rem;
-  color: #6B7280;
+  color: #6b7280;
   transition: color 0.1s ease-linear;
 }
 
 .dropzone-hint.error {
-  color: #EF4444;
+  color: #ef4444;
 }
 
 .sr-only {
@@ -125,13 +125,13 @@
   gap: 0.75rem;
   padding: 1rem;
   border-radius: 0.75rem;
-  background: #FFFFFF;
-  border: 1px solid #D9E1FF;
+  background: #ffffff;
+  border: 1px solid #d9e1ff;
   transition: all 0.1s ease-linear;
 }
 
 .file-list-item.failed {
-  border-color: #EF4444;
+  border-color: #ef4444;
   border-width: 2px;
 }
 
@@ -143,8 +143,8 @@
   height: 2.5rem;
   flex-shrink: 0;
   border-radius: 0.5rem;
-  background: #F5F7FF;
-  color: #4C6FFF;
+  background: #f5f7ff;
+  color: #4c6fff;
   font-size: 1.25rem;
 }
 
@@ -176,7 +176,7 @@
   margin: 0;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1A1A1A;
+  color: #1a1a1a;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -191,7 +191,7 @@
 }
 
 .file-size {
-  color: #6B7280;
+  color: #6b7280;
   white-space: nowrap;
 }
 
@@ -199,7 +199,7 @@
   height: 0.75rem;
   width: 1px;
   border-radius: 9999px;
-  background: #E5E7EB;
+  background: #e5e7eb;
   border: none;
 }
 
@@ -220,15 +220,15 @@
   align-self: flex-start;
   background: none;
   border: none;
-  color: #6B7280;
+  color: #6b7280;
   cursor: pointer;
   border-radius: 0.25rem;
   transition: all 0.2s;
 }
 
 .file-delete-button:hover {
-  background: #F3F4F6;
-  color: #EF4444;
+  background: #f3f4f6;
+  color: #ef4444;
 }
 
 /* Progress Bar Variant */
@@ -240,14 +240,14 @@
 .progress-bar-wrapper {
   width: 100%;
   height: 0.625rem;
-  background: #E5E7EB;
+  background: #e5e7eb;
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .progress-bar {
   height: 100%;
-  background: #4C6FFF;
+  background: #4c6fff;
   border-radius: 9999px;
   transition: width 0.3s ease-out;
 }
@@ -265,7 +265,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  background: #F5F7FF;
+  background: #f5f7ff;
   transition: transform 0.075s ease-linear;
 }
 
@@ -282,14 +282,14 @@
 
 .progress-percentage {
   font-size: 0.875rem;
-  color: #6B7280;
+  color: #6b7280;
 }
 
 .file-retry-button {
   margin-top: 0.375rem;
   background: none;
   border: none;
-  color: #EF4444;
+  color: #ef4444;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -299,7 +299,7 @@
 }
 
 .file-retry-button:hover {
-  color: #DC2626;
+  color: #dc2626;
   text-decoration: underline;
 }
 
@@ -323,4 +323,3 @@
     font-size: 1rem;
   }
 }
-

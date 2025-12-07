@@ -67,12 +67,12 @@ aside nav button::before {
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: #4C6FFF;
+  background: #4c6fff;
   border-radius: 0 2px 2px 0;
   transition: height 0.2s ease;
 }
 
-aside nav button[class*="bg-\[#4C6FFF\]"]::before {
+aside nav button[class*='bg-\[#4C6FFF\]']::before {
   height: 60%;
 }
 
@@ -131,7 +131,8 @@ aside nav button[class*="bg-\[#4C6FFF\]"]::before {
 }
 
 @keyframes iconFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -202,7 +203,7 @@ aside nav button[class*="bg-\[#4C6FFF\]"]::before {
   left: 50%;
   width: 0;
   height: 2px;
-  background: #4C6FFF;
+  background: #4c6fff;
   transition: all 0.3s ease;
   transform: translateX(-50%);
 }
@@ -211,14 +212,15 @@ aside nav button[class*="bg-\[#4C6FFF\]"]::before {
   width: 80%;
 }
 
-.tab-button[class*="bg-\[#4C6FFF\]"]::after {
+.tab-button[class*='bg-\[#4C6FFF\]']::after {
   width: 80%;
   background: white;
 }
 
 /* Loading state animations */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

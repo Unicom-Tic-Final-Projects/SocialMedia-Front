@@ -1,51 +1,68 @@
 @if (showBanner()) {
   <!-- Overlay -->
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] animate-fade-in" (click)="closeBanner()"></div>
-  
+  <div
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] animate-fade-in"
+    (click)="closeBanner()"
+  ></div>
+
   <!-- Cookie Banner -->
-  <div class="fixed bottom-0 left-0 right-0 bg-white shadow-2xl z-[9999] animate-slide-up max-h-[90vh] overflow-y-auto border-t-2 border-[#4C6FFF]/20">
+  <div
+    class="fixed bottom-0 left-0 right-0 bg-white shadow-2xl z-[9999] animate-slide-up max-h-[90vh] overflow-y-auto border-t-2 border-[#4C6FFF]/20"
+  >
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <!-- Header -->
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-gradient-to-br from-[#4C6FFF] to-[#3755FF] rounded-lg flex items-center justify-center text-white text-xl">
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-[#4C6FFF] to-[#3755FF] rounded-lg flex items-center justify-center text-white text-xl"
+          >
             🍪
           </div>
           <h3 class="text-xl sm:text-2xl font-bold text-[#1A1A1A]">Cookie Preferences</h3>
         </div>
-        <button 
-          (click)="closeBanner()" 
+        <button
+          type="button"
+          (click)="closeBanner()"
           aria-label="Close"
           class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-100 rounded-full transition-all duration-200"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
-      
+
       <!-- Description -->
       <p class="text-sm sm:text-base text-gray-600 leading-relaxed mb-6">
-        We use cookies to enhance your experience, provide personalized content, and analyze our traffic. 
-        By clicking "Accept All", you consent to our use of cookies. You can also customize your preferences.
+        We use cookies to enhance your experience, provide personalized content, and analyze our
+        traffic. By clicking "Accept All", you consent to our use of cookies. You can also customize
+        your preferences.
       </p>
 
       @if (!showCustomize()) {
         <!-- Quick Actions -->
         <div class="flex flex-col sm:flex-row gap-3 mb-6">
-          <button 
+          <button
+            type="button"
             (click)="acceptEssential()"
             class="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] font-semibold rounded-lg transition-all duration-200 hover:shadow-md"
           >
             Essential Only
           </button>
-          <button 
+          <button
+            type="button"
             (click)="acceptAll()"
             class="flex-1 px-6 py-3 bg-gradient-to-r from-[#4C6FFF] to-[#3755FF] hover:from-[#3755FF] hover:to-[#2A4AFF] text-white font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-[#4C6FFF]/30"
           >
             Accept All
           </button>
-          <button 
+          <button
+            type="button"
             (click)="openCustomize()"
             class="flex-1 px-6 py-3 border-2 border-[#4C6FFF] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white font-semibold rounded-lg transition-all duration-200"
           >
@@ -58,20 +75,25 @@
         <!-- Customize Section -->
         <div class="mt-6 pt-6 border-t border-gray-200">
           <h4 class="text-lg font-bold text-[#1A1A1A] mb-6">Customize Your Cookie Preferences</h4>
-          
+
           <div class="space-y-4 mb-6">
             <!-- Essential Cookies -->
-            <label class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200">
-              <input 
-                type="checkbox" 
-                checked 
+            <label
+              class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors border border-gray-200"
+            >
+              <input
+                type="checkbox"
+                checked
                 disabled
                 class="mt-1 w-5 h-5 text-[#4C6FFF] border-gray-300 rounded focus:ring-[#4C6FFF] focus:ring-2 cursor-not-allowed opacity-60"
-              >
+              />
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <strong class="text-base font-semibold text-[#1A1A1A]">Essential Cookies</strong>
-                  <span class="px-2 py-0.5 bg-[#4C6FFF]/10 text-[#4C6FFF] text-xs font-medium rounded">Required</span>
+                  <span
+                    class="px-2 py-0.5 bg-[#4C6FFF]/10 text-[#4C6FFF] text-xs font-medium rounded"
+                    >Required</span
+                  >
                 </div>
                 <span class="text-sm text-gray-600 leading-relaxed">
                   Required for authentication and core functionality. Cannot be disabled.
@@ -80,17 +102,21 @@
             </label>
 
             <!-- Functional Cookies -->
-            <label class="flex items-start gap-4 p-4 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 hover:border-[#4C6FFF]/30">
-              <input 
-                type="checkbox" 
-                [checked]="functional()" 
+            <label
+              class="flex items-start gap-4 p-4 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 hover:border-[#4C6FFF]/30"
+            >
+              <input
+                type="checkbox"
+                [checked]="functional()"
                 (change)="functional.set($any($event.target).checked)"
                 class="mt-1 w-5 h-5 text-[#4C6FFF] border-gray-300 rounded focus:ring-[#4C6FFF] focus:ring-2 cursor-pointer"
-              >
+              />
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <strong class="text-base font-semibold text-[#1A1A1A]">Functional Cookies</strong>
-                  <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">Optional</span>
+                  <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded"
+                    >Optional</span
+                  >
                 </div>
                 <span class="text-sm text-gray-600 leading-relaxed">
                   Enable push notifications and enhanced features like device identification.
@@ -99,17 +125,22 @@
             </label>
 
             <!-- Analytics Cookies -->
-            <label class="flex items-start gap-4 p-4 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 hover:border-[#4C6FFF]/30">
-              <input 
-                type="checkbox" 
-                [checked]="analytics()" 
+            <label
+              class="flex items-start gap-4 p-4 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 hover:border-[#4C6FFF]/30"
+            >
+              <input
+                type="checkbox"
+                [checked]="analytics()"
                 (change)="analytics.set($any($event.target).checked)"
                 class="mt-1 w-5 h-5 text-[#4C6FFF] border-gray-300 rounded focus:ring-[#4C6FFF] focus:ring-2 cursor-pointer"
-              >
+              />
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <strong class="text-base font-semibold text-[#1A1A1A]">Analytics Cookies</strong>
-                  <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">Not Active</span>
+                  <span
+                    class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded"
+                    >Not Active</span
+                  >
                 </div>
                 <span class="text-sm text-gray-600 leading-relaxed">
                   Help us understand how visitors interact with our website (not currently active).
@@ -118,17 +149,22 @@
             </label>
 
             <!-- Marketing Cookies -->
-            <label class="flex items-start gap-4 p-4 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 hover:border-[#4C6FFF]/30">
-              <input 
-                type="checkbox" 
-                [checked]="marketing()" 
+            <label
+              class="flex items-start gap-4 p-4 bg-white rounded-xl cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200 hover:border-[#4C6FFF]/30"
+            >
+              <input
+                type="checkbox"
+                [checked]="marketing()"
                 (change)="marketing.set($any($event.target).checked)"
                 class="mt-1 w-5 h-5 text-[#4C6FFF] border-gray-300 rounded focus:ring-[#4C6FFF] focus:ring-2 cursor-pointer"
-              >
+              />
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <strong class="text-base font-semibold text-[#1A1A1A]">Marketing Cookies</strong>
-                  <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">Not Active</span>
+                  <span
+                    class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded"
+                    >Not Active</span
+                  >
                 </div>
                 <span class="text-sm text-gray-600 leading-relaxed">
                   Used to deliver personalized advertisements (not currently active).
@@ -139,13 +175,15 @@
 
           <!-- Customize Actions -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <button 
+            <button
+              type="button"
               (click)="closeCustomize()"
               class="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] font-semibold rounded-lg transition-all duration-200"
             >
               Cancel
             </button>
-            <button 
+            <button
+              type="button"
               (click)="saveCustomPreferences()"
               class="flex-1 px-6 py-3 bg-gradient-to-r from-[#4C6FFF] to-[#3755FF] hover:from-[#3755FF] hover:to-[#2A4AFF] text-white font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:shadow-[#4C6FFF]/30"
             >
@@ -158,11 +196,17 @@
       <!-- Footer Links -->
       <div class="mt-6 pt-6 border-t border-gray-200 text-center">
         <p class="text-xs sm:text-sm text-gray-600">
-          <a routerLink="/privacy-policy" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors font-medium">
+          <a
+            routerLink="/privacy-policy"
+            class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors font-medium"
+          >
             Privacy Policy
           </a>
           <span class="mx-2 text-gray-400">•</span>
-          <a routerLink="/cookie-policy" class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors font-medium">
+          <a
+            routerLink="/cookie-policy"
+            class="text-[#4C6FFF] hover:text-[#3755FF] hover:underline transition-colors font-medium"
+          >
             Cookie Policy
           </a>
         </p>

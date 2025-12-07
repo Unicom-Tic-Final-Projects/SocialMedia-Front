@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './modal-base.html',
   styleUrl: './modal-base.css',
 })
-export class ModalBase {
-
-}
+export class ModalBase {}

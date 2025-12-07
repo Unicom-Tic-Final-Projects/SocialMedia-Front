@@ -11,7 +11,7 @@ export interface Toast {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private toasts = signal<Toast[]>([]);
@@ -30,7 +30,7 @@ export class ToastService {
       message,
       type: 'success',
       duration: duration || this.defaultDuration,
-      icon: 'fa-circle-check'
+      icon: 'fa-circle-check',
     });
   }
 
@@ -42,7 +42,7 @@ export class ToastService {
       message,
       type: 'error',
       duration: duration || this.defaultDuration,
-      icon: 'fa-circle-xmark'
+      icon: 'fa-circle-xmark',
     });
   }
 
@@ -54,7 +54,7 @@ export class ToastService {
       message,
       type: 'warning',
       duration: duration || this.defaultDuration,
-      icon: 'fa-triangle-exclamation'
+      icon: 'fa-triangle-exclamation',
     });
   }
 
@@ -66,7 +66,7 @@ export class ToastService {
       message,
       type: 'info',
       duration: duration || this.defaultDuration,
-      icon: 'fa-circle-info'
+      icon: 'fa-circle-info',
     });
   }
 
@@ -77,12 +77,12 @@ export class ToastService {
     const newToast: Toast = {
       id: this.generateId(),
       ...toast,
-      duration: toast.duration || this.defaultDuration
+      duration: toast.duration || this.defaultDuration,
     };
 
     // Defer signal update to next microtask to avoid change detection errors
     queueMicrotask(() => {
-      this.toasts.update(toasts => [...toasts, newToast]);
+      this.toasts.update((toasts) => [...toasts, newToast]);
     });
 
     // Auto-remove after duration
@@ -99,7 +99,7 @@ export class ToastService {
   remove(id: string): void {
     // Defer signal update to next microtask to avoid change detection errors
     queueMicrotask(() => {
-      this.toasts.update(toasts => toasts.filter(t => t.id !== id));
+      this.toasts.update((toasts) => toasts.filter((t) => t.id !== id));
     });
   }
 
@@ -124,4 +124,3 @@ export class ToastService {
     return `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 }
-

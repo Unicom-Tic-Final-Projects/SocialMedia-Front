@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminChartSection } from '../shared/chart-section/chart-section';
 import { AnalyticsService } from '../../services/admin/analytics.service';
@@ -10,12 +10,12 @@ import { AnalyticsService } from '../../services/admin/analytics.service';
   styleUrl: './analytics-page.css',
 })
 export class AdminAnalyticsPage implements OnInit {
+  private readonly analyticsService = inject(AnalyticsService);
+
   totalViews = 0;
   activeUsers = 0;
   engagement = 0;
   loading = true;
-
-  constructor(private analyticsService: AnalyticsService) {}
 
   ngOnInit() {
     this.loadAnalyticsData();
@@ -26,7 +26,7 @@ export class AdminAnalyticsPage implements OnInit {
     this.totalViews = 0;
     this.activeUsers = 0;
     this.engagement = 0;
-    
+
     // Fetch analytics data
     this.analyticsService.getAnalyticsData().subscribe({
       next: (posts) => {
@@ -38,24 +38,21 @@ export class AdminAnalyticsPage implements OnInit {
                 this.loading = false;
                 this.totalViews = posts.length * 1000; // Mock calculation
                 this.activeUsers = users.length;
-                this.engagement = posts.length > 0 
-                  ? ((comments.length / posts.length) * 100) 
-                  : 0;
+                this.engagement = posts.length > 0 ? (comments.length / posts.length) * 100 : 0;
               },
               error: () => {
                 this.loading = false;
-              }
+              },
             });
           },
           error: () => {
             this.loading = false;
-          }
+          },
         });
       },
       error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 }
-

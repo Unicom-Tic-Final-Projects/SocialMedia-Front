@@ -1,6 +1,12 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { ClientsService } from '../../services/client/clients.service';
 import { ClientUserService } from '../../services/client/client-user.service';
@@ -29,7 +35,7 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
   readonly clients = this.clientsService.clients;
   readonly loading = this.clientsService.loading;
   readonly error = this.clientsService.error;
-  
+
   // Track which clients have user accounts
   private readonly clientUserAccounts = signal<Map<string, boolean>>(new Map());
 
@@ -79,17 +85,17 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
     }
 
     // Check each client for user account
-    const checks = clients.map(client => 
+    const checks = clients.map((client) =>
       this.clientUserService.getClientUser(client.id).pipe(
         map(() => ({ clientId: client.id, hasAccount: true })),
-        catchError(() => of({ clientId: client.id, hasAccount: false }))
-      )
+        catchError(() => of({ clientId: client.id, hasAccount: false })),
+      ),
     );
 
     forkJoin(checks).subscribe({
       next: (results) => {
         const accountMap = new Map<string, boolean>();
-        results.forEach(result => {
+        results.forEach((result) => {
           accountMap.set(result.clientId, result.hasAccount);
         });
         this.clientUserAccounts.set(accountMap);
@@ -188,26 +194,26 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
           // Response might be a string message
           message = response;
         }
-        
+
         // Extract password from response message if available
         const passwordMatch = message.match(/Password: (.+)/);
         if (passwordMatch) {
           this.generatedPassword.set(passwordMatch[1]);
         }
-        
+
         this.successMessage.set('Client user account created successfully!');
-        
+
         // Update client user account status
         if (client) {
           const accountMap = new Map(this.clientUserAccounts());
           accountMap.set(client.id, true);
           this.clientUserAccounts.set(accountMap);
-          
+
           // Refresh client context service to update the sidebar
           // The service will reload when clients change
           this.clientsService.loadClients().subscribe();
         }
-        
+
         // Don't close modal if password was generated - show it in the modal
         if (!passwordMatch) {
           this.closeClientUserModal();
@@ -220,11 +226,12 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Failed to create client user', error);
-        const errorMsg = error?.userMessage || 
-                        error?.error?.message || 
-                        error?.error?.errors?.[0] || 
-                        error?.message || 
-                        'Failed to create client user account. Please try again.';
+        const errorMsg =
+          error?.userMessage ||
+          error?.error?.message ||
+          error?.error?.errors?.[0] ||
+          error?.message ||
+          'Failed to create client user account. Please try again.';
         this.errorMessage.set(errorMsg);
         setTimeout(() => this.errorMessage.set(null), 5000);
       },
@@ -281,7 +288,9 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
   }
 
   deleteClient(client: Client): void {
-    if (!confirm(`Are you sure you want to delete "${client.name}"? This action cannot be undone.`)) {
+    if (
+      !confirm(`Are you sure you want to delete "${client.name}"? This action cannot be undone.`)
+    ) {
       return;
     }
 
@@ -305,14 +314,17 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
   copyPasswordToClipboard(): void {
     const password = this.generatedPassword();
     if (password) {
-      navigator.clipboard.writeText(password).then(() => {
-        this.successMessage.set('Password copied to clipboard!');
-        setTimeout(() => this.successMessage.set(null), 3000);
-      }).catch((err) => {
-        console.error('Failed to copy password', err);
-        this.errorMessage.set('Failed to copy password to clipboard');
-        setTimeout(() => this.errorMessage.set(null), 3000);
-      });
+      navigator.clipboard
+        .writeText(password)
+        .then(() => {
+          this.successMessage.set('Password copied to clipboard!');
+          setTimeout(() => this.successMessage.set(null), 3000);
+        })
+        .catch((err) => {
+          console.error('Failed to copy password', err);
+          this.errorMessage.set('Failed to copy password to clipboard');
+          setTimeout(() => this.errorMessage.set(null), 3000);
+        });
     }
   }
 
@@ -335,4 +347,3 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
     }
   }
 }
-

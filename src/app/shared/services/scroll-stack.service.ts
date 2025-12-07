@@ -1,22 +1,29 @@
-import { Injectable, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, inject } from '@angular/core';
 import { Subject } from 'rxjs';
-// @ts-ignore - Lenis doesn't have type definitions
 import Lenis from 'lenis';
 
+interface Transform {
+  translateY: number;
+  scale: number;
+  rotation: number;
+  blur: number;
+}
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ScrollStackService implements OnDestroy {
+  private readonly ngZone = inject(NgZone);
   private scrollSubject = new Subject<number>();
   public scroll$ = this.scrollSubject.asObservable();
   private lenis: Lenis | null = null;
   private animationFrameId: number | null = null;
   private isUpdating = false;
-  private lastTransforms = new Map<number, any>();
-  private currentTransforms = new Map<number, any>();
+  private lastTransforms = new Map<number, Transform>();
+  private currentTransforms = new Map<number, Transform>();
   private lerpFactor = 0.15; // Smooth interpolation factor for transforms
 
-  constructor(private ngZone: NgZone) {
+  constructor() {
     this.initLenis();
   }
 
@@ -35,10 +42,10 @@ export class ScrollStackService implements OnDestroy {
         wheelMultiplier: 1,
         lerp: 0.1,
         syncTouch: true,
-        syncTouchLerp: 0.075
+        syncTouchLerp: 0.075,
       });
 
-      this.lenis.on('scroll', ({ scroll, limit, velocity, direction, progress }: any) => {
+      this.lenis.on('scroll', ({ scroll }: { scroll: number }) => {
         this.ngZone.run(() => {
           this.scrollSubject.next(scroll);
         });
@@ -90,7 +97,7 @@ export class ScrollStackService implements OnDestroy {
       baseScale?: number;
       rotationAmount?: number;
       blurAmount?: number;
-    } = {}
+    } = {},
   ): void {
     if (!cards.length || this.isUpdating) return;
 
@@ -162,7 +169,7 @@ export class ScrollStackService implements OnDestroy {
         translateY: translateY,
         scale: scale,
         rotation: rotation,
-        blur: blur
+        blur: blur,
       };
 
       // Get current transform (for smooth interpolation)
@@ -170,15 +177,22 @@ export class ScrollStackService implements OnDestroy {
         translateY: 0,
         scale: 1,
         rotation: 0,
-        blur: 0
+        blur: 0,
       };
 
       // Smooth interpolation (lerp) for all transform values
       const newTransform = {
-        translateY: currentTransform.translateY + (targetTransform.translateY - currentTransform.translateY) * this.lerpFactor,
-        scale: currentTransform.scale + (targetTransform.scale - currentTransform.scale) * this.lerpFactor,
-        rotation: currentTransform.rotation + (targetTransform.rotation - currentTransform.rotation) * this.lerpFactor,
-        blur: currentTransform.blur + (targetTransform.blur - currentTransform.blur) * this.lerpFactor
+        translateY:
+          currentTransform.translateY +
+          (targetTransform.translateY - currentTransform.translateY) * this.lerpFactor,
+        scale:
+          currentTransform.scale +
+          (targetTransform.scale - currentTransform.scale) * this.lerpFactor,
+        rotation:
+          currentTransform.rotation +
+          (targetTransform.rotation - currentTransform.rotation) * this.lerpFactor,
+        blur:
+          currentTransform.blur + (targetTransform.blur - currentTransform.blur) * this.lerpFactor,
       };
 
       // Round values for performance
@@ -186,7 +200,7 @@ export class ScrollStackService implements OnDestroy {
         translateY: Math.round(newTransform.translateY * 100) / 100,
         scale: Math.round(newTransform.scale * 1000) / 1000,
         rotation: Math.round(newTransform.rotation * 100) / 100,
-        blur: Math.round(newTransform.blur * 100) / 100
+        blur: Math.round(newTransform.blur * 100) / 100,
       };
 
       // Always apply transforms for smooth animation
@@ -215,13 +229,13 @@ export class ScrollStackService implements OnDestroy {
       card.style.transform = 'translate3d(0, 0, 0)';
       card.style.perspective = '1000px';
       card.style.transition = 'none'; // Disable CSS transitions for manual control
-      
+
       // Initialize current transforms
       this.currentTransforms.set(i, {
         translateY: 0,
         scale: 1,
         rotation: 0,
-        blur: 0
+        blur: 0,
       });
     });
   }

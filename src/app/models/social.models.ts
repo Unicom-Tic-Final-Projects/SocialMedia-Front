@@ -1,4 +1,11 @@
-export type Platform = 'facebook' | 'instagram' | 'twitter' | 'linkedin' | 'youtube' | 'tiktok' | 'pinterest';
+export type Platform =
+  | 'facebook'
+  | 'instagram'
+  | 'twitter'
+  | 'linkedin'
+  | 'youtube'
+  | 'tiktok'
+  | 'pinterest';
 
 export interface SocialAccount {
   id: string;
@@ -35,10 +42,13 @@ export interface PostDraft {
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
   selectedPlatforms: Platform[];
-  platformCropConfigs?: Record<Platform, {
-    crop: CropAdjustment;
-    cropBox: { width: number; height: number; left: number; top: number };
-  }>;
+  platformCropConfigs?: Record<
+    Platform,
+    {
+      crop: CropAdjustment;
+      cropBox: { width: number; height: number; left: number; top: number };
+    }
+  >;
   platformCroppedImages?: Record<Platform, string>; // Base64 cropped images per platform
   createdAt: string;
   updatedAt: string;
@@ -116,4 +126,3 @@ export interface AccountSettings {
   emailNotifications: boolean;
   pushNotifications: boolean;
 }
-

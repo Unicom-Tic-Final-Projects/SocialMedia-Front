@@ -14,6 +14,7 @@ import {
 } from '../../models/billing.models';
 import { ApiResponse } from '../../models/api.models';
 import { AuthService } from '../../core/services/auth.service';
+import { LoggingService } from '../../core/services/logging.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class BillingService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
   private readonly authService = inject(AuthService);
+  private readonly loggingService = inject(LoggingService);
 
   private readonly plansSignal = signal<BillingPlan[]>([]);
   readonly plans = this.plansSignal.asReadonly();
@@ -54,7 +56,7 @@ export class BillingService {
       .get<ApiResponse<BillingPlan[]>>(`${this.baseUrl}/api/billingplans`, { params })
       .pipe(
         map((response) => {
-          console.log('Billing plans API response:', response);
+          this.loggingService.debug('Billing plans API response', response, 'BillingService');
           // Handle both direct array response and wrapped ApiResponse
           let plans: BillingPlan[] = [];
           if (response) {
@@ -62,11 +64,9 @@ export class BillingService {
               plans = response;
             } else if (response.data) {
               plans = Array.isArray(response.data) ? response.data : [];
-            } else if (response.success !== undefined && response.data) {
-              plans = Array.isArray(response.data) ? response.data : [];
             }
           }
-          console.log('Parsed plans:', plans);
+          this.loggingService.debug('Parsed plans', plans, 'BillingService');
           return plans;
         }),
         tap((plans) => {
@@ -74,11 +74,13 @@ export class BillingService {
           this.loadingSignal.set(false);
         }),
         catchError((error) => {
-          console.error('Error loading billing plans:', error);
-          this.errorSignal.set(error.error?.message || error.message || 'Failed to load billing plans');
+          this.loggingService.error('Error loading billing plans', error, 'BillingService');
+          this.errorSignal.set(
+            error.error?.message || error.message || 'Failed to load billing plans',
+          );
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -98,7 +100,7 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to load subscription');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -118,16 +120,20 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to create subscription');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
-  createCheckoutSession(request: CreateCheckoutSessionRequest): Observable<CheckoutSessionResponse> {
+  createCheckoutSession(
+    request: CreateCheckoutSessionRequest,
+  ): Observable<CheckoutSessionResponse> {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
     return this.http
-      .post<ApiResponse<CheckoutSessionResponse>>(`${this.baseUrl}/api/subscriptions/checkout`, request)
+      .post<
+        ApiResponse<CheckoutSessionResponse>
+      >(`${this.baseUrl}/api/subscriptions/checkout`, request)
       .pipe(
         map((response) => response?.data as CheckoutSessionResponse),
         tap(() => this.loadingSignal.set(false)),
@@ -135,7 +141,7 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to create checkout session');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -144,7 +150,9 @@ export class BillingService {
     this.errorSignal.set(null);
 
     return this.http
-      .post<ApiResponse<boolean>>(`${this.baseUrl}/api/subscriptions/${request.subscriptionId}/cancel`, request)
+      .post<
+        ApiResponse<boolean>
+      >(`${this.baseUrl}/api/subscriptions/${request.subscriptionId}/cancel`, request)
       .pipe(
         map((response) => response?.data as boolean),
         tap((success) => {
@@ -161,7 +169,7 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to cancel subscription');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -186,7 +194,7 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to load invoices');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -211,7 +219,7 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to load payment methods');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 
@@ -220,7 +228,9 @@ export class BillingService {
     this.errorSignal.set(null);
 
     return this.http
-      .put<ApiResponse<boolean>>(`${this.baseUrl}/api/subscriptions/${subscriptionId}/account-count`, accountCount)
+      .put<
+        ApiResponse<boolean>
+      >(`${this.baseUrl}/api/subscriptions/${subscriptionId}/account-count`, accountCount)
       .pipe(
         map((response) => response?.data as boolean),
         tap((success) => {
@@ -237,8 +247,7 @@ export class BillingService {
           this.errorSignal.set(error.error?.message || 'Failed to update account count');
           this.loadingSignal.set(false);
           return throwError(() => error);
-        })
+        }),
       );
   }
 }
-

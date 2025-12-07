@@ -1,8 +1,18 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { TeamMembersService } from '../../services/agency/team-members.service';
-import { TeamMember, CreateTeamMemberRequest, UpdateTeamMemberRequest } from '../../models/team-member.models';
+import {
+  TeamMember,
+  CreateTeamMemberRequest,
+  UpdateTeamMemberRequest,
+} from '../../models/team-member.models';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -26,14 +36,17 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
   successMessage = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
 
-  teamMemberForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', []], // Optional for edit mode
-    confirmPassword: ['', []], // Optional for edit mode
-    role: ['Editor', [Validators.required]],
-  }, {
-    validators: this.passwordMatchValidator,
-  });
+  teamMemberForm = this.fb.group(
+    {
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', []], // Optional for edit mode
+      confirmPassword: ['', []], // Optional for edit mode
+      role: ['Editor', [Validators.required]],
+    },
+    {
+      validators: this.passwordMatchValidator,
+    },
+  );
 
   private loadSubscription: Subscription | null = null;
 
@@ -63,7 +76,10 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
       role: 'Editor',
     });
     // Set password as required for create mode
-    this.teamMemberForm.controls.password.setValidators([Validators.required, Validators.minLength(6)]);
+    this.teamMemberForm.controls.password.setValidators([
+      Validators.required,
+      Validators.minLength(6),
+    ]);
     this.teamMemberForm.controls.confirmPassword.setValidators([Validators.required]);
     this.teamMemberForm.updateValueAndValidity();
     this.errorMessage.set(null);
@@ -113,24 +129,27 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
         role: formValue.role as 'Admin' | 'Editor',
       };
 
-      this.teamMembersService.updateTeamMember(this.editingMember()!.userId, updateRequest).subscribe({
-        next: () => {
-          this.successMessage.set('Team member updated successfully');
-          this.closeModal();
-          setTimeout(() => this.successMessage.set(null), 3000);
-        },
-        error: (error) => {
-          console.error('Failed to update team member', error);
-          // Extract error message from various possible locations
-          const errorMsg = error?.userMessage || 
-                         error?.error?.message || 
-                         error?.error?.errors?.[0] || 
-                         error?.message || 
-                         'Failed to update team member. Please try again.';
-          this.errorMessage.set(errorMsg);
-          setTimeout(() => this.errorMessage.set(null), 5000);
-        },
-      });
+      this.teamMembersService
+        .updateTeamMember(this.editingMember()!.userId, updateRequest)
+        .subscribe({
+          next: () => {
+            this.successMessage.set('Team member updated successfully');
+            this.closeModal();
+            setTimeout(() => this.successMessage.set(null), 3000);
+          },
+          error: (error) => {
+            console.error('Failed to update team member', error);
+            // Extract error message from various possible locations
+            const errorMsg =
+              error?.userMessage ||
+              error?.error?.message ||
+              error?.error?.errors?.[0] ||
+              error?.message ||
+              'Failed to update team member. Please try again.';
+            this.errorMessage.set(errorMsg);
+            setTimeout(() => this.errorMessage.set(null), 5000);
+          },
+        });
     } else {
       // Create new team member
       const createRequest: CreateTeamMemberRequest = {
@@ -148,11 +167,12 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
         error: (error) => {
           console.error('Failed to create team member', error);
           // Extract error message from various possible locations
-          const errorMsg = error?.userMessage || 
-                         error?.error?.message || 
-                         error?.error?.errors?.[0] || 
-                         error?.message || 
-                         'Failed to create team member. Please try again.';
+          const errorMsg =
+            error?.userMessage ||
+            error?.error?.message ||
+            error?.error?.errors?.[0] ||
+            error?.message ||
+            'Failed to create team member. Please try again.';
           this.errorMessage.set(errorMsg);
           setTimeout(() => this.errorMessage.set(null), 5000);
         },
@@ -161,7 +181,11 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
   }
 
   deleteTeamMember(member: TeamMember): void {
-    if (!confirm(`Are you sure you want to remove "${member.email}" from the team? This action cannot be undone.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to remove "${member.email}" from the team? This action cannot be undone.`,
+      )
+    ) {
       return;
     }
 
@@ -201,4 +225,3 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
     return password.value === confirmPassword.value ? null : { passwordMismatch: true };
   }
 }
-

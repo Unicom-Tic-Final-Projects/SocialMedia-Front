@@ -31,11 +31,10 @@
 }
 
 /* Tab Button Animations */
-button[class*="hover:bg-\[#BFC9FF\]"] {
+button[class*='hover:bg-\[#BFC9FF\]'] {
   transition: all 0.3s ease;
 }
 
-button[class*="hover:bg-\[#BFC9FF\]"]:hover {
+button[class*='hover:bg-\[#BFC9FF\]']:hover {
   transform: translateX(4px);
 }
-

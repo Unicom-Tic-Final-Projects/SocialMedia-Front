@@ -2,8 +2,10 @@
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A]">Create New Post</h2>
     <button
+      type="button"
       (click)="openAIAssistant()"
-      class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition text-sm flex items-center gap-2">
+      class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition text-sm flex items-center gap-2"
+    >
       <i class="fa-solid fa-wand-magic-sparkles"></i>
       AI Assistant
     </button>
@@ -19,7 +21,9 @@
           placeholder=" "
           class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-4 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm resize-none transition-all duration-300 bg-white"
         ></textarea>
-        <label class="input-label absolute left-4 top-4 text-gray-500 pointer-events-none transition-all duration-300 origin-left">
+        <label
+          class="input-label absolute left-4 top-4 text-gray-500 pointer-events-none transition-all duration-300 origin-left"
+        >
           Post Content <span class="text-red-500">*</span>
         </label>
         <div class="absolute bottom-3 left-4 right-4 flex items-center justify-between">
@@ -31,7 +35,9 @@
           }
         </div>
       </div>
-      <p class="input-hint mt-2 text-xs text-gray-500 ml-4">Use AI Assistant to generate engaging content...</p>
+      <p class="input-hint mt-2 text-xs text-gray-500 ml-4">
+        Use AI Assistant to generate engaging content...
+      </p>
     </div>
 
     <!-- Media Upload -->
@@ -39,8 +45,8 @@
       <label class="block text-sm font-semibold mb-3 text-[#1A1A1A]">
         Media <span class="text-gray-500 font-normal">(Optional)</span>
       </label>
-      
-      @if (!mediaPreview()) {
+
+      @if (uploadedFiles().length === 0) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
           <app-file-upload
             [hint]="'Images up to 10MB, Videos up to 100MB'"
@@ -53,12 +59,14 @@
             (unacceptedFiles)="onUnacceptedFiles($event)"
             (sizeLimitExceeded)="onSizeLimitExceeded($event)"
             (fileDeleted)="onFileDeleted($event)"
-            (fileRetry)="onFileRetry($event)">
+            (fileRetry)="onFileRetry($event)"
+          >
           </app-file-upload>
           <button
             type="button"
             (click)="openMediaLibrary()"
-            class="media-upload-card border-2 border-dashed border-[#4C6FFF] rounded-xl p-8 text-center transition">
+            class="media-upload-card border-2 border-dashed border-[#4C6FFF] rounded-xl p-8 text-center transition"
+          >
             <div class="mb-3">
               <i class="fa-solid fa-images text-4xl text-[#4C6FFF]"></i>
             </div>
@@ -67,34 +75,47 @@
           </button>
         </div>
       } @else {
-        <div class="relative">
-          @if (isVideo()) {
-            <video 
-              [src]="mediaPreview()!" 
-              controls
-              class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF] bg-black">
-              Your browser does not support the video tag.
-            </video>
-          } @else {
-            <img [src]="mediaPreview()!" alt="Preview" class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF]" />
-          }
-          <button
-            type="button"
-            (click)="selectedFile.set(null); mediaPreview.set(null); uploadedMediaId.set(null); isVideo.set(false); uploadedFiles.set([])"
-            class="absolute top-2 right-2 bg-white/90 hover:bg-white border border-gray-300 rounded-lg p-2 transition z-10"
-            [title]="'Remove media'">
-            <i class="fa-solid fa-times text-gray-700"></i>
-          </button>
-          <div class="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-xs z-10">
-            <i class="fa-solid fa-check-circle mr-1"></i>
-            {{ isVideo() ? 'Video' : 'Image' }} Selected
+        @for (file of uploadedFiles(); track file.id) {
+          <div class="relative">
+            @if (file.preview && mediaUploadService.isVideoFile(file.preview, file.type)) {
+              <video
+                [src]="file.preview"
+                controls
+                class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF] bg-black"
+              >
+                Your browser does not support the video tag.
+              </video>
+            } @else if (file.preview) {
+              <img
+                [src]="file.preview"
+                [alt]="file.name"
+                class="w-full max-h-64 object-contain rounded-lg border border-[#D9E1FF]"
+              />
+            }
+            <button
+              type="button"
+              (click)="onFileDeleted(file.id)"
+              class="absolute top-2 right-2 bg-white/90 hover:bg-white border border-gray-300 rounded-lg p-2 transition z-10"
+              [title]="'Remove media'"
+            >
+              <i class="fa-solid fa-times text-gray-700"></i>
+            </button>
+            @if (file.preview) {
+              <div
+                class="absolute bottom-2 left-2 bg-black/70 text-white px-3 py-1 rounded-lg text-xs z-10"
+              >
+                <i class="fa-solid fa-check-circle mr-1"></i>
+                {{ mediaUploadService.isVideoFile(file.preview, file.type) ? 'Video' : 'Image' }} Selected
+              </div>
+            }
           </div>
-        </div>
+        }
         <div class="mt-2 flex gap-2">
           <button
             type="button"
             (click)="openMediaLibrary()"
-            class="px-3 py-1.5 text-sm border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition">
+            class="px-3 py-1.5 text-sm border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition"
+          >
             <i class="fa-solid fa-images mr-1"></i>
             Change Media
           </button>
@@ -116,7 +137,10 @@
         <div class="border-2 border-dashed border-[#D9E1FF] rounded-xl p-8 text-center">
           <i class="fa-solid fa-exclamation-circle text-4xl text-gray-400 mb-4"></i>
           <p class="text-sm text-gray-600 mb-4">No social accounts connected</p>
-          <a routerLink="/dashboard/social-account" class="inline-flex items-center gap-2 text-[#4C6FFF] hover:text-[#3A56CC] font-medium text-sm transition-colors">
+          <a
+            routerLink="/dashboard/social-account"
+            class="inline-flex items-center gap-2 text-[#4C6FFF] hover:text-[#3A56CC] font-medium text-sm transition-colors"
+          >
             Connect Social Accounts
             <i class="fa-solid fa-arrow-right"></i>
           </a>
@@ -124,18 +148,24 @@
       } @else {
         <div class="space-y-4">
           @for (platform of getAccountsByPlatform() | keyvalue; track platform.key) {
-            <div class="border-2 border-[#D9E1FF] rounded-xl p-5 hover:border-[#4C6FFF]/50 transition-all duration-300">
+            <div
+              class="border-2 border-[#D9E1FF] rounded-xl p-5 hover:border-[#4C6FFF]/50 transition-all duration-300"
+            >
               <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-lg bg-[#F5F7FF] flex items-center justify-center">
-                  <i class="fa-brands fa-{{ platform.key.toLowerCase() }} text-xl text-[#4C6FFF]"></i>
+                  <i
+                    class="fa-brands fa-{{ platform.key.toLowerCase() }} text-xl text-[#4C6FFF]"
+                  ></i>
                 </div>
                 <span class="font-semibold text-base text-[#1A1A1A]">{{ platform.key }}</span>
               </div>
               <div class="space-y-2">
                 @for (account of platform.value; track account.id) {
-                  <label class="social-account-item flex items-center gap-3 p-3 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#D9E1FF] transition-all duration-300"
-                         [class.bg-[#E8EDFF]]="selectedAccountIds().includes(account.id)"
-                         [class.border-[#4C6FFF]]="selectedAccountIds().includes(account.id)">
+                  <label
+                    class="social-account-item flex items-center gap-3 p-3 rounded-lg cursor-pointer border-2 border-transparent hover:border-[#D9E1FF] transition-all duration-300"
+                    [class.bg-[#E8EDFF]]="selectedAccountIds().includes(account.id)"
+                    [class.border-[#4C6FFF]]="selectedAccountIds().includes(account.id)"
+                  >
                     <input
                       type="checkbox"
                       [checked]="selectedAccountIds().includes(account.id)"
@@ -170,11 +200,16 @@
             formControlName="saveAsDraft"
             class="checkbox-input w-5 h-5 text-[#4C6FFF] border-2 border-[#D9E1FF] rounded focus:ring-2 focus:ring-[#4C6FFF]/20 cursor-pointer transition-all duration-300"
           />
-          <div class="checkbox-checkmark absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none">
+          <div
+            class="checkbox-checkmark absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 pointer-events-none"
+          >
             <i class="fa-solid fa-check text-white text-xs"></i>
           </div>
         </div>
-        <span class="text-sm font-medium text-[#1A1A1A] group-hover:text-[#4C6FFF] transition-colors duration-300">Save as Draft</span>
+        <span
+          class="text-sm font-medium text-[#1A1A1A] group-hover:text-[#4C6FFF] transition-colors duration-300"
+          >Save as Draft</span
+        >
       </label>
       @if (!postForm.get('saveAsDraft')?.value) {
         <div class="input-group animate-slideDown">
@@ -184,7 +219,9 @@
               formControlName="scheduledAt"
               class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
             />
-            <label class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+            <label
+              class="input-label absolute left-4 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+            >
               Schedule Post (Optional)
             </label>
           </div>
@@ -193,12 +230,15 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex flex-col sm:flex-row gap-3 pt-4 sticky bottom-0 pb-4 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 mt-6">
+    <div
+      class="flex flex-col sm:flex-row gap-3 pt-4 sticky bottom-0 pb-4 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 mt-6"
+    >
       <button
         type="button"
         (click)="saveAsDraft()"
         [disabled]="loading() || postForm.invalid"
-        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         <i class="fa-solid fa-save mr-2"></i>
         Save as Draft
       </button>
@@ -206,7 +246,8 @@
         type="button"
         (click)="createPost()"
         [disabled]="loading() || postForm.invalid || selectedAccountIds().length === 0"
-        class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+        class="flex-1 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-6 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+      >
         @if (loading()) {
           <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
           Creating...
@@ -220,11 +261,23 @@
 
   <!-- AI Assistant Modal -->
   @if (showAIAssistant()) {
-    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="showAIAssistant.set(false)">
-      <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
+    <div
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      (click)="showAIAssistant.set(false)"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+      >
+        <div
+          class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white"
+        >
           <h3 class="text-xl font-bold text-[#1A1A1A]">AI Assistant</h3>
-          <button (click)="showAIAssistant.set(false)" class="text-gray-500 hover:text-gray-700">
+          <button
+            type="button"
+            (click)="showAIAssistant.set(false)"
+            class="text-gray-500 hover:text-gray-700"
+          >
             <i class="fa-solid fa-times text-xl"></i>
           </button>
         </div>
@@ -237,14 +290,17 @@
 
   <!-- Media Library Selector Modal -->
   @if (showMediaLibrary()) {
-    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="closeMediaLibrary()">
+    <div
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      (click)="closeMediaLibrary()"
+    >
       <div (click)="$event.stopPropagation()">
         <app-media-selector
           (mediaSelected)="selectMediaFromLibrary($event.id, $event.url, $event.fileType)"
-          (close)="closeMediaLibrary()">
+          (close)="closeMediaLibrary()"
+        >
         </app-media-selector>
       </div>
     </div>
   }
 </div>
-

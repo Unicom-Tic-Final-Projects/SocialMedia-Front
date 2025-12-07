@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WebhooksService } from '../../services/client/webhooks.service';
@@ -6,12 +6,13 @@ import { ClientsService } from '../../services/client/clients.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
-import { 
-  WebhookSubscription, 
-  CreateWebhookSubscriptionRequest 
-} from '../../models/webhook.models';
+import { WebhookSubscription, CreateWebhookSubscriptionRequest } from '../../models/webhook.models';
 import { Client } from '../../models/client.models';
 import { SocialAccount } from '../../models/social.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-webhooks-page',
@@ -20,12 +21,13 @@ import { SocialAccount } from '../../models/social.models';
   templateUrl: './webhooks-page.html',
   styleUrl: './webhooks-page.css',
 })
-export class WebhooksPage implements OnInit {
+export class WebhooksPage extends BaseComponent implements OnInit {
   private readonly webhooksService = inject(WebhooksService);
   private readonly clientsService = inject(ClientsService);
   private readonly socialAccountsService = inject(SocialAccountsService);
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly loggingService = inject(LoggingService);
 
   subscriptions = signal<WebhookSubscription[]>([]);
   loading = signal(false);
@@ -43,15 +45,15 @@ export class WebhooksPage implements OnInit {
     configuration: {
       defaultClientId: undefined,
       defaultUserId: undefined,
-      defaultSocialAccountIds: []
-    }
+      defaultSocialAccountIds: [],
+    },
   };
 
   platforms = [
     { value: 'WordPress', label: 'WordPress' },
     { value: 'Shopify', label: 'Shopify' },
     { value: 'WooCommerce', label: 'WooCommerce' },
-    { value: 'Custom', label: 'Custom Website' }
+    { value: 'Custom', label: 'Custom Website' },
   ];
 
   ngOnInit(): void {
@@ -60,7 +62,7 @@ export class WebhooksPage implements OnInit {
 
   loadData(): void {
     this.loading.set(true);
-    
+
     const user = this.authService.user();
     if (!user?.tenantId) {
       this.toastService.error('Tenant information not found');
@@ -71,19 +73,25 @@ export class WebhooksPage implements OnInit {
     this.formData.tenantId = user.tenantId;
 
     // Load subscriptions
-    this.webhooksService.getSubscriptions().subscribe({
+    this.webhooksService
+      .getSubscriptions()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (subscriptions) => {
         this.subscriptions.set(subscriptions);
         this.loading.set(false);
       },
-      error: (error) => {
+      error: (_error) => {
         this.toastService.error('Failed to load webhook subscriptions');
         this.loading.set(false);
-      }
+      },
     });
 
     // Load clients (for agency accounts)
-    this.clientsService.loadClients().subscribe({
+    this.clientsService
+      .loadClients()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (clients) => {
         // Extract data from response if needed
         const clientsData = Array.isArray(clients) ? clients : (clients as any)?.data || [];
@@ -95,17 +103,20 @@ export class WebhooksPage implements OnInit {
         if (existingClients.length > 0) {
           this.clients.set(existingClients);
         }
-      }
+      },
     });
 
     // Load social accounts
-    this.socialAccountsService.getSocialAccounts().subscribe({
+    this.socialAccountsService
+      .getSocialAccounts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (accounts) => {
         this.socialAccounts.set(accounts);
       },
       error: () => {
         // Ignore errors for social accounts
-      }
+      },
     });
   }
 
@@ -126,8 +137,8 @@ export class WebhooksPage implements OnInit {
       configuration: {
         defaultClientId: undefined,
         defaultUserId: this.formData.configuration?.defaultUserId,
-        defaultSocialAccountIds: []
-      }
+        defaultSocialAccountIds: [],
+      },
     };
   }
 
@@ -145,7 +156,10 @@ export class WebhooksPage implements OnInit {
     if (this.formData.configuration?.defaultUserId) {
       config['DefaultUserId'] = this.formData.configuration.defaultUserId;
     }
-    if (this.formData.configuration?.defaultSocialAccountIds && this.formData.configuration.defaultSocialAccountIds.length > 0) {
+    if (
+      this.formData.configuration?.defaultSocialAccountIds &&
+      this.formData.configuration.defaultSocialAccountIds.length > 0
+    ) {
       config['DefaultSocialAccountIds'] = this.formData.configuration.defaultSocialAccountIds;
     }
 
@@ -154,11 +168,14 @@ export class WebhooksPage implements OnInit {
       platform: this.formData.platform,
       callbackUrl: this.formData.callbackUrl,
       eventTypes: this.formData.eventTypes,
-      configuration: Object.keys(config).length > 0 ? config : undefined
+      configuration: Object.keys(config).length > 0 ? config : undefined,
     };
 
     this.loading.set(true);
-    this.webhooksService.createSubscription(request).subscribe({
+    this.webhooksService
+      .createSubscription(request)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (subscription) => {
         this.toastService.success('Webhook subscription created successfully');
         this.closeCreateModal();
@@ -169,7 +186,7 @@ export class WebhooksPage implements OnInit {
       error: (error) => {
         this.toastService.error(error.error?.message || 'Failed to create webhook subscription');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -184,11 +201,14 @@ export class WebhooksPage implements OnInit {
   }
 
   copyToken(token: string): void {
-    navigator.clipboard.writeText(token).then(() => {
-      this.toastService.success('Webhook token copied to clipboard');
-    }).catch(() => {
-      this.toastService.error('Failed to copy token');
-    });
+    navigator.clipboard
+      .writeText(token)
+      .then(() => {
+        this.toastService.success('Webhook token copied to clipboard');
+      })
+      .catch(() => {
+        this.toastService.error('Failed to copy token');
+      });
   }
 
   getWebhookUrl(): string {
@@ -199,20 +219,30 @@ export class WebhooksPage implements OnInit {
 
   copyWebhookUrl(): void {
     const url = this.getWebhookUrl();
-    navigator.clipboard.writeText(url).then(() => {
-      this.toastService.success('Webhook URL copied to clipboard');
-    }).catch(() => {
-      this.toastService.error('Failed to copy URL');
-    });
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        this.toastService.success('Webhook URL copied to clipboard');
+      })
+      .catch(() => {
+        this.toastService.error('Failed to copy URL');
+      });
   }
 
   deleteSubscription(subscription: WebhookSubscription): void {
-    if (!confirm(`Are you sure you want to delete the webhook subscription for ${subscription.platform}?`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete the webhook subscription for ${subscription.platform}?`,
+      )
+    ) {
       return;
     }
 
     this.loading.set(true);
-    this.webhooksService.deleteSubscription(subscription.id).subscribe({
+    this.webhooksService
+      .deleteSubscription(subscription.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.toastService.success('Webhook subscription deleted successfully');
         this.loadData();
@@ -220,7 +250,7 @@ export class WebhooksPage implements OnInit {
       error: (error) => {
         this.toastService.error(error.error?.message || 'Failed to delete webhook subscription');
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -256,5 +286,5 @@ export class WebhooksPage implements OnInit {
         return 'bg-gray-100 text-gray-800';
     }
   }
-}
 
+}

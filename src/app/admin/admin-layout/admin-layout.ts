@@ -16,4 +16,3 @@ export class AdminLayout {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 }
-

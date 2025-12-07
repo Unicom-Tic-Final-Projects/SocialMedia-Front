@@ -6,16 +6,16 @@ import { PostDraft, Platform } from '../../models/social.models';
  * Only one active draft exists at a time.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PostDraftService {
   private readonly activeDraftSignal = signal<PostDraft | null>(null);
-  
+
   /**
    * Readonly signal for the active draft
    */
   readonly activeDraft = this.activeDraftSignal.asReadonly();
-  
+
   /**
    * Computed signal indicating if there's an active draft
    */
@@ -44,7 +44,7 @@ export class PostDraftService {
       createdAt: now,
       updatedAt: now,
     };
-    
+
     this.activeDraftSignal.set(newDraft);
     return newDraft;
   }
@@ -65,7 +65,7 @@ export class PostDraftService {
       ...changes,
       updatedAt: new Date().toISOString(),
     };
-    
+
     this.activeDraftSignal.set(updated);
   }
 
@@ -83,10 +83,14 @@ export class PostDraftService {
     const current = this.activeDraftSignal();
     if (!current) return;
 
-    const platformCaptions: Partial<Record<Platform, string>> = { ...(current.platformCaptions || {}) };
+    const platformCaptions: Partial<Record<Platform, string>> = {
+      ...(current.platformCaptions || {}),
+    };
     platformCaptions[platform] = caption;
 
-    this.updateDraft({ platformCaptions: platformCaptions as Record<Platform, string> | undefined });
+    this.updateDraft({
+      platformCaptions: platformCaptions as Record<Platform, string> | undefined,
+    });
   }
 
   /**
@@ -106,23 +110,38 @@ export class PostDraftService {
   /**
    * Update crop configuration for a platform
    */
-  updatePlatformCrop(platform: Platform, cropConfig: {
-    crop: { zoom: number; offsetX: number; offsetY: number };
-    cropBox: { width: number; height: number; left: number; top: number };
-  }): void {
+  updatePlatformCrop(
+    platform: Platform,
+    cropConfig: {
+      crop: { zoom: number; offsetX: number; offsetY: number };
+      cropBox: { width: number; height: number; left: number; top: number };
+    },
+  ): void {
     const current = this.activeDraftSignal();
     if (!current) return;
 
-    const platformCropConfigs: Partial<Record<Platform, {
-      crop: { zoom: number; offsetX: number; offsetY: number };
-      cropBox: { width: number; height: number; left: number; top: number };
-    }>> = { ...(current.platformCropConfigs || {}) };
+    const platformCropConfigs: Partial<
+      Record<
+        Platform,
+        {
+          crop: { zoom: number; offsetX: number; offsetY: number };
+          cropBox: { width: number; height: number; left: number; top: number };
+        }
+      >
+    > = { ...(current.platformCropConfigs || {}) };
     platformCropConfigs[platform] = cropConfig;
 
-    this.updateDraft({ platformCropConfigs: platformCropConfigs as Record<Platform, {
-      crop: { zoom: number; offsetX: number; offsetY: number };
-      cropBox: { width: number; height: number; left: number; top: number };
-    }> | undefined });
+    this.updateDraft({
+      platformCropConfigs: platformCropConfigs as
+        | Record<
+            Platform,
+            {
+              crop: { zoom: number; offsetX: number; offsetY: number };
+              cropBox: { width: number; height: number; left: number; top: number };
+            }
+          >
+        | undefined,
+    });
   }
 
   /**
@@ -131,7 +150,7 @@ export class PostDraftService {
   getPlatformCaption(platform: Platform): string {
     const draft = this.activeDraftSignal();
     if (!draft) return '';
-    
+
     return draft.platformCaptions?.[platform] || draft.caption || '';
   }
 
@@ -149,4 +168,3 @@ export class PostDraftService {
     return `${prefix}_${Math.random().toString(36).slice(2, 9)}_${Date.now()}`;
   }
 }
-

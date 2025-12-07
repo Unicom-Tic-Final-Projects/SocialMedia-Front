@@ -4,22 +4,25 @@
       Step 3: Crop & Edit for Each Platform
     </h2>
     <p class="text-gray-600 text-xs sm:text-sm">
-      Adjust the crop and positioning for each platform. Default configurations have been applied automatically.
+      Adjust the crop and positioning for each platform. Default configurations have been applied
+      automatically.
     </p>
   </div>
 
   <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-300px)]">
     <!-- Left Panel: Platform List -->
     <div class="lg:w-64 border-r border-[#DDE3FF] bg-[#F9FAFF] overflow-y-auto rounded-xl p-4">
-      <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">
-        Platforms
-      </h3>
+      <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">Platforms</h3>
       <div class="space-y-2">
-        @for (platform of selectedPlatforms.length > 0 ? selectedPlatforms : allPlatforms; track platform) {
+        @for (
+          platform of selectedPlatforms.length > 0 ? selectedPlatforms : allPlatforms;
+          track platform
+        ) {
           @let state = getCropState(platform);
           @let meta = platformMeta[platform];
           @let isSelectedInStep2 = selectedPlatforms.includes(platform);
           <button
+            type="button"
             (click)="selectPlatform(platform)"
             class="w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition text-left font-medium relative"
             [class.bg-[#4C6FFF]]="selectedPlatform() === platform"
@@ -30,12 +33,17 @@
             [class.border-[#DDE3FF]]="selectedPlatform() !== platform"
             [class.opacity-60]="!isSelectedInStep2"
           >
-            <i [class]="meta.icon + ' text-lg'" [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"></i>
+            <i
+              [class]="meta.icon + ' text-lg'"
+              [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"
+            ></i>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
                 <span class="truncate">{{ meta.label }}</span>
                 @if (!isSelectedInStep2) {
-                  <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">Not Selected</span>
+                  <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600"
+                    >Not Selected</span
+                  >
                 }
               </div>
               @if (state) {
@@ -56,233 +64,243 @@
         (mousemove)="moveCropBox($event)"
         (mouseup)="stopDragCropBox()"
       >
-      @let platform = selectedPlatform()!;
-      @let meta = platformMeta[platform];
-      @let displayDims = getDisplayDimensions(platform);
-      @let aspect = getPlatformAspect(platform);
+        @let platform = selectedPlatform()!;
+        @let meta = platformMeta[platform];
+        @let displayDims = getDisplayDimensions(platform);
+        @let aspect = getPlatformAspect(platform);
 
-      <div class="text-center mb-6">
-        <p class="text-sm text-[#222222]/80">Aspect Ratio</p>
-        <p class="text-xl font-bold" [style.color]="meta.color">
-          {{ aspect.label }}
-        </p>
-        <p class="text-xs text-gray-500 mt-1">{{ aspect.description }}</p>
-      </div>
+        <div class="text-center mb-6">
+          <p class="text-sm text-[#222222]/80">Aspect Ratio</p>
+          <p class="text-xl font-bold" [style.color]="meta.color">
+            {{ aspect.label }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">{{ aspect.description }}</p>
+        </div>
 
-      <div
-        class="relative overflow-hidden shadow-xl rounded-xl border border-[#DDE3FF] bg-white"
-        [style.width.px]="displayDims.width"
-        [style.height.px]="displayDims.height"
-      >
-        <!-- Image or Video -->
-        @if (mediaUrl) {
-          @if (isVideo()) {
-            <video
-              [src]="mediaUrl"
-              class="w-full h-full object-cover"
-              [ngStyle]="imageStyle(platform)"
-              (loadedmetadata)="onImageLoad()"
-              controls
-              muted
-              loop
-            ></video>
+        <div
+          class="relative overflow-hidden shadow-xl rounded-xl border border-[#DDE3FF] bg-white"
+          [style.width.px]="displayDims.width"
+          [style.height.px]="displayDims.height"
+        >
+          <!-- Image or Video -->
+          @if (mediaUrl) {
+            @if (isVideo()) {
+              <video
+                [src]="mediaUrl"
+                class="w-full h-full object-cover"
+                [ngStyle]="imageStyle(platform)"
+                (loadedmetadata)="onImageLoad()"
+                controls
+                muted
+                loop
+              ></video>
+            } @else {
+              <img
+                [src]="mediaUrl"
+                class="w-full h-full object-cover"
+                [ngStyle]="imageStyle(platform)"
+                (load)="onImageLoad()"
+              />
+            }
           } @else {
-            <img
-              [src]="mediaUrl"
-              class="w-full h-full object-cover"
-              [ngStyle]="imageStyle(platform)"
-              (load)="onImageLoad()"
-            />
+            <div class="w-full h-full flex items-center justify-center bg-gray-100">
+              <div class="text-center text-gray-400">
+                <i class="fa-solid fa-image text-4xl mb-2"></i>
+                <p class="text-sm">No media selected</p>
+              </div>
+            </div>
           }
-        } @else {
-          <div class="w-full h-full flex items-center justify-center bg-gray-100">
-            <div class="text-center text-gray-400">
-              <i class="fa-solid fa-image text-4xl mb-2"></i>
-              <p class="text-sm">No media selected</p>
-            </div>
-          </div>
-        }
 
-        <!-- Free-Form Crop Box (Draggable & Resizable) -->
-        @if (mediaUrl) {
-          <div
-            class="absolute border-2 rounded-lg border-[#4C6FFF] backdrop-blur-sm bg-[#4C6FFF]/10 cursor-move"
-            [style.width.px]="cropBox().width"
-            [style.height.px]="cropBox().height"
-            [style.left.px]="cropBox().left"
-            [style.top.px]="cropBox().top"
-            (mousedown)="startDragCropBox($event)"
-            (touchstart)="startDragCropBox($event)"
-          >
-          <!-- Resize Handles -->
-          <div
-            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -top-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-n-resize z-10"
-            (mousedown)="startResize($event, 't')"
-          ></div>
-          <div
-            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -bottom-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-s-resize z-10"
-            (mousedown)="startResize($event, 'b')"
-          ></div>
-          <div
-            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -left-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-e-resize z-10"
-            (mousedown)="startResize($event, 'l')"
-          ></div>
-          <div
-            class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -right-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-w-resize z-10"
-            (mousedown)="startResize($event, 'r')"
-          ></div>
-          <div
-            class="absolute w-4 h-4 bg-white border border-[#4C6FFF] -right-2 -bottom-2 rounded-md cursor-se-resize z-10"
-            (mousedown)="startResize($event, 'br')"
-          ></div>
+          <!-- Free-Form Crop Box (Draggable & Resizable) -->
+          @if (mediaUrl) {
+            <div
+              class="absolute border-2 rounded-lg border-[#4C6FFF] backdrop-blur-sm bg-[#4C6FFF]/10 cursor-move"
+              [style.width.px]="cropBox().width"
+              [style.height.px]="cropBox().height"
+              [style.left.px]="cropBox().left"
+              [style.top.px]="cropBox().top"
+              (mousedown)="startDragCropBox($event)"
+              (touchstart)="startDragCropBox($event)"
+            >
+              <!-- Resize Handles -->
+              <div
+                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -top-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-n-resize z-10"
+                (mousedown)="startResize($event, 't')"
+              ></div>
+              <div
+                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -bottom-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-s-resize z-10"
+                (mousedown)="startResize($event, 'b')"
+              ></div>
+              <div
+                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -left-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-e-resize z-10"
+                (mousedown)="startResize($event, 'l')"
+              ></div>
+              <div
+                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -right-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-w-resize z-10"
+                (mousedown)="startResize($event, 'r')"
+              ></div>
+              <div
+                class="absolute w-4 h-4 bg-white border border-[#4C6FFF] -right-2 -bottom-2 rounded-md cursor-se-resize z-10"
+                (mousedown)="startResize($event, 'br')"
+              ></div>
+            </div>
+          }
         </div>
-        }
-      </div>
 
-      <!-- Professional Editing Tools -->
-      <div class="mt-6 w-full max-w-4xl">
-        <!-- Toolbar -->
-        <div class="bg-white rounded-xl border border-[#DDE3FF] p-4 shadow-sm">
-          <div class="flex items-center justify-center gap-4 flex-wrap mb-4">
-            <!-- Rotate Left -->
-            <button
-              type="button"
-              (click)="rotateImage(platform, -90)"
-              class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
-              title="Rotate Left"
-            >
-              <i class="fa-solid fa-rotate-left text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
-            </button>
+        <!-- Professional Editing Tools -->
+        <div class="mt-6 w-full max-w-4xl">
+          <!-- Toolbar -->
+          <div class="bg-white rounded-xl border border-[#DDE3FF] p-4 shadow-sm">
+            <div class="flex items-center justify-center gap-4 flex-wrap mb-4">
+              <!-- Rotate Left -->
+              <button
+                type="button"
+                (click)="rotateImage(platform, -90)"
+                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                title="Rotate Left"
+              >
+                <i class="fa-solid fa-rotate-left text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+              </button>
 
-            <!-- Rotate Right -->
-            <button
-              type="button"
-              (click)="rotateImage(platform, 90)"
-              class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
-              title="Rotate Right"
-            >
-              <i class="fa-solid fa-rotate-right text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
-            </button>
+              <!-- Rotate Right -->
+              <button
+                type="button"
+                (click)="rotateImage(platform, 90)"
+                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                title="Rotate Right"
+              >
+                <i class="fa-solid fa-rotate-right text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+              </button>
 
-            <!-- Flip Horizontal -->
-            <button
-              type="button"
-              (click)="flipImage(platform, 'horizontal')"
-              class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
-              title="Flip Horizontal"
-            >
-              <i class="fa-solid fa-arrows-left-right text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
-            </button>
+              <!-- Flip Horizontal -->
+              <button
+                type="button"
+                (click)="flipImage(platform, 'horizontal')"
+                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                title="Flip Horizontal"
+              >
+                <i
+                  class="fa-solid fa-arrows-left-right text-[#4C6FFF] group-hover:text-[#3B56CC]"
+                ></i>
+              </button>
 
-            <!-- Flip Vertical -->
-            <button
-              type="button"
-              (click)="flipImage(platform, 'vertical')"
-              class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
-              title="Flip Vertical"
-            >
-              <i class="fa-solid fa-arrows-up-down text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
-            </button>
+              <!-- Flip Vertical -->
+              <button
+                type="button"
+                (click)="flipImage(platform, 'vertical')"
+                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                title="Flip Vertical"
+              >
+                <i class="fa-solid fa-arrows-up-down text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+              </button>
 
-            <!-- Reset -->
-            <button
-              type="button"
-              (click)="resetImage(platform)"
-              class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
-              title="Reset"
-            >
-              <i class="fa-solid fa-undo text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
-            </button>
+              <!-- Reset -->
+              <button
+                type="button"
+                (click)="resetImage(platform)"
+                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                title="Reset"
+              >
+                <i class="fa-solid fa-undo text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+              </button>
+            </div>
+
+            <!-- Adjustment Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Zoom Control -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass text-[#4C6FFF]"></i>
+                    Zoom
+                  </label>
+                  <span class="text-sm text-gray-600 font-medium"
+                    >{{ getCrop(platform).zoom.toFixed(1) }}x</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.1"
+                  [value]="getCrop(platform).zoom"
+                  (input)="setZoom(platform, $any($event.target).valueAsNumber)"
+                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
+
+              <!-- Brightness Control -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <i class="fa-solid fa-sun text-[#4C6FFF]"></i>
+                    Brightness
+                  </label>
+                  <span class="text-sm text-gray-600 font-medium"
+                    >{{ getBrightness(platform) }}%</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  min="-50"
+                  max="50"
+                  step="1"
+                  [value]="getBrightness(platform)"
+                  (input)="setBrightness(platform, $any($event.target).valueAsNumber)"
+                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
+
+              <!-- Contrast Control -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <i class="fa-solid fa-circle-half-stroke text-[#4C6FFF]"></i>
+                    Contrast
+                  </label>
+                  <span class="text-sm text-gray-600 font-medium"
+                    >{{ getContrast(platform) }}%</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  min="-50"
+                  max="50"
+                  step="1"
+                  [value]="getContrast(platform)"
+                  (input)="setContrast(platform, $any($event.target).valueAsNumber)"
+                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
+
+              <!-- Saturation Control -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
+                    <i class="fa-solid fa-palette text-[#4C6FFF]"></i>
+                    Saturation
+                  </label>
+                  <span class="text-sm text-gray-600 font-medium"
+                    >{{ getSaturation(platform) }}%</span
+                  >
+                </div>
+                <input
+                  type="range"
+                  min="-50"
+                  max="50"
+                  step="1"
+                  [value]="getSaturation(platform)"
+                  (input)="setSaturation(platform, $any($event.target).valueAsNumber)"
+                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                />
+              </div>
+            </div>
+
+            <!-- Position Controls (Hidden but still functional via drag) -->
+            <!-- These are now controlled by dragging the image or crop box -->
           </div>
-
-          <!-- Adjustment Controls -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Zoom Control -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                  <i class="fa-solid fa-magnifying-glass text-[#4C6FFF]"></i>
-                  Zoom
-                </label>
-                <span class="text-sm text-gray-600 font-medium">{{ getCrop(platform).zoom.toFixed(1) }}x</span>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="3"
-                step="0.1"
-                [value]="getCrop(platform).zoom"
-                (input)="setZoom(platform, $any($event.target).valueAsNumber)"
-                class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-
-            <!-- Brightness Control -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                  <i class="fa-solid fa-sun text-[#4C6FFF]"></i>
-                  Brightness
-                </label>
-                <span class="text-sm text-gray-600 font-medium">{{ getBrightness(platform) }}%</span>
-              </div>
-              <input
-                type="range"
-                min="-50"
-                max="50"
-                step="1"
-                [value]="getBrightness(platform)"
-                (input)="setBrightness(platform, $any($event.target).valueAsNumber)"
-                class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-
-            <!-- Contrast Control -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                  <i class="fa-solid fa-circle-half-stroke text-[#4C6FFF]"></i>
-                  Contrast
-                </label>
-                <span class="text-sm text-gray-600 font-medium">{{ getContrast(platform) }}%</span>
-              </div>
-              <input
-                type="range"
-                min="-50"
-                max="50"
-                step="1"
-                [value]="getContrast(platform)"
-                (input)="setContrast(platform, $any($event.target).valueAsNumber)"
-                class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-
-            <!-- Saturation Control -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                  <i class="fa-solid fa-palette text-[#4C6FFF]"></i>
-                  Saturation
-                </label>
-                <span class="text-sm text-gray-600 font-medium">{{ getSaturation(platform) }}%</span>
-              </div>
-              <input
-                type="range"
-                min="-50"
-                max="50"
-                step="1"
-                [value]="getSaturation(platform)"
-                (input)="setSaturation(platform, $any($event.target).valueAsNumber)"
-                class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
-              />
-            </div>
-          </div>
-
-          <!-- Position Controls (Hidden but still functional via drag) -->
-          <!-- These are now controlled by dragging the image or crop box -->
         </div>
       </div>
-    </div>
     } @else {
       <div class="flex-1 flex items-center justify-center bg-[#F4F6FF] rounded-xl">
         <div class="text-center text-gray-500">
@@ -294,139 +312,150 @@
 
     <!-- Right Panel: Platform Specifications & Details -->
     @if (selectedPlatform()) {
-      <div class="lg:w-96 p-6 bg-[#FFFFFF] overflow-y-auto rounded-xl border border-[#DDE3FF] shadow-sm">
-      @let platform = selectedPlatform()!;
-      @let state = getCropState(platform)!;
-      @let meta = platformMeta[platform];
-      @let aspect = getPlatformAspect(platform);
-      @let displayDims = getDisplayDimensions(platform);
+      <div
+        class="lg:w-96 p-6 bg-[#FFFFFF] overflow-y-auto rounded-xl border border-[#DDE3FF] shadow-sm"
+      >
+        @let platform = selectedPlatform()!;
+        @let state = getCropState(platform)!;
+        @let meta = platformMeta[platform];
+        @let aspect = getPlatformAspect(platform);
+        @let displayDims = getDisplayDimensions(platform);
 
-      <h3 class="text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-        <i [class]="meta.icon + ' text-xl'" [style.color]="meta.color"></i>
-        {{ meta.label }} Specifications
-      </h3>
+        <h3 class="text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
+          <i [class]="meta.icon + ' text-xl'" [style.color]="meta.color"></i>
+          {{ meta.label }} Specifications
+        </h3>
 
-      <div class="space-y-4">
-        <!-- Platform Info Card -->
-        <div class="p-4 bg-gradient-to-br from-[#F4F6FF] to-white rounded-xl border-2 border-[#DDE3FF] shadow-sm">
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-[#222222]/70">Current Format:</span>
-              <span class="text-sm font-bold text-[#4C6FFF]">{{ aspect.label }}</span>
+        <div class="space-y-4">
+          <!-- Platform Info Card -->
+          <div
+            class="p-4 bg-gradient-to-br from-[#F4F6FF] to-white rounded-xl border-2 border-[#DDE3FF] shadow-sm"
+          >
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-[#222222]/70">Current Format:</span>
+                <span class="text-sm font-bold text-[#4C6FFF]">{{ aspect.label }}</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#DDE3FF]">
+                <div>
+                  <span class="text-xs text-[#222222]/60 block mb-1">Aspect Ratio</span>
+                  <span class="text-sm font-semibold text-[#1A1A1A]">{{ aspect.label }}</span>
+                </div>
+                <div>
+                  <span class="text-xs text-[#222222]/60 block mb-1">Dimensions</span>
+                  <span class="text-sm font-semibold text-[#1A1A1A]">
+                    {{ aspect.width }} × {{ aspect.height }}
+                  </span>
+                </div>
+                <div>
+                  <span class="text-xs text-[#222222]/60 block mb-1">Display Size</span>
+                  <span class="text-sm font-semibold text-[#1A1A1A]">
+                    {{ displayDims.width }} × {{ displayDims.height }}px
+                  </span>
+                </div>
+                <div>
+                  <span class="text-xs text-[#222222]/60 block mb-1">Status</span>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full font-semibold inline-block"
+                    [class.bg-green-100]="state.isConnected"
+                    [class.text-green-700]="state.isConnected"
+                    [class.bg-gray-100]="!state.isConnected"
+                    [class.text-gray-600]="!state.isConnected"
+                  >
+                    {{ state.isConnected ? '✓ Connected' : 'Not Connected' }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Format Details -->
+              <div class="pt-2 border-t border-[#DDE3FF]">
+                <div class="text-xs text-[#222222]/60 space-y-1">
+                  <div class="flex justify-between">
+                    <span>File Format:</span>
+                    <span class="font-medium text-[#1A1A1A]">JPG, PNG</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>Max File Size:</span>
+                    <span class="font-medium text-[#1A1A1A]">Up to 30MB</span>
+                  </div>
+                  <div class="pt-2 text-[#222222]/70 italic text-xs">
+                    <i class="fa-solid fa-info-circle mr-1"></i>
+                    {{ aspect.description || 'Optimized for ' + meta.label }}
+                  </div>
+                </div>
+              </div>
             </div>
-            
-            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#DDE3FF]">
+          </div>
+
+          <!-- Image Adjustments Summary -->
+          <div class="p-4 bg-[#F4F6FF] rounded-xl border border-[#DDE3FF]">
+            <h4 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-[#4C6FFF]"></i>
+              Current Adjustments
+            </h4>
+            <div class="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <span class="text-xs text-[#222222]/60 block mb-1">Aspect Ratio</span>
-                <span class="text-sm font-semibold text-[#1A1A1A]">{{ aspect.label }}</span>
-              </div>
-              <div>
-                <span class="text-xs text-[#222222]/60 block mb-1">Dimensions</span>
-                <span class="text-sm font-semibold text-[#1A1A1A]">
-                  {{ aspect.width }} × {{ aspect.height }}
-                </span>
-              </div>
-              <div>
-                <span class="text-xs text-[#222222]/60 block mb-1">Display Size</span>
-                <span class="text-sm font-semibold text-[#1A1A1A]">
-                  {{ displayDims.width }} × {{ displayDims.height }}px
-                </span>
-              </div>
-              <div>
-                <span class="text-xs text-[#222222]/60 block mb-1">Status</span>
-                <span
-                  class="text-xs px-2 py-1 rounded-full font-semibold inline-block"
-                  [class.bg-green-100]="state.isConnected"
-                  [class.text-green-700]="state.isConnected"
-                  [class.bg-gray-100]="!state.isConnected"
-                  [class.text-gray-600]="!state.isConnected"
+                <span class="text-[#222222]/60 block mb-1">Rotation</span>
+                <span class="text-[#1A1A1A] font-semibold"
+                  >{{ getAdjustments(platform).rotation }}°</span
                 >
-                  {{ state.isConnected ? '✓ Connected' : 'Not Connected' }}
+              </div>
+              <div>
+                <span class="text-[#222222]/60 block mb-1">Zoom</span>
+                <span class="text-[#1A1A1A] font-semibold"
+                  >{{ getCrop(platform).zoom.toFixed(1) }}x</span
+                >
+              </div>
+              <div>
+                <span class="text-[#222222]/60 block mb-1">Brightness</span>
+                <span class="text-[#1A1A1A] font-semibold">{{ getBrightness(platform) }}%</span>
+              </div>
+              <div>
+                <span class="text-[#222222]/60 block mb-1">Contrast</span>
+                <span class="text-[#1A1A1A] font-semibold">{{ getContrast(platform) }}%</span>
+              </div>
+              <div>
+                <span class="text-[#222222]/60 block mb-1">Saturation</span>
+                <span class="text-[#1A1A1A] font-semibold">{{ getSaturation(platform) }}%</span>
+              </div>
+              <div>
+                <span class="text-[#222222]/60 block mb-1">Flip</span>
+                <span class="text-[#1A1A1A] font-semibold">
+                  @if (
+                    getAdjustments(platform).flipHorizontal && getAdjustments(platform).flipVertical
+                  ) {
+                    Both
+                  } @else if (getAdjustments(platform).flipHorizontal) {
+                    Horizontal
+                  } @else if (getAdjustments(platform).flipVertical) {
+                    Vertical
+                  } @else {
+                    None
+                  }
                 </span>
               </div>
             </div>
-
-            <!-- Format Details -->
-            <div class="pt-2 border-t border-[#DDE3FF]">
-              <div class="text-xs text-[#222222]/60 space-y-1">
-                <div class="flex justify-between">
-                  <span>File Format:</span>
-                  <span class="font-medium text-[#1A1A1A]">JPG, PNG</span>
-                </div>
-                <div class="flex justify-between">
-                  <span>Max File Size:</span>
-                  <span class="font-medium text-[#1A1A1A]">Up to 30MB</span>
-                </div>
-                <div class="pt-2 text-[#222222]/70 italic text-xs">
-                  <i class="fa-solid fa-info-circle mr-1"></i>
-                  {{ aspect.description || 'Optimized for ' + meta.label }}
-                </div>
-              </div>
-            </div>
           </div>
-        </div>
 
-        <!-- Image Adjustments Summary -->
-        <div class="p-4 bg-[#F4F6FF] rounded-xl border border-[#DDE3FF]">
-          <h4 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
-            <i class="fa-solid fa-sliders text-[#4C6FFF]"></i>
-            Current Adjustments
-          </h4>
-          <div class="grid grid-cols-2 gap-3 text-xs">
-            <div>
-              <span class="text-[#222222]/60 block mb-1">Rotation</span>
-              <span class="text-[#1A1A1A] font-semibold">{{ getAdjustments(platform).rotation }}°</span>
+          <!-- Caption Preview -->
+          <div>
+            <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2 flex items-center gap-2">
+              <i class="fa-solid fa-text-width text-[#4C6FFF]"></i>
+              Caption Preview
+            </h4>
+            <div
+              class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-[#222222] text-sm min-h-[80px] max-h-[200px] overflow-y-auto"
+            >
+              @if (caption) {
+                <div class="whitespace-pre-wrap">{{ caption }}</div>
+              } @else {
+                <p class="text-[#222222]/50 italic">No caption provided.</p>
+              }
             </div>
-            <div>
-              <span class="text-[#222222]/60 block mb-1">Zoom</span>
-              <span class="text-[#1A1A1A] font-semibold">{{ getCrop(platform).zoom.toFixed(1) }}x</span>
-            </div>
-            <div>
-              <span class="text-[#222222]/60 block mb-1">Brightness</span>
-              <span class="text-[#1A1A1A] font-semibold">{{ getBrightness(platform) }}%</span>
-            </div>
-            <div>
-              <span class="text-[#222222]/60 block mb-1">Contrast</span>
-              <span class="text-[#1A1A1A] font-semibold">{{ getContrast(platform) }}%</span>
-            </div>
-            <div>
-              <span class="text-[#222222]/60 block mb-1">Saturation</span>
-              <span class="text-[#1A1A1A] font-semibold">{{ getSaturation(platform) }}%</span>
-            </div>
-            <div>
-              <span class="text-[#222222]/60 block mb-1">Flip</span>
-              <span class="text-[#1A1A1A] font-semibold">
-                @if (getAdjustments(platform).flipHorizontal && getAdjustments(platform).flipVertical) {
-                  Both
-                } @else if (getAdjustments(platform).flipHorizontal) {
-                  Horizontal
-                } @else if (getAdjustments(platform).flipVertical) {
-                  Vertical
-                } @else {
-                  None
-                }
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Caption Preview -->
-        <div>
-          <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2 flex items-center gap-2">
-            <i class="fa-solid fa-text-width text-[#4C6FFF]"></i>
-            Caption Preview
-          </h4>
-          <div class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-[#222222] text-sm min-h-[80px] max-h-[200px] overflow-y-auto">
-            @if (caption) {
-              <div class="whitespace-pre-wrap">{{ caption }}</div>
-            } @else {
-              <p class="text-[#222222]/50 italic">No caption provided.</p>
-            }
           </div>
         </div>
       </div>
-    </div>
     }
   </div>
 </div>
-

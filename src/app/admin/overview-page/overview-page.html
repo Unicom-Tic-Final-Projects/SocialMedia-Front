@@ -6,29 +6,38 @@
 
   <!-- Metrics Cards -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-    <div *ngIf="loading" class="col-span-3 text-center py-8 text-gray-600">
-      <i class="fas fa-spinner fa-spin text-2xl mb-2 text-[#4C6FFF]"></i>
-      <p>Loading metrics...</p>
-    </div>
-    <div *ngIf="!loading && metrics.length === 0" class="col-span-3 text-center py-8 text-gray-600">
-      <i class="fas fa-chart-line text-4xl mb-4 text-gray-400"></i>
-      <p>No metrics available</p>
-    </div>
-    <ng-container *ngIf="!loading && metrics.length > 0">
-      <app-admin-dashboard-card *ngFor="let metric of metrics"
-                        [title]="metric.title"
-                        [value]="metric.value"
-                        [icon]="metric.icon"
-                        [trend]="metric.trend"
-                        [trendValue]="metric.trendValue">
-      </app-admin-dashboard-card>
-    </ng-container>
+    @if (loading) {
+      <div class="col-span-3 text-center py-8 text-gray-600">
+        <i class="fas fa-spinner fa-spin text-2xl mb-2 text-[#4C6FFF]"></i>
+        <p>Loading metrics...</p>
+      </div>
+    }
+    @if (!loading && metrics.length === 0) {
+      <div class="col-span-3 text-center py-8 text-gray-600">
+        <i class="fas fa-chart-line text-4xl mb-4 text-gray-400"></i>
+        <p>No metrics available</p>
+      </div>
+    }
+    @if (!loading && metrics.length > 0) {
+      @for (metric of metrics; track metric.title) {
+        <app-admin-dashboard-card
+          [title]="metric.title"
+          [value]="metric.value"
+          [icon]="metric.icon"
+          [trend]="metric.trend"
+          [trendValue]="metric.trendValue"
+        >
+        </app-admin-dashboard-card>
+      }
+    }
   </div>
 
   <!-- Charts Section -->
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <app-admin-chart-section title="User Growth" subtitle="Last 30 days">
-      <div class="h-64 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg flex items-center justify-center text-gray-600">
+      <div
+        class="h-64 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg flex items-center justify-center text-gray-600"
+      >
         <div class="text-center">
           <i class="fas fa-chart-line text-4xl mb-4 text-[#4C6FFF]"></i>
           <p>Chart visualization will go here</p>
@@ -37,7 +46,9 @@
     </app-admin-chart-section>
 
     <app-admin-chart-section title="Post Performance" subtitle="Last 7 days">
-      <div class="h-64 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg flex items-center justify-center text-gray-600">
+      <div
+        class="h-64 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg flex items-center justify-center text-gray-600"
+      >
         <div class="text-center">
           <i class="fas fa-chart-bar text-4xl mb-4 text-[#4C6FFF]"></i>
           <p>Chart visualization will go here</p>
@@ -46,4 +57,3 @@
     </app-admin-chart-section>
   </div>
 </div>
-

@@ -15,4 +15,3 @@ export class AdminDashboardCard {
   @Input() trendValue?: string;
   @Input() color: 'primary' | 'success' | 'warning' | 'danger' = 'primary';
 }
-

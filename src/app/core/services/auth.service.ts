@@ -3,7 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, map, of } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
-import { LoginRequest, RegisterRequest, AuthResponse, UserDto, ApiResponse } from '../../models/auth.models';
+import {
+  LoginRequest,
+  RegisterRequest,
+  AuthResponse,
+  UserDto,
+  ApiResponse,
+} from '../../models/auth.models';
 import { FirebaseService } from './firebase.service';
 
 const TOKEN_KEY = 'access_token';
@@ -11,7 +17,7 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'user_data';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -27,7 +33,9 @@ export class AuthService {
   readonly token = this.tokenSignal.asReadonly();
 
   // Computed properties
-  readonly isAuthenticated = computed(() => this.tokenSignal() !== null && this.userSignal() !== null);
+  readonly isAuthenticated = computed(
+    () => this.tokenSignal() !== null && this.userSignal() !== null,
+  );
   readonly isAgency = computed(() => this.userSignal()?.tenantType === 'Agency');
   readonly isIndividual = computed(() => this.userSignal()?.tenantType === 'Individual');
 
@@ -41,20 +49,22 @@ export class AuthService {
    */
   login(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
     console.log('[AuthService] Login request:', request);
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/login`, request).pipe(
-      tap(response => {
-        console.log('[AuthService] Login response:', response);
-        if (response && response.success && response.data) {
-          this.setAuthData(response.data);
-        } else {
-          console.warn('[AuthService] Login response missing success or data:', response);
-        }
-      }),
-      catchError(error => {
-        console.error('[AuthService] Login error:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/login`, request)
+      .pipe(
+        tap((response) => {
+          console.log('[AuthService] Login response:', response);
+          if (response && response.success && response.data) {
+            this.setAuthData(response.data);
+          } else {
+            console.warn('[AuthService] Login response missing success or data:', response);
+          }
+        }),
+        catchError((error) => {
+          console.error('[AuthService] Login error:', error);
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
@@ -62,50 +72,59 @@ export class AuthService {
    */
   adminLogin(request: LoginRequest): Observable<ApiResponse<AuthResponse>> {
     console.log('[AuthService] Admin login request:', request);
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/admin-login`, request).pipe(
-      tap(response => {
-        console.log('[AuthService] Admin login response:', response);
-        // Handle both wrapped (ApiResponse<AuthResponse>) and unwrapped (AuthResponse) responses
-        let authResponse: AuthResponse | null = null;
-        
-        if (response && 'success' in response && 'data' in response) {
-          // Response is wrapped in ApiResponse
-          if (response.success && response.data) {
-            authResponse = response.data;
+    return this.http
+      .post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/admin-login`, request)
+      .pipe(
+        tap((response) => {
+          console.log('[AuthService] Admin login response:', response);
+          // Handle both wrapped (ApiResponse<AuthResponse>) and unwrapped (AuthResponse) responses
+          let authResponse: AuthResponse | null = null;
+
+          if (response && 'success' in response && 'data' in response) {
+            // Response is wrapped in ApiResponse
+            if (response.success && response.data) {
+              authResponse = response.data;
+            }
+          } else if (
+            response &&
+            'accessToken' in response &&
+            'refreshToken' in response &&
+            'user' in response
+          ) {
+            // Response is unwrapped (direct AuthResponse)
+            authResponse = response as unknown as AuthResponse;
           }
-        } else if (response && 'accessToken' in response && 'refreshToken' in response && 'user' in response) {
-          // Response is unwrapped (direct AuthResponse)
-          authResponse = response as unknown as AuthResponse;
-        }
-        
-        if (authResponse) {
-          this.setAuthData(authResponse);
-        } else {
-          console.warn('[AuthService] Admin login response missing required data:', response);
-        }
-      }),
-      catchError(error => {
-        console.error('[AuthService] Admin login error:', error);
-        return throwError(() => error);
-      })
-    );
+
+          if (authResponse) {
+            this.setAuthData(authResponse);
+          } else {
+            console.warn('[AuthService] Admin login response missing required data:', response);
+          }
+        }),
+        catchError((error) => {
+          console.error('[AuthService] Admin login error:', error);
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
    * Register new user
    */
   register(request: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/register`, request).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          this.setAuthData(response.data);
-        }
-      }),
-      catchError(error => {
-        console.error('Registration error:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/register`, request)
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data) {
+            this.setAuthData(response.data);
+          }
+        }),
+        catchError((error) => {
+          console.error('Registration error:', error);
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
@@ -114,18 +133,16 @@ export class AuthService {
   logout(): void {
     const currentRole = this.userSignal()?.role?.toLowerCase() ?? '';
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    
+
     if (refreshToken) {
       this.http
         .post<ApiResponse<boolean>>(`${this.baseUrl}/api/auth/logout`, { refreshToken })
-        .pipe(
-          catchError(() => of(null))
-        )
+        .pipe(catchError(() => of(null)))
         .subscribe();
     }
 
     // Unregister FCM token on logout
-    this.firebaseService.unregisterToken().catch(error => {
+    this.firebaseService.unregisterToken().catch((error) => {
       console.error('Error unregistering FCM token:', error);
     });
 
@@ -139,24 +156,26 @@ export class AuthService {
    */
   refreshToken(): Observable<ApiResponse<AuthResponse>> {
     const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    
+
     if (!refreshToken) {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/refresh`, { refreshToken }).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          this.setAuthData(response.data);
-        }
-      }),
-      catchError(error => {
-        console.error('Token refresh error:', error);
-        // If refresh fails, logout user
-        this.logout();
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<ApiResponse<AuthResponse>>(`${this.baseUrl}/api/auth/refresh`, { refreshToken })
+      .pipe(
+        tap((response) => {
+          if (response.success && response.data) {
+            this.setAuthData(response.data);
+          }
+        }),
+        catchError((error) => {
+          console.error('Token refresh error:', error);
+          // If refresh fails, logout user
+          this.logout();
+          return throwError(() => error);
+        }),
+      );
   }
 
   /**
@@ -184,7 +203,7 @@ export class AuthService {
           this.clearAuthData();
         }
         return of(null);
-      })
+      }),
     );
   }
 
@@ -256,4 +275,3 @@ export class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
 }
-

@@ -9,7 +9,7 @@ export interface ConfirmationOptions {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConfirmationService {
   private confirmation = signal<{
@@ -33,9 +33,9 @@ export class ConfirmationService {
           message: options.message,
           confirmText: options.confirmText || 'Confirm',
           cancelText: options.cancelText || 'Cancel',
-          confirmButtonClass: options.confirmButtonClass || 'bg-[#4C6FFF] hover:bg-[#3A56CC]'
+          confirmButtonClass: options.confirmButtonClass || 'bg-[#4C6FFF] hover:bg-[#3A56CC]',
         },
-        resolve
+        resolve,
       });
     });
   }
@@ -51,4 +51,3 @@ export class ConfirmationService {
     }
   }
 }
-

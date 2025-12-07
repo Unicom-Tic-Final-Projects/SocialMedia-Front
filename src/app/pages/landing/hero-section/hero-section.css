@@ -1,6 +1,5 @@
 /* All styles using Tailwind CSS utility classes */
 
-
 /* 3D Social Media Orbit Animation */
 .social-orbit-stage {
   perspective: 1500px;
@@ -39,15 +38,21 @@
   place-items: center;
   font-size: 38px;
   background: #fff;
-  border: 1px solid #E7EAFF;
-  box-shadow: 0 4px 18px rgba(76, 111, 255, 0.15), 0 0 0 12px rgba(191, 201, 255, 0.15);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid #e7eaff;
+  box-shadow:
+    0 4px 18px rgba(76, 111, 255, 0.15),
+    0 0 0 12px rgba(191, 201, 255, 0.15);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
   will-change: transform, box-shadow;
   cursor: pointer;
 }
 
 .social-orbit-node:hover {
-  box-shadow: 0 10px 28px rgba(76, 111, 255, 0.25), 0 0 0 14px rgba(191, 201, 255, 0.22);
+  box-shadow:
+    0 10px 28px rgba(76, 111, 255, 0.25),
+    0 0 0 14px rgba(191, 201, 255, 0.22);
   z-index: 20;
 }
 
@@ -146,12 +151,14 @@
   width: 180px;
   height: 180px;
   border-radius: 36px;
-  background: conic-gradient(from 210deg, #BFC9FF, #fff 45%, #BFC9FF 94%, #fff 100%);
+  background: conic-gradient(from 210deg, #bfc9ff, #fff 45%, #bfc9ff 94%, #fff 100%);
   display: grid;
   place-items: center;
   font-weight: 800;
-  color: #1A1A1A;
-  box-shadow: 0 10px 40px rgba(76, 111, 255, 0.22), 0 0 0 20px rgba(191, 201, 255, 0.18);
+  color: #1a1a1a;
+  box-shadow:
+    0 10px 40px rgba(76, 111, 255, 0.22),
+    0 0 0 20px rgba(191, 201, 255, 0.18);
   text-align: center;
   line-height: 1.05;
   font-size: 28px;

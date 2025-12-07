@@ -4,17 +4,30 @@
   data-aos="fade-in"
   data-aos-duration="800"
   data-aos-easing="ease-out-cubic"
-  style="scroll-snap-align: start;"
+  style="scroll-snap-align: start"
 >
   <!-- ✨ Mid soft glow, pure white top and bottom -->
   <div
     class="absolute inset-0 pointer-events-none"
     style="
       background:
-        linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 20%, transparent 40%, transparent 60%, #FFFFFF 80%, #FFFFFF 100%),
-        radial-gradient(circle at 50% 50%, rgba(191,201,255,0.35) 0%, rgba(255,214,232,0.25) 35%, transparent 70%);
-    ">
-  </div>
+        linear-gradient(
+          to bottom,
+          #ffffff 0%,
+          #ffffff 20%,
+          transparent 40%,
+          transparent 60%,
+          #ffffff 80%,
+          #ffffff 100%
+        ),
+        radial-gradient(
+          circle at 50% 50%,
+          rgba(191, 201, 255, 0.35) 0%,
+          rgba(255, 214, 232, 0.25) 35%,
+          transparent 70%
+        );
+    "
+  ></div>
 
   <!-- Content -->
   <div
@@ -23,14 +36,11 @@
     <!-- Brand -->
     <div data-aos="fade-up" data-aos-delay="0" class="sm:col-span-2 lg:col-span-1">
       <h2 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
-        <span class="text-[#4C6FFF]">One</span
-        ><span class="text-[#1A1A1A]">vo</span>
+        <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
       </h2>
-      <p
-        class="text-[#222222]/70 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto md:mx-0"
-      >
-        Simplify your social media workflow — schedule, publish, and analyze
-        your posts all in one intuitive platform built for creators and brands.
+      <p class="text-[#222222]/70 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
+        Simplify your social media workflow — schedule, publish, and analyze your posts all in one
+        intuitive platform built for creators and brands.
       </p>
     </div>
 
@@ -43,37 +53,25 @@
       </h3>
       <ul class="space-y-2 text-[#222222]/70 font-medium">
         <li>
-          <a
-            routerLink="/"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
-            >Home</a
-          >
+          <a routerLink="/" class="hover:text-[#4C6FFF] transition-colors duration-300">Home</a>
         </li>
         <li>
-          <a
-            routerLink="/features"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
+          <a routerLink="/features" class="hover:text-[#4C6FFF] transition-colors duration-300"
             >Features</a
           >
         </li>
         <li>
-          <a
-            routerLink="/pricing"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
+          <a routerLink="/pricing" class="hover:text-[#4C6FFF] transition-colors duration-300"
             >Pricing</a
           >
         </li>
         <li>
-          <a
-            routerLink="/about"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
+          <a routerLink="/about" class="hover:text-[#4C6FFF] transition-colors duration-300"
             >About</a
           >
         </li>
         <li>
-          <a
-            routerLink="/auth/login"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
+          <a routerLink="/auth/login" class="hover:text-[#4C6FFF] transition-colors duration-300"
             >Login</a
           >
         </li>
@@ -96,16 +94,12 @@
           >
         </li>
         <li>
-          <a
-            routerLink="/cookie-policy"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
+          <a routerLink="/cookie-policy" class="hover:text-[#4C6FFF] transition-colors duration-300"
             >Cookie Policy</a
           >
         </li>
         <li>
-          <a
-            href="#"
-            class="hover:text-[#4C6FFF] transition-colors duration-300"
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300"
             >Terms of Service</a
           >
         </li>
@@ -120,36 +114,53 @@
     data-aos-delay="300"
   >
     <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mb-2">
-      <span>© 2025 <span class="text-[#4C6FFF] font-semibold">Onevo</span>. All rights reserved.</span>
+      <span
+        >© 2025 <span class="text-[#4C6FFF] font-semibold">Onevo</span>. All rights reserved.</span
+      >
       <span class="hidden sm:inline">•</span>
       <div class="flex items-center gap-3 text-xs">
-        <a routerLink="/privacy-policy" class="hover:text-[#4C6FFF] transition-colors duration-300">Privacy</a>
+        <a routerLink="/privacy-policy" class="hover:text-[#4C6FFF] transition-colors duration-300"
+          >Privacy</a
+        >
         <span class="text-[#222222]/40">•</span>
-        <a routerLink="/cookie-policy" class="hover:text-[#4C6FFF] transition-colors duration-300">Cookies</a>
+        <a routerLink="/cookie-policy" class="hover:text-[#4C6FFF] transition-colors duration-300"
+          >Cookies</a
+        >
       </div>
     </div>
   </div>
 
   <!-- Infinite Forward Scroll Indicator -->
-  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none z-20">
-    <div class="text-xs sm:text-sm text-[#4C6FFF]/70 font-semibold uppercase tracking-wider animate-pulse">
+  <div
+    class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 pointer-events-none z-20"
+  >
+    <div
+      class="text-xs sm:text-sm text-[#4C6FFF]/70 font-semibold uppercase tracking-wider animate-pulse"
+    >
       Keep Exploring
     </div>
-    <div class="w-6 h-10 border-2 border-[#4C6FFF]/40 rounded-full flex justify-center items-start pt-2 relative overflow-hidden">
-      <div class="w-1.5 h-1.5 bg-[#4C6FFF] rounded-full" style="animation: infiniteScroll 2s ease-in-out infinite;"></div>
+    <div
+      class="w-6 h-10 border-2 border-[#4C6FFF]/40 rounded-full flex justify-center items-start pt-2 relative overflow-hidden"
+    >
+      <div
+        class="w-1.5 h-1.5 bg-[#4C6FFF] rounded-full"
+        style="animation: infiniteScroll 2s ease-in-out infinite"
+      ></div>
     </div>
-    <div class="text-[10px] text-[#222222]/50 font-medium">
-      Scroll to continue...
-    </div>
+    <div class="text-[10px] text-[#222222]/50 font-medium">Scroll to continue...</div>
   </div>
 
   <!-- ✅ Seamless loop fade - connects back to hero -->
   <div
     class="absolute bottom-0 left-0 w-full h-[200px] pointer-events-none z-10"
-    style="background: linear-gradient(to bottom, 
-      rgba(255,255,255,0) 0%, 
-      rgba(248,250,255,0.5) 30%,
-      rgba(255,255,255,0.8) 60%,
-      #FFFFFF 100%);"
+    style="
+      background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(248, 250, 255, 0.5) 30%,
+        rgba(255, 255, 255, 0.8) 60%,
+        #ffffff 100%
+      );
+    "
   ></div>
 </footer>

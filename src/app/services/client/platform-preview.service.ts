@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform, PlatformPreviewConfig } from '../../models/social.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PlatformPreviewService {
   private readonly config: Record<Platform, PlatformPreviewConfig> = {
@@ -87,7 +87,10 @@ export class PlatformPreviewService {
   /**
    * Backwards compatible helper mirroring older API naming.
    */
-  getDisplayDimensions(platform: Platform, maxWidth: number = 360): { width: number; height: number } {
+  getDisplayDimensions(
+    platform: Platform,
+    maxWidth: number = 360,
+  ): { width: number; height: number } {
     return this.getDisplaySize(platform, maxWidth);
   }
 }

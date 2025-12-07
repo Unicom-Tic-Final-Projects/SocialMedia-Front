@@ -19,7 +19,7 @@
 .input-field:not(:placeholder-shown) ~ .input-label {
   top: 0.5rem;
   font-size: 0.75rem;
-  color: #4C6FFF;
+  color: #4c6fff;
   transform: translateY(0);
 }
 
@@ -81,7 +81,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: #F5F7FF;
+  background-color: #f5f7ff;
   transform: scale(1.001);
   box-shadow: 0 2px 4px rgba(76, 111, 255, 0.1);
 }
@@ -104,7 +104,7 @@ button[title]:hover::after {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: #1A1A1A;
+  background: #1a1a1a;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -127,7 +127,7 @@ button[title]:hover::after {
   table {
     font-size: 0.875rem;
   }
-  
+
   thead th,
   tbody td {
     padding: 0.75rem 0.5rem;
@@ -135,13 +135,14 @@ button[title]:hover::after {
 }
 
 /* Filter Button Active State */
-button[class*="bg-[#4C6FFF]"] {
+button[class*='bg-[#4C6FFF]'] {
   box-shadow: 0 2px 8px rgba(76, 111, 255, 0.3);
 }
 
 /* Empty State Animation */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

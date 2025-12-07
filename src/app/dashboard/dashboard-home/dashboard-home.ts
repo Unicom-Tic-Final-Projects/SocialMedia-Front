@@ -1,8 +1,22 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, inject, signal, computed, effect, ViewChildren, QueryList, ElementRef, NgZone } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  inject,
+  signal,
+  effect,
+  ViewChildren,
+  QueryList,
+  ElementRef,
+  NgZone,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
-import { catchError, map, delay } from 'rxjs/operators';
+import { catchError, takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
 import { PostsService } from '../../services/client/posts.service';
 import { NotificationsService } from '../../services/client/notifications.service';
 import { ClientContextService } from '../../services/client/client-context.service';
@@ -23,13 +37,14 @@ interface DashboardStats {
   templateUrl: './dashboard-home.html',
   styleUrl: './dashboard-home.css',
 })
-export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
+export class DashboardHome extends BaseComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly postsService = inject(PostsService);
   private readonly notificationsService = inject(NotificationsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
   readonly clientContextService = inject(ClientContextService);
+  private readonly loggingService = inject(LoggingService);
 
   @ViewChildren('statCard') statCards!: QueryList<ElementRef<HTMLElement>>;
 
@@ -41,7 +56,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
     drafts: 0,
   });
   recentActivity = signal<NotificationItem[]>([]);
-  
+
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
   readonly selectedClient = this.clientContextService.selectedClient;
@@ -55,11 +70,12 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
   private isMobile: boolean = false;
 
   constructor() {
+    super();
     // Wait for client context to be ready before loading data
     effect(() => {
       const isViewing = this.isViewingClient();
       const client = this.selectedClient();
-      
+
       // If viewing client dashboard, wait a bit for context to be fully set
       if (isViewing && client) {
         // Small delay to ensure context is ready
@@ -75,13 +91,13 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.checkMobile();
-    
+
     // Extract clientId from route if available
     let route = this.route;
     while (route.firstChild) {
       route = route.firstChild;
     }
-    
+
     // Check parent routes for clientId
     let parentRoute = this.route.parent;
     while (parentRoute) {
@@ -110,7 +126,8 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  ngOnDestroy() {
+  override ngOnDestroy() {
+    super.ngOnDestroy();
     if (this.mouseMoveListener) {
       document.removeEventListener('mousemove', this.mouseMoveListener);
     }
@@ -165,15 +182,19 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
     if (!cardsContainer) return;
 
     const rect = cardsContainer.getBoundingClientRect();
-    const mouseInside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+    const mouseInside =
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom;
 
     if (!mouseInside) {
       gsap.to(this.spotlightElement, {
         opacity: 0,
         duration: 0.3,
-        ease: 'power2.out'
+        ease: 'power2.out',
       });
-      this.statCards.forEach(cardRef => {
+      this.statCards.forEach((cardRef) => {
         const card = cardRef.nativeElement;
         card.style.setProperty('--glow-intensity', '0');
       });
@@ -184,12 +205,14 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
     const fadeDistance = this.spotlightRadius * 0.75;
     let minDistance = Infinity;
 
-    this.statCards.forEach(cardRef => {
+    this.statCards.forEach((cardRef) => {
       const card = cardRef.nativeElement;
       const cardRect = card.getBoundingClientRect();
       const centerX = cardRect.left + cardRect.width / 2;
       const centerY = cardRect.top + cardRect.height / 2;
-      const distance = Math.hypot(e.clientX - centerX, e.clientY - centerY) - Math.max(cardRect.width, cardRect.height) / 2;
+      const distance =
+        Math.hypot(e.clientX - centerX, e.clientY - centerY) -
+        Math.max(cardRect.width, cardRect.height) / 2;
       const effectiveDistance = Math.max(0, distance);
 
       minDistance = Math.min(minDistance, effectiveDistance);
@@ -201,14 +224,20 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         glowIntensity = (fadeDistance - effectiveDistance) / (fadeDistance - proximity);
       }
 
-      this.updateCardGlowProperties(card, e.clientX, e.clientY, glowIntensity, this.spotlightRadius);
+      this.updateCardGlowProperties(
+        card,
+        e.clientX,
+        e.clientY,
+        glowIntensity,
+        this.spotlightRadius,
+      );
     });
 
     gsap.to(this.spotlightElement, {
       left: e.clientX,
       top: e.clientY,
       duration: 0.1,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
 
     const targetOpacity =
@@ -221,12 +250,12 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
     gsap.to(this.spotlightElement, {
       opacity: targetOpacity,
       duration: targetOpacity > 0 ? 0.2 : 0.5,
-      ease: 'power2.out'
+      ease: 'power2.out',
     });
   }
 
   private handleSpotlightLeave(): void {
-    this.statCards.forEach(cardRef => {
+    this.statCards.forEach((cardRef) => {
       const card = cardRef.nativeElement;
       card.style.setProperty('--glow-intensity', '0');
     });
@@ -234,12 +263,18 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
       gsap.to(this.spotlightElement, {
         opacity: 0,
         duration: 0.3,
-        ease: 'power2.out'
+        ease: 'power2.out',
       });
     }
   }
 
-  private updateCardGlowProperties(card: HTMLElement, mouseX: number, mouseY: number, glow: number, radius: number): void {
+  private updateCardGlowProperties(
+    card: HTMLElement,
+    mouseX: number,
+    mouseY: number,
+    glow: number,
+    radius: number,
+  ): void {
     const rect = card.getBoundingClientRect();
     const relativeX = ((mouseX - rect.left) / rect.width) * 100;
     const relativeY = ((mouseY - rect.top) / rect.height) * 100;
@@ -251,7 +286,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setupCardEffects(): void {
-    this.statCards.forEach((cardRef, index) => {
+    this.statCards.forEach((cardRef, _index) => {
       const card = cardRef.nativeElement;
       if (!card) return;
 
@@ -303,7 +338,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
       timeouts.forEach(clearTimeout);
       timeouts.length = 0;
 
-      particles.forEach(particle => {
+      particles.forEach((particle) => {
         gsap.to(particle, {
           scale: 0,
           opacity: 0,
@@ -311,7 +346,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
           ease: 'back.in(1.7)',
           onComplete: () => {
             particle.parentNode?.removeChild(particle);
-          }
+          },
         });
       });
       particles.length = 0;
@@ -322,7 +357,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
 
       const { width, height } = card.getBoundingClientRect();
       const memoizedParticles = Array.from({ length: this.particleCount }, () =>
-        createParticleElement(Math.random() * width, Math.random() * height)
+        createParticleElement(Math.random() * width, Math.random() * height),
       );
 
       memoizedParticles.forEach((particle, i) => {
@@ -333,7 +368,11 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
           card.appendChild(clone);
           particles.push(clone);
 
-          gsap.fromTo(clone, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' });
+          gsap.fromTo(
+            clone,
+            { scale: 0, opacity: 0 },
+            { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' },
+          );
 
           gsap.to(clone, {
             x: (Math.random() - 0.5) * 100,
@@ -342,7 +381,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
             duration: 2 + Math.random() * 2,
             ease: 'none',
             repeat: -1,
-            yoyo: true
+            yoyo: true,
           });
 
           gsap.to(clone, {
@@ -350,7 +389,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
             duration: 1.5,
             ease: 'power2.inOut',
             repeat: -1,
-            yoyo: true
+            yoyo: true,
           });
         }, i * 100);
 
@@ -389,7 +428,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         rotateY,
         duration: 0.1,
         ease: 'power2.out',
-        transformPerspective: 1000
+        transformPerspective: 1000,
       });
 
       // Magnetism effect
@@ -400,7 +439,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         x: magnetX,
         y: magnetY,
         duration: 0.3,
-        ease: 'power2.out'
+        ease: 'power2.out',
       });
     };
 
@@ -411,7 +450,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         x: 0,
         y: 0,
         duration: 0.3,
-        ease: 'power2.out'
+        ease: 'power2.out',
       });
     };
 
@@ -429,7 +468,7 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         Math.hypot(x, y),
         Math.hypot(x - rect.width, y),
         Math.hypot(x, y - rect.height),
-        Math.hypot(x - rect.width, y - rect.height)
+        Math.hypot(x - rect.width, y - rect.height),
       );
 
       const ripple = document.createElement('div');
@@ -451,15 +490,15 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         ripple,
         {
           scale: 0,
-          opacity: 1
+          opacity: 1,
         },
         {
           scale: 1,
           opacity: 0,
           duration: 0.8,
           ease: 'power2.out',
-          onComplete: () => ripple.remove()
-        }
+          onComplete: () => ripple.remove(),
+        },
       );
     };
 
@@ -470,33 +509,41 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
     this.loading.set(true);
 
     // Fetch posts by different statuses
-    const statuses: PostStatus[] = ['Draft', 'Scheduled', 'Published', 'PendingApproval', 'Approved'];
-    
-    const postRequests = statuses.map(status =>
-      this.postsService.getPostsByStatus(status).pipe(
-        catchError(() => of([] as SocialPost[]))
-      )
+    const statuses: PostStatus[] = [
+      'Draft',
+      'Scheduled',
+      'Published',
+      'PendingApproval',
+      'Approved',
+    ];
+
+    const postRequests = statuses.map((status) =>
+      this.postsService.getPostsByStatus(status).pipe(catchError(() => of([] as SocialPost[]))),
     );
 
     // Fetch recent notifications
-    const notificationsRequest = this.notificationsService.refresh(5).pipe(
-      catchError(() => of([] as NotificationItem[]))
-    );
+    const notificationsRequest = this.notificationsService
+      .refresh(5)
+      .pipe(catchError(() => of([] as NotificationItem[])));
 
     forkJoin({
       posts: forkJoin(postRequests),
       notifications: notificationsRequest,
-    }).subscribe({
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: ({ posts, notifications }) => {
         // Flatten all posts from different statuses
         const allPosts = posts.flat();
-        
+
         // Calculate statistics
         const stats: DashboardStats = {
           totalPosts: allPosts.length,
-          published: allPosts.filter(p => p.status === 'Published').length,
-          pending: allPosts.filter(p => p.status === 'PendingApproval' || p.status === 'Scheduled').length,
-          drafts: allPosts.filter(p => p.status === 'Draft').length,
+          published: allPosts.filter((p) => p.status === 'Published').length,
+          pending: allPosts.filter(
+            (p) => p.status === 'PendingApproval' || p.status === 'Scheduled',
+          ).length,
+          drafts: allPosts.filter((p) => p.status === 'Draft').length,
         };
 
         this.stats.set(stats);
@@ -504,9 +551,9 @@ export class DashboardHome implements OnInit, AfterViewInit, OnDestroy {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error loading dashboard data:', error);
+        this.loggingService.error('Error loading dashboard data', error, 'DashboardHome');
         this.loading.set(false);
-      }
+      },
     });
   }
 

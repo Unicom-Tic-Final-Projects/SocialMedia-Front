@@ -1,6 +1,8 @@
-<div class="bento-section grid gap-2 p-3 max-w-[54rem] select-none relative" 
-     style="font-size: clamp(1rem, 0.9rem + 0.5vw, 1.5rem)"
-     #gridRef>
+<div
+  class="bento-section grid gap-2 p-3 max-w-[54rem] select-none relative"
+  style="font-size: clamp(1rem, 0.9rem + 0.5vw, 1.5rem)"
+  #gridRef
+>
   <div class="card-responsive grid gap-2">
     @for (card of defaultCards; track card.title; let index = $index) {
       <div
@@ -15,12 +17,16 @@
           <span class="card__label text-base">{{ card.label }}</span>
         </div>
         <div class="card__content flex flex-col relative text-white">
-          <h3 class="card__title font-normal text-base m-0 mb-1" 
-              [class.text-clamp-1]="textAutoHide">
+          <h3
+            class="card__title font-normal text-base m-0 mb-1"
+            [class.text-clamp-1]="textAutoHide"
+          >
             {{ card.title }}
           </h3>
-          <p class="card__description text-xs leading-5 opacity-90"
-             [class.text-clamp-2]="textAutoHide">
+          <p
+            class="card__description text-xs leading-5 opacity-90"
+            [class.text-clamp-2]="textAutoHide"
+          >
             {{ card.description }}
           </p>
         </div>
@@ -28,4 +34,3 @@
     }
   </div>
 </div>
-

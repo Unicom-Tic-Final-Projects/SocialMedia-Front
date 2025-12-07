@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
 import { ClientsService } from '../../services/client/clients.service';
 import { Client } from '../../models/client.models';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-clients-page',
@@ -14,11 +17,12 @@ import { ConfirmationService } from '../../core/services/confirmation.service';
   templateUrl: './clients-page.html',
   styleUrl: './clients-page.css',
 })
-export class ClientsPage implements OnInit, OnDestroy {
+export class ClientsPage extends BaseComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly clientsService = inject(ClientsService);
   private readonly toastService = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly loggingService = inject(LoggingService);
 
   readonly clients = this.clientsService.clients;
   readonly selectedClientId = this.clientsService.selectedClientId;
@@ -35,12 +39,16 @@ export class ClientsPage implements OnInit, OnDestroy {
   private loadSubscription: Subscription | null = null;
 
   ngOnInit(): void {
-    this.loadSubscription = this.clientsService.loadClients().subscribe({
-      error: (error) => console.error('Failed to load clients', error),
-    });
+    this.clientsService
+      .loadClients()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: (error) => this.loggingService.error('Failed to load clients', error, 'ClientsPage'),
+      });
   }
 
-  ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     this.loadSubscription?.unsubscribe();
   }
 
@@ -55,19 +63,21 @@ export class ClientsPage implements OnInit, OnDestroy {
     }
 
     const { name, description } = this.clientForm.value;
-    this.clientsService.createClient({
-      name: name!.trim(),
-      description: description?.trim() || undefined,
-    }).subscribe({
-      next: () => {
-        this.successMessage.set('Client created successfully');
-        this.clientForm.reset();
-        setTimeout(() => this.successMessage.set(null), 3000);
-      },
-      error: (error) => {
-        console.error('Failed to create client', error);
-      },
-    });
+    this.clientsService
+      .createClient({
+        name: name!.trim(),
+        description: description?.trim() || undefined,
+      })
+      .subscribe({
+        next: () => {
+          this.successMessage.set('Client created successfully');
+          this.clientForm.reset();
+          setTimeout(() => this.successMessage.set(null), 3000);
+        },
+        error: (error) => {
+          console.error('Failed to create client', error);
+        },
+      });
   }
 
   editClient(client: Client): void {
@@ -76,50 +86,57 @@ export class ClientsPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.clientsService.updateClient(client.id, {
-      name: newName,
-      description: client.description,
-      industry: client.industry,
-      website: client.website,
-      primaryContactName: client.primaryContactName,
-      primaryContactEmail: client.primaryContactEmail,
-      status: client.status,
-    }).subscribe({
-      next: () => {
-        this.successMessage.set('Client updated successfully');
-        setTimeout(() => this.successMessage.set(null), 3000);
-      },
-      error: (error) => console.error('Failed to update client', error),
-    });
+    this.clientsService
+      .updateClient(client.id, {
+        name: newName,
+        description: client.description,
+        industry: client.industry,
+        website: client.website,
+        primaryContactName: client.primaryContactName,
+        primaryContactEmail: client.primaryContactEmail,
+        status: client.status,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.successMessage.set('Client updated successfully');
+          setTimeout(() => this.successMessage.set(null), 3000);
+        },
+        error: (error) => this.loggingService.error('Failed to update client', error, 'ClientsPage'),
+      });
   }
 
   deleteClient(client: Client): void {
-    this.confirmationService.confirm({
-      title: 'Delete Client',
-      message: `Delete client "${client.name}"? This will remove access to their posts.`,
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
-    }).then((confirmed) => {
-      if (!confirmed) {
-        return;
-      }
-
-      this.clientsService.deleteClient(client.id).subscribe({
-        next: () => {
-          this.toastService.success('Client deleted successfully');
-          setTimeout(() => this.successMessage.set(null), 3000);
-        },
-        error: (error) => {
-          console.error('Failed to delete client', error);
-          this.toastService.error('Failed to delete client. Please try again.');
+    this.confirmationService
+      .confirm({
+        title: 'Delete Client',
+        message: `Delete client "${client.name}"? This will remove access to their posts.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmButtonClass: 'bg-red-500 hover:bg-red-600',
+      })
+      .then((confirmed) => {
+        if (!confirmed) {
+          return;
         }
+
+        this.clientsService
+          .deleteClient(client.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+          next: () => {
+            this.toastService.success('Client deleted successfully');
+            setTimeout(() => this.successMessage.set(null), 3000);
+          },
+          error: (error) => {
+            console.error('Failed to delete client', error);
+            this.toastService.error('Failed to delete client. Please try again.');
+          },
+        });
       });
-    });
   }
 
   setActiveClient(clientId: string): void {
     this.clientsService.setSelectedClient(clientId);
   }
 }
-

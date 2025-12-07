@@ -1,13 +1,19 @@
-<div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+<div
+  class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+>
   <!-- Header -->
-  <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
+  <div
+    class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10"
+  >
     <div>
       <h3 class="text-xl font-bold text-[#1A1A1A]">Select Media from Library</h3>
       <p class="text-sm text-gray-600 mt-1">Choose an image or video for your post</p>
     </div>
     <button
-      (click)="close.emit()"
-      class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition">
+      type="button"
+      (click)="closeModal.emit()"
+      class="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
+    >
       <i class="fa-solid fa-times text-xl"></i>
     </button>
   </div>
@@ -24,46 +30,51 @@
       />
       <div class="flex gap-2">
         <button
+          type="button"
           (click)="selectedFilter.set('all'); onFilterChange()"
           [class.bg-[#4C6FFF]]="selectedFilter() === 'all'"
           [class.text-white]="selectedFilter() === 'all'"
           [class.text-[#1A1A1A]]="selectedFilter() !== 'all'"
-          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm"
+        >
           All
         </button>
         <button
+          type="button"
           (click)="selectedFilter.set('images'); onFilterChange()"
           [class.bg-[#4C6FFF]]="selectedFilter() === 'images'"
           [class.text-white]="selectedFilter() === 'images'"
           [class.text-[#1A1A1A]]="selectedFilter() !== 'images'"
-          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm"
+        >
           Images
         </button>
         <button
+          type="button"
           (click)="selectedFilter.set('videos'); onFilterChange()"
           [class.bg-[#4C6FFF]]="selectedFilter() === 'videos'"
           [class.text-white]="selectedFilter() === 'videos'"
           [class.text-[#1A1A1A]]="selectedFilter() !== 'videos'"
-          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm"
+        >
           Videos
         </button>
       </div>
     </div>
   </div>
 
-
   <!-- Media Grid -->
   <div class="flex-1 overflow-y-auto p-4">
     @if (loading()) {
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        @for (item of [1,2,3,4,5,6,7,8,9,10,11,12,15,16,20]; track item) {
+        @for (item of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 16, 20]; track item) {
           <div class="skeleton-grid-item">
             <div class="aspect-square">
               <div class="skeleton skeleton-image w-full h-full"></div>
             </div>
             <div class="p-2 space-y-2">
               <div class="skeleton skeleton-text w-3/4"></div>
-              <div class="skeleton skeleton-text w-1/2" style="height: 0.75em;"></div>
+              <div class="skeleton skeleton-text w-1/2" style="height: 0.75em"></div>
             </div>
           </div>
         }
@@ -79,16 +90,23 @@
         @for (item of mediaItems(); track item.id) {
           <div
             (click)="selectMedia(item)"
-            class="group relative bg-white rounded-lg border-2 border-[#D9E1FF] overflow-hidden hover:border-[#4C6FFF] hover:shadow-lg transition cursor-pointer">
+            class="group relative bg-white rounded-lg border-2 border-[#D9E1FF] overflow-hidden hover:border-[#4C6FFF] hover:shadow-lg transition cursor-pointer"
+          >
             <div class="aspect-square bg-gray-100 relative">
               @if (item.fileType.startsWith('image/')) {
-                <img [src]="item.thumbnailUrl || item.url" [alt]="item.fileName" class="w-full h-full object-cover" />
+                <img
+                  [src]="item.thumbnailUrl || item.url"
+                  [alt]="item.fileName"
+                  class="w-full h-full object-cover"
+                />
               } @else {
                 <div class="w-full h-full flex items-center justify-center">
                   <i class="fa-solid fa-video text-4xl text-gray-400"></i>
                 </div>
               }
-              <div class="absolute inset-0 bg-[#4C6FFF]/0 group-hover:bg-[#4C6FFF]/20 transition flex items-center justify-center">
+              <div
+                class="absolute inset-0 bg-[#4C6FFF]/0 group-hover:bg-[#4C6FFF]/20 transition flex items-center justify-center"
+              >
                 <div class="opacity-0 group-hover:opacity-100 transition">
                   <div class="bg-[#4C6FFF] text-white px-4 py-2 rounded-lg font-medium text-sm">
                     <i class="fa-solid fa-check mr-2"></i>
@@ -109,4 +127,3 @@
     }
   </div>
 </div>
-

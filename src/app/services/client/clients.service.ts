@@ -4,6 +4,7 @@ import { catchError, tap, throwError } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { Client, CreateClientRequest, UpdateClientRequest } from '../../models/client.models';
 import { AuthService } from '../../core/services/auth.service';
+import { LoggingService } from '../../core/services/logging.service';
 
 const SELECTED_CLIENT_STORAGE_KEY = 'np_selected_client_id';
 
@@ -14,6 +15,7 @@ export class ClientsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
   private readonly authService = inject(AuthService);
+  private readonly loggingService = inject(LoggingService);
 
   private readonly clientsSignal = signal<Client[]>([]);
   readonly clients = this.clientsSignal.asReadonly();
@@ -51,7 +53,7 @@ export class ClientsService {
       if (user && !this.hasRequestedInitialLoad) {
         this.hasRequestedInitialLoad = true;
         this.loadClients().subscribe({
-          error: (error) => console.error('Failed to preload clients', error),
+          error: (error) => this.loggingService.error('Failed to preload clients', error, 'ClientsService'),
         });
       }
     });
@@ -73,7 +75,7 @@ export class ClientsService {
         this.errorSignal.set(error?.userMessage || 'Failed to load clients');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -86,7 +88,9 @@ export class ClientsService {
 
     return this.http.post<Client>(`${this.baseUrl}/api/clients`, request).pipe(
       tap((client) => {
-        this.clientsSignal.update((clients) => [client, ...clients].sort((a, b) => a.name.localeCompare(b.name)));
+        this.clientsSignal.update((clients) =>
+          [client, ...clients].sort((a, b) => a.name.localeCompare(b.name)),
+        );
         this.setSelectedClient(client.id);
         this.loadingSignal.set(false);
       }),
@@ -94,7 +98,7 @@ export class ClientsService {
         this.errorSignal.set(error?.userMessage || 'Failed to create client');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -110,7 +114,7 @@ export class ClientsService {
         this.clientsSignal.update((clients) =>
           clients
             .map((client) => (client.id === clientId ? updatedClient : client))
-            .sort((a, b) => a.name.localeCompare(b.name))
+            .sort((a, b) => a.name.localeCompare(b.name)),
         );
         this.loadingSignal.set(false);
       }),
@@ -118,7 +122,7 @@ export class ClientsService {
         this.errorSignal.set(error?.userMessage || 'Failed to update client');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -142,7 +146,7 @@ export class ClientsService {
         this.errorSignal.set(error?.userMessage || 'Failed to delete client');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -163,14 +167,14 @@ export class ClientsService {
     if (!selectedId) {
       return undefined;
     }
-    
+
     const clients = this.clientsSignal();
     // Ensure clients is an array before calling find
     if (!Array.isArray(clients)) {
-      console.warn('ClientsService: clientsSignal is not an array:', clients);
+      this.loggingService.warn('ClientsService: clientsSignal is not an array', clients, 'ClientsService');
       return undefined;
     }
-    
+
     return clients.find((client) => client.id === selectedId);
   }
 
@@ -178,9 +182,8 @@ export class ClientsService {
     try {
       return localStorage.getItem(SELECTED_CLIENT_STORAGE_KEY);
     } catch (error) {
-      console.warn('Unable to access localStorage for selected client', error);
+      this.loggingService.warn('Unable to access localStorage for selected client', error, 'ClientsService');
       return null;
     }
   }
 }
-

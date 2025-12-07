@@ -1,22 +1,25 @@
 <div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
-
   <!-- Client Context Banner -->
   @if (isViewingClient() && selectedClient()) {
-    <div class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between">
+    <div
+      class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between"
+    >
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
           <i class="fa-solid fa-user text-blue-600"></i>
         </div>
         <div>
           <p class="text-sm font-semibold text-blue-900">Viewing Client Profile</p>
-          <p class="text-xs text-blue-700">{{ selectedClient()?.name }} - {{ clientUser()?.email }}</p>
+          <p class="text-xs text-blue-700">
+            {{ selectedClient()?.name }} - {{ clientUser()?.email }}
+          </p>
         </div>
       </div>
     </div>
   }
 
   <h2 class="text-2xl font-semibold mb-6 text-[#4C6FFF] flex items-center gap-2">
-    <i class="fa-solid fa-user"></i> 
+    <i class="fa-solid fa-user"></i>
     @if (isViewingClient() && selectedClient()) {
       {{ selectedClient()?.name }}'s Profile
     } @else {
@@ -30,60 +33,64 @@
       <div class="skeleton-card flex flex-col items-center">
         <div class="skeleton skeleton-circle w-32 h-32 mb-4"></div>
         <div class="skeleton skeleton-text w-32 mb-2"></div>
-        <div class="skeleton skeleton-text w-24" style="height: 0.875em;"></div>
+        <div class="skeleton skeleton-text w-24" style="height: 0.875em"></div>
       </div>
       <!-- Skeleton Form -->
       <div class="lg:col-span-2 skeleton-card space-y-4">
-        @for (field of [1,2,3,4,5]; track field) {
+        @for (field of [1, 2, 3, 4, 5]; track field) {
           <div class="space-y-2">
-            <div class="skeleton skeleton-text w-24" style="height: 0.875em;"></div>
-            <div class="skeleton skeleton-text w-full" style="height: 2.5em;"></div>
+            <div class="skeleton skeleton-text w-24" style="height: 0.875em"></div>
+            <div class="skeleton skeleton-text w-full" style="height: 2.5em"></div>
           </div>
         }
       </div>
     </div>
   } @else {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
       <!-- LEFT PROFILE CARD -->
-      <div class="bg-[#F5F7FF] p-6 rounded-2xl shadow-md flex flex-col items-center border border-[#D9E1FF]">
-
-        <img [src]="getAvatarUrl()"
-             [alt]="getDisplayName()"
-             class="w-32 h-32 rounded-full border-4 border-[#4C6FFF] mb-4 object-cover" />
+      <div
+        class="bg-[#F5F7FF] p-6 rounded-2xl shadow-md flex flex-col items-center border border-[#D9E1FF]"
+      >
+        <img
+          [src]="getAvatarUrl()"
+          [alt]="getDisplayName()"
+          class="w-32 h-32 rounded-full border-4 border-[#4C6FFF] mb-4 object-cover"
+        />
 
         <h3 class="text-lg font-semibold text-[#1A1A1A]">{{ getDisplayName() }}</h3>
         <p class="text-sm text-gray-600">{{ getRole() }}</p>
-
       </div>
 
       <!-- RIGHT FORM -->
       <div class="lg:col-span-2 bg-[#F5F7FF] p-6 rounded-2xl shadow-md border border-[#D9E1FF]">
-
         <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="space-y-4">
-
           @if (isViewingClient()) {
-            <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700 text-sm mb-4">
+            <div
+              class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700 text-sm mb-4"
+            >
               <i class="fa-solid fa-info-circle mr-2"></i>
-              This is a read-only view of the client's profile. You cannot edit client information from here.
+              This is a read-only view of the client's profile. You cannot edit client information
+              from here.
             </div>
           }
 
           <!-- Name -->
           <div class="input-group relative">
-            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+            <i
+              class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
+            ></i>
             <input
               type="text"
               formControlName="fullName"
               placeholder=" "
-              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3
-                     focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300
-                     [&.ng-invalid.ng-touched]:border-red-500"
+              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300 [&.ng-invalid.ng-touched]:border-red-500"
               [readonly]="isViewingClient()"
               [class.bg-gray-50]="isViewingClient()"
               [class.cursor-not-allowed]="isViewingClient()"
             />
-            <label class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+            <label
+              class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+            >
               Full Name <span class="text-red-500">*</span>
             </label>
             @if (profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched) {
@@ -93,19 +100,21 @@
 
           <!-- Email -->
           <div class="input-group relative">
-            <i class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+            <i
+              class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
+            ></i>
             <input
               type="email"
               formControlName="email"
               placeholder=" "
-              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3
-                     focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300
-                     [&.ng-invalid.ng-touched]:border-red-500"
+              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300 [&.ng-invalid.ng-touched]:border-red-500"
               [readonly]="true"
               [class.bg-gray-50]="isViewingClient()"
               [class.cursor-not-allowed]="isViewingClient()"
             />
-            <label class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+            <label
+              class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+            >
               Email
             </label>
             <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
@@ -116,9 +125,7 @@
             <button
               type="submit"
               [disabled]="saving() || profileForm.invalid"
-              class="bg-[#4C6FFF] text-white px-5 py-2 rounded-lg hover:bg-[#3A56CC]
-                     transition font-medium flex items-center gap-2 shadow-sm hover:shadow-md
-                     disabled:opacity-50 disabled:cursor-not-allowed"
+              class="bg-[#4C6FFF] text-white px-5 py-2 rounded-lg hover:bg-[#3A56CC] transition font-medium flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             >
               @if (saving()) {
                 <i class="fa-solid fa-circle-notch animate-spin"></i>
@@ -129,12 +136,8 @@
               }
             </button>
           }
-
         </form>
-
       </div>
-
     </div>
   }
-
 </div>

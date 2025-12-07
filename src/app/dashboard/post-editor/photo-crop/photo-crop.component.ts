@@ -8,13 +8,14 @@ import {
   Output,
   SimpleChanges,
   signal,
-  computed,
+  inject,
 } from '@angular/core';
 import { CommonModule, NgStyle } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Platform, CropAdjustment, SocialAccount } from '../../../models/social.models';
 import { PlatformPreviewService } from '../../../services/client/platform-preview.service';
 import { SocialAccountsService } from '../../../services/client/social-accounts.service';
+import { LoggingService } from '../../../core/services/logging.service';
 
 interface PlatformMeta {
   icon: string;
@@ -59,11 +60,27 @@ export class PhotoCropComponent implements OnChanges {
   @Input() caption: string = '';
   @Input() selectedAccountIds: string[] = [];
   @Input() selectedPlatforms: Platform[] = []; // Platforms selected in Step 2
-  @Output() cropConfigsChange = new EventEmitter<Record<Platform, { crop: CropAdjustment; cropBox: { width: number; height: number; left: number; top: number } }>>();
+  @Output() cropConfigsChange = new EventEmitter<
+    Record<
+      Platform,
+      {
+        crop: CropAdjustment;
+        cropBox: { width: number; height: number; left: number; top: number };
+      }
+    >
+  >();
   @Output() croppedImagesChange = new EventEmitter<Record<Platform, string>>(); // Base64 cropped images
 
   // All available platforms
-  readonly allPlatforms: Platform[] = ['facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'pinterest'];
+  readonly allPlatforms: Platform[] = [
+    'facebook',
+    'instagram',
+    'twitter',
+    'linkedin',
+    'youtube',
+    'tiktok',
+    'pinterest',
+  ];
 
   // Platform metadata
   readonly platformMeta: Record<Platform, PlatformMeta> = {
@@ -107,7 +124,7 @@ export class PhotoCropComponent implements OnChanges {
 
   // Default crop adjustment
   private readonly defaultCrop: CropAdjustment = { zoom: 1, offsetX: 0, offsetY: 0 };
-  
+
   // Default image adjustments
   private readonly defaultAdjustments: ImageAdjustments = {
     brightness: 0,
@@ -118,10 +135,9 @@ export class PhotoCropComponent implements OnChanges {
     flipVertical: false,
   };
 
-  constructor(
-    private readonly platformPreview: PlatformPreviewService,
-    private readonly socialAccountsService: SocialAccountsService
-  ) {}
+  private readonly platformPreview = inject(PlatformPreviewService);
+  private readonly socialAccountsService = inject(SocialAccountsService);
+  private readonly loggingService = inject(LoggingService);
 
   // Get all social accounts (initialized after constructor)
   get socialAccounts() {
@@ -129,7 +145,12 @@ export class PhotoCropComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['selectedAccountIds'] || changes['mediaUrl'] || changes['selectedPlatforms'] || changes['mediaType']) {
+    if (
+      changes['selectedAccountIds'] ||
+      changes['mediaUrl'] ||
+      changes['selectedPlatforms'] ||
+      changes['mediaType']
+    ) {
       this.initializePlatformStates();
     }
   }
@@ -144,12 +165,14 @@ export class PhotoCropComponent implements OnChanges {
     // Auto-detect from URL or file extension
     if (!this.mediaUrl) return false;
     const url = this.mediaUrl.toLowerCase();
-    return url.includes('video') || 
-           url.endsWith('.mp4') || 
-           url.endsWith('.mov') || 
-           url.endsWith('.webm') || 
-           url.endsWith('.avi') ||
-           url.startsWith('data:video/');
+    return (
+      url.includes('video') ||
+      url.endsWith('.mp4') ||
+      url.endsWith('.mov') ||
+      url.endsWith('.webm') ||
+      url.endsWith('.avi') ||
+      url.startsWith('data:video/')
+    );
   }
 
   /**
@@ -163,16 +186,16 @@ export class PhotoCropComponent implements OnChanges {
     this.allPlatforms.forEach((platform) => {
       // Find account for this platform
       const account = accounts.find(
-        (acc) => acc.platform === platform && acc.status === 'connected'
+        (acc) => acc.platform === platform && acc.status === 'connected',
       );
       // Platform is "connected" if it's in the selected platforms list (from Step 2)
       // OR if there's a connected account and it's in selectedAccountIds
       const isInSelectedPlatforms = this.selectedPlatforms.includes(platform);
       const isConnected = isInSelectedPlatforms || (!!account && selectedIds.includes(account.id));
 
-      // Get default aspect ratio for platform
-      const aspect = this.platformPreview.getAspect(platform);
-      
+      // Get default aspect ratio for platform (stored but not used in current implementation)
+      const _aspect = this.platformPreview.getAspect(platform);
+
       // Initialize crop box with default dimensions based on platform
       const displayDims = this.getDisplayDimensions(platform);
       const cropBoxWidth = Math.min(displayDims.width * 0.8, 280);
@@ -200,7 +223,8 @@ export class PhotoCropComponent implements OnChanges {
 
     // Auto-select first selected platform (from Step 2) or first available platform
     if (!this.selectedPlatform()) {
-      const firstSelected = this.selectedPlatforms.length > 0 ? this.selectedPlatforms[0] : this.allPlatforms[0];
+      const firstSelected =
+        this.selectedPlatforms.length > 0 ? this.selectedPlatforms[0] : this.allPlatforms[0];
       if (firstSelected) {
         this.selectPlatform(firstSelected);
       }
@@ -292,15 +316,15 @@ export class PhotoCropComponent implements OnChanges {
   imageStyle(platform: Platform): { [key: string]: string } {
     const crop = this.getCrop(platform);
     const adjustments = this.getAdjustments(platform);
-    
+
     // Build transform string
     let transform = `translate(${crop.offsetX}%, ${crop.offsetY}%) scale(${crop.zoom})`;
-    
+
     // Add rotation
     if (adjustments.rotation !== 0) {
       transform += ` rotate(${adjustments.rotation}deg)`;
     }
-    
+
     // Add flip
     if (adjustments.flipHorizontal) {
       transform += ` scaleX(-1)`;
@@ -308,7 +332,7 @@ export class PhotoCropComponent implements OnChanges {
     if (adjustments.flipVertical) {
       transform += ` scaleY(-1)`;
     }
-    
+
     // Build filter string for brightness, contrast, saturation
     const filters: string[] = [];
     if (adjustments.brightness !== 0) {
@@ -320,20 +344,20 @@ export class PhotoCropComponent implements OnChanges {
     if (adjustments.saturation !== 0) {
       filters.push(`saturate(${100 + adjustments.saturation}%)`);
     }
-    
+
     const style: { [key: string]: string } = {
       transform,
       transformOrigin: 'center center',
       willChange: 'transform, filter',
     };
-    
+
     if (filters.length > 0) {
       style['filter'] = filters.join(' ');
     }
-    
+
     return style;
   }
-  
+
   /**
    * Get image adjustments for platform
    */
@@ -341,28 +365,28 @@ export class PhotoCropComponent implements OnChanges {
     const state = this.getCropState(platform);
     return state?.adjustments ?? { ...this.defaultAdjustments };
   }
-  
+
   /**
    * Get brightness for platform
    */
   getBrightness(platform: Platform): number {
     return this.getAdjustments(platform).brightness;
   }
-  
+
   /**
    * Get contrast for platform
    */
   getContrast(platform: Platform): number {
     return this.getAdjustments(platform).contrast;
   }
-  
+
   /**
    * Get saturation for platform
    */
   getSaturation(platform: Platform): number {
     return this.getAdjustments(platform).saturation;
   }
-  
+
   /**
    * Set brightness for platform
    */
@@ -376,7 +400,7 @@ export class PhotoCropComponent implements OnChanges {
       this.cropConfigsChange.emit(this.getCropConfigurations());
     }
   }
-  
+
   /**
    * Set contrast for platform
    */
@@ -390,7 +414,7 @@ export class PhotoCropComponent implements OnChanges {
       this.cropConfigsChange.emit(this.getCropConfigurations());
     }
   }
-  
+
   /**
    * Set saturation for platform
    */
@@ -404,7 +428,7 @@ export class PhotoCropComponent implements OnChanges {
       this.cropConfigsChange.emit(this.getCropConfigurations());
     }
   }
-  
+
   /**
    * Rotate image for platform
    */
@@ -419,7 +443,7 @@ export class PhotoCropComponent implements OnChanges {
       this.cropConfigsChange.emit(this.getCropConfigurations());
     }
   }
-  
+
   /**
    * Flip image for platform
    */
@@ -428,7 +452,10 @@ export class PhotoCropComponent implements OnChanges {
     const state = states.get(platform);
     if (state) {
       if (direction === 'horizontal') {
-        state.adjustments = { ...state.adjustments, flipHorizontal: !state.adjustments.flipHorizontal };
+        state.adjustments = {
+          ...state.adjustments,
+          flipHorizontal: !state.adjustments.flipHorizontal,
+        };
       } else {
         state.adjustments = { ...state.adjustments, flipVertical: !state.adjustments.flipVertical };
       }
@@ -437,7 +464,7 @@ export class PhotoCropComponent implements OnChanges {
       this.cropConfigsChange.emit(this.getCropConfigurations());
     }
   }
-  
+
   /**
    * Reset image adjustments for platform
    */
@@ -501,7 +528,7 @@ export class PhotoCropComponent implements OnChanges {
       top: this.initialTop() + dy,
     };
     this.cropBox.set(newBox);
-    
+
     // Update transform in real-time while dragging
     this.updateTransformFromCropBox();
   }
@@ -514,7 +541,9 @@ export class PhotoCropComponent implements OnChanges {
       // Save crop box state to platform and crop image
       const platform = this.selectedPlatform();
       if (platform) {
-        this.saveCropBoxToPlatform(platform).catch(err => console.error('Error saving crop:', err));
+        this.saveCropBoxToPlatform(platform).catch((err) =>
+          this.loggingService.error('Error saving crop', err, 'PhotoCrop'),
+        );
       }
     }
     this.isDraggingCropBox.set(false);
@@ -546,25 +575,27 @@ export class PhotoCropComponent implements OnChanges {
     const dy = event.clientY - this.dragStartY();
     const box = this.cropBox();
 
-    let newBox = { ...box };
+    const newBox = { ...box };
 
     switch (this.activeHandle()) {
       case 'r':
         newBox.width = Math.max(50, this.initialWidth() + dx);
         break;
-      case 'l':
+      case 'l': {
         const newWidth = Math.max(50, this.initialWidth() - dx);
         newBox.width = newWidth;
         newBox.left = this.initialLeft() + (this.initialWidth() - newWidth);
         break;
+      }
       case 'b':
         newBox.height = Math.max(50, this.initialHeight() + dy);
         break;
-      case 't':
+      case 't': {
         const newHeight = Math.max(50, this.initialHeight() - dy);
         newBox.height = newHeight;
         newBox.top = this.initialTop() + (this.initialHeight() - newHeight);
         break;
+      }
       case 'br':
         newBox.width = Math.max(50, this.initialWidth() + dx);
         newBox.height = Math.max(50, this.initialHeight() + dy);
@@ -572,7 +603,7 @@ export class PhotoCropComponent implements OnChanges {
     }
 
     this.cropBox.set(newBox);
-    
+
     // Update transform in real-time while resizing
     this.updateTransformFromCropBox();
   }
@@ -584,17 +615,17 @@ export class PhotoCropComponent implements OnChanges {
   private updateTransformFromCropBox(): void {
     const platform = this.selectedPlatform();
     if (!platform) return;
-    
+
     const states = this.platformCropStates();
     const state = states.get(platform);
     if (!state) return;
-    
+
     // Calculate image transform based on crop box position and size
     const displayDims = this.getDisplayDimensions(platform);
     const containerWidth = displayDims.width;
     const containerHeight = displayDims.height;
     const cropBox = this.cropBox();
-    
+
     // Calculate zoom: how much the image needs to be scaled to show the crop box area
     // If crop box is smaller than container, we need to zoom in
     // The zoom should make the crop box area fill the entire container
@@ -602,35 +633,35 @@ export class PhotoCropComponent implements OnChanges {
     const zoomY = containerHeight / cropBox.height;
     // Use the larger ratio to ensure the crop box area completely fills the container
     const zoom = Math.max(zoomX, zoomY, 1);
-    
+
     // Calculate offset: pan the image so the crop box area is centered in the view
     // The crop box center position relative to the container
     const cropBoxCenterX = cropBox.left + cropBox.width / 2;
     const cropBoxCenterY = cropBox.top + cropBox.height / 2;
     const containerCenterX = containerWidth / 2;
     const containerCenterY = containerHeight / 2;
-    
+
     // Calculate the difference between crop box center and container center
     // This tells us how much the image needs to move
     const deltaX = cropBoxCenterX - containerCenterX;
     const deltaY = cropBoxCenterY - containerCenterY;
-    
+
     // Convert pixel offset to percentage
     // Since transform-origin is center center, we need to account for the zoom
     // When zoomed in, the same pixel movement requires a larger percentage offset
     const offsetX = -(deltaX / containerWidth) * 100 * zoom;
     const offsetY = -(deltaY / containerHeight) * 100 * zoom;
-    
+
     // Update crop transform to match crop box
     state.crop = {
       zoom: Math.min(Math.max(zoom, 1), 3), // Clamp zoom between 1 and 3
       offsetX: Math.min(Math.max(offsetX, -100), 100), // Clamp offset
       offsetY: Math.min(Math.max(offsetY, -100), 100),
     };
-    
+
     states.set(platform, { ...state });
     this.platformCropStates.set(new Map(states));
-    
+
     // Emit crop configs change immediately so draft is updated in real-time
     this.cropConfigsChange.emit(this.getCropConfigurations());
   }
@@ -643,7 +674,9 @@ export class PhotoCropComponent implements OnChanges {
       // Save crop box state to platform and crop image
       const platform = this.selectedPlatform();
       if (platform) {
-        this.saveCropBoxToPlatform(platform).catch(err => console.error('Error saving crop:', err));
+        this.saveCropBoxToPlatform(platform).catch((err) =>
+          this.loggingService.error('Error saving crop', err, 'PhotoCrop'),
+        );
       }
     }
     this.isResizingCrop.set(false);
@@ -658,13 +691,13 @@ export class PhotoCropComponent implements OnChanges {
     const state = states.get(platform);
     if (state) {
       state.cropBox = { ...this.cropBox() };
-      
+
       // Update transform to match crop box
       this.updateTransformFromCropBox();
-      
+
       // Emit the updated configurations
       this.cropConfigsChange.emit(this.getCropConfigurations());
-      
+
       // Crop the image for this platform and emit
       const croppedImage = await this.cropImageForPlatform(platform);
       if (croppedImage) {
@@ -680,7 +713,7 @@ export class PhotoCropComponent implements OnChanges {
    * Get current cropped images (stored in component state)
    */
   private croppedImagesCache = signal<Record<Platform, string>>({} as Record<Platform, string>);
-  
+
   private getCroppedImages(): Record<Platform, string> {
     return this.croppedImagesCache();
   }
@@ -688,8 +721,17 @@ export class PhotoCropComponent implements OnChanges {
   /**
    * Get all crop configurations for saving
    */
-  getCropConfigurations(): Record<Platform, { crop: CropAdjustment; cropBox: { width: number; height: number; left: number; top: number } }> {
-    const configs: Record<Platform, { crop: CropAdjustment; cropBox: { width: number; height: number; left: number; top: number } }> = {} as any;
+  getCropConfigurations(): Record<
+    Platform,
+    { crop: CropAdjustment; cropBox: { width: number; height: number; left: number; top: number } }
+  > {
+    const configs: Record<
+      Platform,
+      {
+        crop: CropAdjustment;
+        cropBox: { width: number; height: number; left: number; top: number };
+      }
+    > = {} as any;
     this.platformCropStates().forEach((state, platform) => {
       configs[platform] = {
         crop: { ...state.crop },
@@ -702,7 +744,7 @@ export class PhotoCropComponent implements OnChanges {
   /**
    * Crop image for a specific platform and return base64 string
    * This crops the image exactly as shown in the preview with all adjustments applied
-   * 
+   *
    * The crop calculation:
    * 1. Maps cropBox (container coordinates) to displayed image coordinates
    * 2. Accounts for zoom/pan transform applied to the image
@@ -715,14 +757,14 @@ export class PhotoCropComponent implements OnChanges {
 
     const state = this.platformCropStates().get(platform);
     if (!state) return null;
-    
+
     const adjustments = state.adjustments;
 
     return new Promise((resolve) => {
       // Helper function to process the image/video frame
       const processMedia = async () => {
         let img: HTMLImageElement;
-        
+
         // For videos, extract a frame first
         if (this.isVideo()) {
           const frameImage = await this.extractVideoFrame();
@@ -736,7 +778,7 @@ export class PhotoCropComponent implements OnChanges {
           // For images, load normally
           img = new Image();
           img.crossOrigin = 'anonymous';
-          
+
           // Wait for image to load
           await new Promise<void>((imgResolve, imgReject) => {
             img.onload = () => imgResolve();
@@ -744,7 +786,7 @@ export class PhotoCropComponent implements OnChanges {
             img.src = this.mediaUrl;
           });
         }
-        
+
         // Now crop the image (works for both images and video frames)
         try {
           const displayDims = this.getDisplayDimensions(platform);
@@ -756,7 +798,7 @@ export class PhotoCropComponent implements OnChanges {
           // Step 1: Calculate how the original image is displayed in the container (object-cover behavior)
           const containerAspect = containerWidth / containerHeight;
           const imageAspect = img.width / img.height;
-          
+
           let displayedWidth: number;
           let displayedHeight: number;
           let imageOffsetX = 0;
@@ -784,14 +826,14 @@ export class PhotoCropComponent implements OnChanges {
           const zoom = crop.zoom;
           const containerCenterX = containerWidth / 2;
           const containerCenterY = containerHeight / 2;
-          
+
           // Calculate crop box center in container coordinates
           const cropBoxCenterX = cropBox.left + cropBox.width / 2;
           const cropBoxCenterY = cropBox.top + cropBox.height / 2;
 
           // Step 4: Reverse the CSS transform to find what part of the displayed image
           // corresponds to the crop box position
-          // 
+          //
           // CSS transform: translate(offsetX%, offsetY%) scale(zoom) with origin center center
           // Transform order (right to left): scale happens first, then translate
           // But with center origin, both happen around the center point
@@ -799,43 +841,49 @@ export class PhotoCropComponent implements OnChanges {
           // To find what's visible in the crop box:
           // 1. Crop box center in container coordinates
           // 2. Reverse the transform to find corresponding point in untransformed image
-          
+
           // Calculate offset in pixels (percentage of displayed image size)
           const offsetXPixels = (crop.offsetX / 100) * displayedWidth;
           const offsetYPixels = (crop.offsetY / 100) * displayedHeight;
-          
+
           // Transform origin is center center, so we work relative to container center
           const relativeX = cropBoxCenterX - containerCenterX;
           const relativeY = cropBoxCenterY - containerCenterY;
-          
+
           // Reverse the transform chain:
           // In CSS: translate then scale (but applied right-to-left, so scale first, then translate)
           // To reverse: undo translate first, then undo scale
-          
+
           // Step 1: Reverse the translation (subtract the offset)
           const afterTranslateX = relativeX - offsetXPixels;
           const afterTranslateY = relativeY - offsetYPixels;
-          
+
           // Step 2: Reverse the scale (divide by zoom, around center)
           const unzoomedX = afterTranslateX / zoom;
           const unzoomedY = afterTranslateY / zoom;
-          
+
           // Step 3: Convert back to absolute coordinates in displayed image space
-          let displayedCropCenterX = containerCenterX + unzoomedX - imageOffsetX;
-          let displayedCropCenterY = containerCenterY + unzoomedY - imageOffsetY;
+          const displayedCropCenterX = containerCenterX + unzoomedX - imageOffsetX;
+          const displayedCropCenterY = containerCenterY + unzoomedY - imageOffsetY;
 
           // Step 5: Map displayed image coordinates to original image coordinates
           const sourceCenterX = displayedCropCenterX * scaleX;
           const sourceCenterY = displayedCropCenterY * scaleY;
-          
+
           // Crop box size in original image coordinates (account for zoom)
           // The crop box appears smaller when zoomed, so we divide by zoom
           const sourceWidth = (cropBox.width * scaleX) / zoom;
           const sourceHeight = (cropBox.height * scaleY) / zoom;
 
           // Step 8: Calculate final source rectangle, ensuring it stays within image bounds
-          const sourceX = Math.max(0, Math.min(img.width - sourceWidth, sourceCenterX - sourceWidth / 2));
-          const sourceY = Math.max(0, Math.min(img.height - sourceHeight, sourceCenterY - sourceHeight / 2));
+          const sourceX = Math.max(
+            0,
+            Math.min(img.width - sourceWidth, sourceCenterX - sourceWidth / 2),
+          );
+          const sourceY = Math.max(
+            0,
+            Math.min(img.height - sourceHeight, sourceCenterY - sourceHeight / 2),
+          );
           const finalSourceWidth = Math.min(sourceWidth, img.width - sourceX);
           const finalSourceHeight = Math.min(sourceHeight, img.height - sourceY);
 
@@ -847,7 +895,7 @@ export class PhotoCropComponent implements OnChanges {
           canvas.width = Math.max(1, Math.floor(containerWidth));
           canvas.height = Math.max(1, Math.floor(containerHeight));
           const ctx = canvas.getContext('2d');
-          
+
           if (!ctx) {
             resolve(null);
             return;
@@ -856,89 +904,100 @@ export class PhotoCropComponent implements OnChanges {
           // Step 10: Draw the cropped region first
           ctx.drawImage(
             img,
-            sourceX, sourceY, finalSourceWidth, finalSourceHeight, // Source rectangle in original image
-            0, 0, canvas.width, canvas.height // Destination rectangle (platform dimensions - fills container)
+            sourceX,
+            sourceY,
+            finalSourceWidth,
+            finalSourceHeight, // Source rectangle in original image
+            0,
+            0,
+            canvas.width,
+            canvas.height, // Destination rectangle (platform dimensions - fills container)
           );
-          
+
           // Step 11: Apply brightness, contrast, and saturation adjustments first (before transforms)
-          if (adjustments.brightness !== 0 || adjustments.contrast !== 0 || adjustments.saturation !== 0) {
+          if (
+            adjustments.brightness !== 0 ||
+            adjustments.contrast !== 0 ||
+            adjustments.saturation !== 0
+          ) {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
-            
+
             const brightness = adjustments.brightness;
             const contrast = adjustments.contrast;
             const saturation = adjustments.saturation;
-            
+
             // Brightness and contrast multipliers
-            const brightnessMult = 1 + (brightness / 100);
-            const contrastMult = 1 + (contrast / 100);
-            
+            const brightnessMult = 1 + brightness / 100;
+            const contrastMult = 1 + contrast / 100;
+
             for (let i = 0; i < data.length; i += 4) {
               // Apply brightness
               let r = data[i] * brightnessMult;
               let g = data[i + 1] * brightnessMult;
               let b = data[i + 2] * brightnessMult;
-              
+
               // Apply contrast
-              r = ((r - 128) * contrastMult) + 128;
-              g = ((g - 128) * contrastMult) + 128;
-              b = ((b - 128) * contrastMult) + 128;
-              
+              r = (r - 128) * contrastMult + 128;
+              g = (g - 128) * contrastMult + 128;
+              b = (b - 128) * contrastMult + 128;
+
               // Apply saturation
               if (saturation !== 0) {
                 const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                const satMult = 1 + (saturation / 100);
+                const satMult = 1 + saturation / 100;
                 r = gray + (r - gray) * satMult;
                 g = gray + (g - gray) * satMult;
                 b = gray + (b - gray) * satMult;
               }
-              
+
               // Clamp values
               data[i] = Math.max(0, Math.min(255, r));
               data[i + 1] = Math.max(0, Math.min(255, g));
               data[i + 2] = Math.max(0, Math.min(255, b));
             }
-            
+
             ctx.putImageData(imageData, 0, 0);
           }
-          
+
           // Step 12: Apply rotation and flip transformations
           // Create a temporary canvas to apply transforms
-          if (adjustments.rotation !== 0 || adjustments.flipHorizontal || adjustments.flipVertical) {
+          if (
+            adjustments.rotation !== 0 ||
+            adjustments.flipHorizontal ||
+            adjustments.flipVertical
+          ) {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
             const tempCtx = tempCanvas.getContext('2d');
-            
+
             if (tempCtx) {
               // Copy current canvas to temp
               tempCtx.drawImage(canvas, 0, 0);
-              
+
               // Clear main canvas
               ctx.clearRect(0, 0, canvas.width, canvas.height);
-              
+
               // Apply transformations
               ctx.save();
-              
+
               // Move to center for rotation
               ctx.translate(canvas.width / 2, canvas.height / 2);
-              
+
               // Apply rotation
               if (adjustments.rotation !== 0) {
                 ctx.rotate((adjustments.rotation * Math.PI) / 180);
               }
-              
+
               // Apply flip (after rotation)
               if (adjustments.flipHorizontal || adjustments.flipVertical) {
-                ctx.scale(
-                  adjustments.flipHorizontal ? -1 : 1,
-                  adjustments.flipVertical ? -1 : 1
-                );
+                ctx.scale(adjustments.flipHorizontal ? -1 : 1, adjustments.flipVertical ? -1 : 1);
               }
-              
+
               // Draw transformed image
               ctx.drawImage(tempCanvas, -canvas.width / 2, -canvas.height / 2);
-              
+
               ctx.restore();
             }
           }
@@ -947,14 +1006,14 @@ export class PhotoCropComponent implements OnChanges {
           const base64 = canvas.toDataURL('image/png');
           resolve(base64);
         } catch (error) {
-          console.error('Error cropping image:', error);
+          this.loggingService.error('Error cropping image', error, 'PhotoCrop');
           resolve(null);
         }
       };
-      
+
       // Execute the async processing
       processMedia().catch((error) => {
-        console.error('Error processing media:', error);
+        this.loggingService.error('Error processing media', error, 'PhotoCrop');
         resolve(null);
       });
     });
@@ -972,25 +1031,25 @@ export class PhotoCropComponent implements OnChanges {
         video.currentTime = 0.1; // Seek to a small time to ensure frame is loaded
         video.muted = true;
         video.playsInline = true;
-        
+
         video.onloadedmetadata = () => {
           video.currentTime = 0.1; // Seek to first frame
         };
-        
+
         video.onseeked = () => {
           try {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext('2d');
-            
+
             if (!ctx || canvas.width === 0 || canvas.height === 0) {
               resolve(null);
               return;
             }
-            
+
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            
+
             // Convert canvas to image
             const img = new Image();
             img.onload = () => {
@@ -1001,19 +1060,19 @@ export class PhotoCropComponent implements OnChanges {
             };
             img.src = canvas.toDataURL('image/png');
           } catch (error) {
-            console.error('Error extracting video frame:', error);
+            this.loggingService.error('Error extracting video frame', error, 'PhotoCrop');
             resolve(null);
           }
         };
-        
+
         video.onerror = () => {
-          console.error('Error loading video');
+          this.loggingService.error('Error loading video', undefined, 'PhotoCrop');
           resolve(null);
         };
-        
+
         video.load();
       } catch (error) {
-        console.error('Error extracting video frame:', error);
+        this.loggingService.error('Error extracting video frame', error, 'PhotoCrop');
         resolve(null);
       }
     });
@@ -1024,7 +1083,8 @@ export class PhotoCropComponent implements OnChanges {
    */
   async cropAllImages(): Promise<void> {
     const croppedImages: Record<Platform, string> = { ...this.getCroppedImages() };
-    const platforms = this.selectedPlatforms.length > 0 ? this.selectedPlatforms : this.allPlatforms;
+    const platforms =
+      this.selectedPlatforms.length > 0 ? this.selectedPlatforms : this.allPlatforms;
 
     for (const platform of platforms) {
       const cropped = await this.cropImageForPlatform(platform);
@@ -1058,4 +1118,3 @@ export class PhotoCropComponent implements OnChanges {
     this.stopResize();
   }
 }
-

@@ -57,4 +57,3 @@ export interface ContentWebhookRequest {
   clientId?: string;
   metadata?: Record<string, any>;
 }
-

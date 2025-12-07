@@ -11,13 +11,14 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
   // Client user creation endpoint needs full ApiResponse to extract password from message
   // Client user access endpoint should be unwrapped to get AuthResponse
   // Admin endpoints also need full ApiResponse structure
-  const isAuthEndpoint = req.url.includes('/api/auth/login') || 
-                         req.url.includes('/api/auth/admin-login') ||
-                         req.url.includes('/api/auth/register') || 
-                         req.url.includes('/api/auth/refresh') ||
-                         req.url.includes('/api/auth/logout') ||
-                         (req.url.includes('/api/auth/client-user') && !req.url.includes('/access'));
-  
+  const isAuthEndpoint =
+    req.url.includes('/api/auth/login') ||
+    req.url.includes('/api/auth/admin-login') ||
+    req.url.includes('/api/auth/register') ||
+    req.url.includes('/api/auth/refresh') ||
+    req.url.includes('/api/auth/logout') ||
+    (req.url.includes('/api/auth/client-user') && !req.url.includes('/access'));
+
   const isAdminEndpoint = req.url.includes('/api/admin/');
 
   return next(req).pipe(
@@ -28,27 +29,38 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
       if (response.status >= 400) {
         return response;
       }
-      
+
       // Skip unwrapping for auth and admin endpoints - return full ApiResponse structure
       if (isAuthEndpoint || isAdminEndpoint) {
-        console.log('[ResponseInterceptor] Auth/Admin endpoint - returning full ApiResponse:', response.body);
+        console.log(
+          '[ResponseInterceptor] Auth/Admin endpoint - returning full ApiResponse:',
+          response.body,
+        );
         return response;
       }
-      
+
       // Extract body from HttpResponse
       const body = response.body;
-      
+
       // Log the raw response for debugging
-      if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount') || req.url.includes('/api/ai')) {
+      if (
+        req.url.includes('/api/posts') ||
+        req.url.includes('/api/socialaccount') ||
+        req.url.includes('/api/ai')
+      ) {
         console.log('[ResponseInterceptor] Raw response body for', req.url, ':', body);
       }
-      
+
       // Check if body matches ApiResponse structure
       // Backend returns: { success: boolean, data: T, message?: string }
       if (body && typeof body === 'object' && 'success' in body) {
         // If success is false, throw error (will be caught by error interceptor)
         if (!body.success) {
-          if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount') || req.url.includes('/api/ai')) {
+          if (
+            req.url.includes('/api/posts') ||
+            req.url.includes('/api/socialaccount') ||
+            req.url.includes('/api/ai')
+          ) {
             console.error('[ResponseInterceptor] API returned success=false:', body);
           }
           // Create an error object that will be caught by error handler
@@ -63,7 +75,10 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
           if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount')) {
             console.log('[ResponseInterceptor] Unwrapped data:', data);
             console.log('[ResponseInterceptor] Data type:', typeof data);
-            console.log('[ResponseInterceptor] Data keys:', data ? Object.keys(data) : 'null/undefined');
+            console.log(
+              '[ResponseInterceptor] Data keys:',
+              data ? Object.keys(data) : 'null/undefined',
+            );
             console.log('[ResponseInterceptor] Is array?', Array.isArray(data));
             if (Array.isArray(data)) {
               console.log('[ResponseInterceptor] Array length:', data.length);
@@ -74,7 +89,10 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
         }
         // If no data property, return the response as-is
         if (req.url.includes('/api/posts') || req.url.includes('/api/socialaccount')) {
-          console.warn('[ResponseInterceptor] ApiResponse has no data property or data is null/undefined:', body);
+          console.warn(
+            '[ResponseInterceptor] ApiResponse has no data property or data is null/undefined:',
+            body,
+          );
         }
         return response;
       }
@@ -83,7 +101,6 @@ export const responseInterceptor: HttpInterceptorFn = (req, next) => {
         console.log('[ResponseInterceptor] Response is not ApiResponse format, returning as-is');
       }
       return response;
-    })
+    }),
   );
 };
-

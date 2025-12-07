@@ -1,42 +1,62 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+interface Post {
+  id: number;
+  title: string;
+  body: string;
+  userId: number;
+}
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  username: string;
+}
+
+interface Comment {
+  id: number;
+  postId: number;
+  name: string;
+  email: string;
+  body: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ReportsService {
-  private baseUrl = 'https://jsonplaceholder.typicode.com';
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = 'https://jsonplaceholder.typicode.com';
 
-  constructor(private http: HttpClient) {}
-
-  getReports(): Observable<any[]> {
+  getReports(): Observable<Post[]> {
     // Using posts as mock reports data
-    return this.http.get<any[]>(`${this.baseUrl}/posts?_limit=10`);
+    return this.http.get<Post[]>(`${this.baseUrl}/posts?_limit=10`);
   }
 
-  getReportById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/posts/${id}`);
+  getReportById(id: number): Observable<Post> {
+    return this.http.get<Post>(`${this.baseUrl}/posts/${id}`);
   }
 
-  generateUserActivityReport(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/users`);
+  generateUserActivityReport(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/users`);
   }
 
-  generatePostPerformanceReport(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/posts`);
+  generatePostPerformanceReport(): Observable<Post[]> {
+    return this.http.get<Post[]>(`${this.baseUrl}/posts`);
   }
 
-  generateAnalyticsReport(): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/posts?_limit=5`);
+  generateAnalyticsReport(): Observable<Post[]> {
+    return this.http.get<Post[]>(`${this.baseUrl}/posts?_limit=5`);
   }
 
-  generateEngagementReport(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/comments`);
+  generateEngagementReport(): Observable<Comment[]> {
+    return this.http.get<Comment[]>(`${this.baseUrl}/comments`);
   }
 
   downloadReport(reportId: number): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/posts/${reportId}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 }
-

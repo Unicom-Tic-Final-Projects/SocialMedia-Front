@@ -1,0 +1,55 @@
+<div class="space-y-6" [formGroup]="postForm">
+  <div class="mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+        @if (isVideo()) {
+          <i class="fa-solid fa-video text-[#4C6FFF]"></i>
+        } @else {
+          <i class="fa-solid fa-crop text-[#4C6FFF]"></i>
+        }
+      </div>
+      @if (isVideo()) {
+        Step 3: Review Video & Edit Caption
+      } @else {
+        Step 3: Crop & Edit per Platform
+      }
+    </h2>
+    <p class="text-gray-600 text-sm ml-[58px]">
+      @if (isVideo()) {
+        Review your video and edit the caption for all platforms
+      } @else {
+        Adjust crops and edit caption for each platform
+      }
+    </p>
+  </div>
+
+  <!-- Single Caption Field -->
+  <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
+    <div class="input-group-float">
+      <textarea
+        formControlName="content"
+        placeholder=" "
+        rows="4"
+        class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm resize-none"
+        (input)="onContentInput($event)"
+      ></textarea>
+      <label class="input-label-float">Caption</label>
+    </div>
+    <p class="text-xs text-gray-500 mt-3 flex items-center gap-2">
+      <i class="fa-solid fa-info-circle"></i>
+      This caption will be used for all selected platforms.
+    </p>
+  </div>
+
+  <!-- Free-Form Crop Component (Images and Videos) -->
+  <app-photo-crop
+    [mediaUrl]="mediaPreview() || ''"
+    [mediaType]="isVideo() ? 'video' : 'image'"
+    [caption]="postForm.value.content || ''"
+    [selectedAccountIds]="[]"
+    [selectedPlatforms]="selectedPlatforms || []"
+    (cropConfigsChange)="onCropConfigsChange($event)"
+    (croppedImagesChange)="onCroppedImagesChange($event)"
+  ></app-photo-crop>
+</div>
+

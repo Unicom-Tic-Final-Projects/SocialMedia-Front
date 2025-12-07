@@ -2,9 +2,10 @@
     <div class="w-full lg:w-1/4 bg-[#1B1B1B] p-4 rounded-xl border border-gray-800">
       <h3 class="text-sm font-semibold text-gray-400 uppercase mb-3">Platforms</h3>
       <div class="space-y-2">
-        <button
-          *ngFor="let p of platformPreviewService.getAll()"
-          (click)="changePlatform(p.platform)"
+        @for (p of platformPreviewService.getAll(); track p.platform) {
+          <button
+            type="button"
+            (click)="changePlatform(p.platform)"
           [class.bg-[#00B78E]]="selectedPlatform === p.platform"
           [class.text-black]="selectedPlatform === p.platform"
           [class.text-[#F2F2F2]]="selectedPlatform !== p.platform"
@@ -12,6 +13,7 @@
         >
           {{ p.platform | titlecase }}
         </button>
+        }
       </div>
     </div>
   
@@ -50,29 +52,32 @@
   
       <div class="mt-6 text-center">
         <h3 class="text-sm font-medium text-[#F2F2F2] mb-2">Cropped Preview</h3>
-        <div
-          *ngIf="croppedImage"
-          class="inline-block border border-gray-700 rounded-lg overflow-hidden"
-        >
-          <img
-            [src]="croppedImage"
-            [alt]="aspect.platform + ' cropped preview'"
-            class="max-h-[300px] rounded-lg object-cover"
-          />
-        </div>
-        <div *ngIf="!croppedImage" class="text-gray-500 italic">
-          No crop preview yet
-        </div>
+        @if (croppedImage) {
+          <div class="inline-block border border-gray-700 rounded-lg overflow-hidden">
+            <img
+              [src]="croppedImage"
+              [alt]="aspect.platform + ' cropped preview'"
+              class="max-h-[300px] rounded-lg object-cover"
+            />
+          </div>
+        }
+        @if (!croppedImage) {
+          <div class="text-gray-500 italic">
+            No crop preview yet
+          </div>
+        }
       </div>
   
       <div class="mt-6 flex justify-end gap-3">
         <button
+          type="button"
           class="px-5 py-2 rounded-lg border border-gray-700 text-[#F2F2F2] hover:bg-gray-800/50"
           (click)="imageChangedEvent = ''"
         >
           Reset
         </button>
         <button
+          type="button"
           class="px-6 py-2 rounded-lg bg-[#00B78E] text-black font-semibold hover:bg-[#00D09F]"
           (click)="saveCrop()"
         >

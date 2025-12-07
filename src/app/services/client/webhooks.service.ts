@@ -2,14 +2,14 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map, tap, catchError, throwError } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
-import { 
-  WebhookSubscription, 
-  CreateWebhookSubscriptionRequest, 
-  WebhookEvent 
+import {
+  WebhookSubscription,
+  CreateWebhookSubscriptionRequest,
+  WebhookEvent,
 } from '../../models/webhook.models';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WebhooksService {
   private readonly http = inject(HttpClient);
@@ -44,7 +44,7 @@ export class WebhooksService {
           return Array.isArray(subscriptions) ? subscriptions : [];
         }
         // Handle direct array response
-        const subscriptions = Array.isArray(response) ? response : (response?.data || []);
+        const subscriptions = Array.isArray(response) ? response : response?.data || [];
         return Array.isArray(subscriptions) ? subscriptions : [];
       }),
       tap((subscriptions) => {
@@ -55,7 +55,7 @@ export class WebhooksService {
         this.errorSignal.set(error.error?.message || 'Failed to load webhook subscriptions');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -79,7 +79,7 @@ export class WebhooksService {
         this.errorSignal.set(error.error?.message || 'Failed to load webhook subscription');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -108,7 +108,7 @@ export class WebhooksService {
         this.errorSignal.set(error.error?.message || 'Failed to create webhook subscription');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -123,25 +123,30 @@ export class WebhooksService {
       tap(() => {
         // Remove from local state
         const current = this.subscriptionsSignal();
-        this.subscriptionsSignal.set(current.filter(s => s.id !== id));
+        this.subscriptionsSignal.set(current.filter((s) => s.id !== id));
         this.loadingSignal.set(false);
       }),
       catchError((error) => {
         this.errorSignal.set(error.error?.message || 'Failed to delete webhook subscription');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
   /**
    * Get webhook events
    */
-  getWebhookEvents(platform?: string, status?: string, pageNumber: number = 1, pageSize: number = 20): Observable<WebhookEvent[]> {
+  getWebhookEvents(
+    platform?: string,
+    status?: string,
+    pageNumber: number = 1,
+    pageSize: number = 20,
+  ): Observable<WebhookEvent[]> {
     let params = new HttpParams()
       .set('pageNumber', pageNumber.toString())
       .set('pageSize', pageSize.toString());
-    
+
     if (platform) {
       params = params.set('platform', platform);
     }
@@ -157,14 +162,13 @@ export class WebhooksService {
           return Array.isArray(events) ? events : [];
         }
         // Handle direct array response
-        const events = Array.isArray(response) ? response : (response?.data || []);
+        const events = Array.isArray(response) ? response : response?.data || [];
         return Array.isArray(events) ? events : [];
       }),
       catchError((error) => {
         this.errorSignal.set(error.error?.message || 'Failed to load webhook events');
         return throwError(() => error);
-      })
+      }),
     );
   }
 }
-

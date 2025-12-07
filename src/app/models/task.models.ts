@@ -45,4 +45,3 @@ export interface UpdateTaskStatusRequest {
 
 export type TaskStatus = 'Pending' | 'InProgress' | 'Completed' | 'Cancelled';
 export type TaskPriority = 'Low' | 'Normal' | 'High';
-

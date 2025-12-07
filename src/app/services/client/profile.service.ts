@@ -16,13 +16,13 @@ export class ProfileService {
     this.loadProfile().subscribe();
   }
 
-  loadProfile(userId = 1): Observable<UserProfile> {
+  loadProfile(_userId = 1): Observable<UserProfile> {
     return this.http.get<any>(`${this.baseUrl}/api/auth/me`).pipe(
       map((response) => {
         const user = response?.data || response || {};
         return this.mapProfile(user);
       }),
-      tap((profile) => this.profileSignal.set(profile))
+      tap((profile) => this.profileSignal.set(profile)),
     );
   }
 
@@ -38,7 +38,7 @@ export class ProfileService {
     return this.loadProfile(userId);
   }
 
-  loadSettings(userId = 1): Observable<AccountSettings> {
+  loadSettings(_userId = 1): Observable<AccountSettings> {
     // Note: Backend doesn't have settings endpoint yet
     // Using default settings as placeholder
     return of({
@@ -72,7 +72,7 @@ export class ProfileService {
     };
   }
 
-  private mapSettings(user: any): AccountSettings {
+  private mapSettings(_user: unknown): AccountSettings {
     return {
       timezone: 'UTC',
       language: 'English',

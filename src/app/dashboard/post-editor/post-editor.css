@@ -19,7 +19,7 @@
 .input-field-float:not(:placeholder-shown) ~ .input-label-float {
   top: 0.5rem;
   font-size: 0.75rem;
-  color: #4C6FFF;
+  color: #4c6fff;
   font-weight: 600;
   transform: translateY(0);
   background: white;
@@ -32,7 +32,7 @@
   left: 1rem;
   top: 1rem;
   font-size: 0.875rem;
-  color: #6B7280;
+  color: #6b7280;
   pointer-events: none;
   transition: all 0.3s ease;
   z-index: 5;
@@ -70,23 +70,23 @@
 }
 
 /* Step Progress Indicator Enhancements */
-button[type="button"]:not(:disabled):hover {
+button[type='button']:not(:disabled):hover {
   transform: scale(1.05);
 }
 
 /* Platform Card Hover Effects */
-button[type="button"]:not(:disabled):hover {
+button[type='button']:not(:disabled):hover {
   transition: all 0.3s ease;
 }
 
 /* Media Upload Area */
-label[for*="file"]:hover,
-label[class*="cursor-pointer"]:hover {
+label[for*='file']:hover,
+label[class*='cursor-pointer']:hover {
   transform: translateY(-2px);
 }
 
 /* Button Enhancements */
-button[class*="bg-gradient"]:not(:disabled):hover {
+button[class*='bg-gradient']:not(:disabled):hover {
   box-shadow: 0 4px 12px rgba(76, 111, 255, 0.4);
 }
 
@@ -95,7 +95,7 @@ button[class*="bg-gradient"]:not(:disabled):hover {
   .input-label-float {
     font-size: 0.75rem;
   }
-  
+
   .input-field-float:focus ~ .input-label-float,
   .input-field-float:not(:placeholder-shown) ~ .input-label-float {
     font-size: 0.7rem;
@@ -104,7 +104,8 @@ button[class*="bg-gradient"]:not(:disabled):hover {
 
 /* Smooth Transitions */
 * {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-property:
+    background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -129,4 +130,3 @@ select:focus {
     transform: rotate(360deg);
   }
 }
-

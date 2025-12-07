@@ -2,16 +2,23 @@
   <div class="flex items-center justify-between px-6 py-4">
     <!-- Left: Menu Toggle & Search -->
     <div class="flex items-center gap-4 flex-1">
-      <button (click)="onToggleSidebar()" 
-              class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50">
+      <button
+        type="button"
+        (click)="onToggleSidebar()"
+        class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50"
+      >
         <i class="fas fa-bars text-lg"></i>
       </button>
-      
-      <div class="hidden md:flex items-center gap-2 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg px-4 py-2 flex-1 max-w-md">
+
+      <div
+        class="hidden md:flex items-center gap-2 bg-[#F5F7FF] border border-[#D9E1FF] rounded-lg px-4 py-2 flex-1 max-w-md"
+      >
         <i class="fas fa-search text-[#4C6FFF]"></i>
-        <input type="text" 
-               placeholder="Search..." 
-               class="bg-transparent border-none outline-none text-[#1A1A1A] flex-1 placeholder-gray-500">
+        <input
+          type="text"
+          placeholder="Search..."
+          class="bg-transparent border-none outline-none text-[#1A1A1A] flex-1 placeholder-gray-500"
+        />
       </div>
     </div>
 
@@ -19,10 +26,14 @@
     <div class="flex items-center gap-4">
       <!-- Notifications -->
       <div class="relative">
-        <button class="relative text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50">
+        <button
+          type="button"
+          class="relative text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50"
+        >
           <i class="fas fa-bell text-lg"></i>
-          <span *ngIf="unreadCount > 0" 
-                class="absolute top-0 right-0 w-2 h-2 bg-[#4C6FFF] rounded-full"></span>
+          @if (unreadCount > 0) {
+            <span class="absolute top-0 right-0 w-2 h-2 bg-[#4C6FFF] rounded-full"></span>
+          }
         </button>
       </div>
 
@@ -32,13 +43,16 @@
           <p class="text-sm font-semibold text-[#1A1A1A]">{{ displayName() }}</p>
           <p class="text-xs text-gray-600">{{ displayRole() }}</p>
         </div>
-        <div class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-bold cursor-pointer hover:scale-105 transition-transform">
+        <div
+          class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-bold cursor-pointer hover:scale-105 transition-transform"
+        >
           {{ avatarInitials() }}
         </div>
         <button
           type="button"
           (click)="logout()"
-          class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-sm font-medium text-red-600 hover:bg-red-100 transition-colors">
+          class="hidden sm:inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 border border-red-200 text-sm font-medium text-red-600 hover:bg-red-100 transition-colors"
+        >
           <i class="fas fa-sign-out-alt text-base"></i>
           Logout
         </button>
@@ -46,4 +60,3 @@
     </div>
   </div>
 </header>
-

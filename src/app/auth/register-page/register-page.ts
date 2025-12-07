@@ -1,9 +1,19 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
 import { RegisterRequest } from '../../models/auth.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
 
 @Component({
   selector: 'app-register-page',
@@ -12,26 +22,31 @@ import { RegisterRequest } from '../../models/auth.models';
   templateUrl: './register-page.html',
   styleUrl: './register-page.css',
 })
-export class RegisterPage {
+export class RegisterPage implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly loggingService = inject(LoggingService);
+  private readonly destroy$ = new Subject<void>();
 
   registerForm: FormGroup;
   loading = signal(false);
   errorMessage = signal<string | null>(null);
 
   constructor() {
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]],
-      tenantName: ['', [Validators.required, Validators.minLength(2)]],
-      tenantType: ['Individual', [Validators.required]],
-      acceptTerms: [false, [Validators.requiredTrue]],
-    }, {
-      validators: [this.passwordMatchValidator]
-    });
+    this.registerForm = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', [Validators.required]],
+        tenantName: ['', [Validators.required, Validators.minLength(2)]],
+        tenantType: ['Individual', [Validators.required]],
+        acceptTerms: [false, [Validators.requiredTrue]],
+      },
+      {
+        validators: [this.passwordMatchValidator],
+      },
+    );
   }
 
   /**
@@ -47,7 +62,6 @@ export class RegisterPage {
 
     return password.value === confirmPassword.value ? null : { passwordMismatch: true };
   }
-
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
@@ -66,7 +80,7 @@ export class RegisterPage {
       tenantType: formValue.tenantType,
     };
 
-    console.log('Registering with request:', registerRequest);
+    this.loggingService.debug('Registering with request', registerRequest, 'RegisterPage');
 
     this.authService.register(registerRequest).subscribe({
       next: (response) => {
@@ -89,7 +103,10 @@ export class RegisterPage {
           if (responseTenantType) {
             navigateForTenant(responseTenantType);
           } else {
-            this.authService.loadCurrentUser().subscribe((user) => {
+            this.authService
+              .loadCurrentUser()
+              .pipe(takeUntil(this.destroy$))
+              .subscribe((user) => {
               navigateForTenant(user?.tenantType);
             });
           }
@@ -101,9 +118,9 @@ export class RegisterPage {
       error: (error) => {
         this.loading.set(false);
         console.error('Registration error details:', error);
-        
+
         let message = 'An error occurred during registration.';
-        
+
         // Extract error message from API response
         if (error?.error?.message) {
           message = error.error.message;
@@ -116,7 +133,7 @@ export class RegisterPage {
         } else if (error?.userMessage) {
           message = error.userMessage;
         }
-        
+
         this.errorMessage.set(message);
         // Do NOT navigate - stay on registration page to show error
       },
@@ -142,7 +159,6 @@ export class RegisterPage {
 
     this.strengthLevel = score;
   }
-
 
   // Getters for form controls
   get email() {
@@ -170,7 +186,11 @@ export class RegisterPage {
   }
 
   get passwordMismatch() {
-    return this.registerForm.errors?.['passwordMismatch'] && 
-           this.confirmPassword?.touched;
+    return this.registerForm.errors?.['passwordMismatch'] && this.confirmPassword?.touched;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

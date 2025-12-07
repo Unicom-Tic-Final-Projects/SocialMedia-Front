@@ -12,35 +12,132 @@ export const routes: Routes = [
     path: 'auth',
     canActivate: [guestGuard],
     children: [
-      { path: 'login', loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage) },
-      { path: 'register', loadComponent: () => import('./auth/register-page/register-page').then((m) => m.RegisterPage) },
-      { path: 'forgot-password', loadComponent: () => import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword) },
-    ]
+      {
+        path: 'login',
+        loadComponent: () => import('./auth/login-page/login-page').then((m) => m.LoginPage),
+      },
+      {
+        path: 'register',
+        loadComponent: () =>
+          import('./auth/register-page/register-page').then((m) => m.RegisterPage),
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () =>
+          import('./auth/forgot-password/forgot-password').then((m) => m.ForgotPassword),
+      },
+    ],
   },
   {
     path: 'dashboard',
     canActivate: [authGuard, individualGuard],
-    loadComponent: () => import('./dashboard/dashboard-layout/dashboard-layout').then((m) => m.DashboardLayout),
+    loadComponent: () =>
+      import('./dashboard/dashboard-layout/dashboard-layout').then((m) => m.DashboardLayout),
     children: [
-      { path: '', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
-      { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
-      { path: 'clients', loadComponent: () => import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage) },
-      { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
-      { path: 'content-management', loadComponent: () => import('./dashboard/content-management/content-management').then((m) => m.ContentManagementComponent) },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome),
+      },
+      {
+        path: 'posts',
+        loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage),
+      },
+      {
+        path: 'clients',
+        loadComponent: () =>
+          import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage),
+      },
+      {
+        path: 'post-editor',
+        loadComponent: () =>
+          import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor),
+      },
+      {
+        path: 'content-management',
+        loadComponent: () =>
+          import('./dashboard/content-management/content-management').then(
+            (m) => m.ContentManagementComponent,
+          ),
+      },
       { path: 'ai-content', redirectTo: 'content-management', pathMatch: 'full' },
-      { path: 'media', loadComponent: () => import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary) },
-      { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
-      { path: 'notifications', loadComponent: () => import('./dashboard/notifications-page/notifications-page').then((m) => m.NotificationsPage) },
-      { path: 'settings', loadComponent: () => import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage) },
-      { path: 'profile', loadComponent: () => import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage) },
-      { path: 'approvals', loadComponent: () => import('./dashboard/approvals-page/approvals-page').then((m) => m.ApprovalsPage) },
-      { path: 'social-account', loadComponent: () => import('./dashboard/social-account-page/social-account-page').then((m) => m.SocialAccountPage) },
-      { path: 'social-account/connect', loadComponent: () => import('./dashboard/social-account-page/connect-account/connect-account').then((m) => m.ConnectAccount) },
-      { path: 'social-account/callback', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
-      { path: 'social-account/success', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
-      { path: 'social-account/connected', loadComponent: () => import('./dashboard/social-account-page/connected-accounts/connected-accounts').then((m) => m.ConnectedAccounts) },
-      { path: 'webhooks', loadComponent: () => import('./dashboard/webhooks-page/webhooks-page').then((m) => m.WebhooksPage) },
-      { path: 'billing', loadComponent: () => import('./dashboard/billing-page/billing-page').then((m) => m.BillingPage) },
+      {
+        path: 'media',
+        loadComponent: () =>
+          import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary),
+      },
+      {
+        path: 'analytics',
+        loadComponent: () =>
+          import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./dashboard/notifications-page/notifications-page').then(
+            (m) => m.NotificationsPage,
+          ),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage),
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage),
+      },
+      {
+        path: 'approvals',
+        loadComponent: () =>
+          import('./dashboard/approvals-page/approvals-page').then((m) => m.ApprovalsPage),
+      },
+      {
+        path: 'social-account',
+        loadComponent: () =>
+          import('./dashboard/social-account-page/social-account-page').then(
+            (m) => m.SocialAccountPage,
+          ),
+      },
+      {
+        path: 'social-account/connect',
+        loadComponent: () =>
+          import('./dashboard/social-account-page/connect-account/connect-account').then(
+            (m) => m.ConnectAccount,
+          ),
+      },
+      {
+        path: 'social-account/callback',
+        loadComponent: () =>
+          import('./dashboard/social-account-page/auth-success/auth-success').then(
+            (m) => m.AuthSuccess,
+          ),
+      },
+      {
+        path: 'social-account/success',
+        loadComponent: () =>
+          import('./dashboard/social-account-page/auth-success/auth-success').then(
+            (m) => m.AuthSuccess,
+          ),
+      },
+      {
+        path: 'social-account/connected',
+        loadComponent: () =>
+          import('./dashboard/social-account-page/connected-accounts/connected-accounts').then(
+            (m) => m.ConnectedAccounts,
+          ),
+      },
+      {
+        path: 'webhooks',
+        loadComponent: () =>
+          import('./dashboard/webhooks-page/webhooks-page').then((m) => m.WebhooksPage),
+      },
+      {
+        path: 'billing',
+        loadComponent: () =>
+          import('./dashboard/billing-page/billing-page').then((m) => m.BillingPage),
+      },
     ],
   },
   {
@@ -48,24 +145,88 @@ export const routes: Routes = [
     canActivate: [authGuard, agencyGuard],
     loadComponent: () => import('./agency/agency-layout/agency-layout').then((m) => m.AgencyLayout),
     children: [
-      { path: '', loadComponent: () => import('./agency/overview-page/overview-page').then((m) => m.AgencyOverviewPage) },
-      { path: 'clients', loadComponent: () => import('./agency/clients-page/clients-page').then((m) => m.AgencyClientsPage) },
-      { path: 'team-members', loadComponent: () => import('./agency/team-members-page/team-members-page').then((m) => m.AgencyTeamMembersPage) },
-      { path: 'tasks', loadComponent: () => import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage) },
-      { path: 'billing', loadComponent: () => import('./agency/billing-page/billing-page').then((m) => m.AgencyBillingPage) },
+      {
+        path: '',
+        loadComponent: () =>
+          import('./agency/overview-page/overview-page').then((m) => m.AgencyOverviewPage),
+      },
+      {
+        path: 'clients',
+        loadComponent: () =>
+          import('./agency/clients-page/clients-page').then((m) => m.AgencyClientsPage),
+      },
+      {
+        path: 'team-members',
+        loadComponent: () =>
+          import('./agency/team-members-page/team-members-page').then(
+            (m) => m.AgencyTeamMembersPage,
+          ),
+      },
+      {
+        path: 'tasks',
+        loadComponent: () =>
+          import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage),
+      },
+      {
+        path: 'billing',
+        loadComponent: () =>
+          import('./agency/billing-page/billing-page').then((m) => m.AgencyBillingPage),
+      },
       // Client dashboard routes (individual user features within agency context)
       {
         path: 'client/:clientId',
         children: [
-          { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
-          { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
-          { path: 'post-editor', loadComponent: () => import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor) },
-          { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
-          { path: 'social-account', loadComponent: () => import('./dashboard/social-account-page/social-account-page').then((m) => m.SocialAccountPage) },
-          { path: 'social-account/callback', loadComponent: () => import('./dashboard/social-account-page/auth-success/auth-success').then((m) => m.AuthSuccess) },
-          { path: 'notifications', loadComponent: () => import('./dashboard/notifications-page/notifications-page').then((m) => m.NotificationsPage) },
-          { path: 'settings', loadComponent: () => import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage) },
-          { path: 'profile', loadComponent: () => import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage) },
+          {
+            path: 'dashboard',
+            loadComponent: () =>
+              import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome),
+          },
+          {
+            path: 'posts',
+            loadComponent: () =>
+              import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage),
+          },
+          {
+            path: 'post-editor',
+            loadComponent: () =>
+              import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor),
+          },
+          {
+            path: 'analytics',
+            loadComponent: () =>
+              import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage),
+          },
+          {
+            path: 'social-account',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/social-account-page').then(
+                (m) => m.SocialAccountPage,
+              ),
+          },
+          {
+            path: 'social-account/callback',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/auth-success/auth-success').then(
+                (m) => m.AuthSuccess,
+              ),
+          },
+          {
+            path: 'notifications',
+            loadComponent: () =>
+              import('./dashboard/notifications-page/notifications-page').then(
+                (m) => m.NotificationsPage,
+              ),
+          },
+          {
+            path: 'settings',
+            loadComponent: () =>
+              import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage),
+          },
+          {
+            path: 'profile',
+            loadComponent: () =>
+              import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage),
+          },
         ],
       },
     ],
@@ -75,19 +236,58 @@ export const routes: Routes = [
     canActivate: [authGuard, teamMemberGuard],
     loadComponent: () => import('./team/team-layout/team-layout').then((m) => m.TeamLayout),
     children: [
-      { path: '', loadComponent: () => import('./team/tasks-page/tasks-page').then((m) => m.TeamTasksPage) },
-      { path: 'approvals', loadComponent: () => import('./team/approvals-page/approvals-page').then((m) => m.TeamApprovalsPage) },
+      {
+        path: '',
+        loadComponent: () => import('./team/tasks-page/tasks-page').then((m) => m.TeamTasksPage),
+      },
+      {
+        path: 'approvals',
+        loadComponent: () =>
+          import('./team/approvals-page/approvals-page').then((m) => m.TeamApprovalsPage),
+      },
       // Client dashboard routes for team members (viewing client dashboards in team context)
       {
         path: 'client/:clientId',
         children: [
-          { path: 'dashboard', loadComponent: () => import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome) },
-          { path: 'posts', loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage) },
-          { path: 'analytics', loadComponent: () => import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage) },
-          { path: 'social-account', loadComponent: () => import('./dashboard/social-account-page/social-account-page').then((m) => m.SocialAccountPage) },
-          { path: 'notifications', loadComponent: () => import('./dashboard/notifications-page/notifications-page').then((m) => m.NotificationsPage) },
-          { path: 'settings', loadComponent: () => import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage) },
-          { path: 'profile', loadComponent: () => import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage) },
+          {
+            path: 'dashboard',
+            loadComponent: () =>
+              import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome),
+          },
+          {
+            path: 'posts',
+            loadComponent: () =>
+              import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage),
+          },
+          {
+            path: 'analytics',
+            loadComponent: () =>
+              import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage),
+          },
+          {
+            path: 'social-account',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/social-account-page').then(
+                (m) => m.SocialAccountPage,
+              ),
+          },
+          {
+            path: 'notifications',
+            loadComponent: () =>
+              import('./dashboard/notifications-page/notifications-page').then(
+                (m) => m.NotificationsPage,
+              ),
+          },
+          {
+            path: 'settings',
+            loadComponent: () =>
+              import('./dashboard/settings-page/settings-page').then((m) => m.SettingsPage),
+          },
+          {
+            path: 'profile',
+            loadComponent: () =>
+              import('./dashboard/profile-page/profile-page').then((m) => m.ProfilePage),
+          },
         ],
       },
     ],
@@ -96,29 +296,65 @@ export const routes: Routes = [
     path: 'admin',
     children: [
       // Admin login (public, no auth required)
-      { 
-        path: 'login', 
+      {
+        path: 'login',
         //canActivate: [guestGuard],
-        loadComponent: () => import('./admin/admin-login/admin-login').then(m => m.AdminLogin) 
+        loadComponent: () => import('./admin/admin-login/admin-login').then((m) => m.AdminLogin),
       },
       // Admin dashboard (protected, requires auth and admin role)
       {
         path: '',
         canActivate: [adminGuard],
-        loadComponent: () => import('./admin/admin-layout/admin-layout').then(m => m.AdminLayout),
+        loadComponent: () => import('./admin/admin-layout/admin-layout').then((m) => m.AdminLayout),
         children: [
-          { path: 'adminpage', loadComponent: () => import('./admin/overview-page/overview-page').then(m => m.AdminOverviewPage) },
-          { path: 'overview', loadComponent: () => import('./admin/overview-page/overview-page').then(m => m.AdminOverviewPage) },
-          { path: 'analytics', loadComponent: () => import('./admin/analytics-page/analytics-page').then(m => m.AdminAnalyticsPage) },
-          { path: 'users', loadComponent: () => import('./admin/users-page/users-page').then(m => m.AdminUsersPage) },
-          { path: 'posts', loadComponent: () => import('./admin/posts-page/posts-page').then(m => m.AdminPostsPage) },
-          { path: 'reports', loadComponent: () => import('./admin/reports-page/reports-page').then(m => m.AdminReportsPage) },
-          { path: 'settings', loadComponent: () => import('./admin/settings-page/settings-page').then(m => m.AdminSettingsPage) },
-        ]
-      }
-    ]
+          {
+            path: 'adminpage',
+            loadComponent: () =>
+              import('./admin/overview-page/overview-page').then((m) => m.AdminOverviewPage),
+          },
+          {
+            path: 'overview',
+            loadComponent: () =>
+              import('./admin/overview-page/overview-page').then((m) => m.AdminOverviewPage),
+          },
+          {
+            path: 'analytics',
+            loadComponent: () =>
+              import('./admin/analytics-page/analytics-page').then((m) => m.AdminAnalyticsPage),
+          },
+          {
+            path: 'users',
+            loadComponent: () =>
+              import('./admin/users-page/users-page').then((m) => m.AdminUsersPage),
+          },
+          {
+            path: 'posts',
+            loadComponent: () =>
+              import('./admin/posts-page/posts-page').then((m) => m.AdminPostsPage),
+          },
+          {
+            path: 'reports',
+            loadComponent: () =>
+              import('./admin/reports-page/reports-page').then((m) => m.AdminReportsPage),
+          },
+          {
+            path: 'settings',
+            loadComponent: () =>
+              import('./admin/settings-page/settings-page').then((m) => m.AdminSettingsPage),
+          },
+        ],
+      },
+    ],
   },
-  { path: 'privacy-policy', loadComponent: () => import('./pages/privacy-policy/privacy-policy').then(m => m.PrivacyPolicyComponent) },
-  { path: 'cookie-policy', loadComponent: () => import('./pages/cookie-policy/cookie-policy').then(m => m.CookiePolicyComponent) },
-  { path: '**', redirectTo: '' }
+  {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./pages/privacy-policy/privacy-policy').then((m) => m.PrivacyPolicyComponent),
+  },
+  {
+    path: 'cookie-policy',
+    loadComponent: () =>
+      import('./pages/cookie-policy/cookie-policy').then((m) => m.CookiePolicyComponent),
+  },
+  { path: '**', redirectTo: '' },
 ];

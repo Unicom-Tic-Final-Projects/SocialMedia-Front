@@ -26,4 +26,3 @@ export interface CreateClientRequest {
 export interface UpdateClientRequest extends CreateClientRequest {
   status?: 'Active' | 'Inactive' | 'Archived';
 }
-

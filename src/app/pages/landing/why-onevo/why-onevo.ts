@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject } from '@angular/core';
 import { ParallaxService } from '../../../shared/services/parallax.service';
 import { Subscription } from 'rxjs';
 
@@ -12,18 +12,17 @@ import { Subscription } from 'rxjs';
 export class WhyOnevo implements OnInit, OnDestroy {
   @ViewChild('whySection', { static: true }) whySection!: ElementRef<HTMLElement>;
   @ViewChild('parallaxBg', { static: true }) parallaxBg!: ElementRef<HTMLElement>;
-  
+
   scrollY = 0;
   private subscriptions = new Subscription();
-
-  constructor(private parallaxService: ParallaxService) {}
+  private readonly parallaxService = inject(ParallaxService);
 
   ngOnInit() {
     this.subscriptions.add(
-      this.parallaxService.scroll$.subscribe(scrollY => {
+      this.parallaxService.scroll$.subscribe((scrollY) => {
         this.scrollY = scrollY;
         this.updateParallax();
-      })
+      }),
     );
   }
 

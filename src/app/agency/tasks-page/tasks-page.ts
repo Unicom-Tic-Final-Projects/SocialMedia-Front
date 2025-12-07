@@ -4,7 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AgencyTasksService } from '../../services/agency/tasks.service';
 import { TeamMembersService } from '../../services/agency/team-members.service';
 import { ClientsService } from '../../services/client/clients.service';
-import { Task, CreateTaskRequest, UpdateTaskRequest, TaskStatus, TaskPriority } from '../../models/task.models';
+import {
+  Task,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  TaskStatus,
+  TaskPriority,
+} from '../../models/task.models';
 import { Subscription, forkJoin } from 'rxjs';
 
 @Component({
@@ -46,8 +52,16 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
 
   readonly statuses: { value: TaskStatus; label: string; color: string }[] = [
     { value: 'Pending', label: 'Pending', color: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-    { value: 'InProgress', label: 'In Progress', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-    { value: 'Completed', label: 'Completed', color: 'bg-green-50 text-green-700 border-green-200' },
+    {
+      value: 'InProgress',
+      label: 'In Progress',
+      color: 'bg-blue-50 text-blue-700 border-blue-200',
+    },
+    {
+      value: 'Completed',
+      label: 'Completed',
+      color: 'bg-green-50 text-green-700 border-green-200',
+    },
     { value: 'Cancelled', label: 'Cancelled', color: 'bg-red-50 text-red-700 border-red-200' },
   ];
 
@@ -203,7 +217,9 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
   }
 
   deleteTask(task: Task): void {
-    if (!confirm(`Are you sure you want to delete "${task.title}"? This action cannot be undone.`)) {
+    if (
+      !confirm(`Are you sure you want to delete "${task.title}"? This action cannot be undone.`)
+    ) {
       return;
     }
 

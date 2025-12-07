@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule, DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -6,19 +6,24 @@ import { PostsService } from '../../../services/client/posts.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { SocialPost } from '../../../models/post.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../core/services/logging.service';
+import { BaseComponent } from '../../../core/base/base.component';
 
 @Component({
   selector: 'app-scheduled-posts',
   standalone: true,
   imports: [CommonModule, DatePipe],
   templateUrl: './scheduled-posts.html',
-  styleUrl: './scheduled-posts.css'
+  styleUrl: './scheduled-posts.css',
 })
-export class ScheduledPostsComponent implements OnInit {
+export class ScheduledPostsComponent extends BaseComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly loggingService = inject(LoggingService);
 
   scheduledPosts = signal<SocialPost[]>([]);
   loading = signal(false);
@@ -29,45 +34,50 @@ export class ScheduledPostsComponent implements OnInit {
 
   loadScheduledPosts(): void {
     this.loading.set(true);
-    
+
     this.postsService.getPostsByStatus('Scheduled').subscribe({
       next: (posts) => {
         this.scheduledPosts.set(posts);
         this.loading.set(false);
       },
       error: (error: HttpErrorResponse) => {
-        console.error('Error loading scheduled posts:', error);
-        const errorMsg = error?.error?.message || error?.message || 'Failed to load scheduled posts. Please try again.';
+        this.loggingService.error('Error loading scheduled posts', error, 'ScheduledPosts');
+        const errorMsg =
+          error?.error?.message ||
+          error?.message ||
+          'Failed to load scheduled posts. Please try again.';
         this.toastService.error(errorMsg);
         this.loading.set(false);
-      }
+      },
     });
   }
 
   editScheduled(postId: string): void {
     this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId, edit: 'true' }
+      queryParams: { postId, edit: 'true' },
     });
   }
 
-  cancelSchedule(postId: string): void {
-    this.confirmationService.confirm({
-      title: 'Cancel Scheduled Post',
-      message: 'Are you sure you want to cancel this scheduled post?',
-      confirmText: 'Cancel Schedule',
-      cancelText: 'Keep Scheduled',
-      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
-    }).then((confirmed) => {
-      if (confirmed) {
-        // TODO: Implement cancel schedule API call
-        this.toastService.success('Scheduled post cancelled');
-        this.loadScheduledPosts();
-      }
-    });
+  cancelSchedule(_postId: string): void {
+    this.confirmationService
+      .confirm({
+        title: 'Cancel Scheduled Post',
+        message: 'Are you sure you want to cancel this scheduled post?',
+        confirmText: 'Cancel Schedule',
+        cancelText: 'Keep Scheduled',
+        confirmButtonClass: 'bg-red-500 hover:bg-red-600',
+      })
+      .then((confirmed) => {
+        if (confirmed) {
+          // TODO: Implement cancel schedule API call
+          this.toastService.success('Scheduled post cancelled');
+          this.loadScheduledPosts();
+        }
+      });
   }
 
   getScheduledDate(post: SocialPost): Date | null {
     return post.scheduledAt ? new Date(post.scheduledAt) : null;
   }
-}
 
+}

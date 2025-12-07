@@ -11,7 +11,7 @@ import { ConfirmationService } from '../../../core/services/confirmation.service
 })
 export class ConfirmationDialogComponent {
   private readonly confirmationService = inject(ConfirmationService);
-  
+
   confirmation = this.confirmationService.getConfirmation();
 
   confirm(): void {
@@ -22,4 +22,3 @@ export class ConfirmationDialogComponent {
     this.confirmationService.handleResult(false);
   }
 }
-

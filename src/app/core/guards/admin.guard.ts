@@ -13,16 +13,17 @@ export const adminGuard: CanActivateFn = (route, state) => {
   if (!authService.isLoggedIn()) {
     // Not logged in, redirect to admin login
     router.navigate(['/admin/login'], {
-      queryParams: { returnUrl: state.url }
+      queryParams: { returnUrl: state.url },
     });
     return false;
   }
 
   // Check if user has admin role
   const user = authService.user();
-  const isAdmin = user?.role?.toLowerCase().includes('admin') || 
-                  user?.role?.toLowerCase() === 'owner' ||
-                  user?.role?.toLowerCase() === 'administrator';
+  const isAdmin =
+    user?.role?.toLowerCase().includes('admin') ||
+    user?.role?.toLowerCase() === 'owner' ||
+    user?.role?.toLowerCase() === 'administrator';
 
   if (!isAdmin) {
     // Not an admin, redirect to dashboard
@@ -32,4 +33,3 @@ export const adminGuard: CanActivateFn = (route, state) => {
 
   return true;
 };
-

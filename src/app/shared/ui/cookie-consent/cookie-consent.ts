@@ -9,7 +9,7 @@ import { CookieConsentService } from '../../../core/services/cookie-consent.serv
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './cookie-consent.html',
-  styleUrl: './cookie-consent.css'
+  styleUrl: './cookie-consent.css',
 })
 export class CookieConsentComponent implements OnInit {
   private readonly cookieService = inject(CookieConsentService);
@@ -63,7 +63,7 @@ export class CookieConsentComponent implements OnInit {
     this.cookieService.saveCustomPreferences({
       functional: this.functional(),
       analytics: this.analytics(),
-      marketing: this.marketing()
+      marketing: this.marketing(),
     });
     this.showBanner.set(false);
     this.showCustomize.set(false);
@@ -77,4 +77,3 @@ export class CookieConsentComponent implements OnInit {
     this.showBanner.set(false);
   }
 }
-

@@ -92,4 +92,3 @@ export interface CancelSubscriptionRequest {
   cancelImmediately?: boolean;
   reason?: string;
 }
-

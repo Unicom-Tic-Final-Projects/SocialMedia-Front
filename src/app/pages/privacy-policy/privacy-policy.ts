@@ -9,13 +9,12 @@ import { AppFooter } from '../../shared/app-footer/app-footer';
   standalone: true,
   imports: [CommonModule, RouterLink, AppHeader, AppFooter],
   templateUrl: './privacy-policy.html',
-  styleUrl: './privacy-policy.css'
+  styleUrl: './privacy-policy.css',
 })
 export class PrivacyPolicyComponent {
-  currentDate = new Date().toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  currentDate = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 }
-

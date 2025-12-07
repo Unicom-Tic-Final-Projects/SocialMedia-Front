@@ -2,7 +2,12 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, tap, throwError } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
-import { Task, CreateTaskRequest, UpdateTaskRequest, UpdateTaskStatusRequest } from '../../models/task.models';
+import {
+  Task,
+  CreateTaskRequest,
+  UpdateTaskRequest,
+  UpdateTaskStatusRequest,
+} from '../../models/task.models';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +41,7 @@ export class AgencyTasksService {
         this.errorSignal.set(error?.message || 'Failed to load tasks');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -56,7 +61,7 @@ export class AgencyTasksService {
         this.errorSignal.set(error?.message || 'Failed to create task');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -70,7 +75,7 @@ export class AgencyTasksService {
     return this.http.put<Task>(`${this.baseUrl}/api/tasks/${taskId}`, request).pipe(
       tap((updatedTask) => {
         this.tasksSignal.update((tasks) =>
-          tasks.map((task) => (task.id === taskId ? updatedTask : task))
+          tasks.map((task) => (task.id === taskId ? updatedTask : task)),
         );
         this.loadingSignal.set(false);
       }),
@@ -78,7 +83,7 @@ export class AgencyTasksService {
         this.errorSignal.set(error?.message || 'Failed to update task');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -92,7 +97,7 @@ export class AgencyTasksService {
     return this.http.patch<Task>(`${this.baseUrl}/api/tasks/${taskId}/status`, request).pipe(
       tap((updatedTask) => {
         this.tasksSignal.update((tasks) =>
-          tasks.map((task) => (task.id === taskId ? updatedTask : task))
+          tasks.map((task) => (task.id === taskId ? updatedTask : task)),
         );
         this.loadingSignal.set(false);
       }),
@@ -100,7 +105,7 @@ export class AgencyTasksService {
         this.errorSignal.set(error?.message || 'Failed to update task status');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
@@ -120,8 +125,7 @@ export class AgencyTasksService {
         this.errorSignal.set(error?.message || 'Failed to delete task');
         this.loadingSignal.set(false);
         return throwError(() => error);
-      })
+      }),
     );
   }
 }
-

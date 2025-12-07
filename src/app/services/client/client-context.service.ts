@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, effect, computed } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { ClientUserService } from './client-user.service';
 import { ClientsService } from './clients.service';
 import { Client } from '../../models/client.models';
@@ -53,15 +53,15 @@ export class ClientContextService {
    * Load user accounts for all clients
    */
   loadClientUserAccounts(clients: Client[]): void {
-    const checks = clients.map(client =>
+    const checks = clients.map((client) =>
       this.clientUserService.getClientUser(client.id).pipe(
         map((user) => ({ client, user, hasAccount: user !== null })),
         catchError((error) => {
           // Log error but don't fail the entire operation
           console.warn(`Failed to load user account for client ${client.id}:`, error);
           return of({ client, user: null, hasAccount: false });
-        })
-      )
+        }),
+      ),
     );
 
     forkJoin(checks).subscribe({
@@ -69,7 +69,7 @@ export class ClientContextService {
         const accountMap = new Map<string, ClientUser>();
         const clientsWithAccounts: Client[] = [];
 
-        results.forEach(result => {
+        results.forEach((result) => {
           if (result.hasAccount && result.user !== null) {
             accountMap.set(result.client.id, result.user);
             clientsWithAccounts.push(result.client);
@@ -90,7 +90,7 @@ export class ClientContextService {
    */
   selectClient(client: Client | null): void {
     this.selectedClientSignal.set(client);
-    
+
     if (client) {
       const userAccount = this.clientUserAccountsSignal().get(client.id);
       this.clientUserSignal.set(userAccount || null);
@@ -121,13 +121,12 @@ export class ClientContextService {
     this.clientUserSignal.set(null);
   }
 
-
   /**
    * Get current client ID from route or selected client
    */
   getCurrentClientId(): string | null {
     const url = this.router.url;
-    const clientMatch = url.match(/\/agency\/client\/([^\/]+)/);
+    const clientMatch = url.match(/\/agency\/client\/([^/]+)/);
     if (clientMatch) {
       return clientMatch[1];
     }
@@ -166,7 +165,7 @@ export class ClientContextService {
             // Wait a bit for client accounts to load
             setTimeout(() => {
               const updatedClients = this.clientsService.clients();
-              const client = updatedClients.find(c => c.id === clientId);
+              const client = updatedClients.find((c) => c.id === clientId);
               if (client) {
                 this.selectClient(client);
               }
@@ -175,11 +174,11 @@ export class ClientContextService {
           },
           error: () => {
             resolve(); // Resolve anyway to not block component loading
-          }
+          },
         });
       } else {
         // Find and select client
-        const client = clients.find(c => c.id === clientId);
+        const client = clients.find((c) => c.id === clientId);
         if (client) {
           this.selectClient(client);
         }
@@ -188,4 +187,3 @@ export class ClientContextService {
     });
   }
 }
-

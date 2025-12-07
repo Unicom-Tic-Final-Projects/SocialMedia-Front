@@ -5,10 +5,10 @@ import { firebaseConfig, vapidKey } from '../../config/firebase.config';
 import { HttpClient } from '@angular/common/http';
 import { API_BASE_URL } from '../../config/api.config';
 import { CookieConsentService } from './cookie-consent.service';
-import { Observable, from } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FirebaseService {
   private readonly http = inject(HttpClient);
@@ -28,7 +28,7 @@ export class FirebaseService {
   private initializeFirebase(): void {
     try {
       this.app = initializeApp(firebaseConfig);
-      
+
       // Only initialize messaging if browser supports it
       if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
         this.messaging = getMessaging(this.app);
@@ -69,27 +69,30 @@ export class FirebaseService {
     try {
       // Request permission
       const permission = await Notification.requestPermission();
-      
+
       if (permission === 'granted') {
         console.log('Notification permission granted.');
-        
+
         // Register service worker explicitly before getting token
         let serviceWorkerRegistration: ServiceWorkerRegistration | undefined = undefined;
         try {
           // Try to get existing registration first (check root scope)
           const existingRegistrations = await navigator.serviceWorker.getRegistrations();
-          serviceWorkerRegistration = existingRegistrations.find(reg => 
-            reg.scope === window.location.origin + '/' || 
-            reg.scope === window.location.origin
+          serviceWorkerRegistration = existingRegistrations.find(
+            (reg) =>
+              reg.scope === window.location.origin + '/' || reg.scope === window.location.origin,
           );
-          
+
           // If not found, register it at root
           if (!serviceWorkerRegistration) {
             console.log('Registering service worker...');
-            serviceWorkerRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-              scope: '/'
-            });
-            
+            serviceWorkerRegistration = await navigator.serviceWorker.register(
+              '/firebase-messaging-sw.js',
+              {
+                scope: '/',
+              },
+            );
+
             // Wait for service worker to be ready
             if (serviceWorkerRegistration.installing) {
               await new Promise<void>((resolve) => {
@@ -101,12 +104,12 @@ export class FirebaseService {
               });
             } else if (serviceWorkerRegistration.waiting) {
               // Already installed, just wait a bit
-              await new Promise(resolve => setTimeout(resolve, 100));
+              await new Promise((resolve) => setTimeout(resolve, 100));
             } else if (serviceWorkerRegistration.active) {
               // Already active
               console.log('Service worker is active');
             }
-            
+
             console.log('Service worker registered and ready');
           } else {
             console.log('Service worker already registered');
@@ -115,22 +118,22 @@ export class FirebaseService {
           console.error('Error registering service worker:', swError);
           // Continue anyway - Firebase might still work
         }
-        
+
         // Get FCM token with service worker registration
         const tokenOptions: any = { vapidKey };
         if (serviceWorkerRegistration) {
           tokenOptions.serviceWorkerRegistration = serviceWorkerRegistration;
         }
-        
+
         const token = await getToken(this.messaging!, tokenOptions);
-        
+
         if (token) {
           console.log('FCM Token:', token);
           this.currentToken = token;
-          
+
           // Register token with backend
           await this.registerTokenWithBackend(token);
-          
+
           return token;
         } else {
           console.log('No registration token available.');
@@ -163,16 +166,15 @@ export class FirebaseService {
       const deviceId = this.getDeviceId();
       const userAgent = navigator.userAgent;
 
-      const response = await this.http.post(
-        `${this.baseUrl}/api/notifications/devices/register`,
-        {
+      const response = await this.http
+        .post(`${this.baseUrl}/api/notifications/devices/register`, {
           token: token,
           platform: 'Web',
           deviceId: deviceId,
           userAgent: userAgent,
-          appVersion: '1.0.0'
-        }
-      ).toPromise();
+          appVersion: '1.0.0',
+        })
+        .toPromise();
 
       console.log('Device token registered successfully:', response);
     } catch (error) {
@@ -211,12 +213,12 @@ export class FirebaseService {
    */
   onMessage(): Observable<any> {
     if (!this.messaging) {
-      return new Observable(observer => {
+      return new Observable((observer) => {
         observer.error('Firebase messaging not initialized');
       });
     }
 
-    return new Observable(observer => {
+    return new Observable((observer) => {
       onMessage(this.messaging!, (payload) => {
         console.log('Message received:', payload);
         observer.next(payload);
@@ -229,10 +231,8 @@ export class FirebaseService {
    */
   async unregisterToken(): Promise<void> {
     try {
-      await this.http.delete(
-        `${this.baseUrl}/api/notifications/devices/all`
-      ).toPromise();
-      
+      await this.http.delete(`${this.baseUrl}/api/notifications/devices/all`).toPromise();
+
       this.currentToken = null;
       console.log('Device token unregistered');
     } catch (error) {
@@ -240,4 +240,3 @@ export class FirebaseService {
     }
   }
 }
-

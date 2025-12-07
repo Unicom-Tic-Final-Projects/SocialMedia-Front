@@ -1,0 +1,76 @@
+<div class="space-y-6">
+  <div class="mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-share-nodes text-[#4C6FFF]"></i>
+      </div>
+      Step 2: Choose Platforms
+    </h2>
+    <p class="text-gray-600 text-sm ml-[58px]">Select which social media platforms to publish to</p>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (platform of getAllPlatforms(); track platform) {
+      @let isSelected = isPlatformSelected(platform);
+      @let accounts = getConnectedAccountsForPlatform(platform);
+      @let isConnected = accounts.length > 0;
+
+      <button
+        type="button"
+        (click)="togglePlatform(platform)"
+        class="relative p-5 rounded-xl border-2 transition-all duration-300 text-left group hover:shadow-lg hover:scale-[1.02]"
+        [class.bg-gradient-to-br]="isSelected"
+        [class.from-[#4C6FFF]]="isSelected"
+        [class.to-[#3A56CC]]="isSelected"
+        [class.text-white]="isSelected"
+        [class.border-[#4C6FFF]]="isSelected"
+        [class.shadow-md]="isSelected"
+        [class.bg-white]="!isSelected"
+        [class.text-[#1A1A1A]]="!isSelected"
+        [class.border-[#D9E1FF]]="!isSelected"
+        [class.opacity-60]="!isConnected"
+        [class.cursor-not-allowed]="!isConnected"
+      >
+        <div class="flex items-center gap-3 mb-3">
+          <i [class]="getPlatformIcon(platform)" class="text-3xl" [style.color]="isSelected ? '#FFFFFF' : undefined"></i>
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">{{ getPlatformDisplayName(platform) }}</h3>
+            @if (!isConnected) {
+              <p class="text-xs opacity-75 mt-1">Not connected</p>
+            } @else {
+              <p class="text-xs opacity-75 mt-1">
+                {{ accounts.length }} {{ accounts.length === 1 ? 'account' : 'accounts' }}
+              </p>
+            }
+          </div>
+          @if (isSelected) {
+            <div class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+              <i class="fa-solid fa-check text-sm"></i>
+            </div>
+          }
+        </div>
+      </button>
+    }
+  </div>
+
+  @if (step2ValidationError()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+      <i class="fa-solid fa-exclamation-triangle text-red-600 mt-0.5"></i>
+      <p class="text-sm text-red-700 font-medium">Please select at least one platform to continue</p>
+    </div>
+  } @else if (selectedPlatforms().length === 0) {
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+      <i class="fa-solid fa-info-circle text-amber-600 mt-0.5"></i>
+      <p class="text-sm text-amber-700">Please select at least one platform to continue</p>
+    </div>
+  } @else {
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+      <i class="fa-solid fa-check-circle text-green-600 mt-0.5"></i>
+      <p class="text-sm text-green-700 font-medium">
+        {{ selectedPlatforms().length }}
+        {{ selectedPlatforms().length === 1 ? 'platform' : 'platforms' }} selected
+      </p>
+    </div>
+  }
+</div>
+

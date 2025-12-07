@@ -33,7 +33,8 @@
 
 /* Gradient text animation */
 @keyframes gradient-shift {
-  0%, 100% {
+  0%,
+  100% {
     background-position: 0% 50%;
   }
   50% {
@@ -45,4 +46,3 @@
   background-size: 200% 200%;
   animation: gradient-shift 3s ease infinite;
 }
-

@@ -1,15 +1,16 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { fromEvent, Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ParallaxService {
+  private readonly ngZone = inject(NgZone);
   private scrollSubject = new Subject<number>();
   public scroll$ = this.scrollSubject.asObservable();
 
-  constructor(private ngZone: NgZone) {
+  constructor() {
     this.initScrollListener();
   }
 
@@ -42,13 +43,12 @@ export class ParallaxService {
     const windowHeight = this.getWindowHeight();
     const elementTop = elementOffset - scrollY;
     const elementBottom = elementTop + windowHeight;
-    
+
     if (elementBottom < 0 || elementTop > windowHeight) {
       return 0;
     }
-    
+
     const progress = (windowHeight - elementTop) / (windowHeight * 2);
     return (progress - 0.5) * speed * 100;
   }
 }
-

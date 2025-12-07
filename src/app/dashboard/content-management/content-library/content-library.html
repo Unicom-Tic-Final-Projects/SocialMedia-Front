@@ -2,8 +2,10 @@
   <div class="flex items-center justify-between mb-6">
     <h2 class="text-lg sm:text-xl font-bold text-[#1A1A1A]">Content Library</h2>
     <button
+      type="button"
       (click)="showUploadModal.set(true)"
-      class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition text-sm flex items-center gap-2">
+      class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition text-sm flex items-center gap-2"
+    >
       <i class="fa-solid fa-cloud-arrow-up"></i>
       Upload Media
     </button>
@@ -13,7 +15,9 @@
   <div class="mb-6 space-y-4">
     <div class="flex flex-wrap gap-3">
       <div class="input-group flex-1 min-w-[200px] relative">
-        <i class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+        <i
+          class="fa-solid fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
+        ></i>
         <input
           type="text"
           placeholder=" "
@@ -21,52 +25,63 @@
           (input)="searchQuery.set($any($event.target).value); onSearchChange()"
           class="input-field w-full border-2 border-[#D9E1FF] rounded-xl px-4 py-3 pl-10 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-sm transition-all duration-300 bg-white"
         />
-        <label class="input-label absolute left-10 top-3 text-gray-500 pointer-events-none transition-all duration-300">
+        <label
+          class="input-label absolute left-10 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+        >
           Search media by name...
         </label>
       </div>
       <div class="flex gap-2">
         <button
+          type="button"
           (click)="selectedFilter.set('all'); onFilterChange()"
           [class.bg-[#4C6FFF]]="selectedFilter() === 'all'"
           [class.text-white]="selectedFilter() === 'all'"
           [class.text-[#1A1A1A]]="selectedFilter() !== 'all'"
-          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm"
+        >
           All
         </button>
         <button
+          type="button"
           (click)="selectedFilter.set('images'); onFilterChange()"
           [class.bg-[#4C6FFF]]="selectedFilter() === 'images'"
           [class.text-white]="selectedFilter() === 'images'"
           [class.text-[#1A1A1A]]="selectedFilter() !== 'images'"
-          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm"
+        >
           Images
         </button>
         <button
+          type="button"
           (click)="selectedFilter.set('videos'); onFilterChange()"
           [class.bg-[#4C6FFF]]="selectedFilter() === 'videos'"
           [class.text-white]="selectedFilter() === 'videos'"
           [class.text-[#1A1A1A]]="selectedFilter() !== 'videos'"
-          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm">
+          class="px-4 py-2 rounded-lg border border-[#D9E1FF] transition text-sm"
+        >
           Videos
         </button>
       </div>
     </div>
-    
+
     <!-- Sort Options -->
     <div class="flex items-center gap-3 text-sm">
       <span class="text-gray-600">Sort by:</span>
       <select
         [value]="sortBy()"
         (change)="sortBy.set($any($event.target).value); onSortChange()"
-        class="border border-[#D9E1FF] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm">
+        class="border border-[#D9E1FF] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm"
+      >
         <option value="date">Date</option>
         <option value="name">Name</option>
         <option value="size">Size</option>
       </select>
       <button
+        type="button"
         (click)="toggleSortOrder()"
-        class="px-3 py-1.5 border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition text-sm">
+        class="px-3 py-1.5 border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF] transition text-sm"
+      >
         <i class="fa-solid fa-arrow-{{ sortOrder() === 'asc' ? 'up' : 'down' }} mr-1"></i>
         {{ sortOrder() === 'asc' ? 'Ascending' : 'Descending' }}
       </button>
@@ -75,15 +90,17 @@
 
   <!-- Media Grid -->
   @if (loading()) {
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-      @for (item of [1,2,3,4,5,6,7,8,9,10,11,12]; track item) {
+    <div
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+    >
+      @for (item of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]; track item) {
         <div class="skeleton-grid-item">
           <div class="aspect-square">
             <div class="skeleton skeleton-image w-full h-full"></div>
           </div>
           <div class="p-3 space-y-2">
             <div class="skeleton skeleton-text w-3/4"></div>
-            <div class="skeleton skeleton-text w-1/2" style="height: 0.75em;"></div>
+            <div class="skeleton skeleton-text w-1/2" style="height: 0.75em"></div>
           </div>
         </div>
       }
@@ -93,33 +110,47 @@
       <i class="fa-solid fa-images text-4xl sm:text-5xl text-gray-400 mb-4"></i>
       <p class="text-gray-600 mb-2 text-sm sm:text-base">No media files yet</p>
       <button
+        type="button"
         (click)="showUploadModal.set(true)"
-        class="text-[#4C6FFF] hover:underline font-medium text-sm sm:text-base">
+        class="text-[#4C6FFF] hover:underline font-medium text-sm sm:text-base"
+      >
         Upload your first media file
       </button>
     </div>
   } @else {
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+    <div
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4"
+    >
       @for (item of mediaItems(); track item.id) {
         <div class="group relative rounded-lg overflow-hidden transition">
           <div class="aspect-square bg-gray-100 relative">
             @if (item.fileType.startsWith('image/')) {
-              <img [src]="item.thumbnailUrl || item.url" [alt]="item.fileName" class="w-full h-full object-cover" />
+              <img
+                [src]="item.thumbnailUrl || item.url"
+                [alt]="item.fileName"
+                class="w-full h-full object-cover"
+              />
             } @else {
               <div class="w-full h-full flex items-center justify-center">
                 <i class="fa-solid fa-video text-4xl text-gray-400"></i>
               </div>
             }
-            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+            <div
+              class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2"
+            >
               <button
+                type="button"
                 (click)="useInPost(item.id)"
-                class="px-3 py-1.5 bg-[#4C6FFF] text-white rounded-lg text-xs hover:bg-[#3A56CC] transition">
+                class="px-3 py-1.5 bg-[#4C6FFF] text-white rounded-lg text-xs hover:bg-[#3A56CC] transition"
+              >
                 <i class="fa-solid fa-plus mr-1"></i>
                 Use
               </button>
               <button
+                type="button"
                 (click)="deleteMedia(item.id)"
-                class="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition">
+                class="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition"
+              >
                 <i class="fa-solid fa-trash mr-1"></i>
                 Delete
               </button>
@@ -146,19 +177,27 @@
 
   <!-- Upload Modal -->
   @if (showUploadModal()) {
-    <div class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" (click)="showUploadModal.set(false)">
-      <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6" (click)="$event.stopPropagation()">
+    <div
+      class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      (click)="showUploadModal.set(false)"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+        (click)="$event.stopPropagation()"
+      >
         <h3 class="text-xl font-bold text-[#1A1A1A] mb-4">Upload Media</h3>
-        <div class="drop-zone border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer"
-             [class.border-[#4C6FFF]]="isDragging()"
-             [class.border-[#D9E1FF]]="!isDragging()"
-             [class.bg-[#F5F7FF]]="isDragging()"
-             [class.scale-105]="isDragging()"
-             [class.shadow-lg]="isDragging()"
-             (dragover)="onDragOver($event)"
-             (dragleave)="onDragLeave($event)"
-             (drop)="onDrop($event)"
-             (click)="fileInput.click()">
+        <div
+          class="drop-zone border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer"
+          [class.border-[#4C6FFF]]="isDragging()"
+          [class.border-[#D9E1FF]]="!isDragging()"
+          [class.bg-[#F5F7FF]]="isDragging()"
+          [class.scale-105]="isDragging()"
+          [class.shadow-lg]="isDragging()"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="fileInput.click()"
+        >
           <input
             type="file"
             accept="image/*,video/*"
@@ -175,17 +214,19 @@
             <p class="text-sm font-semibold text-[#1A1A1A] mb-2">Drag & drop or click to upload</p>
             <p class="text-xs text-gray-500 mb-4">Images up to 10MB, Videos up to 100MB</p>
             <button
+              type="button"
               (click)="fileInput.click(); $event.stopPropagation()"
               [disabled]="uploading()"
-              class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition disabled:opacity-50">
-            @if (uploading()) {
-              <span class="flex items-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-                {{ uploadProgress() }}%
-              </span>
-            } @else {
-              Select Files
-            }
+              class="px-4 py-2 bg-[#4C6FFF] hover:bg-[#3A56CC] text-white rounded-lg transition disabled:opacity-50"
+            >
+              @if (uploading()) {
+                <span class="flex items-center gap-2">
+                  <i class="fa-solid fa-cloud-arrow-up"></i>
+                  {{ uploadProgress() }}%
+                </span>
+              } @else {
+                Select Files
+              }
             </button>
           }
         </div>
@@ -199,10 +240,10 @@
               <span class="text-[#4C6FFF] font-semibold">{{ uploadProgress() }}%</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-              <div 
+              <div
                 class="bg-[#4C6FFF] h-2.5 rounded-full transition-all duration-300 ease-out"
-                [style.width.%]="uploadProgress()">
-              </div>
+                [style.width.%]="uploadProgress()"
+              ></div>
             </div>
             <p class="text-xs text-gray-500 text-center">
               @if (uploadProgress() < 50) {
@@ -219,4 +260,3 @@
     </div>
   }
 </div>
-

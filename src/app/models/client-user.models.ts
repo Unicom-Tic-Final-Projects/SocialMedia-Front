@@ -9,4 +9,3 @@ export interface CreateClientUserRequest {
   email: string;
   password?: string; // Optional - will be auto-generated if not provided
 }
-

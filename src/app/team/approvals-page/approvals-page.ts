@@ -38,7 +38,7 @@ export class TeamApprovalsPage implements OnInit, OnDestroy {
   }
 
   getCompletedTasks(): Task[] {
-    return this.tasks().filter(task => task.status === 'Completed');
+    return this.tasks().filter((task) => task.status === 'Completed');
   }
 
   approveTask(task: Task): void {
@@ -75,4 +75,3 @@ export class TeamApprovalsPage implements OnInit, OnDestroy {
     return task.id;
   }
 }
-

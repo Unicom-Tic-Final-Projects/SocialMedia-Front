@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, signal, computed } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface UploadedFile {
@@ -27,7 +35,7 @@ export function getReadableFileSize(bytes: number): string {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './file-upload.component.html',
-  styleUrl: './file-upload.component.css'
+  styleUrl: './file-upload.component.css',
 })
 export class FileUploadComponent {
   @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
@@ -54,9 +62,9 @@ export class FileUploadComponent {
   isFileTypeAccepted(file: File): boolean {
     if (!this.accept) return true;
 
-    const acceptedTypes = this.accept.split(',').map(type => type.trim());
+    const acceptedTypes = this.accept.split(',').map((type) => type.trim());
 
-    return acceptedTypes.some(acceptedType => {
+    return acceptedTypes.some((acceptedType) => {
       // Handle file extensions (e.g., .pdf, .doc)
       if (acceptedType.startsWith('.')) {
         const extension = '.' + file.name.split('.').pop()?.toLowerCase();
@@ -97,7 +105,7 @@ export class FileUploadComponent {
 
     const filesToProcess = this.allowsMultiple ? files : files.slice(0, 1);
 
-    filesToProcess.forEach(file => {
+    filesToProcess.forEach((file) => {
       // Check file size first
       if (this.maxSize && file.size > this.maxSize) {
         oversizedFiles.push(file);
@@ -170,11 +178,14 @@ export class FileUploadComponent {
       return 'fa-video';
     } else if (file.type?.includes('pdf')) {
       return 'fa-file-pdf';
-    } else if (file.type?.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+    } else if (
+      file.type?.includes('word') ||
+      file.name.endsWith('.doc') ||
+      file.name.endsWith('.docx')
+    ) {
       return 'fa-file-word';
     } else {
       return 'fa-file';
     }
   }
 }
-

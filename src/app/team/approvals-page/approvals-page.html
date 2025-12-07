@@ -41,7 +41,9 @@
               <div class="flex-1">
                 <div class="flex items-center gap-3 mb-2">
                   <h3 class="text-lg font-semibold text-slate-900">{{ task.title }}</h3>
-                  <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-green-50 text-green-600">
+                  <span
+                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-green-50 text-green-600"
+                  >
                     Completed
                   </span>
                 </div>
@@ -52,25 +54,29 @@
                   @if (task.dueDate) {
                     <span>
                       <i class="fa-solid fa-calendar mr-1"></i>
-                      Due: {{ task.dueDate | date:'short' }}
+                      Due: {{ task.dueDate | date: 'short' }}
                     </span>
                   }
                   <span>
                     <i class="fa-solid fa-clock mr-1"></i>
-                    Completed: {{ task.updatedAt | date:'short' }}
+                    Completed: {{ task.updatedAt | date: 'short' }}
                   </span>
                 </div>
               </div>
               <div class="flex items-center gap-2">
                 <button
+                  type="button"
                   (click)="rejectTask(task)"
-                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
+                >
                   <i class="fa-solid fa-times"></i>
                   Reject
                 </button>
                 <button
+                  type="button"
                   (click)="approveTask(task)"
-                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition">
+                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-lg hover:bg-green-100 transition"
+                >
                   <i class="fa-solid fa-check"></i>
                   Approve
                 </button>
@@ -82,4 +88,3 @@
     }
   </div>
 </section>
-

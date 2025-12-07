@@ -1,9 +1,12 @@
-import { AsyncPipe, DatePipe, NgClass, NgIf, NgFor, TitleCasePipe } from '@angular/common';
-import { Component } from '@angular/core';
+import { AsyncPipe, DatePipe, NgClass, TitleCasePipe } from '@angular/common';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../../core/services/logging.service';
 import { Platform, SocialAccount } from '../../../models/social.models';
 import { SocialAccountsService } from '../../../services/client/social-accounts.service';
+import { BaseComponent } from '../../../core/base/base.component';
 
 interface PlatformMeta {
   icon: string;
@@ -14,12 +17,13 @@ interface PlatformMeta {
 @Component({
   selector: 'app-connected-accounts',
   standalone: true,
-  imports: [RouterModule, AsyncPipe, DatePipe, TitleCasePipe, NgIf, NgFor, NgClass],
+  imports: [RouterModule, AsyncPipe, DatePipe, TitleCasePipe, NgClass],
   templateUrl: './connected-accounts.html',
   styleUrl: './connected-accounts.css',
 })
-export class ConnectedAccounts {
+export class ConnectedAccounts extends BaseComponent {
   readonly accounts$: Observable<SocialAccount[]>;
+  private readonly loggingService = inject(LoggingService);
 
   readonly platformMeta: Record<Platform, PlatformMeta> = {
     facebook: { icon: 'fa-brands fa-facebook-f', name: 'Facebook', color: '#1877F2' },
@@ -31,21 +35,28 @@ export class ConnectedAccounts {
     pinterest: { icon: 'fa-brands fa-pinterest', name: 'Pinterest', color: '#E60023' },
   };
 
-  constructor(private readonly socialAccounts: SocialAccountsService, private readonly router: Router) {
+  private readonly socialAccounts = inject(SocialAccountsService);
+  private readonly router = inject(Router);
+
+  constructor() {
+    super();
     this.accounts$ = this.socialAccounts.accounts$;
   }
 
   reconnect(account: SocialAccount): void {
     this.socialAccounts
       .reconnect(account.id)
-      .subscribe({ error: (error: any) => console.error('Reconnect failed', error) });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({ error: (error: any) => this.loggingService.error('Reconnect failed', error, 'ConnectedAccounts') });
   }
 
   disconnect(account: SocialAccount): void {
     this.socialAccounts
       .disconnect(account.id)
-      .subscribe({ error: (error: any) => console.error('Disconnect failed', error) });
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({ error: (error: any) => this.loggingService.error('Disconnect failed', error, 'ConnectedAccounts') });
   }
+
 
   goToSettings(account: SocialAccount): void {
     this.router.navigate(['/dashboard/social-account/connect'], {

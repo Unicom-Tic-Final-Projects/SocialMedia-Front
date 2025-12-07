@@ -43,7 +43,9 @@
         (click)="showMenu.set(false)"
       >
         <i class="fa-solid fa-gauge w-5 text-center text-[#4C6FFF]"></i>
-        @if (!isTeamSidebarCollapsed()) { My Tasks }
+        @if (!isTeamSidebarCollapsed()) {
+          My Tasks
+        }
       </a>
       @if (isAdmin()) {
         <a
@@ -53,17 +55,22 @@
           (click)="showMenu.set(false)"
         >
           <i class="fa-solid fa-check-circle w-5 text-center text-[#4C6FFF]"></i>
-          @if (!isTeamSidebarCollapsed()) { Approvals }
+          @if (!isTeamSidebarCollapsed()) {
+            Approvals
+          }
         </a>
       }
     </nav>
 
     <button
+      type="button"
       class="mt-auto inline-flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-100"
       (click)="logout()"
     >
       <i class="fa-solid fa-right-from-bracket w-5 text-center"></i>
-      @if (!isTeamSidebarCollapsed()) { Logout }
+      @if (!isTeamSidebarCollapsed()) {
+        Logout
+      }
     </button>
   </aside>
 
@@ -121,8 +128,14 @@
   }
 
   <div class="flex min-h-screen flex-col">
-    <header class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6">
-      <button class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition" (click)="toggleMenu()">
+    <header
+      class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6"
+    >
+      <button
+        type="button"
+        class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition"
+        (click)="toggleMenu()"
+      >
         <i class="fa-solid fa-bars text-lg"></i>
       </button>
 
@@ -136,4 +149,3 @@
     </main>
   </div>
 </div>
-

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as AOS from 'aos';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AosService {
   constructor() {
@@ -17,4 +17,3 @@ export class AosService {
     }
   }
 }
-

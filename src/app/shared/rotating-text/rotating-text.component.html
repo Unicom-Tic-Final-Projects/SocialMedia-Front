@@ -1,9 +1,6 @@
-<span 
-  class="flex flex-wrap whitespace-pre-wrap relative"
-  [class]="mainClassName"
->
+<span class="flex flex-wrap whitespace-pre-wrap relative" [class]="mainClassName">
   <span class="sr-only">{{ currentText }}</span>
-  <span 
+  <span
     class="flex flex-wrap whitespace-pre-wrap relative"
     [class.flex-col]="splitBy === 'lines'"
     [class.w-full]="splitBy === 'lines'"
@@ -11,25 +8,25 @@
     [attr.data-animation-key]="animationKey"
     aria-hidden="true"
   >
-    <span 
-      *ngFor="let wordObj of elements; let wordIndex = index; trackBy: trackByWord" 
-      class="inline-flex"
-      [class]="splitLevelClassName"
-    >
-      <span
-        *ngFor="let char of wordObj.characters; let charIndex = index; trackBy: trackByChar"
-        class="inline-block rotating-char animate"
-        [class]="elementLevelClassName"
-        [class.animated]="true"
-        [style.animation-delay]="getCharDelay(wordIndex, charIndex) + 's'"
-        [style.color]="'inherit'"
-        [attr.data-char-index]="getCharIndex(wordIndex, charIndex)"
-        [attr.data-animation-key]="animationKey"
-      >
-        {{ char }}
+    @for (wordObj of elements; track trackByWord($index, wordObj); let wordIndex = $index) {
+      <span class="inline-flex" [class]="splitLevelClassName">
+        @for (char of wordObj.characters; track trackByChar($index, char); let charIndex = $index) {
+          <span
+            class="inline-block rotating-char animate"
+            [class]="elementLevelClassName"
+            [class.animated]="true"
+            [style.animation-delay]="getCharDelay(wordIndex, charIndex) + 's'"
+            [style.color]="'inherit'"
+            [attr.data-char-index]="getCharIndex(wordIndex, charIndex)"
+            [attr.data-animation-key]="animationKey"
+          >
+            {{ char }}
+          </span>
+        }
+        @if (wordObj.needsSpace) {
+          <span class="whitespace-pre"> </span>
+        }
       </span>
-      <span *ngIf="wordObj.needsSpace" class="whitespace-pre"> </span>
-    </span>
+    }
   </span>
 </span>
-

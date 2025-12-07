@@ -1,9 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationsService } from '../../services/client/notifications.service';
 import { NotificationItem } from '../../models/social.models';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-notifications-page',
@@ -11,10 +15,11 @@ import { ConfirmationService } from '../../core/services/confirmation.service';
   templateUrl: './notifications-page.html',
   styleUrl: './notifications-page.css',
 })
-export class NotificationsPage implements OnInit {
+export class NotificationsPage extends BaseComponent implements OnInit {
   private readonly notificationsService = inject(NotificationsService);
   private readonly toastService = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly loggingService = inject(LoggingService);
 
   notifications = signal<NotificationItem[]>([]);
   loading = signal(false);
@@ -34,10 +39,10 @@ export class NotificationsPage implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error loading notifications:', error);
+        this.loggingService.error('Error loading notifications', error, 'NotificationsPage');
         this.notifications.set([]);
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -51,39 +56,49 @@ export class NotificationsPage implements OnInit {
       return;
     }
 
-    this.notificationsService.markAsRead(notification.id).subscribe({
+    this.notificationsService
+      .markAsRead(notification.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.notifications.update((items) =>
-          items.map((item) => (item.id === notification.id ? { ...item, read: true } : item))
+          items.map((item) => (item.id === notification.id ? { ...item, read: true } : item)),
         );
       },
       error: (error) => {
-        console.error('Error marking notification as read:', error);
-      }
+        this.loggingService.error('Error marking notification as read', error, 'NotificationsPage');
+      },
     });
   }
 
   deleteNotification(notification: NotificationItem): void {
-    this.confirmationService.confirm({
-      title: 'Delete Notification',
-      message: 'Are you sure you want to delete this notification?',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
-    }).then((confirmed) => {
-      if (confirmed) {
-        this.notificationsService.deleteNotification(notification.id).subscribe({
-          next: () => {
-            this.notifications.update((items) => items.filter((item) => item.id !== notification.id));
-            this.toastService.success('Notification deleted successfully');
-          },
-          error: (error) => {
-            console.error('Error deleting notification:', error);
-            this.toastService.error('Failed to delete notification');
-          }
-        });
-      }
-    });
+    this.confirmationService
+      .confirm({
+        title: 'Delete Notification',
+        message: 'Are you sure you want to delete this notification?',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmButtonClass: 'bg-red-500 hover:bg-red-600',
+      })
+      .then((confirmed) => {
+        if (confirmed) {
+          this.notificationsService
+            .deleteNotification(notification.id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+            next: () => {
+              this.notifications.update((items) =>
+                items.filter((item) => item.id !== notification.id),
+              );
+              this.toastService.success('Notification deleted successfully');
+            },
+            error: (error) => {
+              this.loggingService.error('Error deleting notification', error, 'NotificationsPage');
+              this.toastService.error('Failed to delete notification');
+            },
+          });
+        }
+      });
   }
 
   getNotificationIcon(type: string): string {
@@ -119,4 +134,5 @@ export class NotificationsPage implements OnInit {
       return date.toLocaleDateString();
     }
   }
+
 }

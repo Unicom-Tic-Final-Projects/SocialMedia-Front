@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy, NgZone } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, NgZone, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface RotatingTextRef {
@@ -13,7 +13,7 @@ export interface RotatingTextRef {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './rotating-text.component.html',
-  styleUrl: './rotating-text.component.css'
+  styleUrl: './rotating-text.component.css',
 })
 export class RotatingTextComponent implements OnInit, OnDestroy {
   @Input() texts: string[] = [];
@@ -30,22 +30,21 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
   currentTextIndex: number = 0;
   currentText: string = '';
   elements: Array<{ characters: string[]; needsSpace: boolean }> = [];
-  private intervalId: any;
+  private intervalId: ReturnType<typeof setInterval> | null = null;
   animationKey: number = 0; // Force re-render on text change
-
-  constructor(private ngZone: NgZone) {}
+  private readonly ngZone = inject(NgZone);
 
   ngOnInit(): void {
     if (this.texts.length > 0) {
       this.currentText = this.texts[0];
       this.updateElements();
-      
+
       // Force initial animation
       setTimeout(() => {
         this.animationKey++;
         this.updateElements();
       }, 100);
-      
+
       if (this.auto && this.texts.length > 1) {
         this.startAutoRotation();
       }
@@ -68,7 +67,7 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
       words.forEach((word, i) => {
         newElements.push({
           characters: this.splitIntoCharacters(word),
-          needsSpace: i !== words.length - 1
+          needsSpace: i !== words.length - 1,
         });
       });
     } else if (this.splitBy === 'words') {
@@ -76,7 +75,7 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
       words.forEach((word, i, arr) => {
         newElements.push({
           characters: [word],
-          needsSpace: i !== arr.length - 1
+          needsSpace: i !== arr.length - 1,
         });
       });
     } else if (this.splitBy === 'lines') {
@@ -84,7 +83,7 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
       lines.forEach((line, i, arr) => {
         newElements.push({
           characters: [line],
-          needsSpace: i !== arr.length - 1
+          needsSpace: i !== arr.length - 1,
         });
       });
     } else {
@@ -92,7 +91,7 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
       parts.forEach((part, i, arr) => {
         newElements.push({
           characters: [part],
-          needsSpace: i !== arr.length - 1
+          needsSpace: i !== arr.length - 1,
         });
       });
     }
@@ -101,9 +100,19 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
   }
 
   private splitIntoCharacters(text: string): string[] {
-    if (typeof Intl !== 'undefined' && (Intl as any).Segmenter) {
-      const segmenter = new (Intl as any).Segmenter('en', { granularity: 'grapheme' });
-      return Array.from(segmenter.segment(text), (segment: any) => segment.segment);
+    if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+      const Segmenter = (
+        Intl as {
+          Segmenter?: new (
+            locale: string,
+            options: { granularity: string },
+          ) => { segment: (text: string) => Iterable<{ segment: string }> };
+        }
+      ).Segmenter;
+      if (Segmenter) {
+        const segmenter = new Segmenter('en', { granularity: 'grapheme' });
+        return Array.from(segmenter.segment(text), (segment) => segment.segment);
+      }
     }
     return Array.from(text);
   }
@@ -141,16 +150,19 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
   }
 
   next(): void {
-    const nextIndex = this.currentTextIndex === this.texts.length - 1 
-      ? (this.loop ? 0 : this.currentTextIndex) 
-      : this.currentTextIndex + 1;
-    
+    const nextIndex =
+      this.currentTextIndex === this.texts.length - 1
+        ? this.loop
+          ? 0
+          : this.currentTextIndex
+        : this.currentTextIndex + 1;
+
     if (nextIndex !== this.currentTextIndex) {
       // Increment key to force re-render
       this.animationKey++;
       // Clear elements to trigger exit
       this.elements = [];
-      
+
       // Use requestAnimationFrame to ensure smooth transition
       requestAnimationFrame(() => {
         this.currentTextIndex = nextIndex;
@@ -161,10 +173,13 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
   }
 
   previous(): void {
-    const prevIndex = this.currentTextIndex === 0 
-      ? (this.loop ? this.texts.length - 1 : this.currentTextIndex) 
-      : this.currentTextIndex - 1;
-    
+    const prevIndex =
+      this.currentTextIndex === 0
+        ? this.loop
+          ? this.texts.length - 1
+          : this.currentTextIndex
+        : this.currentTextIndex - 1;
+
     if (prevIndex !== this.currentTextIndex) {
       this.currentTextIndex = prevIndex;
       this.currentText = this.texts[this.currentTextIndex];
@@ -215,4 +230,3 @@ export class RotatingTextComponent implements OnInit, OnDestroy {
     return `${this.animationKey}-${this.currentTextIndex}-${index}-${char}`;
   }
 }
-

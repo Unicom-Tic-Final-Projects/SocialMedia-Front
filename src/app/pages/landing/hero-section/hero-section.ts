@@ -1,4 +1,12 @@
-import { Component, AfterViewInit, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AosService } from '../../../shared/services/aos.service';
@@ -20,19 +28,16 @@ export class HeroSection implements AfterViewInit, OnInit, OnDestroy {
 
   scrollY = 0;
   private subscriptions = new Subscription();
-
-  constructor(
-    private aosService: AosService,
-    private readonly router: Router,
-    private parallaxService: ParallaxService
-  ) { }
+  private aosService = inject(AosService);
+  private readonly router = inject(Router);
+  private parallaxService = inject(ParallaxService);
 
   ngOnInit() {
     this.subscriptions.add(
-      this.parallaxService.scroll$.subscribe(scrollY => {
+      this.parallaxService.scroll$.subscribe((scrollY) => {
         this.scrollY = scrollY;
         this.updateParallax();
-      })
+      }),
     );
   }
 
@@ -56,7 +61,6 @@ export class HeroSection implements AfterViewInit, OnInit, OnDestroy {
     this.parallaxBg.nativeElement.style.transform = `translateY(${bgOffset}px)`;
     this.parallaxContent.nativeElement.style.transform = `translateY(${contentOffset}px)`;
   }
-
 
   navigateTo(path: string): void {
     this.router.navigateByUrl(path);

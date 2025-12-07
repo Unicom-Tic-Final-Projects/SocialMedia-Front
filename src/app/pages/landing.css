@@ -52,10 +52,12 @@ section::before {
   left: 0;
   right: 0;
   height: 150px;
-  background: linear-gradient(to bottom, 
-    rgba(255, 255, 255, 0) 0%, 
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0.8) 100%);
+    rgba(255, 255, 255, 0.8) 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
@@ -67,16 +69,18 @@ section::after {
   left: 0;
   right: 0;
   height: 150px;
-  background: linear-gradient(to top, 
-    rgba(255, 255, 255, 0) 0%, 
+  background: linear-gradient(
+    to top,
+    rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0.4) 50%,
-    rgba(255, 255, 255, 0.8) 100%);
+    rgba(255, 255, 255, 0.8) 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
 
 /* Parallax performance optimization */
-[class*="parallax"] {
+[class*='parallax'] {
   will-change: transform;
   backface-visibility: hidden;
   transform: translateZ(0);
@@ -129,8 +133,8 @@ body {
 
 /* Glowing border effect for active stack card */
 .scroll-stack-card.stack-card-active {
-  border: 2px solid #4C6FFF;
-  box-shadow: 
+  border: 2px solid #4c6fff;
+  box-shadow:
     0 0 30px rgba(0, 0, 0, 0.1),
     0 0 20px rgba(76, 111, 255, 0.3),
     0 0 40px rgba(76, 111, 255, 0.2),
@@ -139,15 +143,16 @@ body {
 }
 
 @keyframes borderGlow {
-  0%, 100% {
-    box-shadow: 
+  0%,
+  100% {
+    box-shadow:
       0 0 30px rgba(0, 0, 0, 0.1),
       0 0 20px rgba(76, 111, 255, 0.3),
       0 0 40px rgba(76, 111, 255, 0.2),
       0 0 60px rgba(76, 111, 255, 0.1);
   }
   50% {
-    box-shadow: 
+    box-shadow:
       0 0 30px rgba(0, 0, 0, 0.1),
       0 0 30px rgba(76, 111, 255, 0.5),
       0 0 50px rgba(76, 111, 255, 0.3),
@@ -317,4 +322,3 @@ section {
   transform: translateZ(0);
   backface-visibility: hidden;
 }
-

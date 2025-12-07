@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AosService } from '../../../shared/services/aos.service';
 import { ModelViewerComponent } from '../hero-section/model-viewer.component';
@@ -10,7 +10,8 @@ import { ModelViewerComponent } from '../hero-section/model-viewer.component';
   styleUrl: './interactive-showcase.css',
 })
 export class InteractiveShowcase implements AfterViewInit {
-  constructor(private aosService: AosService, private readonly router: Router) {}
+  private aosService = inject(AosService);
+  private readonly router = inject(Router);
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -22,4 +23,3 @@ export class InteractiveShowcase implements AfterViewInit {
     this.router.navigateByUrl(path);
   }
 }
-

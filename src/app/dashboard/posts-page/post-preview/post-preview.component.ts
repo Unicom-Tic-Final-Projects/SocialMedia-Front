@@ -1,6 +1,6 @@
 /**
  * Post Preview Component
- * 
+ *
  * This component provides a preview interface for social media posts.
  * Supports two modes:
  * 1. Modal view (for Posts Page) - uses open, mediaUrl, caption, selectedPlatforms inputs
@@ -64,15 +64,15 @@ export class PostPreviewComponent implements OnChanges {
   // Draft mode input (for Post Editor Step 4)
   @Input() draft: PostDraft | null = null;
 
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onCrop = new EventEmitter<string>();
+  @Output() modalClosed = new EventEmitter<void>();
+  @Output() imageCropped = new EventEmitter<string>();
   @Output() previewLoaded = new EventEmitter<void>();
 
   // Computed properties for draft mode
   readonly isDraftMode = computed(() => !!this.draft);
   readonly draftMediaUrl = computed(() => this.draft?.mediaUrl || null);
   readonly draftSelectedPlatforms = computed(() => this.draft?.selectedPlatforms || []);
-  
+
   /**
    * Get cropped image URL for a platform
    * CRITICAL: Always use cropped image to ensure preview matches published output exactly
@@ -84,25 +84,33 @@ export class PostPreviewComponent implements OnChanges {
     if (this.detectedMediaType() === 'video') {
       return this.isDraftMode() ? this.draftMediaUrl() : this.mediaUrl;
     }
-    
+
     // For images, ALWAYS use cropped image if available - this is the source of truth for what will be published
     if (this.isDraftMode() && this.draft?.platformCroppedImages?.[platform]) {
       return this.draft.platformCroppedImages[platform];
     }
-    
+
     // In preview mode (Step 4), we should ALWAYS have cropped images after Step 3 completes
     // If we don't have crops yet, show a loading state or wait
     // Fallback to original ONLY if this is not a draft (legacy support for modal mode)
     if (!this.isDraftMode()) {
       return this.mediaUrl;
     }
-    
+
     // For draft mode, wait for crops - don't show original as fallback
     // This ensures preview always matches what will be published
     return this.draftMediaUrl();
   }
 
-  readonly allPlatforms: Platform[] = ['facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'pinterest'];
+  readonly allPlatforms: Platform[] = [
+    'facebook',
+    'instagram',
+    'twitter',
+    'linkedin',
+    'youtube',
+    'tiktok',
+    'pinterest',
+  ];
 
   readonly platformMeta: Record<Platform, PlatformMeta> = {
     facebook: { icon: 'fa-brands fa-facebook-f', label: 'Facebook', color: '#1877F2' },
@@ -118,12 +126,12 @@ export class PostPreviewComponent implements OnChanges {
    * Get static engagement numbers for preview
    * Always returns the same values for consistent display
    */
-  getEngagementNumbers(platform: Platform): { likes: string; comments: string; shares: string } {
+  getEngagementNumbers(_platform: Platform): { likes: string; comments: string; shares: string } {
     // Static numbers: 10M likes, 500K comments, 100K shares
     return {
       likes: '10M',
       comments: '500K',
-      shares: '100K'
+      shares: '100K',
     };
   }
 
@@ -161,7 +169,7 @@ export class PostPreviewComponent implements OnChanges {
     if (this.isDraftMode() && this.draft?.mediaType) {
       return this.draft.mediaType;
     }
-    
+
     // Fallback to URL extension detection
     const url = this.isDraftMode() ? this.draftMediaUrl() : this.mediaUrl;
     if (!url) return null;
@@ -219,17 +227,19 @@ export class PostPreviewComponent implements OnChanges {
   private initializePlatformStates(): void {
     const states = new Map<Platform, PlatformCropState>();
     const accounts = this.socialAccounts();
-    const platforms = this.isDraftMode() 
-      ? this.draftSelectedPlatforms() 
-      : (this.selectedPlatforms.length > 0 ? this.selectedPlatforms : this.allPlatforms);
+    const platforms = this.isDraftMode()
+      ? this.draftSelectedPlatforms()
+      : this.selectedPlatforms.length > 0
+        ? this.selectedPlatforms
+        : this.allPlatforms;
 
     platforms.forEach((platform) => {
       const account = accounts.find(
-        (acc) => acc.platform === platform && acc.status === 'connected'
+        (acc) => acc.platform === platform && acc.status === 'connected',
       );
       const isConnected = !!account;
 
-      const aspect = this.platformPreview.getAspect(platform);
+      const _aspect = this.platformPreview.getAspect(platform);
       const displayDims = this.getDisplayDimensions(platform);
       const cropBoxWidth = Math.min(displayDims.width * 0.8, 280);
       const cropBoxHeight = Math.min(displayDims.height * 0.8, 300);
@@ -349,7 +359,7 @@ export class PostPreviewComponent implements OnChanges {
       top: this.initialTop() + dy,
     };
     this.cropBox.set(newBox);
-    
+
     // Update transform in real-time while dragging
     this.updateTransformFromCropBox();
   }
@@ -385,25 +395,27 @@ export class PostPreviewComponent implements OnChanges {
     const dy = event.clientY - this.dragStartY();
     const box = this.cropBox();
 
-    let newBox = { ...box };
+    const newBox = { ...box };
 
     switch (this.activeHandle()) {
       case 'r':
         newBox.width = Math.max(50, this.initialWidth() + dx);
         break;
-      case 'l':
+      case 'l': {
         const newWidth = Math.max(50, this.initialWidth() - dx);
         newBox.width = newWidth;
         newBox.left = this.initialLeft() + (this.initialWidth() - newWidth);
         break;
+      }
       case 'b':
         newBox.height = Math.max(50, this.initialHeight() + dy);
         break;
-      case 't':
+      case 't': {
         const newHeight = Math.max(50, this.initialHeight() - dy);
         newBox.height = newHeight;
         newBox.top = this.initialTop() + (this.initialHeight() - newHeight);
         break;
+      }
       case 'br':
         newBox.width = Math.max(50, this.initialWidth() + dx);
         newBox.height = Math.max(50, this.initialHeight() + dy);
@@ -411,7 +423,7 @@ export class PostPreviewComponent implements OnChanges {
     }
 
     this.cropBox.set(newBox);
-    
+
     // Update transform in real-time while resizing
     this.updateTransformFromCropBox();
   }
@@ -434,17 +446,17 @@ export class PostPreviewComponent implements OnChanges {
   private updateTransformFromCropBox(): void {
     const platform = this.selectedPlatform();
     if (!platform) return;
-    
+
     const states = this.platformCropStates();
     const state = states.get(platform);
     if (!state) return;
-    
+
     // Calculate image transform based on crop box position and size
     const displayDims = this.getDisplayDimensions(platform);
     const containerWidth = displayDims.width;
     const containerHeight = displayDims.height;
     const cropBox = this.cropBox();
-    
+
     // Calculate zoom: how much the image needs to be scaled to show the crop box area
     // If crop box is smaller than container, we need to zoom in
     // The zoom should make the crop box area fill the entire container
@@ -452,32 +464,32 @@ export class PostPreviewComponent implements OnChanges {
     const zoomY = containerHeight / cropBox.height;
     // Use the larger ratio to ensure the crop box area completely fills the container
     const zoom = Math.max(zoomX, zoomY, 1);
-    
+
     // Calculate offset: pan the image so the crop box area is centered in the view
     // The crop box center position relative to the container
     const cropBoxCenterX = cropBox.left + cropBox.width / 2;
     const cropBoxCenterY = cropBox.top + cropBox.height / 2;
     const containerCenterX = containerWidth / 2;
     const containerCenterY = containerHeight / 2;
-    
+
     // Calculate the difference between crop box center and container center
     // This tells us how much the image needs to move
     const deltaX = cropBoxCenterX - containerCenterX;
     const deltaY = cropBoxCenterY - containerCenterY;
-    
+
     // Convert pixel offset to percentage
     // Since transform-origin is center center, we need to account for the zoom
     // When zoomed in, the same pixel movement requires a larger percentage offset
     const offsetX = -(deltaX / containerWidth) * 100 * zoom;
     const offsetY = -(deltaY / containerHeight) * 100 * zoom;
-    
+
     // Update crop transform to match crop box
     state.crop = {
       zoom: Math.min(Math.max(zoom, 1), 3), // Clamp zoom between 1 and 3
       offsetX: Math.min(Math.max(offsetX, -100), 100), // Clamp offset
       offsetY: Math.min(Math.max(offsetY, -100), 100),
     };
-    
+
     states.set(platform, { ...state });
     this.platformCropStates.set(new Map(states));
   }
@@ -487,10 +499,10 @@ export class PostPreviewComponent implements OnChanges {
     const state = states.get(platform);
     if (state) {
       state.cropBox = { ...this.cropBox() };
-      
+
       // Update transform to match crop box
       this.updateTransformFromCropBox();
-      
+
       // Emit the change
       this.emitCropChange();
     }
@@ -506,7 +518,7 @@ export class PostPreviewComponent implements OnChanges {
           crop: state.crop,
           cropBox: state.cropBox,
         });
-        this.onCrop.emit(cropData);
+        this.imageCropped.emit(cropData);
       }
     }
   }
@@ -521,7 +533,7 @@ export class PostPreviewComponent implements OnChanges {
 
   close(): void {
     this.open = false;
-    this.onClose.emit();
+    this.modalClosed.emit();
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -546,5 +558,3 @@ export class PostPreviewComponent implements OnChanges {
     }
   }
 }
-
-

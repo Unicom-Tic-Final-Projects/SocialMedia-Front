@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap, catchError, of } from 'rxjs';
+import { Observable, map, tap, catchError } from 'rxjs';
 import { ApprovalRequest } from '../../models/social.models';
 import { API_BASE_URL } from '../../config/api.config';
 
@@ -16,24 +16,22 @@ export class ApprovalsService {
     this.refresh().subscribe();
   }
 
-  refresh(limit = 12): Observable<ApprovalRequest[]> {
-    return this.http
-      .get<any>(`${this.baseUrl}/api/approvals/pending`)
-      .pipe(
-        map((response) => {
-          // Handle ApiResponse structure
-          const approvals = response?.data || response || [];
-          return Array.isArray(approvals)
-            ? approvals.map((approval: any) => this.mapApproval(approval))
-            : [];
-        }),
-        tap((items) => this.approvalsSignal.set(items)),
-        catchError((error) => {
-          console.error('Error fetching approvals:', error);
-          this.approvalsSignal.set([]);
-          return [];
-        })
-      );
+  refresh(_limit = 12): Observable<ApprovalRequest[]> {
+    return this.http.get<any>(`${this.baseUrl}/api/approvals/pending`).pipe(
+      map((response) => {
+        // Handle ApiResponse structure
+        const approvals = response?.data || response || [];
+        return Array.isArray(approvals)
+          ? approvals.map((approval: any) => this.mapApproval(approval))
+          : [];
+      }),
+      tap((items) => this.approvalsSignal.set(items)),
+      catchError((error) => {
+        console.error('Error fetching approvals:', error);
+        this.approvalsSignal.set([]);
+        return [];
+      }),
+    );
   }
 
   updateStatus(id: number, status: ApprovalRequest['status']): Observable<void> {
@@ -46,9 +44,9 @@ export class ApprovalsService {
       .pipe(
         tap(() => {
           this.approvalsSignal.update((items) =>
-            items.map((item) => (item.id === id ? { ...item, status } : item))
+            items.map((item) => (item.id === id ? { ...item, status } : item)),
           );
-        })
+        }),
       );
   }
 

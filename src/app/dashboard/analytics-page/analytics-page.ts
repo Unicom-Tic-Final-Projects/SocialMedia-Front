@@ -1,27 +1,35 @@
-import { DecimalPipe, NgFor, NgIf, TitleCasePipe } from '@angular/common';
+import { DecimalPipe, TitleCasePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { takeUntil } from 'rxjs/operators';
 import { AnalyticsService } from '../../services/client/analytics.service';
 import { ClientContextService } from '../../services/client/client-context.service';
-import { AnalyticsSummary, EngagementMetric, PlatformPerformance } from '../../models/social.models';
+import { LoggingService } from '../../core/services/logging.service';
+import { BaseComponent } from '../../core/base/base.component';
+import {
+  AnalyticsSummary,
+  EngagementMetric,
+  PlatformPerformance,
+} from '../../models/social.models';
 
 @Component({
   selector: 'app-analytics-page',
   standalone: true,
-  imports: [NgIf, NgFor, TitleCasePipe, DecimalPipe],
+  imports: [TitleCasePipe, DecimalPipe],
   templateUrl: './analytics-page.html',
   styleUrl: './analytics-page.css',
 })
-export class AnalyticsPage implements OnInit {
+export class AnalyticsPage extends BaseComponent implements OnInit {
   private readonly analyticsService = inject(AnalyticsService);
   private readonly route = inject(ActivatedRoute);
   readonly clientContextService = inject(ClientContextService);
+  private readonly loggingService = inject(LoggingService);
 
   loading = true;
   summary = signal<AnalyticsSummary | null>(null);
   engagement = signal<EngagementMetric[]>([]);
   platformPerformance = signal<PlatformPerformance[]>([]);
-  
+
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
   readonly selectedClient = this.clientContextService.selectedClient;
@@ -32,7 +40,7 @@ export class AnalyticsPage implements OnInit {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    
+
     // Check parent routes for clientId
     let parentRoute = this.route.parent;
     while (parentRoute) {
@@ -45,11 +53,11 @@ export class AnalyticsPage implements OnInit {
     }
 
     this.loading = true;
-    
+
     // Load all analytics data with proper error handling
     let completedRequests = 0;
     const totalRequests = 3;
-    
+
     const checkComplete = () => {
       completedRequests++;
       if (completedRequests >= totalRequests) {
@@ -57,14 +65,17 @@ export class AnalyticsPage implements OnInit {
       }
     };
 
-    this.analyticsService.loadSummary().subscribe({
-      next: (summary: AnalyticsSummary) => {
-        console.log('[AnalyticsPage] Summary loaded:', summary);
-        this.summary.set(summary);
-        checkComplete();
-      },
-      error: (error) => {
-        console.error('[AnalyticsPage] Error loading summary:', error);
+    this.analyticsService
+      .loadSummary()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (summary: AnalyticsSummary) => {
+          this.loggingService.info('Summary loaded', summary, 'AnalyticsPage');
+          this.summary.set(summary);
+          checkComplete();
+        },
+        error: (error) => {
+          this.loggingService.error('Error loading summary', error, 'AnalyticsPage');
         this.summary.set({
           totalPosts: 0,
           totalEngagement: 0,
@@ -72,33 +83,40 @@ export class AnalyticsPage implements OnInit {
           conversionRate: 0,
         });
         checkComplete();
-      }
+      },
     });
 
-    this.analyticsService.loadEngagementMetrics().subscribe({
-      next: (metrics: EngagementMetric[]) => {
-        console.log('[AnalyticsPage] Engagement metrics loaded:', metrics.length);
-        this.engagement.set(metrics);
-        checkComplete();
-      },
-      error: (error) => {
-        console.error('[AnalyticsPage] Error loading engagement metrics:', error);
+    this.analyticsService
+      .loadEngagementMetrics()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (metrics: EngagementMetric[]) => {
+          this.loggingService.info(`Engagement metrics loaded: ${metrics.length}`, { count: metrics.length }, 'AnalyticsPage');
+          this.engagement.set(metrics);
+          checkComplete();
+        },
+        error: (error) => {
+          this.loggingService.error('Error loading engagement metrics', error, 'AnalyticsPage');
         this.engagement.set([]);
         checkComplete();
-      }
+      },
     });
 
-    this.analyticsService.loadPlatformPerformance().subscribe({
-      next: (performance: PlatformPerformance[]) => {
-        console.log('[AnalyticsPage] Platform performance loaded:', performance.length);
-        this.platformPerformance.set(performance);
-        checkComplete();
-      },
-      error: (error) => {
-        console.error('[AnalyticsPage] Error loading platform performance:', error);
+    this.analyticsService
+      .loadPlatformPerformance()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (performance: PlatformPerformance[]) => {
+          this.loggingService.info(`Platform performance loaded: ${performance.length}`, { count: performance.length }, 'AnalyticsPage');
+          this.platformPerformance.set(performance);
+          checkComplete();
+        },
+        error: (error) => {
+          this.loggingService.error('Error loading platform performance', error, 'AnalyticsPage');
         this.platformPerformance.set([]);
         checkComplete();
-      }
+      },
     });
   }
+
 }

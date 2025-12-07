@@ -1,8 +1,10 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
-import { UserDto } from '../../models/auth.models';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -11,7 +13,7 @@ import { UserDto } from '../../models/auth.models';
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
 })
-export class DashboardLayout implements OnInit {
+export class DashboardLayout extends BaseComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -19,17 +21,21 @@ export class DashboardLayout implements OnInit {
   readonly user = this.authService.user;
   readonly isAgency = this.authService.isAgency;
   readonly isIndividual = this.authService.isIndividual;
-  
+
   showUserMenu = signal(false);
   showMobileMenu = signal(false);
 
   constructor() {
+    super();
     // React to user changes
     effect(() => {
       const currentUser = this.authService.user();
       if (!currentUser) {
         // If no user, try to load from API
-        this.authService.loadCurrentUser().subscribe();
+        this.authService
+          .loadCurrentUser()
+          .pipe(takeUntil(this.destroy$))
+          .subscribe();
       }
     });
   }
@@ -38,16 +44,20 @@ export class DashboardLayout implements OnInit {
     // Load current user if not already loaded
     const currentUser = this.authService.user();
     if (!currentUser) {
-      this.authService.loadCurrentUser().subscribe();
+      this.authService
+        .loadCurrentUser()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe();
     }
   }
 
+
   toggleUserMenu(): void {
-    this.showUserMenu.update(value => !value);
+    this.showUserMenu.update((value) => !value);
   }
 
   toggleMobileMenu(): void {
-    this.showMobileMenu.update(value => !value);
+    this.showMobileMenu.update((value) => !value);
   }
 
   closeMobileMenu(): void {

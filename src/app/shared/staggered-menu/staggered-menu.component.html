@@ -23,11 +23,12 @@
       [class.right-0]="position === 'right'"
       aria-hidden="true"
     >
-      <div
-        *ngFor="let color of getPreLayerColors(); let i = index"
-        class="sm-prelayer absolute top-0 right-0 h-full w-full translate-x-0"
-        [style.background]="color"
-      ></div>
+      @for (color of getPreLayerColors(); track $index) {
+        <div
+          class="sm-prelayer absolute top-0 right-0 h-full w-full translate-x-0"
+          [style.background]="color"
+        ></div>
+      }
     </div>
 
     <!-- Header with Logo and Toggle -->
@@ -36,7 +37,11 @@
       aria-label="Main navigation header"
     >
       <div class="sm-logo flex items-center select-none pointer-events-auto" aria-label="Logo">
-        <div class="text-xl sm:text-2xl font-bold" [class.text-black]="open" [class.sm-logo-closed]="!open">
+        <div
+          class="text-xl sm:text-2xl font-bold"
+          [class.text-black]="open"
+          [class.sm-logo-closed]="!open"
+        >
           One<span [class.text-black]="open" [class.sm-logo-vo-closed]="!open">vo</span>
         </div>
       </div>
@@ -57,9 +62,11 @@
           aria-hidden="true"
         >
           <span #textInnerRef class="sm-toggle-textInner flex flex-col leading-none">
-            <span *ngFor="let line of textLines" class="sm-toggle-line block h-[1em] leading-none">
-              {{ line }}
-            </span>
+            @for (line of textLines; track line) {
+              <span class="sm-toggle-line block h-[1em] leading-none">
+                {{ line }}
+              </span>
+            }
           </span>
         </span>
 
@@ -96,41 +103,50 @@
           role="list"
           [attr.data-numbering]="displayItemNumbering ? '' : null"
         >
-          <li
-            *ngFor="let item of items; let idx = index"
-            class="sm-panel-itemWrap relative overflow-hidden leading-none"
-          >
-            <a
-              class="sm-panel-item relative text-black font-semibold text-[4rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
-              [href]="item.link"
-              [attr.aria-label]="item.ariaLabel"
-              [attr.data-index]="idx + 1"
-              (click)="handleItemClick(item, $event)"
-            >
-              <span class="sm-panel-itemLabel inline-block [transform-origin:50%_100%] will-change-transform">
-                {{ item.label }}
-              </span>
-            </a>
-          </li>
-        </ul>
-
-        <div *ngIf="displaySocials && socialItems && socialItems.length > 0" class="sm-socials mt-auto pt-8 flex flex-col gap-3" aria-label="Social links">
-          <h3 class="sm-socials-title m-0 text-base font-medium" [style.color]="accentColor">Socials</h3>
-          <ul class="sm-socials-list list-none m-0 p-0 flex flex-row items-center gap-4 flex-wrap" role="list">
-            <li *ngFor="let social of socialItems" class="sm-socials-item">
+          @for (item of items; track item.link || $index; let idx = $index) {
+            <li class="sm-panel-itemWrap relative overflow-hidden leading-none">
               <a
-                [href]="social.link"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="sm-socials-link text-[1.2rem] font-medium text-[#111] no-underline relative inline-block py-[2px] transition-[color,opacity] duration-300 ease-linear"
+                class="sm-panel-item relative text-black font-semibold text-[4rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
+                [href]="item.link"
+                [attr.aria-label]="item.ariaLabel"
+                [attr.data-index]="idx + 1"
+                (click)="handleItemClick(item, $event)"
               >
-                {{ social.label }}
+                <span
+                  class="sm-panel-itemLabel inline-block [transform-origin:50%_100%] will-change-transform"
+                >
+                  {{ item.label }}
+                </span>
               </a>
             </li>
-          </ul>
-        </div>
+          }
+        </ul>
+
+        @if (displaySocials && socialItems && socialItems.length > 0) {
+          <div class="sm-socials mt-auto pt-8 flex flex-col gap-3" aria-label="Social links">
+            <h3 class="sm-socials-title m-0 text-base font-medium" [style.color]="accentColor">
+              Socials
+            </h3>
+            <ul
+              class="sm-socials-list list-none m-0 p-0 flex flex-row items-center gap-4 flex-wrap"
+              role="list"
+            >
+              @for (social of socialItems; track social.link) {
+                <li class="sm-socials-item">
+                  <a
+                    [href]="social.link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="sm-socials-link text-[1.2rem] font-medium text-[#111] no-underline relative inline-block py-[2px] transition-[color,opacity] duration-300 ease-linear"
+                  >
+                    {{ social.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
       </div>
     </aside>
   </div>
 </div>
-

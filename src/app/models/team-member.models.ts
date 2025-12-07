@@ -20,4 +20,3 @@ export interface UpdateTeamMemberRequest {
   email?: string;
   role?: 'Admin' | 'Editor';
 }
-

@@ -1,25 +1,25 @@
 /* Post Preview Component Styles */
 
 /* Range input styling */
-input[type="range"] {
+input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
 }
 
-input[type="range"]::-webkit-slider-thumb {
+input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 18px;
   height: 18px;
-  background: #4C6FFF;
+  background: #4c6fff;
   border-radius: 50%;
   cursor: pointer;
 }
 
-input[type="range"]::-moz-range-thumb {
+input[type='range']::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: #4C6FFF;
+  background: #4c6fff;
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -82,7 +82,7 @@ app-post-preview .pointer-events-none:hover * {
 
 /* Ensure media containers clip zoomed content and don't affect layout */
 app-post-preview .overflow-hidden,
-app-post-preview [class*="overflow-hidden"] {
+app-post-preview [class*='overflow-hidden'] {
   position: relative;
   contain: layout style paint;
   overflow: hidden !important;
@@ -92,8 +92,8 @@ app-post-preview [class*="overflow-hidden"] {
 /* Ensure images/videos don't affect parent layout - no transforms since we use cropped images directly */
 app-post-preview .overflow-hidden img,
 app-post-preview .overflow-hidden video,
-app-post-preview [class*="overflow-hidden"] img,
-app-post-preview [class*="overflow-hidden"] video {
+app-post-preview [class*='overflow-hidden'] img,
+app-post-preview [class*='overflow-hidden'] video {
   display: block;
   max-width: 100%;
   height: auto;
@@ -112,5 +112,3 @@ app-post-preview img,
 app-post-preview video {
   transform: none !important;
 }
-
-

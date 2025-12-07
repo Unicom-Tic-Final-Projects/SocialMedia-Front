@@ -1,5 +1,12 @@
 import { Component, OnInit, effect, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet, ActivatedRoute, NavigationEnd } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+  ActivatedRoute,
+  NavigationEnd,
+} from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
@@ -24,7 +31,7 @@ export class AgencyLayout implements OnInit {
   readonly showMenu = signal(false);
   readonly showClientSidebar = signal(false);
   readonly isAgencySidebarCollapsed = signal(false);
-  
+
   // Client context
   readonly selectedClient = this.clientContextService.selectedClient;
   readonly clientUser = this.clientContextService.clientUser;
@@ -54,11 +61,9 @@ export class AgencyLayout implements OnInit {
     });
 
     // Watch for route changes to set client context
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.updateClientContextFromRoute();
-      });
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.updateClientContextFromRoute();
+    });
   }
 
   ngOnInit(): void {
@@ -78,14 +83,14 @@ export class AgencyLayout implements OnInit {
         console.error('Failed to load clients', error);
         // Still try to update context in case clients are already loaded
         this.updateClientContextFromRoute();
-      }
+      },
     });
   }
 
   private updateClientContextFromRoute(): void {
     // Try to get clientId from route params first
     let clientId: string | null = null;
-    
+
     // Check if we're in a child route with clientId param
     const childRoute = this.route.firstChild;
     if (childRoute) {
@@ -94,29 +99,29 @@ export class AgencyLayout implements OnInit {
         clientId = params['clientId'];
       }
     }
-    
+
     // Fallback to URL parsing
     if (!clientId) {
       const url = this.router.url;
-      const clientMatch = url.match(/\/agency\/client\/([^\/]+)/);
+      const clientMatch = url.match(/\/agency\/client\/([^/]+)/);
       if (clientMatch) {
         clientId = clientMatch[1];
       }
     }
-    
+
     if (clientId) {
       const clients = this.clientsService.clients();
-      
+
       // If clients aren't loaded yet, wait for them
       if (!clients || clients.length === 0) {
         this.clientsService.loadClients().subscribe({
           next: () => {
             setTimeout(() => this.setClientFromId(clientId!), 200);
-          }
+          },
         });
         return;
       }
-      
+
       this.setClientFromId(clientId);
     } else {
       // Not in client route, clear selection
@@ -128,8 +133,8 @@ export class AgencyLayout implements OnInit {
 
   private setClientFromId(clientId: string): void {
     const clients = this.clientsService.clients();
-    const client = clients.find(c => c.id === clientId);
-    
+    const client = clients.find((c) => c.id === clientId);
+
     if (client) {
       // Check if client has user account, if not loaded yet, load it
       if (!this.clientContextService.hasUserAccount(clientId)) {
@@ -181,4 +186,3 @@ export class AgencyLayout implements OnInit {
     return user?.email || '';
   }
 }
-

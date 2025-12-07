@@ -1,4 +1,13 @@
-import { Component, Input, ElementRef, ViewChild, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
+import {
+  Component,
+  Input,
+  ElementRef,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
+  NgZone,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 interface Spark {
@@ -32,8 +41,7 @@ export class ClickSparkComponent implements AfterViewInit, OnDestroy {
   private animationId: number | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private resizeTimeout: any;
-
-  constructor(private ngZone: NgZone) {}
+  private readonly ngZone = inject(NgZone);
 
   ngAfterViewInit(): void {
     this.ngZone.runOutsideAngular(() => {
@@ -148,7 +156,7 @@ export class ClickSparkComponent implements AfterViewInit, OnDestroy {
   handleClick(e: MouseEvent): void {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -158,7 +166,7 @@ export class ClickSparkComponent implements AfterViewInit, OnDestroy {
       x,
       y,
       angle: (2 * Math.PI * i) / this.sparkCount,
-      startTime: now
+      startTime: now,
     }));
 
     this.sparks.push(...newSparks);
@@ -180,4 +188,3 @@ export class ClickSparkComponent implements AfterViewInit, OnDestroy {
     window.removeEventListener('resize', () => {});
   }
 }
-

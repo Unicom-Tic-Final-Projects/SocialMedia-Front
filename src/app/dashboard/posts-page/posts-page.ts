@@ -1,25 +1,26 @@
-import { DatePipe, DecimalPipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PostsService } from '../../services/client/posts.service';
 import { SocialPost, PostStatus } from '../../models/post.models';
 import { ClientsService } from '../../services/client/clients.service';
 import { ClientContextService } from '../../services/client/client-context.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Platform } from '../../models/social.models';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-posts-page',
   standalone: true,
-  imports: [NgIf, NgFor, DatePipe, NgClass, DecimalPipe, FormsModule],
+  imports: [DatePipe, NgClass, DecimalPipe, FormsModule],
   templateUrl: './posts-page.html',
   styleUrl: './posts-page.css',
 })
-export class PostsPage implements OnInit, OnDestroy {
+export class PostsPage extends BaseComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly clientsService = inject(ClientsService);
   readonly clientContextService = inject(ClientContextService); // Public for template access
@@ -36,7 +37,7 @@ export class PostsPage implements OnInit, OnDestroy {
   readonly loadingClients = this.clientsService.loading;
   readonly clientsError = this.clientsService.error;
   readonly isAgency = this.authService.isAgency;
-  
+
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
   readonly selectedClient = this.clientContextService.selectedClient;
@@ -53,7 +54,11 @@ export class PostsPage implements OnInit, OnDestroy {
     { value: 'Published' as PostStatus, label: 'Published', icon: 'fa-solid fa-check-circle' },
     { value: 'Scheduled' as PostStatus, label: 'Scheduled', icon: 'fa-solid fa-clock' },
     { value: 'Draft' as PostStatus, label: 'Draft', icon: 'fa-solid fa-edit' },
-    { value: 'PendingApproval' as PostStatus, label: 'Pending', icon: 'fa-solid fa-hourglass-half' },
+    {
+      value: 'PendingApproval' as PostStatus,
+      label: 'Pending',
+      icon: 'fa-solid fa-hourglass-half',
+    },
   ];
 
   // Filtered and sorted posts
@@ -62,15 +67,16 @@ export class PostsPage implements OnInit, OnDestroy {
 
     // Filter by status
     if (this.selectedStatusFilter() !== 'all') {
-      result = result.filter(post => post.status === this.selectedStatusFilter());
+      result = result.filter((post) => post.status === this.selectedStatusFilter());
     }
 
     // Filter by search query
     const query = this.searchQuery().toLowerCase().trim();
     if (query) {
-      result = result.filter(post => 
-        (post.title || '').toLowerCase().includes(query) ||
-        (post.content || '').toLowerCase().includes(query)
+      result = result.filter(
+        (post) =>
+          (post.title || '').toLowerCase().includes(query) ||
+          (post.content || '').toLowerCase().includes(query),
       );
     }
 
@@ -111,12 +117,12 @@ export class PostsPage implements OnInit, OnDestroy {
   private postsSubscription: Subscription | null = null;
   private clientsSubscription: Subscription | null = null;
 
-
   constructor() {
+    super();
     effect(() => {
       const isAgency = this.authService.isAgency();
       const isViewingClient = this.clientContextService.isViewingClientDashboard();
-      const clientId = isViewingClient 
+      const clientId = isViewingClient
         ? this.clientContextService.getCurrentClientId()
         : this.clientsService.selectedClientId();
       const selectedClient = this.clientContextService.selectedClient();
@@ -145,7 +151,7 @@ export class PostsPage implements OnInit, OnDestroy {
     while (route.firstChild) {
       route = route.firstChild;
     }
-    
+
     // Check parent routes for clientId
     let parentRoute = this.route.parent;
     while (parentRoute) {
@@ -166,10 +172,6 @@ export class PostsPage implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.postsSubscription?.unsubscribe();
-    this.clientsSubscription?.unsubscribe();
-  }
 
   statusClass(post: SocialPost): string {
     const statusMap: Record<PostStatus, string> = {
@@ -205,36 +207,41 @@ export class PostsPage implements OnInit, OnDestroy {
   }
 
   deletePost(postId: string): void {
-    this.confirmationService.confirm({
-      title: 'Delete Post',
-      message: 'Are you sure you want to delete this post? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      confirmButtonClass: 'bg-red-500 hover:bg-red-600'
-    }).then((confirmed) => {
-      if (confirmed) {
-        this.postsService.deletePost(postId).subscribe({
-          next: () => {
-            setTimeout(() => {
-              this.toastService.success('Post deleted successfully');
-            }, 0);
-          },
-          error: (error) => {
-            console.error('Failed to delete post', error);
-            setTimeout(() => {
-              this.toastService.error('Failed to delete post. Please try again.');
-            }, 0);
-          },
-        });
-      }
-    });
+    this.confirmationService
+      .confirm({
+        title: 'Delete Post',
+        message: 'Are you sure you want to delete this post? This action cannot be undone.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        confirmButtonClass: 'bg-red-500 hover:bg-red-600',
+      })
+      .then((confirmed) => {
+        if (confirmed) {
+          this.postsService
+            .deletePost(postId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+            next: () => {
+              setTimeout(() => {
+                this.toastService.success('Post deleted successfully');
+              }, 0);
+            },
+            error: (error) => {
+              console.error('Failed to delete post', error);
+              setTimeout(() => {
+                this.toastService.error('Failed to delete post. Please try again.');
+              }, 0);
+            },
+          });
+        }
+      });
   }
 
   editPost(postId: string): void {
     const route = this.getPostEditorRoute();
     // Navigate to post editor with post ID as query parameter (consistent with content management)
     this.router.navigate(route, {
-      queryParams: { postId, edit: 'true' }
+      queryParams: { postId, edit: 'true' },
     });
   }
 
@@ -270,16 +277,22 @@ export class PostsPage implements OnInit, OnDestroy {
       return;
     }
 
-    this.clientsService.createClient({ name: name.trim() }).subscribe({
-      error: (error) => console.error('Failed to create client', error),
+    this.clientsService
+      .createClient({ name: name.trim() })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        error: (error) => console.error('Failed to create client', error),
     });
   }
 
   private loadPosts(): void {
     this.loading.set(true);
     this.postsSubscription?.unsubscribe();
-    this.postsSubscription = this.postsService.refreshPosts().subscribe({
-      next: () => this.loading.set(false),
+    this.postsSubscription = this.postsService
+      .refreshPosts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => this.loading.set(false),
       error: (error) => {
         console.error('Failed to load posts', error);
         this.loading.set(false);
@@ -293,7 +306,7 @@ export class PostsPage implements OnInit, OnDestroy {
   getPostEditorRoute(): string[] {
     const isViewingClient = this.isViewingClient();
     const clientId = this.clientContextService.getCurrentClientId();
-    
+
     if (isViewingClient && clientId) {
       // Agency client dashboard - navigate to client's post editor
       return ['/agency/client', clientId, 'post-editor'];
@@ -310,5 +323,4 @@ export class PostsPage implements OnInit, OnDestroy {
     const route = this.getPostEditorRoute();
     this.router.navigate(route);
   }
-
 }

@@ -1,0 +1,148 @@
+@if (isOpen) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+    (click)="onClose()"
+  >
+    <div
+      class="bg-white rounded-xl shadow-xl max-w-md w-full p-6"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold text-[#1A1A1A]">
+          <i [class]="platformIcon" [style.color]="platformColor" class="mr-2"></i>
+          Connect {{ platformName }}
+        </h2>
+        <button
+          type="button"
+          (click)="onClose()"
+          class="text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Info Message -->
+      <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <p class="text-sm text-yellow-800">
+          <i class="fa-solid fa-info-circle mr-2"></i>
+          Instagram Basic Display API is deprecated. Please provide your Instagram Account ID and
+          Access Token manually.
+        </p>
+      </div>
+
+      <!-- Error Message -->
+      @if (error) {
+        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-800">
+            <i class="fa-solid fa-exclamation-circle mr-2"></i>
+            {{ error }}
+          </p>
+        </div>
+      }
+
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
+        <!-- Account ID -->
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+            Account ID <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="accountId"
+            name="accountId"
+            placeholder="e.g., 17841430790903097"
+            class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+            required
+          />
+        </div>
+
+        <!-- Access Token -->
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+            Access Token <span class="text-red-500">*</span>
+          </label>
+          <textarea
+            [(ngModel)]="accessToken"
+            name="accessToken"
+            placeholder="Paste your Instagram access token here..."
+            rows="3"
+            class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+            required
+          ></textarea>
+        </div>
+
+        <!-- Username (Optional) -->
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+            Username (Optional)
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="username"
+            name="username"
+            placeholder="e.g., your_instagram_username"
+            class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+          />
+        </div>
+
+        <!-- Account Name (Optional) -->
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+            Display Name (Optional)
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="accountName"
+            name="accountName"
+            placeholder="e.g., My Instagram Account"
+            class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+          />
+        </div>
+
+        <!-- Profile Picture URL (Optional) -->
+        <div>
+          <label class="block text-sm font-medium text-[#1A1A1A] mb-1">
+            Profile Picture URL (Optional)
+          </label>
+          <input
+            type="url"
+            [(ngModel)]="profilePictureUrl"
+            name="profilePictureUrl"
+            placeholder="https://..."
+            class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+          />
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-3 pt-4">
+          <button
+            type="button"
+            (click)="onClose()"
+            class="flex-1 px-4 py-2 border border-[#D9E1FF] text-[#1A1A1A] rounded-lg hover:bg-[#E2E7FF] transition-colors"
+            [disabled]="loading"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="flex-1 px-4 py-2 bg-[#4C6FFF] text-white rounded-lg hover:bg-[#3A56CC] transition-colors font-semibold"
+            [disabled]="!canSubmit"
+            [class.opacity-60]="!canSubmit"
+            [class.cursor-not-allowed]="!canSubmit"
+          >
+            @if (loading) {
+              <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+              Connecting...
+            } @else {
+              <i class="fa-solid fa-link mr-2"></i>
+              Connect
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+

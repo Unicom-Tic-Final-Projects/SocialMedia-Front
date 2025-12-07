@@ -1,4 +1,12 @@
-import { Component, AfterViewInit, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AosService } from '../../../shared/services/aos.service';
 import { ParallaxService } from '../../../shared/services/parallax.service';
@@ -13,21 +21,18 @@ import { Subscription } from 'rxjs';
 export class FeaturesSection implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('featuresSection', { static: true }) featuresSection!: ElementRef<HTMLElement>;
   @ViewChild('parallaxBg', { static: true }) parallaxBg!: ElementRef<HTMLElement>;
-  
+
   scrollY = 0;
   private subscriptions = new Subscription();
-
-  constructor(
-    private aosService: AosService,
-    private parallaxService: ParallaxService
-  ) {}
+  private aosService = inject(AosService);
+  private parallaxService = inject(ParallaxService);
 
   ngOnInit() {
     this.subscriptions.add(
-      this.parallaxService.scroll$.subscribe(scrollY => {
+      this.parallaxService.scroll$.subscribe((scrollY) => {
         this.scrollY = scrollY;
         this.updateParallax();
-      })
+      }),
     );
   }
 

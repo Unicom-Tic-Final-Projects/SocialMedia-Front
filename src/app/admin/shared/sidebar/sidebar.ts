@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class AdminSidebar {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  
+
   @Input() isCollapsed = false;
   @Output() toggleCollapse = new EventEmitter<void>();
 
@@ -58,4 +58,3 @@ export class AdminSidebar {
     this.authService.logout();
   }
 }
-

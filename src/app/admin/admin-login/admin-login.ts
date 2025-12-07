@@ -55,7 +55,11 @@ export class AdminLogin {
         this.loading.set(false);
       },
       error: (error) => {
-        const message = error?.error?.message || error?.userMessage || error?.message || 'An error occurred during login.';
+        const message =
+          error?.error?.message ||
+          error?.userMessage ||
+          error?.message ||
+          'An error occurred during login.';
         this.errorMessage.set(message);
         this.loading.set(false);
       },
@@ -77,4 +81,3 @@ export class AdminLogin {
     return this.loginForm.get('password');
   }
 }
-

@@ -6,36 +6,53 @@
     <p class="text-gray-600 text-sm">Track performance and engagement metrics</p>
   </div>
 
-  <ng-container *ngIf="!loading; else loadingState">
-
+  @if (!loading) {
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
-        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Total Posts</p>
-        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.totalPosts }}</p>
-      </div>
-
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
-        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Total Engagement</p>
-        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.totalEngagement | number }}</p>
-      </div>
-
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
-        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Follower Growth</p>
-        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.followerGrowth }}%</p>
-      </div>
-
-      <div class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp" *ngIf="summary() as s">
-        <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Conversion Rate</p>
-        <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.conversionRate }}%</p>
-      </div>
-
+      @if (summary(); as s) {
+        <div
+          class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp"
+        >
+          <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">Total Posts</p>
+          <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.totalPosts }}</p>
+        </div>
+      }
+      @if (summary(); as s) {
+        <div
+          class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp"
+        >
+          <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">
+            Total Engagement
+          </p>
+          <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">
+            {{ s.totalEngagement | number }}
+          </p>
+        </div>
+      }
+      @if (summary(); as s) {
+        <div
+          class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp"
+        >
+          <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">
+            Follower Growth
+          </p>
+          <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.followerGrowth }}%</p>
+        </div>
+      }
+      @if (summary(); as s) {
+        <div
+          class="stat-card bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 animate-slideUp"
+        >
+          <p class="text-xs text-gray-600 mb-2 font-medium uppercase tracking-wider">
+            Conversion Rate
+          </p>
+          <p class="text-3xl font-bold text-[#4C6FFF] animate-countUp">{{ s.conversionRate }}%</p>
+        </div>
+      }
     </div>
 
     <!-- Two Column -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-
       <!-- Engagement Overview -->
       <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#BFC9FF] shadow-md">
         <div class="flex items-center justify-between mb-4">
@@ -44,15 +61,17 @@
         </div>
 
         <div class="space-y-4">
-          <div *ngFor="let metric of engagement()" class="p-4 bg-[#FFFFFF] rounded-lg border border-[#D9E1FF]">
-            <div class="flex justify-between items-center">
-              <h4 class="font-semibold text-[#1A1A1A]">{{ metric.title }}</h4>
-              <span class="text-sm text-[#4C6FFF]">{{ metric.engagementRate }}%</span>
+          @for (metric of engagement(); track metric.title) {
+            <div class="p-4 bg-[#FFFFFF] rounded-lg border border-[#D9E1FF]">
+              <div class="flex justify-between items-center">
+                <h4 class="font-semibold text-[#1A1A1A]">{{ metric.title }}</h4>
+                <span class="text-sm text-[#4C6FFF]">{{ metric.engagementRate }}%</span>
+              </div>
+              <div class="text-xs text-gray-600 mt-2">
+                {{ metric.impressions | number }} impressions • {{ metric.clicks | number }} clicks
+              </div>
             </div>
-            <div class="text-xs text-gray-600 mt-2">
-              {{ metric.impressions | number }} impressions • {{ metric.clicks | number }} clicks
-            </div>
-          </div>
+          }
         </div>
       </div>
 
@@ -64,50 +83,51 @@
         </div>
 
         <div class="space-y-4">
-          <div *ngFor="let platform of platformPerformance()" class="p-4 bg-[#FFFFFF] rounded-lg border border-[#D9E1FF]">
-            <div class="flex justify-between items-center text-sm text-gray-600">
-              <span>{{ platform.platform | titlecase }}</span>
-              <span>
-                Scheduled: 
-                <span class="text-[#1A1A1A]">{{ platform.scheduled }}</span>
-              </span>
-            </div>
+          @for (platform of platformPerformance(); track platform.platform) {
+            <div class="p-4 bg-[#FFFFFF] rounded-lg border border-[#D9E1FF]">
+              <div class="flex justify-between items-center text-sm text-gray-600">
+                <span>{{ platform.platform | titlecase }}</span>
+                <span>
+                  Scheduled:
+                  <span class="text-[#1A1A1A]">{{ platform.scheduled }}</span>
+                </span>
+              </div>
 
-            <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
-              <span>Published: <span class="text-[#1A1A1A]">{{ platform.published }}</span></span>
-              <span>Drafts: <span class="text-[#1A1A1A]">{{ platform.drafts }}</span></span>
+              <div class="flex justify-between items-center text-xs text-gray-500 mt-2">
+                <span
+                  >Published: <span class="text-[#1A1A1A]">{{ platform.published }}</span></span
+                >
+                <span
+                  >Drafts: <span class="text-[#1A1A1A]">{{ platform.drafts }}</span></span
+                >
+              </div>
             </div>
-          </div>
+          }
         </div>
       </div>
-
     </div>
-
-  </ng-container>
-
-  <!-- Skeleton Loading -->
-  <ng-template #loadingState>
+  } @else {
     <div class="space-y-8">
       <!-- Skeleton Summary Cards -->
       <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-        @for (card of [1,2,3,4]; track card) {
+        @for (card of [1, 2, 3, 4]; track card) {
           <div class="skeleton-stat-card">
-            <div class="skeleton skeleton-text w-24 mb-2" style="height: 0.875em;"></div>
-            <div class="skeleton skeleton-text w-16 mb-2" style="height: 2em;"></div>
+            <div class="skeleton skeleton-text w-24 mb-2" style="height: 0.875em"></div>
+            <div class="skeleton skeleton-text w-16 mb-2" style="height: 2em"></div>
           </div>
         }
       </div>
       <!-- Skeleton Content Cards -->
       <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        @for (card of [1,2]; track card) {
+        @for (card of [1, 2]; track card) {
           <div class="skeleton-card">
             <div class="skeleton skeleton-title w-40 mb-4"></div>
             <div class="space-y-4">
-              @for (item of [1,2,3,4]; track item) {
+              @for (item of [1, 2, 3, 4]; track item) {
                 <div class="bg-white rounded-lg border border-[#D9E1FF] p-4">
                   <div class="skeleton skeleton-text w-3/4 mb-2"></div>
                   <div class="skeleton skeleton-text w-full mb-2"></div>
-                  <div class="skeleton skeleton-text w-1/2" style="height: 0.875em;"></div>
+                  <div class="skeleton skeleton-text w-1/2" style="height: 0.875em"></div>
                 </div>
               }
             </div>
@@ -115,5 +135,5 @@
         }
       </div>
     </div>
-  </ng-template>
+  }
 </div>

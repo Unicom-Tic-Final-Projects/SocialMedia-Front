@@ -42,15 +42,26 @@ export class UsersService {
   }
 
   getUserById(userId: string): Observable<ApiResponse<AdminUserResponse>> {
-    return this.http.get<ApiResponse<AdminUserResponse>>(`${this.baseUrl}/api/admin/users/${userId}`);
+    return this.http.get<ApiResponse<AdminUserResponse>>(
+      `${this.baseUrl}/api/admin/users/${userId}`,
+    );
   }
 
   createUser(request: CreateUserRequest): Observable<ApiResponse<AdminUserResponse>> {
-    return this.http.post<ApiResponse<AdminUserResponse>>(`${this.baseUrl}/api/admin/users`, request);
+    return this.http.post<ApiResponse<AdminUserResponse>>(
+      `${this.baseUrl}/api/admin/users`,
+      request,
+    );
   }
 
-  updateUser(userId: string, request: UpdateUserRequest): Observable<ApiResponse<AdminUserResponse>> {
-    return this.http.put<ApiResponse<AdminUserResponse>>(`${this.baseUrl}/api/admin/users/${userId}`, request);
+  updateUser(
+    userId: string,
+    request: UpdateUserRequest,
+  ): Observable<ApiResponse<AdminUserResponse>> {
+    return this.http.put<ApiResponse<AdminUserResponse>>(
+      `${this.baseUrl}/api/admin/users/${userId}`,
+      request,
+    );
   }
 
   deleteUser(userId: string): Observable<ApiResponse<boolean>> {
@@ -62,15 +73,26 @@ export class UsersService {
   }
 
   getTenantById(tenantId: string): Observable<ApiResponse<AdminTenantResponse>> {
-    return this.http.get<ApiResponse<AdminTenantResponse>>(`${this.baseUrl}/api/admin/tenants/${tenantId}`);
+    return this.http.get<ApiResponse<AdminTenantResponse>>(
+      `${this.baseUrl}/api/admin/tenants/${tenantId}`,
+    );
   }
 
   createTenant(request: CreateTenantRequest): Observable<ApiResponse<AdminTenantResponse>> {
-    return this.http.post<ApiResponse<AdminTenantResponse>>(`${this.baseUrl}/api/admin/tenants`, request);
+    return this.http.post<ApiResponse<AdminTenantResponse>>(
+      `${this.baseUrl}/api/admin/tenants`,
+      request,
+    );
   }
 
-  updateTenant(tenantId: string, request: UpdateTenantRequest): Observable<ApiResponse<AdminTenantResponse>> {
-    return this.http.put<ApiResponse<AdminTenantResponse>>(`${this.baseUrl}/api/admin/tenants/${tenantId}`, request);
+  updateTenant(
+    tenantId: string,
+    request: UpdateTenantRequest,
+  ): Observable<ApiResponse<AdminTenantResponse>> {
+    return this.http.put<ApiResponse<AdminTenantResponse>>(
+      `${this.baseUrl}/api/admin/tenants/${tenantId}`,
+      request,
+    );
   }
 
   deleteTenant(tenantId: string): Observable<ApiResponse<boolean>> {
@@ -98,4 +120,3 @@ export interface UpdateTenantRequest {
   tenantType?: 'Individual' | 'Agency';
   isActive?: boolean;
 }
-

@@ -35,4 +35,3 @@ export interface MediaAssetResponse {
   fileSize: number;
   uploadedAt: string;
 }
-

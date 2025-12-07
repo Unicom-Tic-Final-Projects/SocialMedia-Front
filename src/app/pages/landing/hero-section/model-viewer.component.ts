@@ -40,7 +40,7 @@ interface MaterialState {
 export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('canvasHost', { static: true })
   canvasHost!: ElementRef<HTMLDivElement>;
-  
+
   @Input() modelPath: string = 'assets/models/genkub_greeting_robot.glb';
   @Input() rotationSpeed: number = 0.005;
   @Input() enableInteractivity: boolean = true;
@@ -52,24 +52,24 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   private renderer!: THREE.WebGLRenderer;
   private composer!: EffectComposer;
   private controls!: OrbitControls;
-  
+
   // Model and animation
   private model: THREE.Object3D | null = null;
   private mixer: THREE.AnimationMixer | null = null;
   private clock = new THREE.Clock();
-  
+
   // Environment
   private environmentMap!: THREE.Texture;
   private fog!: THREE.Fog;
-  
+
   // Materials and states - Color Layers & Material Management
   private originalMaterials: Map<THREE.Mesh, MaterialState> = new Map();
   private currentState: 'idle' | 'hover' | 'click' | 'animate' = 'idle';
-  
+
   // Interactivity
   private raycaster = new THREE.Raycaster();
   private mouse = new THREE.Vector2();
-  
+
   // Observers
   private resizeObserver?: ResizeObserver;
   private lazyObserver?: IntersectionObserver;
@@ -80,16 +80,16 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   @HostListener('mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     if (!this.enableInteractivity || !this.canvasHost) return;
-    
+
     const rect = this.canvasHost.nativeElement.getBoundingClientRect();
     this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    
+
     this.handleMouseInteraction();
   }
 
   @HostListener('click', ['$event'])
-  onClick(event: MouseEvent) {
+  onClick(_event: MouseEvent) {
     if (!this.enableInteractivity) return;
     this.triggerClickState();
   }
@@ -116,7 +116,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
           }
         });
       },
-      { threshold: 0.25 }
+      { threshold: 0.25 },
     );
     this.lazyObserver.observe(this.canvasHost.nativeElement);
   }
@@ -147,12 +147,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
     const isMobile = window.innerWidth <= 480;
     const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
 
-    this.camera = new THREE.PerspectiveCamera(
-      isMobile ? 50 : 40,
-      width / height,
-      0.1,
-      1000
-    );
+    this.camera = new THREE.PerspectiveCamera(isMobile ? 50 : 40, width / height, 0.1, 1000);
 
     if (isMobile) {
       this.camera.position.set(0.2, 1.1, 7.8);
@@ -206,21 +201,21 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
     this.scene.add(mainLight);
 
     // Fill light (colored)
-    const fillLight = new THREE.DirectionalLight(0x4C6FFF, 0.4);
+    const fillLight = new THREE.DirectionalLight(0x4c6fff, 0.4);
     fillLight.position.set(-3, 2, -2);
     this.scene.add(fillLight);
 
     // Rim light (accent)
-    const rimLight = new THREE.DirectionalLight(0xBFC9FF, 0.5);
+    const rimLight = new THREE.DirectionalLight(0xbfc9ff, 0.5);
     rimLight.position.set(0, 3, -5);
     this.scene.add(rimLight);
 
     // Point lights for depth
-    const pointLight1 = new THREE.PointLight(0x4C6FFF, 0.8, 10);
+    const pointLight1 = new THREE.PointLight(0x4c6fff, 0.8, 10);
     pointLight1.position.set(2, 3, 2);
     this.scene.add(pointLight1);
 
-    const pointLight2 = new THREE.PointLight(0xBFC9FF, 0.6, 10);
+    const pointLight2 = new THREE.PointLight(0xbfc9ff, 0.6, 10);
     pointLight2.position.set(-2, 2, -2);
     this.scene.add(pointLight2);
   }
@@ -244,7 +239,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
     const envScene = new THREE.Scene();
     const envLight = new THREE.AmbientLight(0xffffff, 1);
     envScene.add(envLight);
-    
+
     const envDirLight = new THREE.DirectionalLight(0xffffff, 1);
     envDirLight.position.set(1, 1, 1);
     envScene.add(envDirLight);
@@ -273,7 +268,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   //------------------------------------------------------
   private setupPostProcessing() {
     this.composer = new EffectComposer(this.renderer);
-    
+
     const renderPass = new RenderPass(this.scene, this.camera);
     this.composer.addPass(renderPass);
 
@@ -282,7 +277,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       1.5, // strength
       0.4, // radius
-      0.85 // threshold
+      0.85, // threshold
     );
     this.composer.addPass(bloomPass);
 
@@ -307,7 +302,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
         this.scene.add(this.model);
       },
       undefined,
-      (error) => console.error('Error loading model:', error)
+      (error) => console.error('Error loading model:', error),
     );
   }
 
@@ -320,10 +315,10 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
     this.model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const mesh = child as THREE.Mesh;
-        
+
         if (mesh.material instanceof THREE.MeshStandardMaterial) {
           const material = mesh.material;
-          
+
           // Store original material state (for color layers)
           this.originalMaterials.set(mesh, {
             color: material.color.clone(),
@@ -339,7 +334,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
 
           // COLOR LAYER: Base color
           material.color = new THREE.Color(0xffffff);
-          
+
           // ENVIRONMENT MAP (reflections)
           if (this.environmentMap) {
             material.envMap = this.environmentMap;
@@ -349,7 +344,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
           // MATERIAL LAYERS: Metalness & Roughness
           material.metalness = Math.max(0.1, material.metalness || 0.3);
           material.roughness = Math.min(0.9, material.roughness || 0.7);
-          
+
           // EMISSIVE LAYER (for glow effects)
           material.emissive = new THREE.Color(0x000000);
           material.emissiveIntensity = 0;
@@ -405,7 +400,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
       this.model.scale.setScalar(4.9 / maxDim);
       this.model.position.y = 1.35;
       this.model.position.x = -3.0;
-      
+
       if (this.camera) {
         this.camera.fov = 68;
         this.camera.aspect = 1.25;
@@ -469,7 +464,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
       if (child instanceof THREE.Mesh) {
         const mesh = child as THREE.Mesh;
         const material = mesh.material as THREE.MeshStandardMaterial;
-        
+
         if (!material || !this.originalMaterials.has(mesh)) return;
 
         const original = this.originalMaterials.get(mesh)!;
@@ -477,20 +472,21 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
         switch (state) {
           case 'hover':
             // Color layer change on hover
-            material.emissive.setHex(0x4C6FFF);
+            material.emissive.setHex(0x4c6fff);
             material.emissiveIntensity = 0.3;
-            material.color.lerp(new THREE.Color(0xBFC9FF), 0.2);
+            material.color.lerp(new THREE.Color(0xbfc9ff), 0.2);
             break;
           case 'click':
-            material.emissive.setHex(0x4C6FFF);
+            material.emissive.setHex(0x4c6fff);
             material.emissiveIntensity = 0.6;
-            material.color.lerp(new THREE.Color(0x4C6FFF), 0.3);
+            material.color.lerp(new THREE.Color(0x4c6fff), 0.3);
             break;
-          case 'animate':
+          case 'animate': {
             // Pulse animation
             const time = this.clock.getElapsedTime();
             material.emissiveIntensity = 0.2 + Math.sin(time * 2) * 0.2;
             break;
+          }
           default:
             // Reset to original color layer
             material.color.copy(original.color);
@@ -504,14 +500,14 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   private applyHoverEffect(mesh: THREE.Mesh) {
     const material = mesh.material as THREE.MeshStandardMaterial;
     if (material && this.originalMaterials.has(mesh)) {
-      material.emissive.setHex(0x4C6FFF);
+      material.emissive.setHex(0x4c6fff);
       material.emissiveIntensity = 0.4;
     }
   }
 
   private resetMaterialStates() {
     if (!this.model) return;
-    
+
     this.model.traverse((child) => {
       if (child instanceof THREE.Mesh) {
         const mesh = child as THREE.Mesh;
@@ -541,7 +537,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
   private startRenderingLoop(): void {
     const render = () => {
       const delta = this.clock.getDelta();
-      
+
       // Update animations
       if (this.mixer) {
         this.mixer.update(delta);
@@ -614,7 +610,7 @@ export class ModelViewerComponent implements AfterViewInit, OnDestroy {
     this.controls?.dispose();
     this.composer?.dispose();
     this.renderer?.dispose();
-    
+
     if (this.environmentMap) {
       this.environmentMap.dispose();
     }

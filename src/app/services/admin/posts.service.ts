@@ -26,31 +26,33 @@ export class PostsService {
 
   getPosts(): Observable<AdminPostResponse[]> {
     return this.http.get<ApiResponse<AdminPostResponse[]>>(`${this.baseUrl}/api/admin/posts`).pipe(
-      map(response => {
+      map((response) => {
         if (response.success && response.data) {
           // Map backend data to match frontend expectations
-          return response.data.map(post => ({
+          return response.data.map((post) => ({
             ...post,
-            title: post.content?.substring(0, 50) || 'Untitled Post'
+            title: post.content?.substring(0, 50) || 'Untitled Post',
           }));
         }
         return [];
-      })
+      }),
     );
   }
 
   getPostById(id: string): Observable<AdminPostResponse | null> {
-    return this.http.get<ApiResponse<AdminPostResponse>>(`${this.baseUrl}/api/admin/posts/${id}`).pipe(
-      map(response => {
-        if (response.success && response.data) {
-          return {
-            ...response.data,
-            title: response.data.content?.substring(0, 50) || 'Untitled Post'
-          };
-        }
-        return null;
-      })
-    );
+    return this.http
+      .get<ApiResponse<AdminPostResponse>>(`${this.baseUrl}/api/admin/posts/${id}`)
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            return {
+              ...response.data,
+              title: response.data.content?.substring(0, 50) || 'Untitled Post',
+            };
+          }
+          return null;
+        }),
+      );
   }
 
   createPost(post: CreatePostRequest): Observable<ApiResponse<AdminPostResponse>> {
@@ -58,7 +60,10 @@ export class PostsService {
   }
 
   updatePost(id: string, post: UpdatePostRequest): Observable<ApiResponse<AdminPostResponse>> {
-    return this.http.put<ApiResponse<AdminPostResponse>>(`${this.baseUrl}/api/admin/posts/${id}`, post);
+    return this.http.put<ApiResponse<AdminPostResponse>>(
+      `${this.baseUrl}/api/admin/posts/${id}`,
+      post,
+    );
   }
 
   deletePost(id: string): Observable<ApiResponse<boolean>> {
@@ -84,4 +89,3 @@ export interface UpdatePostRequest {
   scheduledAt?: string;
   isDeleted?: boolean;
 }
-

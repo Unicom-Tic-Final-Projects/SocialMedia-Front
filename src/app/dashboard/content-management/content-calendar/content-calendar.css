@@ -9,17 +9,17 @@
 }
 
 /* Smooth drag and drop transitions */
-[draggable="true"] {
+[draggable='true'] {
   cursor: move;
   user-select: none;
 }
 
-[draggable="true"]:active {
+[draggable='true']:active {
   opacity: 0.5;
 }
 
 /* Drop zone highlight */
 .drop-zone-active {
   background-color: rgba(76, 111, 255, 0.1);
-  border: 2px dashed #4C6FFF;
+  border: 2px dashed #4c6fff;
 }

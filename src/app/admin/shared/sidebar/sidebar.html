@@ -1,50 +1,79 @@
-<aside class="fixed left-0 top-0 h-full bg-[#F5F7FF] border-r border-[#D9E1FF] transition-all duration-300 z-40"
-       [class.w-64]="!isCollapsed"
-       [class.w-20]="isCollapsed">
+<aside
+  class="fixed left-0 top-0 h-full bg-[#F5F7FF] border-r border-[#D9E1FF] transition-all duration-300 z-40"
+  [class.w-64]="!isCollapsed"
+  [class.w-20]="isCollapsed"
+>
   <div class="flex flex-col h-full">
     <!-- Logo Section -->
     <div class="p-6 border-b border-[#D9E1FF]">
       <div class="flex items-center justify-between">
-        <div *ngIf="!isCollapsed" class="flex flex-col gap-1">
-          <h2 class="text-2xl font-bold text-[#4C6FFF] tracking-tight">One<span class="text-[#1A1A1A]">vo</span></h2>
-          <p class="text-xs text-gray-600">Admin Portal</p>
-        </div>
-        <button (click)="onToggleCollapse()" 
-                class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50">
-          <i *ngIf="!isCollapsed" class="fas fa-chevron-left"></i>
-          <i *ngIf="isCollapsed" class="fas fa-chevron-right"></i>
+        @if (!isCollapsed) {
+          <div class="flex flex-col gap-1">
+            <h2 class="text-2xl font-bold text-[#4C6FFF] tracking-tight">
+              One<span class="text-[#1A1A1A]">vo</span>
+            </h2>
+            <p class="text-xs text-gray-600">Admin Portal</p>
+          </div>
+        }
+        <button
+          type="button"
+          (click)="onToggleCollapse()"
+          class="text-[#222222] hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#BFC9FF]/50"
+        >
+          @if (!isCollapsed) {
+            <i class="fas fa-chevron-left"></i>
+          }
+          @if (isCollapsed) {
+            <i class="fas fa-chevron-right"></i>
+          }
         </button>
       </div>
     </div>
 
     <!-- Navigation Menu -->
     <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-      <a *ngFor="let item of menuItems"
-         [routerLink]="item.path"
-         routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
-         [routerLinkActiveOptions]="{exact: item.path === '/admin'}"
-         class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#222222] hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF] transition-all duration-200 group">
-        <i [class]="item.icon" class="w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"></i>
-        <span *ngIf="!isCollapsed" class="font-medium">{{ item.label }}</span>
-      </a>
+      @for (item of menuItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          [routerLinkActiveOptions]="{ exact: item.path === '/admin' }"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#222222] hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF] transition-all duration-200 group"
+        >
+          <i
+            [class]="item.icon"
+            class="w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"
+          ></i>
+          @if (!isCollapsed) {
+            <span class="font-medium">{{ item.label }}</span>
+          }
+        </a>
+      }
     </nav>
 
     <!-- User Section -->
     <div class="p-4 border-t border-[#D9E1FF]">
       <div class="flex items-center gap-3 p-3 rounded-lg bg-white border border-[#D9E1FF]">
-        <div class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-bold">
+        <div
+          class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-bold"
+        >
           {{ avatarInitials() }}
         </div>
-        <div *ngIf="!isCollapsed" class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-[#1A1A1A] truncate">{{ displayName() }}</p>
-          <p class="text-xs text-gray-600 truncate">{{ displayEmail() }}</p>
-        </div>
+        @if (!isCollapsed) {
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-[#1A1A1A] truncate">{{ displayName() }}</p>
+            <p class="text-xs text-gray-600 truncate">{{ displayEmail() }}</p>
+          </div>
+        }
       </div>
-      <button *ngIf="!isCollapsed" (click)="logout()"
-        class="w-full mt-3 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors text-sm font-medium">
-        <i class="fa-solid fa-sign-out-alt"></i> Logout
-      </button>
+      @if (!isCollapsed) {
+        <button
+          type="button"
+          (click)="logout()"
+          class="w-full mt-3 flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors text-sm font-medium"
+        >
+          <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
+      }
     </div>
   </div>
 </aside>
-

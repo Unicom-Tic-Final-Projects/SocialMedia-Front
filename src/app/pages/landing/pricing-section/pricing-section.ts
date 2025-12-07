@@ -1,4 +1,13 @@
-import { Component, AfterViewInit, OnInit, OnDestroy, ElementRef, ViewChild, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  AfterViewInit,
+  OnInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  inject,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AosService } from '../../../shared/services/aos.service';
@@ -16,13 +25,13 @@ import { Subscription } from 'rxjs';
 export class PricingSection implements AfterViewInit, OnInit, OnDestroy {
   @ViewChild('pricingSection', { static: true }) pricingSection!: ElementRef<HTMLElement>;
   @ViewChild('parallaxBg', { static: true }) parallaxBg!: ElementRef<HTMLElement>;
-  
+
   private readonly router = inject(Router);
   private readonly billingService = inject(BillingService);
   private readonly aosService = inject(AosService);
   private readonly parallaxService = inject(ParallaxService);
   private readonly cdr = inject(ChangeDetectorRef);
-  
+
   scrollY = 0;
   plans: BillingPlan[] = [];
   loading = false;
@@ -31,10 +40,10 @@ export class PricingSection implements AfterViewInit, OnInit, OnDestroy {
   ngOnInit() {
     this.loadPlans();
     this.subscriptions.add(
-      this.parallaxService.scroll$.subscribe(scrollY => {
+      this.parallaxService.scroll$.subscribe((scrollY) => {
         this.scrollY = scrollY;
         this.updateParallax();
-      })
+      }),
     );
   }
 
@@ -50,13 +59,23 @@ export class PricingSection implements AfterViewInit, OnInit, OnDestroy {
         this.plans = Array.isArray(plans) ? plans : [];
         console.log('Before setting loading to false - plans.length:', this.plans.length);
         this.loading = false;
-        console.log('After setting loading to false - loading:', this.loading, 'plans.length:', this.plans.length);
+        console.log(
+          'After setting loading to false - loading:',
+          this.loading,
+          'plans.length:',
+          this.plans.length,
+        );
         // Force change detection immediately
         this.cdr.markForCheck();
         // Use setTimeout to ensure change detection runs
         setTimeout(() => {
           this.cdr.detectChanges();
-          console.log('After detectChanges - loading:', this.loading, 'plans.length:', this.plans.length);
+          console.log(
+            'After detectChanges - loading:',
+            this.loading,
+            'plans.length:',
+            this.plans.length,
+          );
           // Refresh AOS after plans load
           if (this.plans.length > 0) {
             this.aosService.refreshAos();
@@ -69,7 +88,7 @@ export class PricingSection implements AfterViewInit, OnInit, OnDestroy {
           status: error.status,
           statusText: error.statusText,
           error: error.error,
-          message: error.message
+          message: error.message,
         });
         this.loading = false;
         // Use empty array if API fails - will show empty state

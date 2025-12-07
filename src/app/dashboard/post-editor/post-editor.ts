@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Observable, throwError, timer } from 'rxjs';
-import { switchMap, tap, catchError, map, delay, concatMap } from 'rxjs/operators';
+import { switchMap, tap, catchError, map, takeUntil } from 'rxjs/operators';
 import { PostsService } from '../../services/client/posts.service';
 import { MediaService } from '../../services/client/media.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
@@ -12,22 +12,43 @@ import { ClientContextService } from '../../services/client/client-context.servi
 import { PostDraftService } from '../../services/client/post-draft.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { LoggingService } from '../../core/services/logging.service';
 import { AIService } from '../../services/client/ai.service';
 import { CreatePostRequest, UpdatePostRequest, SocialPost } from '../../models/post.models';
 import { Platform, SocialAccount } from '../../models/social.models';
 import { Client } from '../../models/client.models';
+import { UploadedFile } from '../../shared/file-upload/file-upload.component';
 import { PhotoCropComponent } from './photo-crop/photo-crop.component';
-import { PostPreviewComponent } from '../posts-page/post-preview/post-preview.component';
-import { FileUploadComponent, UploadedFile } from '../../shared/file-upload/file-upload.component';
+import { Step1ContentMediaComponent } from './steps/step1-content-media/step1-content-media.component';
+import { Step2PlatformSelectionComponent } from './steps/step2-platform-selection/step2-platform-selection.component';
+import { Step3CropEditComponent } from './steps/step3-crop-edit/step3-crop-edit.component';
+import { Step4PreviewComponent } from './steps/step4-preview/step4-preview.component';
+import { Step5PublishScheduleComponent } from './steps/step5-publish-schedule/step5-publish-schedule.component';
+import { MediaUploadService } from '../../services/shared/media-upload.service';
+import { PlatformSelectionService } from '../../services/shared/platform-selection.service';
+import { PostFormValidatorService } from '../../services/shared/post-form-validator.service';
+import { PostEditorWizardService } from '../../services/shared/post-editor-wizard.service';
+import { PostMediaService } from '../../services/shared/post-media.service';
+import { PostPublishService } from '../../services/shared/post-publish.service';
+import { BaseComponent } from '../../core/base/base.component';
 
 @Component({
   selector: 'app-post-editor',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, RouterLink, DatePipe, PhotoCropComponent, PostPreviewComponent, FileUploadComponent],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    RouterLink,
+    Step1ContentMediaComponent,
+    Step2PlatformSelectionComponent,
+    Step3CropEditComponent,
+    Step4PreviewComponent,
+    Step5PublishScheduleComponent,
+  ],
   templateUrl: './post-editor.html',
   styleUrl: './post-editor.css',
 })
-export class PostEditor implements OnInit {
+export class PostEditor extends BaseComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly postsService = inject(PostsService);
   private readonly mediaService = inject(MediaService);
@@ -37,9 +58,16 @@ export class PostEditor implements OnInit {
   readonly postDraftService = inject(PostDraftService); // Public for template access
   private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
+  private readonly loggingService = inject(LoggingService);
   private readonly aiService = inject(AIService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly mediaUploadService = inject(MediaUploadService);
+  private readonly platformSelectionService = inject(PlatformSelectionService);
+  private readonly formValidator = inject(PostFormValidatorService);
+  private readonly wizardService = inject(PostEditorWizardService);
+  private readonly postMediaService = inject(PostMediaService);
+  private readonly publishService = inject(PostPublishService);
 
   postForm: FormGroup;
   loading = signal(false);
@@ -48,18 +76,18 @@ export class PostEditor implements OnInit {
   showImprovementModal = signal(false);
   originalContent = signal<string>('');
   improvedContent = signal<string>('');
-  
+
   // Content value signal for reactive character count
   private contentValue = signal<string>('');
-  
-  // Media
-  selectedFile = signal<File | null>(null);
-  mediaPreview = signal<string | null>(null);
-  uploadedMediaId = signal<string | null>(null);
-  uploading = this.mediaService.uploading;
+
+  // Media - use PostMediaService
+  readonly selectedFile = this.postMediaService.selectedFile;
+  readonly mediaPreview = this.postMediaService.mediaPreview;
+  readonly uploadedMediaId = this.postMediaService.uploadedMediaId;
+  readonly uploading = this.mediaService.uploading;
+  readonly isVideo = this.postMediaService.isVideo;
+  readonly uploadedFiles = this.postMediaService.uploadedFiles;
   isDragging = signal(false);
-  isVideo = signal(false);
-  uploadedFiles = signal<UploadedFile[]>([]);
 
   // Social accounts
   socialAccounts = signal<SocialAccount[]>([]);
@@ -72,7 +100,7 @@ export class PostEditor implements OnInit {
   readonly loadingClients = this.clientsService.loading;
   readonly clientsError = this.clientsService.error;
   readonly isAgency = this.authService.isAgency;
-  
+
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
   readonly selectedClient = this.clientContextService.selectedClient;
@@ -85,28 +113,24 @@ export class PostEditor implements OnInit {
   scheduleMode = signal<'now' | 'later'>('now');
   scheduledDateTime = signal<string>('');
 
-  // Multi-step wizard
-  currentStep = signal<number>(1);
-  totalSteps = 5; // Step 1: Content & Media, Step 2: Select Platforms, Step 3: Crop/Edit per Platform, Step 4: Preview, Step 5: Publish/Schedule
-  
+  // Multi-step wizard - use PostEditorWizardService
+  readonly currentStep = this.wizardService.currentStep;
+  readonly totalSteps = this.wizardService.totalSteps;
+  readonly step1Completed = this.wizardService.step1Completed;
+  readonly step2Completed = this.wizardService.step2Completed;
+  readonly step2ValidationError = this.wizardService.step2ValidationError;
+  readonly step3Completed = this.wizardService.step3Completed;
+  readonly step4PreviewLoaded = this.wizardService.step4PreviewLoaded;
+  readonly step5Completed = this.wizardService.step5Completed;
+
   // Platform-specific captions (overrides global caption)
   platformCaptions = signal<Record<Platform, string>>({} as Record<Platform, string>);
 
-  // Platform crop configurations (stored per platform)
-  platformCropConfigs = signal<Record<Platform, { crop: { zoom: number; offsetX: number; offsetY: number }; cropBox: { width: number; height: number; left: number; top: number } }>>({} as any);
-  
-  // Platform cropped images (base64 strings per platform)
-  platformCroppedImages = signal<Record<Platform, string>>({} as Record<Platform, string>);
-  
-  @ViewChild(PhotoCropComponent) photoCropComponent?: PhotoCropComponent;
+  // Platform crop configurations - use PostMediaService
+  readonly platformCropConfigs = this.postMediaService.platformCropConfigs;
+  readonly platformCroppedImages = this.postMediaService.platformCroppedImages;
 
-  // Step completion tracking - checkmarks only show after clicking Next
-  step1Completed = signal<boolean>(false); // True only after clicking Next in Step 1
-  step2Completed = signal<boolean>(false); // True only after clicking Next in Step 2
-  step2ValidationError = signal<boolean>(false); // True when Next clicked without platform selection
-  step3Completed = signal<boolean>(false); // True when crop + captions are saved AND Next clicked
-  step4PreviewLoaded = signal<boolean>(false); // True when preview is loaded AND Next clicked
-  step5Completed = signal<boolean>(false); // True when publish/schedule is completed
+  @ViewChild(PhotoCropComponent) photoCropComponent?: PhotoCropComponent;
 
   // Step 1 validation: caption AND media must be present
   // Uses contentValue signal (updated on input) and mediaPreview signal for reactivity
@@ -116,118 +140,67 @@ export class PostEditor implements OnInit {
     const hasContent = trimmedContent.length > 0;
     const hasMedia = !!this.mediaPreview();
     // BOTH caption AND media are required
-    const isValid = hasContent && hasMedia;
-    return isValid;
+    const validation = this.wizardService.validateStep1(hasContent, hasMedia);
+    return validation.valid;
   });
 
-  // Step navigation methods
-  nextStep(): void {
-    const current = this.currentStep();
-    
-    // Step 2: Check validation before proceeding
-    if (current === 2) {
-      const draft = this.postDraftService.getActiveDraft();
-      const hasPlatforms = (draft?.selectedPlatforms?.length ?? 0) > 0;
-      if (!hasPlatforms) {
-        // Show validation error
-        this.step2ValidationError.set(true);
-        return; // Don't proceed
-      } else {
-        // Clear error if platforms are selected
-        this.step2ValidationError.set(false);
-      }
-    }
-    
-    if (this.canGoToNextStep() && this.currentStep() < this.totalSteps) {
-      // Mark current step as completed when moving to next
-      if (current === 1) {
-        // Save draft before marking as completed
+  // Step navigation methods - use PostEditorWizardService
+  async nextStep(): Promise<void> {
+    const canProceed = await this.wizardService.nextStep(
+      () => {
+        // Step 1 complete callback
         this.saveStep1ToDraft();
-        // Mark Step 1 as completed - this will show the checkmark
-        this.step1Completed.set(true);
-      } else if (current === 2) {
-        this.step2Completed.set(true);
-        this.step2ValidationError.set(false); // Clear error on success
+      },
+      () => {
+        // Step 2 complete callback
         this.saveStep2ToDraft();
-      } else if (current === 3) {
-        // CRITICAL: Generate all cropped images BEFORE allowing Step 4 preview to load
-        // This ensures:
-        // 1. Preview shows EXACT cropped images (not original with transforms)
-        // 2. Published post uses SAME cropped images
-        // 3. 100% visual consistency between preview and published output
+      },
+      async () => {
+        // Step 3 complete callback (async - generate crops)
         this.saveStep3ToDraft();
-        
         if (this.photoCropComponent) {
-          // Generate crops for all platforms and WAIT for completion
-          // Don't proceed to Step 4 until crops are ready
-          this.photoCropComponent.cropAllImages().then(() => {
-            // Save crops to draft after generation completes
-            this.saveStep3ToDraft();
-            // Mark step as completed and move to preview
-            // Preview will now show exact cropped images matching what will be published
-            this.step3Completed.set(true);
-            this.currentStep.set(4);
-          }).catch(err => {
-            console.error('Error cropping images:', err);
-            // Even on error, try to save what we have and proceed
-            this.saveStep3ToDraft();
-            this.step3Completed.set(true);
-            this.currentStep.set(4);
-          });
-          // IMPORTANT: Don't change step yet - wait for crops to complete
-          // This ensures Step 4 preview always has cropped images ready
-          return;
-        } else {
-          // If component not available, try to proceed but warn
-          console.warn('PhotoCropComponent not available - crops may not be generated');
-          setTimeout(() => {
-            this.saveStep3ToDraft();
-            this.step3Completed.set(true);
-            this.currentStep.set(4);
-          }, 100);
-          return;
+          await this.photoCropComponent.cropAllImages();
+          this.saveStep3ToDraft();
         }
-      } else if (current === 4) {
-        // Mark Step 4 as completed when moving to Step 5
-        this.step4PreviewLoaded.set(true);
-      } else if (current === 5) {
-        // Step 5 completion is handled when publish/schedule is actually executed
-        // For now, we just allow moving forward (this can be enhanced later)
-      }
-      
-      this.currentStep.update(step => step + 1);
-    }
+      },
+    );
   }
 
   previousStep(): void {
-    if (this.currentStep() > 1) {
-      this.currentStep.update(step => step - 1);
-    }
+    this.wizardService.previousStep();
   }
 
   goToStep(step: number): void {
-    if (this.canGoToStep(step) && step >= 1 && step <= this.totalSteps) {
-      this.currentStep.set(step);
-    }
+    this.wizardService.goToStep(step);
   }
 
   constructor() {
+    super();
     this.postForm = this.fb.group({
-      content: ['', [Validators.maxLength(4000)]], // Content is optional, but max length applies if provided
+      content: [
+        '',
+        [
+          Validators.maxLength(this.formValidator.MAX_CONTENT_LENGTH),
+          this.formValidator.contentLengthValidator(),
+        ],
+      ], // Content is optional, but max length applies if provided
       scheduledAt: [null],
     });
-    
+
     // Subscribe to content changes to update the reactive signal
     // This is a backup mechanism - onContentInput handles immediate updates
     // This subscription ensures we catch any programmatic form updates
-    this.postForm.get('content')?.valueChanges.subscribe((value) => {
-      const currentValue = this.contentValue();
-      const newValue = value || '';
-      // Only update if different to avoid unnecessary signal updates
-      if (currentValue !== newValue) {
-        this.contentValue.set(newValue);
-      }
-    });
+    this.postForm
+      .get('content')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((value) => {
+        const currentValue = this.contentValue();
+        const newValue = value || '';
+        // Only update if different to avoid unnecessary signal updates
+        if (currentValue !== newValue) {
+          this.contentValue.set(newValue);
+        }
+      });
   }
 
   async ngOnInit(): Promise<void> {
@@ -250,13 +223,14 @@ export class PostEditor implements OnInit {
     // Check if editing existing post
     // First check route params (e.g., /dashboard/post-editor/:id)
     let postId = this.route.snapshot.paramMap.get('id');
-    
+
     // If not in route params, check query params (e.g., /dashboard/post-editor?postId=...)
     if (!postId) {
-      postId = this.route.snapshot.queryParamMap.get('postId') 
-            || this.route.snapshot.queryParamMap.get('id'); // Backward compatibility
+      postId =
+        this.route.snapshot.queryParamMap.get('postId') ||
+        this.route.snapshot.queryParamMap.get('id'); // Backward compatibility
     }
-    
+
     if (postId) {
       this.postId.set(postId);
       this.loadPost(postId);
@@ -274,12 +248,8 @@ export class PostEditor implements OnInit {
         this.loadDraft(activeDraft);
       }
       // Reset step completion flags for new post
-      this.step1Completed.set(false);
-      this.step2Completed.set(false);
-      this.step3Completed.set(false);
-      this.step4PreviewLoaded.set(false);
-      this.step5Completed.set(false);
-      
+      this.wizardService.initialize();
+
       // Ensure draft exists from the start
       const draft = this.postDraftService.getActiveDraft();
       if (!draft) {
@@ -294,12 +264,15 @@ export class PostEditor implements OnInit {
     this.loadSocialAccounts();
 
     if (!this.clientsService.clients().length) {
-      this.clientsService.loadClients().subscribe({
-        error: (error) => console.error('Failed to load clients', error),
-      });
+      this.clientsService
+        .loadClients()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          error: (error) => this.loggingService.error('Failed to load clients', error, 'PostEditor'),
+        });
     }
   }
-  
+
   /**
    * Load draft data into form and component state
    */
@@ -309,21 +282,15 @@ export class PostEditor implements OnInit {
       // Update contentValue signal to ensure step1Valid computed updates
       this.contentValue.set(draft.caption);
     }
-    if (draft.mediaUrl) {
-      this.mediaPreview.set(draft.mediaUrl);
-    }
+    // Load media from draft using PostMediaService
+    this.postMediaService.loadFromDraft(draft);
+    
     if (draft.selectedPlatforms) {
       // Convert platforms to account IDs (simplified - would need proper mapping)
       // For now, we'll handle this in Step 2
     }
     if (draft.platformCaptions) {
       this.platformCaptions.set(draft.platformCaptions);
-    }
-    if (draft.platformCropConfigs) {
-      this.platformCropConfigs.set(draft.platformCropConfigs);
-    }
-    if (draft.platformCroppedImages) {
-      this.platformCroppedImages.set(draft.platformCroppedImages);
     }
   }
 
@@ -332,27 +299,30 @@ export class PostEditor implements OnInit {
    */
   loadPost(postId: string): void {
     this.loading.set(true);
-    this.postsService.getPost(postId).subscribe({
-      next: (post) => {
+    this.postsService
+      .getPost(postId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (post) => {
         this.postForm.patchValue({
           content: post.content,
           scheduledAt: post.scheduledAt ? new Date(post.scheduledAt) : null,
         });
-        
+
         // Update contentValue signal to ensure step1Valid computed updates
         if (post.content) {
           this.contentValue.set(post.content);
         }
-        
+
         if (post.mediaUrl) {
-          this.mediaPreview.set(post.mediaUrl);
+          this.postMediaService.setMediaPreview(post.mediaUrl, post.mediaType === 'video');
         }
 
         // Load selected accounts from postTargets
         // This would need to be implemented when we have the full post data
         this.loading.set(false);
       },
-      error: (error) => {
+      error: (_error) => {
         this.toastService.error('Failed to load post');
         this.loading.set(false);
       },
@@ -364,16 +334,19 @@ export class PostEditor implements OnInit {
    */
   loadSocialAccounts(): void {
     this.loadingAccounts.set(true);
-    this.socialAccountsService.getSocialAccounts().subscribe({
-      next: (accounts) => {
-        this.socialAccounts.set(accounts);
-        this.loadingAccounts.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load social accounts', error);
-        this.loadingAccounts.set(false);
-      },
-    });
+    this.socialAccountsService
+      .getSocialAccounts()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (accounts) => {
+          this.socialAccounts.set(accounts);
+          this.loadingAccounts.set(false);
+        },
+        error: (error) => {
+          this.loggingService.error('Failed to load social accounts', error, 'PostEditor');
+          this.loadingAccounts.set(false);
+        },
+      });
   }
 
   /**
@@ -383,18 +356,18 @@ export class PostEditor implements OnInit {
   onContentInput(event: Event): void {
     const target = event.target as HTMLTextAreaElement;
     const value = target.value || '';
-    
+
     // CRITICAL: Update the reactive signal FIRST for immediate reactivity
     // This ensures step1Valid computed signal updates immediately
     this.contentValue.set(value);
-    
+
     // Update form control value to keep form in sync
     // Use setValue with emitEvent: false to avoid circular updates
     const formControl = this.postForm.get('content');
     if (formControl && formControl.value !== value) {
       formControl.setValue(value, { emitEvent: false });
     }
-    
+
     // Trigger validation check
     formControl?.updateValueAndValidity();
   }
@@ -414,49 +387,13 @@ export class PostEditor implements OnInit {
   /**
    * Handle file (used by both file input and drag & drop)
    */
-  handleFile(file: File): void {
-    // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-    if (file.size > maxSize) {
-      this.toastService.error('File size exceeds 10MB limit. Please choose a smaller file.');
-      return;
+  async handleFile(file: File): Promise<void> {
+    try {
+      await this.postMediaService.handleFile(file);
+    } catch (error) {
+      this.loggingService.error('Error handling file', error, 'PostEditor');
+      this.toastService.error((error as Error).message || 'Failed to handle file');
     }
-
-    // Validate file type
-    const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
-    
-    if (!isImage && !isVideo) {
-      this.toastService.error('Invalid file type. Please upload an image or video file.');
-      return;
-    }
-
-    this.selectedFile.set(file);
-    this.isVideo.set(isVideo);
-
-    // Create preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const preview = e.target?.result as string;
-      // CRITICAL: Setting mediaPreview signal will automatically trigger step1Valid to recalculate
-      // The computed signal reactivity handles the update - no manual validation needed
-      this.mediaPreview.set(preview);
-      
-      // Add to uploaded files list
-      const fileId = `file-${Date.now()}-${Math.random()}`;
-      const newFile: UploadedFile = {
-        id: fileId,
-        file: file,
-        name: file.name,
-        size: file.size,
-        progress: 0,
-        failed: false,
-        type: file.type,
-        preview: preview
-      };
-      this.uploadedFiles.set([newFile]);
-    };
-    reader.readAsDataURL(file);
   }
 
   onFilesSelected(files: File[]): void {
@@ -466,32 +403,29 @@ export class PostEditor implements OnInit {
     }
   }
 
-  onUnacceptedFiles(files: File[]): void {
+  onUnacceptedFiles(_files: File[]): void {
     this.toastService.error('Invalid file type. Please upload an image or video file.');
   }
 
-  onSizeLimitExceeded(files: File[]): void {
+  onSizeLimitExceeded(_files: File[]): void {
     this.toastService.error('File size exceeds 10MB limit. Please choose a smaller file.');
   }
 
   onFileDeleted(fileId: string): void {
     const files = this.uploadedFiles();
-    const fileToDelete = files.find(f => f.id === fileId);
+    const fileToDelete = files.find((f) => f.id === fileId);
     if (fileToDelete) {
-      this.uploadedFiles.set(files.filter(f => f.id !== fileId));
+      this.postMediaService.removeUploadedFile(fileId);
       this.removeMedia();
     }
   }
 
   onFileRetry(fileId: string): void {
     const files = this.uploadedFiles();
-    const fileToRetry = files.find(f => f.id === fileId);
+    const fileToRetry = files.find((f) => f.id === fileId);
     if (fileToRetry) {
       // Reset progress and retry
-      const updatedFiles = files.map(f => 
-        f.id === fileId ? { ...f, progress: 0, failed: false } : f
-      );
-      this.uploadedFiles.set(updatedFiles);
+      this.postMediaService.updateUploadedFile(fileId, { progress: 0, failed: false });
       this.handleFile(fileToRetry.file);
     }
   }
@@ -526,11 +460,7 @@ export class PostEditor implements OnInit {
    * Remove selected media
    */
   removeMedia(): void {
-    this.selectedFile.set(null);
-    this.mediaPreview.set(null);
-    this.uploadedMediaId.set(null);
-    this.isVideo.set(false);
-    
+    this.postMediaService.removeMedia();
     // CRITICAL: Clearing mediaPreview signal will trigger step1Valid to recalculate
     // The computed signal will automatically detect the change and update
     // No need to manually trigger validation - the signal reactivity handles it
@@ -540,47 +470,11 @@ export class PostEditor implements OnInit {
    * Upload media file
    */
   uploadMedia(): Observable<string> {
-    const file = this.selectedFile();
-    if (!file) {
-      return throwError(() => new Error('No file selected'));
-    }
-
-    return this.mediaService.uploadMedia(file).pipe(
-      tap((response) => {
-        // response is MediaAssetResponse - check if it exists and has required fields
-        if (!response) {
-          console.error('Media upload returned undefined response');
-          return;
-        }
-        
-        if (!response.mediaId) {
-          console.error('Media upload response missing mediaId', response);
-          return;
-        }
-        
-        this.uploadedMediaId.set(response.mediaId);
-        // Also update preview URL to the Cloudinary URL returned from backend
-        if (response.url) {
-          this.mediaPreview.set(response.url);
-          // Save draft with updated media URL and type
-          this.saveStep1ToDraft();
-        }
+    return this.postMediaService.uploadMedia().pipe(
+      tap(() => {
+        // Save draft with updated media URL and type
+        this.saveStep1ToDraft();
       }),
-      switchMap((response) => {
-        // Validate response before proceeding
-        if (!response || !response.mediaId) {
-          return throwError(() => new Error('Media upload failed: Invalid response from server'));
-        }
-        
-        return new Observable<string>((observer) => {
-          observer.next(response.mediaId);
-          observer.complete();
-        });
-      }),
-      catchError((error) => {
-        console.error('Error uploading media:', error);
-        return throwError(() => error);
-      })
     );
   }
 
@@ -603,62 +497,22 @@ export class PostEditor implements OnInit {
     return this.selectedAccountIds().includes(accountId);
   }
 
-
-
   canGoToNextStep(): boolean {
-    const current = this.currentStep();
-    if (current === 1) {
-      // Step 1: Caption AND media must be present
-      // step1Valid computed signal automatically tracks contentValue and mediaPreview
-      const isValid = this.step1Valid();
-      
-      // If content is provided, validate it doesn't exceed max length
-      const contentValue = this.contentValue();
-      const trimmedContent = contentValue.trim();
-      const isContentLengthValid = trimmedContent.length === 0 || trimmedContent.length <= 4000;
-      
-      // Return true only if validation passes
-      return isValid && isContentLengthValid;
-    }
-    if (current === 2) {
-      // Step 2: Select Platforms - at least one platform must be selected
-      // Step 2 can only proceed if Step 1 is completed
-      if (!this.step1Completed()) {
-        return false;
-      }
-      const draft = this.postDraftService.getActiveDraft();
-      const hasPlatforms = (draft?.selectedPlatforms?.length ?? 0) > 0;
-      
-      return hasPlatforms;
-    }
-    if (current === 3) {
-      // Step 3: Crop/Edit - can proceed if Step 2 is completed
-      // Step 3 allows proceeding (user can adjust crops for all platforms)
-      if (!this.step2Completed()) {
-        return false;
-      }
-      return true;
-    }
-    if (current === 4) {
-      // Step 4: Preview - can proceed if Step 3 is completed
-      if (!this.step3Completed()) {
-        return false;
-      }
-      return true;
-    }
-    if (current === 5) {
-      // Step 5: Publish/Schedule - can proceed if Step 4 is completed AND platforms are selected
-      if (!this.step4PreviewLoaded()) {
-        return false;
-      }
-      // Verify platforms are selected from draft
-      const draft = this.postDraftService.getActiveDraft();
-      const hasPlatforms = (draft?.selectedPlatforms?.length ?? 0) > 0;
-      return hasPlatforms;
-    }
-    return false;
+    const contentValue = this.contentValue();
+    const trimmedContent = contentValue.trim();
+    const hasContent = trimmedContent.length > 0;
+    const isContentLengthValid = trimmedContent.length === 0 || trimmedContent.length <= 4000;
+    const hasMedia = !!this.mediaPreview();
+
+    return this.wizardService.canGoToNextStep(
+      this.step1Valid() && isContentLengthValid,
+      this.step1Completed(),
+      this.step2Completed(),
+      this.step3Completed(),
+      this.step4PreviewLoaded(),
+    );
   }
-  
+
   /**
    * Save Step 1 data to draft
    */
@@ -672,19 +526,16 @@ export class PostEditor implements OnInit {
       });
       draft = this.postDraftService.getActiveDraft();
     }
-    
+
     const content = this.postForm.get('content')?.value || '';
-    const mediaUrl = this.mediaPreview();
-    // Use isVideo signal for more reliable detection
-    const mediaType = mediaUrl ? (this.isVideo() ? 'video' : 'image') : undefined;
-    
     this.postDraftService.updateDraft({
       caption: content,
-      mediaUrl: mediaUrl || undefined,
-      mediaType: mediaType,
     });
+
+    // Save media state using PostMediaService
+    this.postMediaService.saveToDraft();
   }
-  
+
   /**
    * Save Step 2 data to draft
    * Note: Platforms are already saved via togglePlatform() method
@@ -693,27 +544,32 @@ export class PostEditor implements OnInit {
     // Platforms are already saved when user toggles them in Step 2
     // This method is kept for consistency but doesn't need to do anything
   }
-  
+
   /**
    * Save Step 3 data to draft (crop configs, cropped images, and platform captions)
    */
   saveStep3ToDraft(): void {
-    const platformCropConfigs = this.platformCropConfigs();
-    const platformCroppedImages = this.platformCroppedImages();
     const platformCaptions = this.platformCaptions();
-    
     this.postDraftService.updateDraft({
-      platformCropConfigs,
-      platformCroppedImages: Object.keys(platformCroppedImages).length > 0 ? platformCroppedImages : undefined,
       platformCaptions,
     });
+    // Save media state (includes crop configs and cropped images)
+    this.postMediaService.saveToDraft();
   }
 
   /**
    * Handle crop configs change from photo-crop component
    */
-  onCropConfigsChange(configs: Record<Platform, { crop: { zoom: number; offsetX: number; offsetY: number }; cropBox: { width: number; height: number; left: number; top: number } }>): void {
-    this.platformCropConfigs.set(configs);
+  onCropConfigsChange(
+    configs: Record<
+      Platform,
+      {
+        crop: { zoom: number; offsetX: number; offsetY: number };
+        cropBox: { width: number; height: number; left: number; top: number };
+      }
+    >,
+  ): void {
+    this.postMediaService.updatePlatformCropConfigs(configs);
     // Auto-save to draft when crop changes
     this.saveStep3ToDraft();
   }
@@ -722,39 +578,20 @@ export class PostEditor implements OnInit {
    * Handle cropped images change from photo-crop component
    */
   onCroppedImagesChange(croppedImages: Record<Platform, string>): void {
-    this.platformCroppedImages.set(croppedImages);
+    this.postMediaService.updatePlatformCroppedImages(croppedImages);
     // Auto-save to draft when cropped images change
     this.saveStep3ToDraft();
   }
-  
+
   /**
    * Detect media type from URL
    */
   detectedMediaType(): 'image' | 'video' | null {
-    const url = this.mediaPreview();
-    if (!url) return null;
-    const ext = url.split('.').pop()?.toLowerCase();
-    if (['mp4', 'mov', 'webm', 'avi'].includes(ext || '')) {
-      return 'video';
-    }
-    return 'image';
+    return this.postMediaService.detectMediaType();
   }
 
   canGoToStep(step: number): boolean {
-    // Can go to previous steps
-    if (step <= this.currentStep()) {
-      return true;
-    }
-    // Can only go forward if all previous steps are completed
-    if (step > this.currentStep()) {
-      // Check all previous steps are complete
-    for (let i = 1; i < step; i++) {
-        if (!this.isStepComplete(i)) {
-        return false;
-      }
-      }
-    }
-    return true;
+    return this.wizardService.canGoToStep(step);
   }
 
   /**
@@ -762,27 +599,9 @@ export class PostEditor implements OnInit {
    * Steps show checkmark ONLY after they are explicitly completed (by clicking Next)
    */
   isStepComplete(step: number): boolean {
-    switch (step) {
-      case 1:
-        // Step 1 shows checkmark ONLY after clicking Next and moving to Step 2
-        return this.step1Completed();
-      case 2:
-        // Step 2 shows checkmark ONLY after clicking Next and moving to Step 3
-        return this.step2Completed();
-      case 3:
-        // Step 3 shows checkmark ONLY after clicking Next and moving to Step 4
-        return this.step3Completed();
-      case 4:
-        // Step 4 shows checkmark ONLY after clicking Next and moving to Step 5
-        return this.step4PreviewLoaded();
-      case 5:
-        // Step 5 shows checkmark only after publish/schedule is completed
-        return this.step5Completed();
-      default:
-        return false;
-    }
+    return this.wizardService.isStepComplete(step);
   }
-  
+
   /**
    * Update platform-specific caption
    */
@@ -794,7 +613,7 @@ export class PostEditor implements OnInit {
     this.saveStep3ToDraft();
     // Note: Step 3 completion is set when Next is clicked, not automatically
   }
-  
+
   /**
    * Get caption for a platform (platform-specific if exists, otherwise global)
    */
@@ -803,41 +622,40 @@ export class PostEditor implements OnInit {
     if (!draft) return '';
     return draft.platformCaptions?.[platform] || draft.caption || '';
   }
-  
+
   /**
    * Get all available platforms (not just connected ones)
    */
   getAllPlatforms(): Platform[] {
-    return ['facebook', 'instagram', 'twitter', 'linkedin', 'youtube', 'tiktok', 'pinterest'];
+    return this.platformSelectionService.getAllPlatforms();
   }
-  
+
   /**
    * Check if a platform is selected
    */
   isPlatformSelected(platform: Platform): boolean {
     const draft = this.postDraftService.getActiveDraft();
-    return draft?.selectedPlatforms?.includes(platform) || false;
+    return this.platformSelectionService.isPlatformSelected(
+      platform,
+      draft?.selectedPlatforms || [],
+    );
   }
-  
+
   /**
    * Toggle platform selection
    */
   togglePlatform(platform: Platform): void {
     const draft = this.postDraftService.getActiveDraft();
     if (!draft) return;
-    
+
     const currentPlatforms = draft.selectedPlatforms || [];
-    const isSelected = currentPlatforms.includes(platform);
-    
-    const newPlatforms = isSelected
-      ? currentPlatforms.filter(p => p !== platform)
-      : [...currentPlatforms, platform];
-    
+    const newPlatforms = this.platformSelectionService.togglePlatform(platform, currentPlatforms);
+
     this.postDraftService.updateSelectedPlatforms(newPlatforms);
-    
+
     // Clear validation error when a platform is selected
     if (newPlatforms.length > 0) {
-      this.step2ValidationError.set(false);
+      this.wizardService.clearStep2ValidationError();
     }
   }
 
@@ -845,7 +663,10 @@ export class PostEditor implements OnInit {
    * Get connected accounts for a specific platform
    */
   getConnectedAccountsForPlatform(platform: Platform): SocialAccount[] {
-    return this.socialAccounts().filter(acc => acc.platform === platform && acc.status === 'connected');
+    return this.platformSelectionService.getConnectedAccountsForPlatform(
+      platform,
+      this.socialAccounts(),
+    );
   }
 
   /**
@@ -855,23 +676,11 @@ export class PostEditor implements OnInit {
   getAccountIdsFromSelectedPlatforms(): string[] {
     const draft = this.postDraftService.getActiveDraft();
     const selectedPlatforms = draft?.selectedPlatforms || [];
-    
-    if (selectedPlatforms.length === 0) {
-      return [];
-    }
 
-    // Get all connected accounts for the selected platforms
-    const accountIds: string[] = [];
-    selectedPlatforms.forEach((platform) => {
-      const accounts = this.getConnectedAccountsForPlatform(platform);
-      accounts.forEach((account) => {
-        if (!accountIds.includes(account.id)) {
-          accountIds.push(account.id);
-        }
-      });
-    });
-
-    return accountIds;
+    return this.platformSelectionService.getAccountIdsFromSelectedPlatforms(
+      selectedPlatforms,
+      this.socialAccounts(),
+    );
   }
 
   /**
@@ -894,12 +703,15 @@ export class PostEditor implements OnInit {
       return;
     }
 
-    this.clientsService.createClient({ name: name.trim() }).subscribe({
-      next: () => {
+    this.clientsService
+      .createClient({ name: name.trim() })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
         // Clear any previous errors
       },
       error: (error) => {
-        console.error('Failed to create client', error);
+        this.loggingService.error('Failed to create client', error, 'PostEditor');
         this.toastService.error('Failed to create client');
       },
     });
@@ -933,25 +745,27 @@ export class PostEditor implements OnInit {
 
     // Save to backend as draft (createOrUpdatePost creates posts with status "Draft" by default)
     // For draft, don't schedule (isScheduled = false)
-    this.createOrUpdatePost(false).subscribe({
-      next: (post) => {
+    this.createOrUpdatePost(false)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (post) => {
         this.saving.set(false);
         this.toastService.success('Draft saved successfully!');
-        
+
         // If this was a new post, update postId so we can edit it later
         if (!this.postId()) {
           this.postId.set(post.id);
         }
-        
+
         // Log for debugging
-        console.log('[PostEditor] Draft saved to backend:', post);
+        this.loggingService.debug('Draft saved to backend', post, 'PostEditor');
       },
       error: (error) => {
         this.saving.set(false);
         const errorMsg = error?.error?.message || error?.message || 'Failed to save draft';
         this.toastService.error('Failed to save draft', errorMsg);
-        console.error('[PostEditor] Error saving draft:', error);
-      }
+        this.loggingService.error('Error saving draft', error, 'PostEditor');
+      },
     });
   }
 
@@ -980,350 +794,46 @@ export class PostEditor implements OnInit {
 
     this.saving.set(true);
 
-    const user = this.authService.user();
-    if (!user || !user.tenantId) {
-      this.toastService.error('User not authenticated');
-      this.saving.set(false);
-      return;
-    }
-
     const formValue = this.postForm.value;
-    
-    // For agencies, client selection is required
-    // For individual users, we'll get or create a default client
-    const isAgency = this.isAgency();
-    
-    if (isAgency) {
-      // Agencies must select a client
-      const clients = this.clientsService.clients();
-      if (!Array.isArray(clients) || clients.length === 0) {
-        // Try to load clients first (but don't recurse - just wait for completion)
-        this.clientsService.loadClients().subscribe({
-          next: () => {
-            // After clients load, get selected client and continue
-            const activeClient = this.clientsService.getSelectedClient();
-            if (!activeClient) {
-              this.toastService.warning('Client selection is required for agencies');
-              this.saving.set(false);
-              return;
-            }
-            // Continue with the rest of publish logic
-            this.continuePublish(formValue, activeClient);
-          },
-          error: () => {
-            this.toastService.error('Failed to load clients. Please try again.');
-            this.saving.set(false);
-          }
-        });
-        return;
-      }
+    const accountIds = this.getAccountIdsFromSelectedPlatforms();
 
-      const activeClient = this.clientsService.getSelectedClient();
-
-      if (!activeClient) {
-        this.toastService.warning('Client selection is required for agencies');
-        this.saving.set(false);
-        return;
-      }
-
-      this.continuePublish(formValue, activeClient);
-    } else {
-      // Individual users: backend will automatically handle client creation
-      // Pass tenantId as placeholder - backend will override it with default client
-      const placeholderClient: Client = {
-        id: user.tenantId, // Backend will override this with default client ID
-        name: 'My Account',
-        tenantId: user.tenantId,
-        status: 'Active',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      this.continuePublish(formValue, placeholderClient);
-    }
-  }
-
-
-  /**
-   * Continue publish flow after clients are loaded
-   */
-  private continuePublish(formValue: any, activeClient: Client): void {
-    const user = this.authService.user();
-    if (!user || !user.tenantId) {
-      this.toastService.error('User not authenticated');
+    if (accountIds.length === 0) {
+      this.toastService.warning('No connected accounts found for selected platforms');
       this.saving.set(false);
       return;
     }
 
-    // Step 1: Upload media to Cloudinary FIRST (if file is selected and not already uploaded)
-    const mediaUpload$ = this.uploadedMediaId()
-      ? new Observable<string>((observer) => {
-          observer.next(this.uploadedMediaId()!);
-          observer.complete();
-        })
-      : this.selectedFile()
-        ? this.uploadMedia().pipe(
-            tap((mediaId) => {
-              // Store uploaded media ID
-              this.uploadedMediaId.set(mediaId);
-            })
-          )
-        : new Observable<string>((observer) => {
-            observer.next('');
-            observer.complete();
-          });
+    // Save Step 3 to ensure latest crop configs
+    this.saveStep3ToDraft();
 
-    // Step 2: After media upload (if any), create/update post WITH mediaId
-    mediaUpload$.pipe(
-      switchMap((mediaId) => {
-        // Get account IDs from selected platforms (Step 2)
-        const accountIds = this.getAccountIdsFromSelectedPlatforms();
-        
-        if (accountIds.length === 0) {
-          this.toastService.warning('No connected accounts found for selected platforms');
+    const publishOptions = {
+      content: formValue.content,
+      isEditMode: this.isEditMode(),
+      postId: this.postId() || undefined,
+      accountIds,
+      platformCropConfigs: this.platformCropConfigs(),
+      platformCroppedImages: this.platformCroppedImages(),
+      isVideo: this.isVideo(),
+      mediaType: this.detectedMediaType() || undefined,
+      onGenerateCrop: this.photoCropComponent
+        ? (platform: Platform) => this.photoCropComponent!.cropImageForPlatform(platform)
+        : undefined,
+    };
+
+    this.publishService
+      .publishPost(this.uploadedMediaId(), this.selectedFile(), publishOptions)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (post) => {
           this.saving.set(false);
-          return throwError(() => new Error('No connected accounts found for selected platforms'));
-        }
-
-        // Get platform crop configs and cropped images from draft
-        // Ensure we have the absolute latest data by saving Step 3 one more time
-        this.saveStep3ToDraft();
-        const draft = this.postDraftService.getActiveDraft();
-        const platformCropConfigs = draft?.platformCropConfigs || this.platformCropConfigs();
-        const platformCroppedImages = draft?.platformCroppedImages || this.platformCroppedImages();
-        
-        // For videos, use the original uploaded media (videos cannot be cropped)
-        if (this.isVideo() || draft?.mediaType === 'video') {
-          // Use the already uploaded media ID for videos
-          const request = this.isEditMode() 
-            ? {
-                content: formValue.content,
-                mediaId: mediaId,
-                socialAccountIds: accountIds,
-                scheduledAt: undefined,
-                platformCropConfigs: undefined, // No crop configs for videos
-              }
-            : {
-                clientId: activeClient.id,
-                createdByTeamMemberId: user.userId,
-                content: formValue.content,
-                mediaId: mediaId,
-                socialAccountIds: accountIds,
-                scheduledAt: undefined,
-                platformCropConfigs: undefined, // No crop configs for videos
-              };
-          
-          const apiCall = this.isEditMode()
-            ? this.postsService.updatePost(this.postId()!, request as UpdatePostRequest)
-            : this.postsService.createPost(request as CreatePostRequest);
-          
-          return apiCall;
-        }
-        
-        // For images, upload cropped images for each platform and get mediaIds
-        // For now, we'll use the first platform's cropped image as the main mediaId
-        // In the future, this could be expanded to support per-platform media
-        const selectedPlatforms = draft?.selectedPlatforms || [];
-        let croppedMediaId = mediaId;
-        
-        // CRITICAL: Always use cropped images for publishing to ensure published post matches preview
-        // Generate crops if they don't exist yet (shouldn't happen, but safety check)
-        if (selectedPlatforms.length > 0) {
-          const firstPlatform = selectedPlatforms[0];
-          let croppedImageBase64 = platformCroppedImages?.[firstPlatform];
-          
-          // If no cropped image exists, generate it now (shouldn't happen if Step 4 was completed)
-          if (!croppedImageBase64 && this.photoCropComponent) {
-            console.warn('Cropped image not found - generating now before publishing');
-            // Wait for crop generation before proceeding
-            return new Observable<SocialPost>((observer) => {
-              this.photoCropComponent!.cropImageForPlatform(firstPlatform).then((cropped) => {
-                if (cropped) {
-                  // Update draft with generated crop
-                  const updatedCropped = { ...platformCroppedImages };
-                  updatedCropped[firstPlatform] = cropped;
-                  this.platformCroppedImages.set(updatedCropped);
-                  this.saveStep3ToDraft();
-                  
-                  // Upload and publish with cropped image
-                  const file = this.base64ToFile(cropped, `cropped-${firstPlatform}.png`);
-                  this.mediaService.uploadMedia(file).subscribe({
-                    next: (mediaResponse) => {
-                      const request = this.isEditMode() 
-                        ? {
-                            content: formValue.content,
-                            mediaId: mediaResponse.mediaId,
-                            socialAccountIds: accountIds,
-                            scheduledAt: undefined,
-                            platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
-                          }
-                        : {
-                            clientId: activeClient.id,
-                            createdByTeamMemberId: user.userId,
-                            content: formValue.content,
-                            mediaId: mediaResponse.mediaId,
-                            socialAccountIds: accountIds,
-                            scheduledAt: undefined,
-                            platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
-                          };
-                      
-                      const apiCall = this.isEditMode()
-                        ? this.postsService.updatePost(this.postId()!, request as UpdatePostRequest)
-                        : this.postsService.createPost(request as CreatePostRequest);
-                      
-                      apiCall.subscribe(observer);
-                    },
-                    error: (err) => observer.error(err)
-                  });
-                } else {
-                  observer.error(new Error('Failed to generate cropped image'));
-                }
-              }).catch((err) => observer.error(err));
-            });
-          }
-          
-          if (croppedImageBase64) {
-            // Convert base64 to File and upload
-            const file = this.base64ToFile(croppedImageBase64, `cropped-${firstPlatform}.png`);
-            return this.mediaService.uploadMedia(file).pipe(
-              switchMap((mediaResponse) => {
-                croppedMediaId = mediaResponse.mediaId;
-                
-        if (this.isEditMode()) {
-          const updateRequest: UpdatePostRequest = {
-            content: formValue.content,
-                    mediaId: croppedMediaId,
-                    socialAccountIds: accountIds,
-            scheduledAt: undefined,
-                    platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
-          };
-          return this.postsService.updatePost(this.postId()!, updateRequest);
-        } else {
-          const createRequest: CreatePostRequest = {
-            clientId: activeClient.id,
-            createdByTeamMemberId: user.userId,
-            content: formValue.content,
-                    mediaId: croppedMediaId,
-                    socialAccountIds: accountIds,
-            scheduledAt: undefined,
-                    platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
-          };
-          return this.postsService.createPost(createRequest);
-        }
-              })
-            );
-          }
-        }
-        
-        // If no cropped images available and no way to generate them, show error
-        this.toastService.warning('Cropped images not found. Please go back to Step 3 and complete cropping before publishing.');
-        this.saving.set(false);
-        return throwError(() => new Error('Cropped images required for publishing'));
-      }),
-      // Step 3: After post is created/updated, wait a moment for DB commit, then publish to social media (with image from Cloudinary)
-      switchMap((post) => {
-        console.log('Post created/updated successfully:', post);
-        console.log('Post ID:', post?.id);
-        
-        if (!post?.id) {
-          console.error('Post ID is missing! Cannot publish.');
-          throw new Error('Post ID is missing. Cannot publish post.');
-        }
-        
-        // Add a small delay to ensure database transaction is committed before trying to publish
-        // This helps handle the race condition where publish is called immediately after creation
-        console.log('Waiting 500ms before publishing to ensure post is committed...');
-        return timer(500).pipe(
-          switchMap(() => {
-            console.log('Calling publishPost with ID:', post.id);
-            return this.postsService.publishPost(post.id).pipe(
-              tap((response) => {
-                console.log('PublishPost returned successfully:', response);
-                // Store the message for display in the success handler
-                if (response?.message) {
-                  (post as any).publishMessage = response.message;
-                }
-              }),
-              catchError((error) => {
-                console.error('Error in publishPost observable:', error);
-                return throwError(() => error);
-              }),
-              map((response) => {
-                // Attach the publish response message to the post object
-                (post as any).publishMessage = response.message;
-                return post;
-              })
-            );
-          })
-        );
-      })
-    ).subscribe({
-      next: (post) => {
-        console.log('Publish flow completed successfully');
-        this.saving.set(false);
-        // Defer toast to avoid change detection errors
-        setTimeout(() => {
-          // Check if there's a detailed message from the backend (for partial success)
-          const publishMessage = (post as any)?.publishMessage;
-          if (publishMessage && publishMessage.includes('out of')) {
-            // Partial success - show as info/warning with details
-            if (publishMessage.includes('Failed to publish to')) {
-              // Some platforms failed - show as warning
-              this.toastService.warning('Partial Publishing Success', publishMessage);
-            } else {
-              // All succeeded or partial with details
-              this.toastService.success('Post Published', publishMessage);
-            }
-          } else {
-            // Full success
-            this.toastService.success('Post published successfully!');
-          }
-        }, 0);
-        this.router.navigate(['/dashboard/posts']);
-      },
-      error: (error) => {
-        console.error('Error in publish flow:', error);
-        console.error('Error details:', {
-          error,
-          message: error?.message,
-          userMessage: error?.userMessage,
-          status: error?.status,
-          url: error?.url,
-          errorBody: error?.error
-        });
-        // Extract error message - show the actual backend error
-        let errorMsg = error?.userMessage || error?.error?.message || error?.message || 'Failed to publish post';
-        
-        // Log the full error for debugging
-        console.error('Full error object:', {
-          error,
-          errorBody: error?.error,
-          errorMessage: error?.error?.message,
-          userMessage: error?.userMessage,
-          status: error?.status,
-          statusText: error?.statusText,
-          url: error?.url
-        });
-        
-        // Show the actual error message from backend
-        // Only add helpful context if the error is generic
-        let displayMessage = errorMsg;
-        
-        // Add helpful context for specific errors, but keep the original message
-        if (errorMsg.includes('No Facebook pages available') || errorMsg.includes('Facebook pages')) {
-          // Show the actual error, but add context
-          displayMessage = `${errorMsg}\n\nTip: Make sure you have a Facebook Page (not just a personal profile) and granted 'pages_show_list' and 'pages_manage_posts' permissions when connecting.`;
-        } else if (errorMsg.includes('Token expired') || errorMsg.includes('Unauthorized')) {
-          displayMessage = `${errorMsg}\n\nTip: Your social media account connection may have expired. Try reconnecting in Settings → Social Accounts.`;
-        }
-        
-        console.error('Displaying error message:', displayMessage);
-        // Defer toast to avoid change detection errors
-        setTimeout(() => {
-          this.toastService.error(displayMessage);
-        }, 0);
-        this.saving.set(false);
-      },
-    });
+          this.wizardService.markStepComplete(5);
+          this.publishService.handlePublishSuccess(post);
+        },
+        error: (error) => {
+          this.saving.set(false);
+          this.publishService.handlePublishError(error);
+        },
+      });
   }
 
   /**
@@ -1355,72 +865,42 @@ export class PostEditor implements OnInit {
 
     this.saving.set(true);
 
-    // Create post with scheduled date
-    this.createOrUpdatePost(true).subscribe({
-      next: (post) => {
-        // Schedule the post
-        const scheduledAt = this.scheduledDateTime();
-        if (!scheduledAt) {
-          this.toastService.warning('Scheduled date/time is required');
-          this.saving.set(false);
-          return;
-        }
+    const formValue = this.postForm.value;
+    const accountIds = this.getAccountIdsFromSelectedPlatforms();
 
-        // Get account IDs from selected platforms (Step 2)
-        const accountIds = this.getAccountIdsFromSelectedPlatforms();
-        if (accountIds.length === 0) {
-          this.toastService.warning('No connected accounts found for selected platforms');
-          this.saving.set(false);
-          return;
-        }
+    if (accountIds.length === 0) {
+      this.toastService.warning('No connected accounts found for selected platforms');
+      this.saving.set(false);
+      return;
+    }
 
-        const scheduleRequest = {
-          postId: post.id,
-          scheduledAt: scheduledAt,
-          socialAccountIds: accountIds,
-        };
+    // Save Step 3 to ensure latest crop configs
+    this.saveStep3ToDraft();
 
-        this.postsService.schedulePost(post.id, scheduleRequest).subscribe({
-          next: () => {
-            // Defer toast to avoid change detection errors
-            setTimeout(() => {
-              this.toastService.success('Post scheduled successfully!');
-            }, 0);
-            this.router.navigate(['/dashboard/posts']);
-          },
-          error: (error) => {
-            // Extract error message and provide user-friendly message for token expiration
-            let errorMsg = error?.userMessage || error?.error?.message || error?.message || 'Failed to schedule post';
-            
-            // Check for Instagram Business Account error with more specific messaging
-            if (errorMsg.includes('Instagram Business Account') || errorMsg.includes('Failed to get Instagram Business Account')) {
-              if (errorMsg.includes('Unauthorized') || errorMsg.includes('401') || errorMsg.includes('400')) {
-                errorMsg = 'Instagram publishing requires Facebook connection: Instagram Business accounts must be accessed through Facebook Graph API. To post to Instagram: 1) Connect Facebook (with a Facebook Page), 2) Make sure your Instagram Business account is linked to that Facebook Page in Instagram app, 3) Select only Facebook when posting (Instagram will be published automatically if linked). Do NOT connect Instagram separately - it will not work for Business accounts.';
-              } else if (errorMsg.includes('not found')) {
-                errorMsg = 'Instagram Business Account not linked: Your Instagram account is not linked to a Facebook Page. Please: 1) Go to Instagram app → Settings → Account → Linked Accounts, 2) Link your Instagram to a Facebook Page, 3) Then connect Facebook (with Page) in Settings → Social Accounts.';
-              } else {
-                errorMsg = 'Instagram Business Account setup issue: Your Instagram account must be a Business account (not Creator) and properly linked to a Facebook Page. Please check: 1) Instagram account type in Instagram app, 2) Facebook Page connection, 3) Connect Facebook (not Instagram) in Settings → Social Accounts.';
-              }
-            }
-            // Check for Facebook Pages error
-            if (errorMsg.includes('No Facebook pages available') || errorMsg.includes('Facebook pages')) {
-              errorMsg = 'Facebook Page required: You need to connect a Facebook Page (not just a personal profile) to post. Facebook no longer allows posting to personal profiles via API. Please: 1) Create a Facebook Page if you don\'t have one, 2) Go to Settings → Social Accounts, 3) Connect Facebook and select your Page. Note: If your Instagram is linked to this Page, you can post to both Facebook and Instagram by selecting only Facebook.';
-            }
-            // Check if it's a token expiration error
-            else if (errorMsg.includes('Token expired') || (errorMsg.includes('Unauthorized') && !errorMsg.includes('Instagram'))) {
-              errorMsg = 'Your social media account connection has expired. Please reconnect your account in Settings to continue scheduling.';
-            }
-            
-            // Defer toast to avoid change detection errors
-            setTimeout(() => {
-              this.toastService.error(errorMsg);
-            }, 0);
-            this.saving.set(false);
-          },
-        });
-      },
-      error: () => {
+    const scheduleOptions = {
+      content: formValue.content,
+      isEditMode: this.isEditMode(),
+      postId: this.postId() || undefined,
+      accountIds,
+      platformCropConfigs: this.platformCropConfigs(),
+      platformCroppedImages: this.platformCroppedImages(),
+      isVideo: this.isVideo(),
+      mediaType: this.detectedMediaType() || undefined,
+      scheduledAt: this.scheduledDateTime(),
+    };
+
+    this.publishService
+      .schedulePost(this.uploadedMediaId(), scheduleOptions)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
         this.saving.set(false);
+        this.wizardService.markStepComplete(5);
+        this.publishService.handleScheduleSuccess();
+      },
+      error: (error) => {
+        this.saving.set(false);
+        this.publishService.handleScheduleError(error);
       },
     });
   }
@@ -1438,7 +918,7 @@ export class PostEditor implements OnInit {
 
     const formValue = this.postForm.value;
     const isAgency = this.isAgency();
-    
+
     // For agencies, require client selection
     // For individual users, backend will automatically handle client
     if (isAgency) {
@@ -1456,7 +936,7 @@ export class PostEditor implements OnInit {
         tenantId: user.tenantId,
         status: 'Active',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
       return this.doCreateOrUpdatePost(formValue, placeholderClient, isScheduled, user);
     }
@@ -1465,8 +945,12 @@ export class PostEditor implements OnInit {
   /**
    * Execute create or update post with a client
    */
-  private doCreateOrUpdatePost(formValue: any, activeClient: Client, isScheduled: boolean, user: any): Observable<SocialPost> {
-
+  private doCreateOrUpdatePost(
+    formValue: any,
+    activeClient: Client,
+    isScheduled: boolean,
+    user: any,
+  ): Observable<SocialPost> {
     // For drafts/scheduled posts, create without media (media will be uploaded during publishing)
     // Only use already-uploaded media if it exists (for edit mode)
     const mediaId = this.uploadedMediaId() || undefined;
@@ -1485,7 +969,7 @@ export class PostEditor implements OnInit {
     const platformCropConfigs = draft?.platformCropConfigs || this.platformCropConfigs();
 
     // Log crop configs for debugging
-    console.log('Saving post with crop configs:', JSON.stringify(platformCropConfigs, null, 2));
+    this.loggingService.debug('Saving post with crop configs', platformCropConfigs, 'PostEditor');
 
     if (this.isEditMode()) {
       // Update existing post
@@ -1494,7 +978,8 @@ export class PostEditor implements OnInit {
         mediaId: mediaId,
         socialAccountIds: accountIds.length > 0 ? accountIds : this.selectedAccountIds(),
         scheduledAt: isScheduled ? this.scheduledDateTime() : undefined,
-        platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+        platformCropConfigs:
+          Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
       };
 
       console.log('Update post request:', JSON.stringify(updateRequest, null, 2));
@@ -1506,7 +991,7 @@ export class PostEditor implements OnInit {
           this.toastService.error(error?.userMessage || 'Failed to save post');
           this.saving.set(false);
           return throwError(() => error);
-        })
+        }),
       );
     } else {
       // Create new post (without media - media will be uploaded during publishing)
@@ -1518,10 +1003,11 @@ export class PostEditor implements OnInit {
         mediaId: mediaId, // Only include if already uploaded (for edit mode)
         socialAccountIds: accountIds.length > 0 ? accountIds : this.selectedAccountIds(),
         scheduledAt: scheduledAt || undefined,
-        platformCropConfigs: Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+        platformCropConfigs:
+          Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
       };
 
-      console.log('Create post request:', JSON.stringify(createRequest, null, 2));
+      this.loggingService.debug('Create post request', createRequest, 'PostEditor');
       return this.postsService.createPost(createRequest).pipe(
         tap(() => {
           this.saving.set(false);
@@ -1530,31 +1016,13 @@ export class PostEditor implements OnInit {
           this.toastService.error(error?.userMessage || 'Failed to save post');
           this.saving.set(false);
           return throwError(() => error);
-        })
+        }),
       );
     }
   }
 
-  /**
-   * Convert base64 string to File object
-   */
-  private base64ToFile(base64: string, filename: string): File {
-    const arr = base64.split(',');
-    const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/png';
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  }
-
   private markFormGroupTouched(formGroup: FormGroup): void {
-    Object.keys(formGroup.controls).forEach((key) => {
-      const control = formGroup.get(key);
-      control?.markAsTouched();
-    });
+    this.formValidator.markFormGroupTouched(formGroup);
   }
 
   get content() {
@@ -1564,42 +1032,30 @@ export class PostEditor implements OnInit {
   // Reactive character count using computed signal
   readonly characterCount = computed(() => {
     const content = this.contentValue() || this.postForm.get('content')?.value || '';
-    return content.length;
+    return this.formValidator.getCharacterCount(content);
   });
 
   readonly hasContent = computed(() => {
     const contentValue = this.contentValue() || this.content?.value || '';
-    return typeof contentValue === 'string' && contentValue.trim().length > 0;
+    return this.formValidator.hasContent(contentValue);
   });
 
   get maxCharacters(): number {
-    return 4000;
+    return this.formValidator.MAX_CONTENT_LENGTH;
   }
 
   /**
    * Check if scheduled date is valid (in the future)
    */
   isScheduledDateValid(): boolean {
-    const dateTime = this.scheduledDateTime();
-    if (!dateTime) {
-      return false;
-    }
-    const scheduledDate = new Date(dateTime);
-    const now = new Date();
-    return scheduledDate > now;
+    return this.formValidator.isScheduledDateValid(this.scheduledDateTime());
   }
 
   /**
    * Check if scheduled date is invalid (empty or in the past)
    */
   isScheduledDateInvalid(): boolean {
-    const dateTime = this.scheduledDateTime();
-    if (!dateTime) {
-      return true;
-    }
-    const scheduledDate = new Date(dateTime);
-    const now = new Date();
-    return scheduledDate <= now;
+    return this.formValidator.isScheduledDateInvalid(this.scheduledDateTime());
   }
 
   /**
@@ -1622,88 +1078,88 @@ export class PostEditor implements OnInit {
 
     // Use generateCaptions with improvement prompt
     // We'll use the current content as the topic and ask AI to improve it
-    const request = {
-      tenantId: user.tenantId,
-      topic: currentContent.trim(),
-      context: 'Improve this social media post content to make it more engaging, professional, and optimized for social media. Keep the original message and tone, but enhance clarity, grammar, and appeal.',
-      captionCount: 1,
-      includeHashtags: true, // Include hashtags in the improved content
-      hashtagCount: 5, // Suggest 5 relevant hashtags
-    };
+    // Note: request object was created but not used - using improveContent directly instead
 
     // Store original content
     this.originalContent.set(currentContent);
-    
+
     // Use improveContent method - this actually improves the existing content (not generate new)
-    this.aiService.improveContent({
-      tenantId: user.tenantId,
-      content: currentContent.trim()
-    }).subscribe({
-      next: (improved: string | undefined) => {
-        // Ensure we have a valid string
-        const improvedContentStr: string = (improved || currentContent.trim() || '');
-        
-        // Clean the improved content - ensure it's always a string
-        let cleanedContentStr: string = this.cleanImprovedContent(improvedContentStr) || improvedContentStr;
-        if (!cleanedContentStr || cleanedContentStr.trim().length === 0) {
-          cleanedContentStr = improvedContentStr;
-        }
-        
-        // The AI response should already include hashtags at the end
-        // Format is: improved content text followed by blank line(s), then hashtags
-        // Parse and ensure proper formatting
-        let finalContent = cleanedContentStr;
-        
-        // Check if hashtags are already included (they should be from backend)
-        // If hashtags are missing, try to extract them or the content is ready as-is
-        // The backend now includes hashtags automatically, so we should be good
-        
-        // Clean up any extra whitespace or formatting issues
-        finalContent = finalContent.trim();
-        
-        // Ensure there's a blank line between content and hashtags if hashtags exist
-        // Find if there are hashtags (lines starting with #)
-        const lines = finalContent.split('\n');
-        const hashtagLines: string[] = [];
-        const contentLines: string[] = [];
-        let foundBlankLine = false;
-        
-        for (let i = 0; i < lines.length; i++) {
-          const line = lines[i].trim();
-          if (line === '') {
-            foundBlankLine = true;
-            continue;
+    this.aiService
+      .improveContent({
+        tenantId: user.tenantId,
+        content: currentContent.trim(),
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (improved: string | undefined) => {
+          // Ensure we have a valid string
+          const improvedContentStr: string = improved || currentContent.trim() || '';
+
+          // Clean the improved content - ensure it's always a string
+          let cleanedContentStr: string =
+            this.cleanImprovedContent(improvedContentStr) || improvedContentStr;
+          if (!cleanedContentStr || cleanedContentStr.trim().length === 0) {
+            cleanedContentStr = improvedContentStr;
           }
-          
-          // If we found a blank line and this line has hashtags, collect hashtag lines
-          if (foundBlankLine && (line.includes('#') || line.match(/^#\w+/))) {
-            hashtagLines.push(line);
-          } else if (!foundBlankLine || hashtagLines.length === 0) {
-            contentLines.push(lines[i]);
+
+          // The AI response should already include hashtags at the end
+          // Format is: improved content text followed by blank line(s), then hashtags
+          // Parse and ensure proper formatting
+          let finalContent = cleanedContentStr;
+
+          // Check if hashtags are already included (they should be from backend)
+          // If hashtags are missing, try to extract them or the content is ready as-is
+          // The backend now includes hashtags automatically, so we should be good
+
+          // Clean up any extra whitespace or formatting issues
+          finalContent = finalContent.trim();
+
+          // Ensure there's a blank line between content and hashtags if hashtags exist
+          // Find if there are hashtags (lines starting with #)
+          const lines = finalContent.split('\n');
+          const hashtagLines: string[] = [];
+          const contentLines: string[] = [];
+          let foundBlankLine = false;
+
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line === '') {
+              foundBlankLine = true;
+              continue;
+            }
+
+            // If we found a blank line and this line has hashtags, collect hashtag lines
+            if (foundBlankLine && (line.includes('#') || line.match(/^#\w+/))) {
+              hashtagLines.push(line);
+            } else if (!foundBlankLine || hashtagLines.length === 0) {
+              contentLines.push(lines[i]);
+            }
           }
-        }
-        
-        // Reconstruct with proper formatting
-        const mainContent = contentLines.join('\n').trim();
-        if (hashtagLines.length > 0) {
-          const hashtags = hashtagLines.join(' ').trim();
-          finalContent = mainContent + '\n\n' + hashtags;
-        } else {
-          finalContent = mainContent;
-        }
-        
-        // Store improved content and show modal
-        this.improvedContent.set(finalContent);
-        this.showImprovementModal.set(true);
-        this.improvingContent.set(false);
-      },
-      error: (error) => {
-        console.error('Error improving content:', error);
-        const errorMsg = error?.error?.message || error?.message || 'Failed to improve content. Please try again.';
-        this.toastService.error('AI Improvement Failed', errorMsg);
-        this.improvingContent.set(false);
-      }
-    });
+
+          // Reconstruct with proper formatting
+          const mainContent = contentLines.join('\n').trim();
+          if (hashtagLines.length > 0) {
+            const hashtags = hashtagLines.join(' ').trim();
+            finalContent = mainContent + '\n\n' + hashtags;
+          } else {
+            finalContent = mainContent;
+          }
+
+          // Store improved content and show modal
+          this.improvedContent.set(finalContent);
+          this.showImprovementModal.set(true);
+          this.improvingContent.set(false);
+        },
+        error: (error) => {
+          this.loggingService.error('Error improving content', error, 'PostEditor');
+          const errorMsg =
+            error?.error?.message ||
+            error?.message ||
+            'Failed to improve content. Please try again.';
+          this.toastService.error('AI Improvement Failed', errorMsg);
+          this.improvingContent.set(false);
+        },
+      });
   }
 
   /**
@@ -1738,48 +1194,51 @@ export class PostEditor implements OnInit {
    */
   private cleanImprovedContent(content: string): string {
     if (!content) return '';
-    
+
     let cleaned = content;
-    
+
     // Remove common prompt prefixes that might be included in the response
     cleaned = cleaned.replace(/^Perfect caption for your post:\s*/gi, '');
-    cleaned = cleaned.replace(/^Generate \d+ engaging social media captions for the topic:\s*/gi, '');
+    cleaned = cleaned.replace(
+      /^Generate \d+ engaging social media captions for the topic:\s*/gi,
+      '',
+    );
     cleaned = cleaned.replace(/^Context:.*?Return the response in JSON format:.*$/gis, '');
     cleaned = cleaned.replace(/This caption is designed to maximize engagement.*$/gi, '');
     cleaned = cleaned.replace(/Each caption should be unique.*$/gi, '');
-    
+
     // Remove topic quote patterns like: 'topic text': or 'topic text'
     cleaned = cleaned.replace(/^'[^']*':\s*/g, '');
     cleaned = cleaned.replace(/^'([^']*)'$/g, '$1');
-    
+
     // Remove JSON wrapper patterns if the response includes raw JSON
     cleaned = cleaned.replace(/^{"captions":\[\{"caption":"/g, '');
     cleaned = cleaned.replace(/","hashtags":\[.*?\],"tone":"[^"]*"\}\]}$/g, '');
     cleaned = cleaned.replace(/\\"/g, '"');
     cleaned = cleaned.replace(/\\n/g, '\n');
-    
+
     // Extract caption from JSON if present (e.g., "caption":"text")
     const jsonCaptionMatch = cleaned.match(/["']caption["']\s*:\s*["']([^"']+)["']/i);
     if (jsonCaptionMatch && jsonCaptionMatch[1]) {
       cleaned = jsonCaptionMatch[1].trim();
     }
-    
+
     // Remove any remaining JSON artifacts
-    cleaned = cleaned.replace(/^\s*[\{\[]\s*/g, '');
-    cleaned = cleaned.replace(/\s*[\}\]]\s*$/g, '');
-    
+    cleaned = cleaned.replace(/^\s*[{[]\s*/g, '');
+    cleaned = cleaned.replace(/\s*[}\]]\s*$/g, '');
+
     // Remove escape sequences
     cleaned = cleaned.replace(/\\"/g, '"');
     cleaned = cleaned.replace(/\\'/g, "'");
     cleaned = cleaned.replace(/\\n/g, '\n');
-    
+
     // Remove quote marks at start/end
     cleaned = cleaned.replace(/^["']+|["']+$/g, '');
-    
+
     // Clean up multiple whitespace
     cleaned = cleaned.replace(/\s+/g, ' ');
     cleaned = cleaned.replace(/\n\s*\n/g, '\n\n');
-    
+
     return cleaned.trim();
   }
 
