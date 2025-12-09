@@ -31,17 +31,57 @@
 
   <!-- Content -->
   <div
-    class="max-w-7xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10 text-center md:text-left"
+    class="max-w-7xl mx-auto relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10 text-center md:text-left"
+    data-scroll-fade
   >
     <!-- Brand -->
     <div data-aos="fade-up" data-aos-delay="0" class="sm:col-span-2 lg:col-span-1">
-      <h2 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+      <h2 class="text-xl sm:text-2xl md:text-3xl font-black mb-3 sm:mb-4">
         <span class="text-[#4C6FFF]">One</span><span class="text-[#1A1A1A]">vo</span>
       </h2>
-      <p class="text-[#222222]/70 text-xs sm:text-sm leading-relaxed max-w-xs mx-auto md:mx-0">
+      <p class="text-body text-[#222222]/80 leading-relaxed max-w-xs mx-auto md:mx-0 mb-4 sm:mb-6">
         Simplify your social media workflow — schedule, publish, and analyze your posts all in one
         intuitive platform built for creators and brands.
       </p>
+      <!-- Social Media Links -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        <a
+          href="https://facebook.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-[#F8FAFF] border border-[#E5E7EB] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white transition-all duration-300 hover:scale-110"
+          aria-label="Facebook"
+        >
+          <i class="fa-brands fa-facebook-f text-sm sm:text-base"></i>
+        </a>
+        <a
+          href="https://twitter.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-[#F8FAFF] border border-[#E5E7EB] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white transition-all duration-300 hover:scale-110"
+          aria-label="Twitter"
+        >
+          <i class="fa-brands fa-x-twitter text-sm sm:text-base"></i>
+        </a>
+        <a
+          href="https://linkedin.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-[#F8FAFF] border border-[#E5E7EB] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white transition-all duration-300 hover:scale-110"
+          aria-label="LinkedIn"
+        >
+          <i class="fa-brands fa-linkedin-in text-sm sm:text-base"></i>
+        </a>
+        <a
+          href="https://instagram.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-[#F8FAFF] border border-[#E5E7EB] text-[#4C6FFF] hover:bg-[#4C6FFF] hover:text-white transition-all duration-300 hover:scale-110"
+          aria-label="Instagram"
+        >
+          <i class="fa-brands fa-instagram text-sm sm:text-base"></i>
+        </a>
+      </div>
     </div>
 
     <!-- Quick Links -->
@@ -78,8 +118,34 @@
       </ul>
     </div>
 
-    <!-- Legal Links -->
+    <!-- Resources -->
     <div data-aos="fade-up" data-aos-delay="200">
+      <h3
+        class="text-lg font-semibold mb-4 bg-gradient-to-r from-[#4C6FFF] via-[#BFC9FF] to-[#FFD6E8] bg-clip-text text-transparent"
+      >
+        Resources
+      </h3>
+      <ul class="space-y-2 text-[#222222]/70 font-medium">
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300">Blog</a>
+        </li>
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300">Documentation</a>
+        </li>
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300">API Reference</a>
+        </li>
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300">Help Center</a>
+        </li>
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300">Webinars</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Legal Links -->
+    <div data-aos="fade-up" data-aos-delay="300">
       <h3
         class="text-lg font-semibold mb-4 bg-gradient-to-r from-[#4C6FFF] via-[#BFC9FF] to-[#FFD6E8] bg-clip-text text-transparent"
       >
@@ -103,7 +169,41 @@
             >Terms of Service</a
           >
         </li>
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Security</a
+          >
+        </li>
+        <li>
+          <a href="#" class="hover:text-[#4C6FFF] transition-colors duration-300"
+            >Compliance</a
+          >
+        </li>
       </ul>
+    </div>
+  </div>
+
+  <!-- Newsletter Signup -->
+  <div class="max-w-7xl mx-auto relative z-10 mt-12 sm:mt-16 mb-8 sm:mb-12" data-aos="fade-up" data-aos-delay="300">
+    <div class="bg-gradient-to-br from-[#4C6FFF] to-[#3B5BFF] rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 text-center text-white">
+      <h3 class="text-xl sm:text-2xl md:text-3xl font-black mb-2 sm:mb-3">Stay Updated</h3>
+      <p class="text-sm sm:text-base text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto">
+        Get the latest tips, updates, and exclusive offers delivered to your inbox
+      </p>
+      <form class="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md mx-auto">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          class="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-xl text-[#1A1A1A] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-white/50"
+          required
+        />
+        <button
+          type="submit"
+          class="px-6 sm:px-8 py-3 sm:py-4 bg-white text-[#4C6FFF] font-bold rounded-xl text-sm sm:text-base hover:bg-[#F8FAFF] transition-all duration-300 hover:scale-105 active:scale-95"
+        >
+          Subscribe
+        </button>
+      </form>
     </div>
   </div>
 

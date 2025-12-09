@@ -53,8 +53,8 @@ export class ScheduledPostsComponent extends BaseComponent implements OnInit {
   }
 
   editScheduled(postId: string): void {
-    this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId, edit: 'true' },
+    this.router.navigate(['/dashboard/content-management'], {
+      queryParams: { tab: 'create', postId, edit: 'true' },
     });
   }
 

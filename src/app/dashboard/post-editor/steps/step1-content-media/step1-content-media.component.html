@@ -125,20 +125,33 @@
         }
       </div>
     } @else {
-      <app-file-upload
-        [hint]="'Images (PNG, JPG, GIF) & Videos (MP4, MOV) - MAX. 10MB'"
-        [accept]="'image/*,video/*'"
-        [allowsMultiple]="false"
-        [maxSize]="10 * 1024 * 1024"
-        [variant]="'progressBar'"
-        [uploadedFiles]="uploadedFiles()"
-        (filesSelected)="onFilesSelected($event)"
-        (unacceptedFiles)="onUnacceptedFiles($event)"
-        (sizeLimitExceeded)="onSizeLimitExceeded($event)"
-        (fileDeleted)="onFileDeleted($event)"
-        (fileRetry)="onFileRetry($event)"
-      >
-      </app-file-upload>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Upload from Local -->
+        <app-file-upload
+          [hint]="'Images (PNG, JPG, GIF) up to 10MB & Videos (MP4, MOV) up to 100MB'"
+          [accept]="'image/*,video/*'"
+          [allowsMultiple]="false"
+          [maxSize]="100 * 1024 * 1024"
+          [variant]="'progressBar'"
+          [uploadedFiles]="uploadedFiles()"
+          (filesSelected)="onFilesSelected($event)"
+          (unacceptedFiles)="onUnacceptedFiles($event)"
+          (sizeLimitExceeded)="onSizeLimitExceeded($event)"
+          (fileDeleted)="onFileDeleted($event)"
+          (fileRetry)="onFileRetry($event)"
+        >
+        </app-file-upload>
+
+        <!-- Select from Library -->
+        <div
+          class="border-2 border-dashed border-[#D9E1FF] rounded-xl p-8 text-center hover:border-[#4C6FFF] hover:bg-[#F5F7FF] transition-all cursor-pointer"
+          (click)="onSelectFromLibrary()"
+        >
+          <i class="fa-solid fa-images text-4xl text-[#4C6FFF] mb-3"></i>
+          <p class="text-sm font-semibold text-[#1A1A1A] mb-2">Select from Library</p>
+          <p class="text-xs text-gray-500">Choose from your uploaded media</p>
+        </div>
+      </div>
     }
   </div>
 </div>

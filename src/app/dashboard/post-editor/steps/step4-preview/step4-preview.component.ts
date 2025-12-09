@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PostPreviewComponent } from '../../../posts-page/post-preview/post-preview.component';
 import { PostDraftService } from '../../../../services/client/post-draft.service';
@@ -13,6 +13,7 @@ import { PostDraftService } from '../../../../services/client/post-draft.service
 export class Step4PreviewComponent {
   private readonly draftService = inject(PostDraftService);
 
-  readonly draft = this.draftService.getActiveDraft;
+  // Use the activeDraft signal directly instead of calling getActiveDraft
+  readonly draft = this.draftService.activeDraft;
 }
 

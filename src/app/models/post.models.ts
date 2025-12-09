@@ -52,7 +52,7 @@ export interface UpdatePostRequest {
 }
 
 export interface SchedulePostRequest {
-  postId: string; // GUID as string
+  // postId is in the route parameter, not in the request body
   scheduledAt: string; // ISO date string
   socialAccountIds: string[]; // GUIDs as strings
 }
@@ -70,10 +70,12 @@ export interface MediaAssetResponse {
   tenantId: string; // GUID as string
   uploadedByUserId: string; // GUID as string
   url: string;
+  thumbnailUrl?: string;
   fileType: string;
   fileName: string;
   fileSize: number;
   uploadedAt: string; // ISO date string
+  publicId?: string; // Cloudinary public ID for transformations
 }
 
 export interface PostVersionResponse {

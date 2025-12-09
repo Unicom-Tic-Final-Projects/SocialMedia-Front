@@ -1,20 +1,24 @@
-<div class="space-y-6" [formGroup]="postForm">
-  <div class="mb-6">
-    <h2 class="text-xl sm:text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-      <div class="w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center">
+<div class="space-y-4 sm:space-y-6" [formGroup]="postForm">
+  <div class="mb-4 sm:mb-6">
+    <h2 class="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3">
+      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center flex-shrink-0">
         @if (isVideo()) {
-          <i class="fa-solid fa-video text-[#4C6FFF]"></i>
+          <i class="fa-solid fa-video text-[#4C6FFF] text-sm sm:text-base"></i>
         } @else {
-          <i class="fa-solid fa-crop text-[#4C6FFF]"></i>
+          <i class="fa-solid fa-crop text-[#4C6FFF] text-sm sm:text-base"></i>
         }
       </div>
-      @if (isVideo()) {
-        Step 3: Review Video & Edit Caption
-      } @else {
-        Step 3: Crop & Edit per Platform
-      }
+      <span class="text-sm sm:text-base md:text-lg lg:text-xl">
+        @if (isVideo()) {
+          <span class="hidden sm:inline">Step 3: Review Video & Edit Caption</span>
+          <span class="sm:hidden">Step 3: Video & Caption</span>
+        } @else {
+          <span class="hidden sm:inline">Step 3: Crop & Edit per Platform</span>
+          <span class="sm:hidden">Step 3: Crop & Edit</span>
+        }
+      </span>
     </h2>
-    <p class="text-gray-600 text-sm ml-[58px]">
+    <p class="text-gray-600 text-xs sm:text-sm ml-0 sm:ml-[58px] mt-1 sm:mt-0">
       @if (isVideo()) {
         Review your video and edit the caption for all platforms
       } @else {
@@ -24,32 +28,42 @@
   </div>
 
   <!-- Single Caption Field -->
-  <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
+  <div class="bg-[#F5F7FF] rounded-xl p-3 sm:p-4 md:p-6 border border-[#D9E1FF]">
     <div class="input-group-float">
       <textarea
         formControlName="content"
         placeholder=" "
         rows="4"
-        class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-sm resize-none"
+        class="input-field-float w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] text-xs sm:text-sm resize-none touch-target"
         (input)="onContentInput($event)"
       ></textarea>
-      <label class="input-label-float">Caption</label>
+      <label class="input-label-float text-xs sm:text-sm">Caption</label>
     </div>
-    <p class="text-xs text-gray-500 mt-3 flex items-center gap-2">
-      <i class="fa-solid fa-info-circle"></i>
-      This caption will be used for all selected platforms.
+    <p class="text-[10px] sm:text-xs text-gray-500 mt-2 sm:mt-3 flex items-center gap-1.5 sm:gap-2">
+      <i class="fa-solid fa-info-circle text-[10px] sm:text-xs"></i>
+      <span>This caption will be used for all selected platforms.</span>
     </p>
   </div>
 
-  <!-- Free-Form Crop Component (Images and Videos) -->
-  <app-photo-crop
-    [mediaUrl]="mediaPreview() || ''"
-    [mediaType]="isVideo() ? 'video' : 'image'"
-    [caption]="postForm.value.content || ''"
-    [selectedAccountIds]="[]"
-    [selectedPlatforms]="selectedPlatforms || []"
-    (cropConfigsChange)="onCropConfigsChange($event)"
-    (croppedImagesChange)="onCroppedImagesChange($event)"
-  ></app-photo-crop>
+  <!-- Image Editor (Toast UI) or Video Editor (FFmpeg.wasm) -->
+  @if (isVideo()) {
+    <div class="bg-white rounded-xl p-4 border border-[#D9E1FF]">
+      <app-video-editor
+        [videoUrl]="mediaPreview() || ''"
+        (editedVideo)="onVideoEdited($event)"
+        (editedVideoUrl)="onVideoEditedUrl($event)"
+      ></app-video-editor>
+    </div>
+  } @else {
+    <app-photo-editor-toast
+      [mediaUrl]="mediaPreview() || ''"
+      [mediaType]="'image'"
+      [caption]="postForm.value.content || ''"
+      [selectedAccountIds]="[]"
+      [selectedPlatforms]="selectedPlatforms || []"
+      (cropConfigsChange)="onCropConfigsChange($event)"
+      (croppedImagesChange)="onCroppedImagesChange($event)"
+    ></app-photo-editor-toast>
+  }
 </div>
 

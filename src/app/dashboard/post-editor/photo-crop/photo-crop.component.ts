@@ -552,13 +552,15 @@ export class PhotoCropComponent implements OnChanges {
   /**
    * Start resizing crop box
    */
-  startResize(event: MouseEvent, handle: string): void {
+  startResize(event: MouseEvent | TouchEvent, handle: string): void {
     event.preventDefault();
     event.stopPropagation();
     this.isResizingCrop.set(true);
     this.activeHandle.set(handle);
-    this.dragStartX.set(event.clientX);
-    this.dragStartY.set(event.clientY);
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    this.dragStartX.set(clientX);
+    this.dragStartY.set(clientY);
     const box = this.cropBox();
     this.initialWidth.set(box.width);
     this.initialHeight.set(box.height);
@@ -569,10 +571,12 @@ export class PhotoCropComponent implements OnChanges {
   /**
    * Move resize handle
    */
-  moveResize(event: MouseEvent): void {
+  moveResize(event: MouseEvent | TouchEvent): void {
     if (!this.isResizingCrop() || !this.activeHandle()) return;
-    const dx = event.clientX - this.dragStartX();
-    const dy = event.clientY - this.dragStartY();
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+    const dx = clientX - this.dragStartX();
+    const dy = clientY - this.dragStartY();
     const box = this.cropBox();
 
     const newBox = { ...box };
@@ -1110,10 +1114,31 @@ export class PhotoCropComponent implements OnChanges {
   }
 
   /**
+   * Handle touch move globally
+   */
+  @HostListener('document:touchmove', ['$event'])
+  onTouchMove(event: TouchEvent): void {
+    if (this.isDraggingCropBox()) {
+      this.moveCropBox(event);
+    } else if (this.isResizingCrop()) {
+      this.moveResize(event);
+    }
+  }
+
+  /**
    * Handle mouse up globally
    */
   @HostListener('document:mouseup')
   onMouseUp(): void {
+    this.stopDragCropBox();
+    this.stopResize();
+  }
+
+  /**
+   * Handle touch end globally
+   */
+  @HostListener('document:touchend')
+  onTouchEnd(): void {
     this.stopDragCropBox();
     this.stopResize();
   }

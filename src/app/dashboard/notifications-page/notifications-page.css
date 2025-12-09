@@ -1,4 +1,4 @@
-/* Notifications Page Styles */
+/* Notifications Page - Minimal Design Styles */
 
 /* Animation Keyframes */
 @keyframes fadeIn {
@@ -7,17 +7,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -32,25 +21,96 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
 /* Animation Classes */
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
-}
-
-.animate-slideDown {
-  animation: slideDown 0.6s ease-out;
 }
 
 .animate-slideUp {
   animation: slideUp 0.6s ease-out;
 }
 
-/* Notification Item Hover */
-div[class*='rounded-2xl'][class*='hover:bg-\[#BFC9FF\]'] {
-  transition: all 0.3s ease;
+/* Loading Skeleton Styles - Minimal */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
 }
 
-div[class*='rounded-2xl'][class*='hover:bg-\[#BFC9FF\]']:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(76, 111, 255, 0.15);
+.skeleton-notification-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+/* Touch Target Optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Responsive Skeleton */
+@media (min-width: 640px) {
+  .skeleton-notification-item {
+    gap: 16px;
+    padding: 16px;
+  }
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 4px;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Mobile Card Optimizations */
+@media (max-width: 640px) {
+  .rounded-xl.border {
+    transition: all 0.2s ease;
+  }
+  
+  .rounded-xl.border:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 360px) {
+  /* Very small phones - extra compact */
+  .line-clamp-2 {
+    -webkit-line-clamp: 2;
+  }
 }

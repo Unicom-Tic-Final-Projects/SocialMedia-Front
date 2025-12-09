@@ -40,6 +40,7 @@ export interface PostDraft {
   caption: string; // Global caption (default for all platforms)
   platformCaptions?: Record<Platform, string>; // Platform-specific captions (override global)
   mediaUrl?: string;
+  mediaId?: string; // Media ID from Cloudinary/database
   mediaType?: 'image' | 'video';
   selectedPlatforms: Platform[];
   platformCropConfigs?: Record<
@@ -79,6 +80,27 @@ export interface PlatformPerformance {
   scheduled: number;
   published: number;
   drafts: number;
+}
+
+export interface PostAnalytics {
+  id: string;
+  postId: string;
+  platform: string;
+  platformPostId?: string;
+  platformUrl?: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  retweets: number;
+  saves: number;
+  views: number;
+  clicks: number;
+  impressions: number;
+  reach: number;
+  engagementRate: number;
+  publishedAt?: string;
+  lastEngagementAt?: string;
+  updatedAt: string;
 }
 
 export interface SocialPost {

@@ -1,31 +1,32 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6 animate-fadeIn">
-  <div class="mb-8 animate-slideDown">
-    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
-      <i class="fa-solid fa-gear text-[#4C6FFF] animate-pulse"></i> Settings
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
+  <!-- Header Section -->
+  <div class="mb-8 md:mb-12">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <i class="fa-solid fa-gear text-[#4C6FFF]"></i> Settings
     </h1>
-    <p class="text-gray-600 text-sm">Manage your account preferences and application settings</p>
+    <p class="text-gray-600 text-sm sm:text-base">Manage your account preferences and application settings</p>
   </div>
 
   @if (loading()) {
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       <!-- Skeleton Sidebar -->
       <div class="lg:col-span-1">
-        <div class="skeleton-card">
+        <div class="skeleton-sidebar">
           <div class="space-y-2">
             @for (item of [1, 2, 3, 4, 5, 6, 7]; track item) {
-              <div class="skeleton skeleton-text w-full" style="height: 2.75em"></div>
+              <div class="skeleton skeleton-text w-full h-12"></div>
             }
           </div>
         </div>
       </div>
       <!-- Skeleton Content -->
       <div class="lg:col-span-3">
-        <div class="skeleton-card space-y-6">
-          <div class="skeleton skeleton-title w-48 mb-6"></div>
+        <div class="skeleton-content space-y-6">
+          <div class="skeleton skeleton-text w-48 h-6 mb-6"></div>
           @for (field of [1, 2, 3, 4, 5]; track field) {
             <div class="space-y-2">
-              <div class="skeleton skeleton-text w-32" style="height: 0.875em"></div>
-              <div class="skeleton skeleton-text w-full" style="height: 2.5em"></div>
+              <div class="skeleton skeleton-text w-32 h-4"></div>
+              <div class="skeleton skeleton-text w-full h-12"></div>
             </div>
           }
         </div>
@@ -33,9 +34,9 @@
     </div>
   } @else {
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <!-- TABS SIDEBAR -->
+      <!-- TABS SIDEBAR - Minimal Design -->
       <div class="lg:col-span-1">
-        <div class="bg-[#F5F7FF] rounded-xl shadow-md p-4 border border-[#D9E1FF] sticky top-6">
+        <div class="bg-white rounded-xl p-4 border border-[#E5E7EB] sticky top-6">
           <nav class="space-y-2">
             <button
               type="button"
@@ -43,7 +44,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'appearance'"
               [class.text-white]="activeTab() === 'appearance'"
               [class.text-[#1A1A1A]]="activeTab() !== 'appearance'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-palette w-5"></i> Appearance
             </button>
@@ -53,7 +54,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'general'"
               [class.text-white]="activeTab() === 'general'"
               [class.text-[#1A1A1A]]="activeTab() !== 'general'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-sliders-h w-5"></i> General
             </button>
@@ -63,7 +64,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'posts'"
               [class.text-white]="activeTab() === 'posts'"
               [class.text-[#1A1A1A]]="activeTab() !== 'posts'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-file-alt w-5"></i> Posts
             </button>
@@ -73,7 +74,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'notifications'"
               [class.text-white]="activeTab() === 'notifications'"
               [class.text-[#1A1A1A]]="activeTab() !== 'notifications'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-bell w-5"></i> Notifications
             </button>
@@ -83,7 +84,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'analytics'"
               [class.text-white]="activeTab() === 'analytics'"
               [class.text-[#1A1A1A]]="activeTab() !== 'analytics'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-chart-line w-5"></i> Analytics
             </button>
@@ -93,7 +94,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'security'"
               [class.text-white]="activeTab() === 'security'"
               [class.text-[#1A1A1A]]="activeTab() !== 'security'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-shield-alt w-5"></i> Security
             </button>
@@ -103,7 +104,7 @@
               [class.bg-[#4C6FFF]]="activeTab() === 'ai'"
               [class.text-white]="activeTab() === 'ai'"
               [class.text-[#1A1A1A]]="activeTab() !== 'ai'"
-              class="w-full text-left px-4 py-3 rounded-lg hover:bg-[#BFC9FF]/50 transition-all flex items-center gap-3"
+              class="w-full text-left px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 flex items-center gap-3"
             >
               <i class="fa-solid fa-robot w-5"></i> AI Settings
             </button>
@@ -114,8 +115,8 @@
       <!-- SETTINGS CONTENT -->
       <div class="lg:col-span-3">
         @if (activeTab() === 'appearance') {
-          <!-- APPEARANCE TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF]">
+          <!-- APPEARANCE TAB - Minimal Design -->
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB]">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-palette text-[#4C6FFF]"></i> Appearance Settings
             </h2>
@@ -143,7 +144,7 @@
                     class="relative w-14 h-7 rounded-full cursor-pointer border-2 transition-all duration-300"
                     [class.bg-[#BFC9FF]]="settings()?.themeMode === 'light'"
                     [class.bg-gray-700]="settings()?.themeMode === 'dark'"
-                    [class.border-[#D9E1FF]]="settings()?.themeMode === 'light'"
+                    [class.border-[#E5E7EB]]="settings()?.themeMode === 'light'"
                     [class.border-gray-700]="settings()?.themeMode === 'dark'"
                   >
                     <div
@@ -162,7 +163,7 @@
             </div>
 
             <!-- Color Theme -->
-            <div class="pt-6 border-t border-[#D9E1FF]">
+            <div class="pt-6 border-t border-[#E5E7EB]">
               <p class="font-semibold text-[#1A1A1A] mb-4">Color Theme</p>
               <div class="grid grid-cols-3 gap-4">
                 @for (color of ['blue', 'purple', 'pink']; track color) {
@@ -178,7 +179,7 @@
                     />
                     <label
                       [for]="'color-' + color"
-                      class="flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:border-[#4C6FFF]/50 peer-checked:border-[#4C6FFF] peer-checked:bg-[#BFC9FF]/20 peer-checked:shadow-md border-[#D9E1FF]"
+                      class="flex flex-col items-center p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:border-[#4C6FFF]/30 peer-checked:border-[#4C6FFF] peer-checked:bg-[#F5F7FF] peer-checked:shadow-sm border-[#E5E7EB]"
                     >
                       <div
                         class="w-12 h-12 rounded-full mb-2 shadow"
@@ -196,8 +197,8 @@
         }
 
         @if (activeTab() === 'general') {
-          <!-- GENERAL TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+          <!-- GENERAL TAB - Minimal Design -->
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB] space-y-6">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-sliders-h text-[#4C6FFF]"></i> General Settings
             </h2>
@@ -208,7 +209,7 @@
               <select
                 [value]="settings()?.timezone || 'UTC'"
                 (change)="saveSettings({ timezone: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               >
                 @for (tz of timezones; track tz.value) {
                   <option [value]="tz.value">{{ tz.label }}</option>
@@ -222,7 +223,7 @@
               <select
                 [value]="settings()?.dateFormat || 'MM/DD/YYYY'"
                 (change)="saveSettings({ dateFormat: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               >
                 <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
@@ -265,7 +266,7 @@
               <select
                 [value]="settings()?.language || 'en'"
                 (change)="saveSettings({ language: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               >
                 <option value="en">English</option>
                 <option value="es">Spanish</option>
@@ -298,7 +299,7 @@
 
         @if (activeTab() === 'posts') {
           <!-- POSTS TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB] space-y-6">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i> Post Settings
             </h2>
@@ -309,7 +310,7 @@
               <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                 @for (platform of platforms; track platform) {
                   <label
-                    class="flex items-center gap-2 p-3 border border-[#D9E1FF] rounded-lg cursor-pointer hover:bg-[#BFC9FF]/20"
+                    class="flex items-center gap-2 p-3 border border-[#E5E7EB] rounded-xl cursor-pointer hover:bg-[#F5F7FF] transition-colors duration-200"
                   >
                     <input
                       type="checkbox"
@@ -324,7 +325,7 @@
             </div>
 
             <!-- Auto Save Drafts -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">Auto-save Drafts</p>
                 <p class="text-sm text-gray-600">Automatically save post drafts as you type</p>
@@ -361,7 +362,7 @@
             }
 
             <!-- Require Approval -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">Require Approval Before Publishing</p>
                 <p class="text-sm text-gray-600">
@@ -384,7 +385,7 @@
             </div>
 
             <!-- Auto Hashtag Suggestions -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">Auto Hashtag Suggestions</p>
                 <p class="text-sm text-gray-600">Automatically suggest hashtags for your posts</p>
@@ -426,7 +427,7 @@
                 type="time"
                 [value]="settings()?.defaultSchedulingTime || '09:00'"
                 (change)="saveSettings({ defaultSchedulingTime: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               />
               <p class="text-sm text-gray-600 mt-1">Default time for scheduling posts</p>
             </div>
@@ -435,13 +436,13 @@
 
         @if (activeTab() === 'notifications') {
           <!-- NOTIFICATIONS TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB] space-y-6">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-bell text-[#4C6FFF]"></i> Notification Settings
             </h2>
 
             <!-- Email Notifications -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">Email Notifications</p>
                 <p class="text-sm text-gray-600">Enable or disable all email notifications</p>
@@ -462,7 +463,7 @@
             </div>
 
             @if (settings()?.emailNotificationsEnabled) {
-              <div class="ml-6 space-y-4 border-l-2 border-[#D9E1FF] pl-6">
+              <div class="ml-6 space-y-4 border-l-2 border-[#E5E7EB] pl-6">
                 <div class="flex items-center justify-between">
                   <span class="text-sm">Email for Post Approvals</span>
                   <label class="relative inline-flex items-center cursor-pointer">
@@ -525,7 +526,7 @@
             }
 
             <!-- In-App Notifications -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">In-App Notifications</p>
                 <p class="text-sm text-gray-600">Show notifications within the application</p>
@@ -551,7 +552,7 @@
               <select
                 [value]="settings()?.notificationFrequency || 'Immediate'"
                 (change)="saveSettings({ notificationFrequency: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               >
                 <option value="Immediate">Immediate</option>
                 <option value="Daily">Daily Digest</option>
@@ -568,7 +569,7 @@
                   type="time"
                   [value]="settings()?.quietHoursStart || '22:00'"
                   (change)="saveSettings({ quietHoursStart: $any($event.target).value })"
-                  class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                  class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
                 />
               </div>
               <div>
@@ -577,7 +578,7 @@
                   type="time"
                   [value]="settings()?.quietHoursEnd || '08:00'"
                   (change)="saveSettings({ quietHoursEnd: $any($event.target).value })"
-                  class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                  class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
                 />
               </div>
             </div>
@@ -586,7 +587,7 @@
 
         @if (activeTab() === 'analytics') {
           <!-- ANALYTICS TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB] space-y-6">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-chart-line text-[#4C6FFF]"></i> Analytics Settings
             </h2>
@@ -597,7 +598,7 @@
               <select
                 [value]="settings()?.defaultAnalyticsDateRange || '7d'"
                 (change)="saveSettings({ defaultAnalyticsDateRange: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               >
                 <option value="1d">Last 24 Hours</option>
                 <option value="7d">Last 7 Days</option>
@@ -608,7 +609,7 @@
             </div>
 
             <!-- Auto Refresh Analytics -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">Auto-refresh Analytics</p>
                 <p class="text-sm text-gray-600">Automatically refresh analytics data</p>
@@ -647,13 +648,13 @@
 
         @if (activeTab() === 'security') {
           <!-- SECURITY TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB] space-y-6">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-shield-alt text-[#4C6FFF]"></i> Security Settings
             </h2>
 
             <!-- Two Factor Authentication -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">Two-Factor Authentication</p>
                 <p class="text-sm text-gray-600">Add an extra layer of security to your account</p>
@@ -697,13 +698,13 @@
 
         @if (activeTab() === 'ai') {
           <!-- AI TAB -->
-          <div class="bg-[#F5F7FF] rounded-xl shadow-md p-8 border border-[#D9E1FF] space-y-6">
+          <div class="bg-white rounded-xl p-6 md:p-8 border border-[#E5E7EB] space-y-6">
             <h2 class="text-2xl font-bold text-[#1A1A1A] mb-6 flex items-center gap-2">
               <i class="fa-solid fa-robot text-[#4C6FFF]"></i> AI Settings
             </h2>
 
             <!-- AI Content Suggestions -->
-            <div class="flex items-center justify-between p-4 border border-[#D9E1FF] rounded-lg">
+            <div class="flex items-center justify-between p-4 border border-[#E5E7EB] rounded-xl hover:bg-[#F9FAFB] transition-colors duration-200">
               <div>
                 <p class="font-semibold text-[#1A1A1A]">AI Content Suggestions</p>
                 <p class="text-sm text-gray-600">Enable AI-powered content suggestions</p>
@@ -729,7 +730,7 @@
               <select
                 [value]="settings()?.defaultAIModel || 'gpt-4'"
                 (change)="saveSettings({ defaultAIModel: $any($event.target).value })"
-                class="w-full px-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]"
+                class="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#4C6FFF]/10 focus:border-[#4C6FFF] transition-all duration-200"
               >
                 <option value="gpt-4">GPT-4</option>
                 <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>

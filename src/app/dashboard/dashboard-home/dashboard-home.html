@@ -1,16 +1,32 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222] relative p-2.5 sm:p-4 md:p-6 lg:p-8">
+  <!-- Pull-to-Refresh Indicator -->
+  <div 
+    class="fixed top-0 left-0 right-0 flex items-center justify-center z-50 transition-all duration-300 pointer-events-none"
+    [style.transform]="'translateY(' + (pullToRefreshDistance() - 60) + 'px)'"
+    [style.opacity]="pullToRefreshDistance() > 0 ? '1' : '0'"
+  >
+    <div class="bg-white rounded-full p-2 sm:p-3 shadow-lg border border-[#E5E7EB]">
+      @if (pullToRefreshActive()) {
+        <i class="fa-solid fa-arrow-down text-[#4C6FFF] text-base sm:text-lg md:text-xl animate-bounce"></i>
+      } @else {
+        <i class="fa-solid fa-arrow-down text-gray-400 text-base sm:text-lg md:text-xl" 
+           [style.transform]="'rotate(' + (pullToRefreshDistance() / 2) + 'deg)'"></i>
+      }
+    </div>
+  </div>
+
   <!-- Client Context Banner -->
   @if (isViewingClient() && selectedClient()) {
     <div
-      class="mb-4 sm:mb-6 rounded-xl bg-blue-50 border border-blue-200 px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center justify-between"
+      class="mb-3 sm:mb-4 md:mb-6 rounded-xl bg-blue-50 border border-blue-200 px-2.5 sm:px-3 md:px-4 lg:px-6 py-2.5 sm:py-3 md:py-4 flex items-center justify-between"
     >
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <i class="fa-solid fa-user text-blue-600"></i>
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i class="fa-solid fa-user text-blue-600 text-xs sm:text-sm"></i>
         </div>
-        <div>
-          <p class="text-sm font-semibold text-blue-900">Viewing Client Dashboard</p>
-          <p class="text-xs text-blue-700">
+        <div class="min-w-0 flex-1">
+          <p class="text-xs sm:text-sm font-semibold text-blue-900 truncate">Viewing Client Dashboard</p>
+          <p class="text-[10px] sm:text-xs text-blue-700 truncate">
             {{ selectedClient()?.name }} - {{ clientContextService.clientUser()?.email }}
           </p>
         </div>
@@ -18,13 +34,15 @@
     </div>
   }
 
-  <div class="mb-4 sm:mb-6 md:mb-8">
+  <!-- Header Section -->
+  <div class="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
     <h1
-      class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3"
+      class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-[#1A1A1A] mb-1 sm:mb-2 flex items-center gap-2 sm:gap-3"
     >
-      <i class="fa-solid fa-home text-[#4C6FFF]"></i> Dashboard
+      <i class="fa-solid fa-home text-[#4C6FFF] text-lg sm:text-xl md:text-2xl"></i>
+      <span>Dashboard</span>
     </h1>
-    <p class="text-gray-600 text-xs sm:text-sm">
+    <p class="text-gray-600 text-xs sm:text-sm md:text-base">
       @if (isViewingClient() && selectedClient()) {
         Viewing dashboard for {{ selectedClient()?.name }}
       } @else {
@@ -36,152 +54,272 @@
   @if (loading()) {
     <!-- Skeleton Stats Cards -->
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 md:mb-12"
     >
       @for (card of [1, 2, 3, 4]; track card) {
-        <div class="skeleton-stat-card">
-          <div class="flex items-center justify-between mb-3">
-            <div class="skeleton skeleton-text w-20"></div>
-            <div class="skeleton skeleton-circle w-10 h-10"></div>
+        <div class="skeleton-stat-card-minimal">
+          <div class="flex items-center justify-between mb-4">
+            <div class="skeleton skeleton-text w-24 h-4"></div>
+            <div class="skeleton skeleton-circle w-12 h-12"></div>
           </div>
-          <div class="skeleton skeleton-text w-16 mb-2" style="height: 2.5em"></div>
-          <div class="skeleton skeleton-text w-24" style="height: 0.875em"></div>
+          <div class="skeleton skeleton-text w-20 h-10 mb-3"></div>
+          <div class="skeleton skeleton-text w-32 h-3"></div>
         </div>
       }
     </div>
-    <!-- Skeleton Activity -->
-    <div class="bg-[#F5F7FF] rounded-xl shadow-md p-6 sm:p-8 md:p-8 border border-[#D9E1FF]">
-      <div class="mb-6">
-        <div class="skeleton skeleton-title w-40 mb-2"></div>
-        <div class="skeleton skeleton-text w-48"></div>
+    <!-- Skeleton Quick Actions -->
+    <div class="skeleton-quick-actions mb-8 md:mb-12">
+      <div class="skeleton skeleton-text w-32 h-5 mb-4"></div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div class="skeleton skeleton-text w-full h-16 rounded-xl"></div>
+        }
       </div>
-      <div class="space-y-3">
+    </div>
+    <!-- Skeleton Activity -->
+    <div class="skeleton-activity-feed">
+      <div class="mb-6">
+        <div class="skeleton skeleton-text w-40 h-6 mb-2"></div>
+        <div class="skeleton skeleton-text w-56 h-4"></div>
+      </div>
+      <div class="space-y-4">
         @for (item of [1, 2, 3, 4, 5]; track item) {
-          <div class="skeleton-activity-item">
-            <div class="skeleton skeleton-circle w-12 h-12 flex-shrink-0"></div>
+          <div class="skeleton-activity-item-minimal">
+            <div class="skeleton skeleton-circle w-14 h-14 flex-shrink-0"></div>
             <div class="flex-1 space-y-2">
-              <div class="skeleton skeleton-text w-3/4"></div>
-              <div class="skeleton skeleton-text w-1/2" style="height: 0.875em"></div>
+              <div class="skeleton skeleton-text w-3/4 h-4"></div>
+              <div class="skeleton skeleton-text w-1/2 h-3"></div>
             </div>
           </div>
         }
       </div>
     </div>
   } @else {
-    <!-- Stats Cards -->
+    <!-- Stats Cards - Minimal Design - Mobile First -->
     <div
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8 md:mb-10 magic-bento-cards"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6 md:mb-8 lg:mb-12"
     >
+      @let totalTrend = getTrend('totalPosts');
       <div
         #statCard
-        class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden"
+        class="stat-card-minimal bg-white rounded-xl p-3 sm:p-4 md:p-6 border border-[#E5E7EB] hover:border-[#4C6FFF]/30 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
       >
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Total Posts</p>
+        <div class="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Total Posts</p>
           <div
-            class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-[#F5F7FF] rounded-xl flex items-center justify-center flex-shrink-0"
           >
-            <i class="fa-solid fa-file-alt text-[#4C6FFF]"></i>
+            <i class="fa-solid fa-file-alt text-[#4C6FFF] text-sm sm:text-base md:text-lg"></i>
           </div>
         </div>
-        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">
-          {{ stats().totalPosts }}
-        </p>
-        <p class="text-xs text-gray-600">All your posts</p>
+        <div class="flex items-baseline gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <p class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A]">
+            {{ totalTrend.value }}
+          </p>
+          @if (totalTrend.trend !== 'neutral') {
+            <span class="text-xs sm:text-sm font-medium flex items-center gap-0.5 sm:gap-1"
+              [class.text-green-600]="totalTrend.trend === 'up'"
+              [class.text-gray-500]="totalTrend.trend === 'down'">
+              <i [class]="totalTrend.trend === 'up' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-[10px] sm:text-xs"></i>
+              <span>{{ totalTrend.percentage }}%</span>
+            </span>
+          }
+        </div>
+        <p class="text-[10px] sm:text-xs md:text-sm text-gray-600">All your posts</p>
       </div>
 
+      @let publishedTrend = getTrend('published');
       <div
         #statCard
-        class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden"
+        class="stat-card-minimal bg-white rounded-xl p-3 sm:p-4 md:p-6 border border-[#E5E7EB] hover:border-[#4C6FFF]/30 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
       >
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Published</p>
+        <div class="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Published</p>
           <div
-            class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-[#F5F7FF] rounded-xl flex items-center justify-center flex-shrink-0"
           >
-            <i class="fa-solid fa-check-circle text-[#4C6FFF]"></i>
+            <i class="fa-solid fa-check-circle text-[#4C6FFF] text-sm sm:text-base md:text-lg"></i>
           </div>
         </div>
-        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">
-          {{ stats().published }}
-        </p>
-        <p class="text-xs text-gray-600">{{ getSuccessRate() }}% success rate</p>
+        <div class="flex items-baseline gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <p class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A]">
+            {{ publishedTrend.value }}
+          </p>
+          @if (publishedTrend.trend !== 'neutral') {
+            <span class="text-xs sm:text-sm font-medium flex items-center gap-0.5 sm:gap-1"
+              [class.text-green-600]="publishedTrend.trend === 'up'"
+              [class.text-gray-500]="publishedTrend.trend === 'down'">
+              <i [class]="publishedTrend.trend === 'up' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-[10px] sm:text-xs"></i>
+              <span>{{ publishedTrend.percentage }}%</span>
+            </span>
+          }
+        </div>
+        <p class="text-[10px] sm:text-xs md:text-sm text-gray-600">{{ getSuccessRate() }}% success rate</p>
       </div>
 
+      @let pendingTrend = getTrend('pending');
       <div
         #statCard
-        class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden"
+        class="stat-card-minimal bg-white rounded-xl p-3 sm:p-4 md:p-6 border border-[#E5E7EB] hover:border-[#4C6FFF]/30 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
       >
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Pending</p>
+        <div class="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Pending</p>
           <div
-            class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-[#F5F7FF] rounded-xl flex items-center justify-center flex-shrink-0"
           >
-            <i class="fa-solid fa-clock text-[#4C6FFF]"></i>
+            <i class="fa-solid fa-clock text-[#4C6FFF] text-sm sm:text-base md:text-lg"></i>
           </div>
         </div>
-        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">
-          {{ stats().pending }}
-        </p>
-        <p class="text-xs text-gray-600">Awaiting approval</p>
+        <div class="flex items-baseline gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <p class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A]">
+            {{ pendingTrend.value }}
+          </p>
+          @if (pendingTrend.trend !== 'neutral') {
+            <span class="text-xs sm:text-sm font-medium flex items-center gap-0.5 sm:gap-1"
+              [class.text-green-600]="pendingTrend.trend === 'up'"
+              [class.text-gray-500]="pendingTrend.trend === 'down'">
+              <i [class]="pendingTrend.trend === 'up' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-[10px] sm:text-xs"></i>
+              <span>{{ pendingTrend.percentage }}%</span>
+            </span>
+          }
+        </div>
+        <p class="text-[10px] sm:text-xs md:text-sm text-gray-600">Awaiting approval</p>
       </div>
 
+      @let draftsTrend = getTrend('drafts');
       <div
         #statCard
-        class="stat-card bg-[#F5F7FF] rounded-xl p-5 sm:p-6 md:p-6 shadow-md border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-300 hover:shadow-lg hover:scale-105 animate-slideUp relative overflow-hidden"
+        class="stat-card-minimal bg-white rounded-xl p-3 sm:p-4 md:p-6 border border-[#E5E7EB] hover:border-[#4C6FFF]/30 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
       >
-        <div class="flex items-center justify-between mb-3">
-          <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Drafts</p>
+        <div class="flex items-center justify-between mb-2 sm:mb-3 md:mb-4">
+          <p class="text-gray-600 text-[10px] sm:text-xs font-medium uppercase tracking-wider">Drafts</p>
           <div
-            class="icon-wrapper w-10 h-10 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-[#F5F7FF] rounded-xl flex items-center justify-center flex-shrink-0"
           >
-            <i class="fa-solid fa-file-pen text-[#4C6FFF]"></i>
+            <i class="fa-solid fa-file-pen text-[#4C6FFF] text-sm sm:text-base md:text-lg"></i>
           </div>
         </div>
-        <p class="text-3xl sm:text-4xl md:text-4xl font-bold text-[#1A1A1A] mb-2 animate-countUp">
-          {{ stats().drafts }}
-        </p>
-        <p class="text-xs text-gray-600">In progress</p>
+        <div class="flex items-baseline gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+          <p class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#1A1A1A]">
+            {{ draftsTrend.value }}
+          </p>
+          @if (draftsTrend.trend !== 'neutral') {
+            <span class="text-xs sm:text-sm font-medium flex items-center gap-0.5 sm:gap-1"
+              [class.text-green-600]="draftsTrend.trend === 'up'"
+              [class.text-gray-500]="draftsTrend.trend === 'down'">
+              <i [class]="draftsTrend.trend === 'up' ? 'fa-solid fa-arrow-up' : 'fa-solid fa-arrow-down'" class="text-[10px] sm:text-xs"></i>
+              <span>{{ draftsTrend.percentage }}%</span>
+            </span>
+          }
+        </div>
+        <p class="text-[10px] sm:text-xs md:text-sm text-gray-600">In progress</p>
       </div>
     </div>
 
-    <!-- Recent Activity -->
+    <!-- Quick Actions Section - Mobile First -->
+    <div class="mb-4 sm:mb-6 md:mb-8 lg:mb-12">
+      <h2 class="text-sm sm:text-base md:text-lg font-semibold text-[#1A1A1A] mb-2 sm:mb-3 md:mb-4">Quick Actions</h2>
+      <!-- On mobile: 3 columns (hide Create Post), on desktop: 4 columns (show Create Post) -->
+      <div class="grid grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+        <!-- Hide "Create Post" button on mobile (lg:hidden) since we have FAB, show on desktop (lg:block) -->
+        <button
+          type="button"
+          (click)="navigateToCreatePost()"
+          class="quick-action-btn bg-white border border-[#E5E7EB] rounded-xl p-2.5 sm:p-3 md:p-4 hover:border-[#4C6FFF]/30 hover:shadow-md active:scale-[0.98] transition-all duration-200 hover:-translate-y-0.5 text-left group touch-target min-h-[80px] sm:min-h-[90px] md:min-h-[100px] hidden lg:block"
+        >
+          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#F5F7FF] rounded-lg flex items-center justify-center mb-2 sm:mb-3 group-hover:bg-[#4C6FFF] group-hover:text-white transition-colors duration-200">
+            <i class="fa-solid fa-plus text-[#4C6FFF] group-hover:text-white transition-colors duration-200 text-xs sm:text-sm md:text-base"></i>
+          </div>
+          <p class="text-xs sm:text-sm font-semibold text-[#1A1A1A] mb-0.5 sm:mb-1">Create Post</p>
+          <p class="text-[10px] sm:text-xs text-gray-600">Start a new post</p>
+        </button>
+
+        <button
+          type="button"
+          (click)="navigateToSchedulePost()"
+          class="quick-action-btn bg-white border border-[#E5E7EB] rounded-xl p-2.5 sm:p-3 md:p-4 hover:border-[#4C6FFF]/30 hover:shadow-md active:scale-[0.98] transition-all duration-200 hover:-translate-y-0.5 text-left group touch-target min-h-[80px] sm:min-h-[90px] md:min-h-[100px]"
+        >
+          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#F5F7FF] rounded-lg flex items-center justify-center mb-2 sm:mb-3 group-hover:bg-[#4C6FFF] group-hover:text-white transition-colors duration-200">
+            <i class="fa-solid fa-calendar text-[#4C6FFF] group-hover:text-white transition-colors duration-200 text-xs sm:text-sm md:text-base"></i>
+          </div>
+          <p class="text-xs sm:text-sm font-semibold text-[#1A1A1A] mb-0.5 sm:mb-1">Schedule</p>
+          <p class="text-[10px] sm:text-xs text-gray-600">Schedule posts</p>
+        </button>
+
+        <button
+          type="button"
+          (click)="navigateToAnalytics()"
+          class="quick-action-btn bg-white border border-[#E5E7EB] rounded-xl p-2.5 sm:p-3 md:p-4 hover:border-[#4C6FFF]/30 hover:shadow-md active:scale-[0.98] transition-all duration-200 hover:-translate-y-0.5 text-left group touch-target min-h-[80px] sm:min-h-[90px] md:min-h-[100px]"
+        >
+          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#F5F7FF] rounded-lg flex items-center justify-center mb-2 sm:mb-3 group-hover:bg-[#4C6FFF] group-hover:text-white transition-colors duration-200">
+            <i class="fa-solid fa-chart-bar text-[#4C6FFF] group-hover:text-white transition-colors duration-200 text-xs sm:text-sm md:text-base"></i>
+          </div>
+          <p class="text-xs sm:text-sm font-semibold text-[#1A1A1A] mb-0.5 sm:mb-1">Analytics</p>
+          <p class="text-[10px] sm:text-xs text-gray-600">View insights</p>
+        </button>
+
+        <button
+          type="button"
+          (click)="navigateToDrafts()"
+          class="quick-action-btn bg-white border border-[#E5E7EB] rounded-xl p-2.5 sm:p-3 md:p-4 hover:border-[#4C6FFF]/30 hover:shadow-md active:scale-[0.98] transition-all duration-200 hover:-translate-y-0.5 text-left group touch-target min-h-[80px] sm:min-h-[90px] md:min-h-[100px]"
+        >
+          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 bg-[#F5F7FF] rounded-lg flex items-center justify-center mb-2 sm:mb-3 group-hover:bg-[#4C6FFF] group-hover:text-white transition-colors duration-200">
+            <i class="fa-solid fa-edit text-[#4C6FFF] group-hover:text-white transition-colors duration-200 text-xs sm:text-sm md:text-base"></i>
+          </div>
+          <p class="text-xs sm:text-sm font-semibold text-[#1A1A1A] mb-0.5 sm:mb-1">Drafts</p>
+          <p class="text-[10px] sm:text-xs text-gray-600">{{ stats().drafts }} saved</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Activity - Enhanced Design -->
     <div
-      class="bg-[#F5F7FF] rounded-xl shadow-md p-6 sm:p-8 md:p-8 border border-[#D9E1FF] animate-slideUp"
+      class="bg-white rounded-xl p-3 sm:p-4 md:p-6 lg:p-8 border border-[#E5E7EB]"
     >
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center justify-between mb-4 sm:mb-5 md:mb-6">
         <div>
-          <h3 class="text-xl font-bold text-[#1A1A1A] mb-1">Recent Activity</h3>
-          <p class="text-sm text-gray-600">Latest updates from your account</p>
+          <h3 class="text-base sm:text-lg md:text-xl font-bold text-[#1A1A1A] mb-0.5 sm:mb-1">Recent Activity</h3>
+          <p class="text-xs sm:text-sm text-gray-600">Latest updates from your account</p>
         </div>
       </div>
 
       @if (recentActivity().length === 0) {
-        <div class="text-center py-12">
-          <i class="fa-solid fa-bell-slash text-4xl text-gray-400 mb-4"></i>
-          <p class="text-gray-600">No recent activity</p>
+        <div class="text-center py-12 sm:py-16">
+          <div class="w-16 h-16 sm:w-20 sm:h-20 bg-[#F5F7FF] rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <i class="fa-solid fa-bell-slash text-xl sm:text-2xl text-gray-400"></i>
+          </div>
+          <h4 class="text-base sm:text-lg font-semibold text-[#1A1A1A] mb-1 sm:mb-2">No recent activity</h4>
+          <p class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 px-2">Your activity feed will appear here once you start posting.</p>
+          <button
+            type="button"
+            (click)="navigateToCreatePost()"
+            class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#4C6FFF] text-white rounded-lg font-medium hover:bg-[#3A56CC] active:bg-[#3A56CC] transition-colors duration-200 text-xs sm:text-sm touch-target min-h-[44px]"
+          >
+            <i class="fa-solid fa-plus text-xs sm:text-sm"></i>
+            <span>Create Your First Post</span>
+          </button>
         </div>
       } @else {
-        <div class="space-y-3">
+        <div class="space-y-2 sm:space-y-3">
           @for (activity of recentActivity(); track activity.id) {
             <div
-              class="activity-item flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-[#BFC9FF]/20 transition-all duration-300 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 hover:shadow-md hover:scale-[1.02]"
+              class="activity-item-minimal flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 rounded-xl hover:bg-[#F5F7FF] active:bg-[#F5F7FF] transition-all duration-200 cursor-pointer group touch-target"
             >
               <div
-                class="w-12 h-12 bg-[#4C6FFF]/10 rounded-xl flex items-center justify-center border border-[#4C6FFF]/30 flex-shrink-0"
+                class="w-12 h-12 sm:w-14 sm:h-14 bg-[#F5F7FF] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-[#4C6FFF] transition-colors duration-200"
               >
                 <i
-                  class="fa-solid text-[#4C6FFF] text-base"
+                  class="fa-solid text-[#4C6FFF] text-base sm:text-lg group-hover:text-white transition-colors duration-200"
                   [ngClass]="getActivityIcon(activity.type)"
                 ></i>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-[#1A1A1A] font-semibold text-base truncate">
+                <p class="text-[#1A1A1A] font-semibold text-sm sm:text-base mb-0.5 sm:mb-1 truncate">
                   {{ getActivityMessage(activity) }}
                 </p>
-                <p class="text-sm text-gray-600">{{ getTimeAgo(activity.createdAt) }}</p>
+                <p class="text-xs sm:text-sm text-gray-600">{{ getTimeAgo(activity.createdAt) }}</p>
               </div>
-              <i class="fa-solid fa-chevron-right text-gray-500 text-sm flex-shrink-0"></i>
+              <i class="fa-solid fa-chevron-right text-gray-400 text-xs sm:text-sm flex-shrink-0 group-hover:text-[#4C6FFF] transition-colors duration-200"></i>
             </div>
           }
         </div>
@@ -189,3 +327,4 @@
     </div>
   }
 </div>
+

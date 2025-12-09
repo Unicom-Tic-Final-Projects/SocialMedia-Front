@@ -1,0 +1,11 @@
+/* Scroll Reveal Styles */
+.word {
+  display: inline-block;
+  will-change: opacity, filter, transform;
+}
+
+/* Ensure smooth transitions */
+.word {
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+

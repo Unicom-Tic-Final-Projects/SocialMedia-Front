@@ -26,6 +26,7 @@ export class DraftManagerComponent extends BaseComponent implements OnInit {
 
   drafts = signal<SocialPost[]>([]);
   loading = signal(false);
+  expandedDraftId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadDrafts();
@@ -52,9 +53,21 @@ export class DraftManagerComponent extends BaseComponent implements OnInit {
     });
   }
 
+  toggleDraftActions(draftId: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    if (this.expandedDraftId() === draftId) {
+      this.expandedDraftId.set(null);
+    } else {
+      this.expandedDraftId.set(draftId);
+    }
+  }
+
   editDraft(postId: string): void {
-    this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId, edit: 'true' },
+    this.expandedDraftId.set(null);
+    this.router.navigate(['/dashboard/content-management'], {
+      queryParams: { tab: 'create', postId, edit: 'true' },
     });
   }
 
@@ -91,8 +104,9 @@ export class DraftManagerComponent extends BaseComponent implements OnInit {
   }
 
   publishDraft(postId: string): void {
-    this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId, publish: 'true' },
+    this.expandedDraftId.set(null);
+    this.router.navigate(['/dashboard/content-management'], {
+      queryParams: { tab: 'create', postId, publish: 'true' },
     });
   }
 }

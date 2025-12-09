@@ -14,6 +14,23 @@
     <div class="flex flex-col sm:flex-row gap-4">
       <button
         type="button"
+        (click)="onScheduleModeChange('draft')"
+        class="flex-1 p-4 rounded-lg border-2 transition-all duration-300 text-left"
+        [class.bg-white]="scheduleMode === 'draft'"
+        [class.border-[#4C6FFF]]="scheduleMode === 'draft'"
+        [class.shadow-md]="scheduleMode === 'draft'"
+        [class.bg-transparent]="scheduleMode !== 'draft'"
+        [class.border-[#D9E1FF]]="scheduleMode !== 'draft'"
+      >
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fa-solid fa-file-edit text-[#4C6FFF] text-xl"></i>
+          <h3 class="font-bold text-[#1A1A1A]">Create Post</h3>
+        </div>
+        <p class="text-sm text-gray-600">Save as draft for later editing or publishing</p>
+      </button>
+
+      <button
+        type="button"
         (click)="onScheduleModeChange('now')"
         class="flex-1 p-4 rounded-lg border-2 transition-all duration-300 text-left"
         [class.bg-white]="scheduleMode === 'now'"

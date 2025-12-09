@@ -30,6 +30,7 @@ export class Step1ContentMediaComponent {
   @Output() fileDeleted = new EventEmitter<string>();
   @Output() fileRetry = new EventEmitter<string>();
   @Output() removeMedia = new EventEmitter<void>();
+  @Output() selectFromLibrary = new EventEmitter<void>();
 
   readonly mediaPreview = this.postMediaService.mediaPreview;
   readonly isVideo = this.postMediaService.isVideo;
@@ -90,6 +91,10 @@ export class Step1ContentMediaComponent {
 
   onRemoveMedia(): void {
     this.removeMedia.emit();
+  }
+
+  onSelectFromLibrary(): void {
+    this.selectFromLibrary.emit();
   }
 }
 

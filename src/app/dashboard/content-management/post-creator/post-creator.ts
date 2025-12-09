@@ -345,9 +345,10 @@ export class PostCreatorComponent extends BaseComponent implements OnInit {
     const formValue = this.postForm.value;
 
     // TODO: Implement draft saving
-    // For now, navigate to post editor with draft flag
-    this.router.navigate(['/dashboard/post-editor'], {
+    // For now, navigate to content-management with draft flag
+    this.router.navigate(['/dashboard/content-management'], {
       queryParams: {
+        tab: 'create',
         draft: 'true',
         content: formValue.content,
         mediaId: this.uploadedMediaId() || undefined,
@@ -408,7 +409,7 @@ export class PostCreatorComponent extends BaseComponent implements OnInit {
         next: () => {
         this.loading.set(false);
         this.toastService.success('Post created successfully!');
-        this.router.navigate(['/dashboard/posts']);
+        this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'posts' } });
       },
       error: (error: HttpErrorResponse) => {
         this.toastService.error(error?.error?.message || 'Failed to create post');

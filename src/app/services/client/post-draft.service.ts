@@ -108,6 +108,13 @@ export class PostDraftService {
   }
 
   /**
+   * Update media ID
+   */
+  updateMediaId(mediaId: string): void {
+    this.updateDraft({ mediaId });
+  }
+
+  /**
    * Update crop configuration for a platform
    */
   updatePlatformCrop(

@@ -1,12 +1,13 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] p-6 animate-fadeIn">
-  <div class="mb-8 animate-slideDown">
-    <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+<div class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A]">
+  <!-- Header Section -->
+  <div class="mb-8 md:mb-12">
+    <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
       <i class="fa-solid fa-credit-card text-[#4C6FFF]"></i> Billing & Subscription
       @if (loading()) {
         <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF] text-sm"></i>
       }
     </h1>
-    <p class="text-gray-600 text-sm">Manage your subscription, payment methods, and invoices</p>
+    <p class="text-gray-600 text-sm sm:text-base">Manage your subscription, payment methods, and invoices</p>
   </div>
 
   @if (error()) {
@@ -17,7 +18,7 @@
 
   <!-- Current Subscription -->
   @if (subscription()) {
-    <div class="bg-[#F5F7FF] rounded-xl p-6 mb-6 border border-[#D9E1FF]">
+    <div class="bg-white rounded-xl p-6 md:p-8 mb-6 border border-[#E5E7EB]">
       <div class="flex items-start justify-between mb-4">
         <div>
           <h2 class="text-xl font-semibold text-[#1A1A1A] mb-2">Current Plan</h2>
@@ -87,7 +88,7 @@
     @if (loading()) {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         @for (item of [1, 2, 3]; track item) {
-          <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] animate-pulse">
+          <div class="skeleton-plan-card">
             <div class="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
             <div class="h-8 bg-gray-300 rounded w-1/2 mb-4"></div>
             <div class="space-y-2">
@@ -103,10 +104,10 @@
         @for (plan of plans(); track plan.id) {
           <div
             [class]="
-              'bg-[#F5F7FF] rounded-xl p-6 border-2 transition-all ' +
+              'bg-white rounded-xl p-6 border-2 transition-all duration-200 ' +
               (isCurrentPlan(plan)
-                ? 'border-[#4C6FFF] shadow-lg'
-                : 'border-[#D9E1FF] hover:shadow-md')
+                ? 'border-[#4C6FFF] shadow-md'
+                : 'border-[#E5E7EB] hover:border-[#4C6FFF]/30 hover:shadow-md')
             "
           >
             @if (isCurrentPlan(plan)) {
@@ -159,7 +160,7 @@
         }
       </div>
     } @else {
-      <div class="text-center py-10 bg-[#F5F7FF] rounded-xl border border-[#D9E1FF]">
+      <div class="text-center py-10 bg-white rounded-xl border border-[#E5E7EB]">
         <p class="text-gray-600">No plans available at the moment.</p>
       </div>
     }
@@ -169,7 +170,7 @@
   @if (paymentMethods().length > 0) {
     <div class="mb-8">
       <h2 class="text-2xl font-semibold text-[#1A1A1A] mb-4">Payment Methods</h2>
-      <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF]">
+      <div class="bg-white rounded-xl p-6 border border-[#E5E7EB]">
         @for (method of paymentMethods(); track method.id) {
           <div class="flex items-center justify-between p-4 bg-white rounded-lg mb-3">
             <div class="flex items-center gap-4">
@@ -229,7 +230,7 @@
           </thead>
           <tbody class="divide-y divide-[#D9E1FF]">
             @for (invoice of invoices(); track invoice.id) {
-              <tr class="hover:bg-[#F5F7FF] transition">
+              <tr class="hover:bg-[#F5F7FF] transition-colors duration-200">
                 <td class="px-6 py-4 text-sm font-medium text-[#1A1A1A]">
                   {{ invoice.invoiceNumber }}
                 </td>
@@ -255,7 +256,7 @@
         </table>
       </div>
     } @else {
-      <div class="text-center py-10 bg-[#F5F7FF] rounded-xl border border-[#D9E1FF]">
+      <div class="text-center py-10 bg-white rounded-xl border border-[#E5E7EB]">
         <i class="fa-solid fa-file-invoice text-4xl text-gray-400 mb-4"></i>
         <p class="text-gray-600">No invoices yet.</p>
       </div>
@@ -285,7 +286,7 @@
                   'flex-1 px-4 py-2 rounded-lg border transition ' +
                   (billingCycle() === 'monthly'
                     ? 'bg-[#4C6FFF] text-white border-[#4C6FFF]'
-                    : 'bg-white text-gray-700 border-[#D9E1FF]')
+                    : 'bg-white text-gray-700 border-[#E5E7EB]')
                 "
                 (click)="billingCycle.set('monthly')"
               >
@@ -297,7 +298,7 @@
                   'flex-1 px-4 py-2 rounded-lg border transition ' +
                   (billingCycle() === 'annual'
                     ? 'bg-[#4C6FFF] text-white border-[#4C6FFF]'
-                    : 'bg-white text-gray-700 border-[#D9E1FF]')
+                    : 'bg-white text-gray-700 border-[#E5E7EB]')
                 "
                 (click)="billingCycle.set('annual')"
               >
@@ -315,7 +316,7 @@
               </button>
             </div>
           </div>
-          <div class="bg-[#F5F7FF] rounded-lg p-4">
+          <div class="bg-[#F5F7FF] rounded-xl p-4">
             <p class="text-sm text-gray-600 mb-2">Selected Plan:</p>
             <p class="text-lg font-semibold">{{ selectedPlan()!.name }}</p>
             <p class="text-2xl font-bold text-[#4C6FFF] mt-2">

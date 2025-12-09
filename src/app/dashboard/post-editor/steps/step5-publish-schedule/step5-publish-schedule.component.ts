@@ -9,14 +9,14 @@ import { CommonModule } from '@angular/common';
   styleUrl: './step5-publish-schedule.component.css',
 })
 export class Step5PublishScheduleComponent {
-  @Input() scheduleMode: 'now' | 'later' = 'now';
+  @Input() scheduleMode: 'now' | 'later' | 'draft' = 'draft';
   @Input() scheduledDateTime = '';
   @Input() saving = false;
 
-  @Output() scheduleModeChange = new EventEmitter<'now' | 'later'>();
+  @Output() scheduleModeChange = new EventEmitter<'now' | 'later' | 'draft'>();
   @Output() scheduledDateTimeChange = new EventEmitter<string>();
 
-  onScheduleModeChange(mode: 'now' | 'later'): void {
+  onScheduleModeChange(mode: 'now' | 'later' | 'draft'): void {
     this.scheduleModeChange.emit(mode);
   }
 

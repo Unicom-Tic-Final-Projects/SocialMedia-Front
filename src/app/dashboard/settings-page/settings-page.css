@@ -1,4 +1,4 @@
-/* Settings Page Styles */
+/* Settings Page - Minimal Design Styles */
 
 /* Animation Keyframes */
 @keyframes fadeIn {
@@ -21,6 +21,15 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
 /* Animation Classes */
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
@@ -30,11 +39,44 @@
   animation: slideDown 0.6s ease-out;
 }
 
-/* Tab Button Animations */
-button[class*='hover:bg-\[#BFC9FF\]'] {
-  transition: all 0.3s ease;
+/* Loading Skeleton Styles - Minimal */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
 }
 
-button[class*='hover:bg-\[#BFC9FF\]']:hover {
-  transform: translateX(4px);
+.skeleton-sidebar {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-content {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 4px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .skeleton-sidebar,
+  .skeleton-content {
+    padding: 24px;
+  }
 }

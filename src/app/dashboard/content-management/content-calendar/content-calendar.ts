@@ -146,10 +146,11 @@ export class ContentCalendarComponent extends BaseComponent implements OnInit {
   reschedulePost(postId: string, newScheduledAt: string): void {
     this.loading.set(true);
 
-    // Navigate to post editor to reschedule
+    // Navigate to content-management to reschedule
     // In a full implementation, you might want to call an API directly
-    this.router.navigate(['/dashboard/post-editor'], {
+    this.router.navigate(['/dashboard/content-management'], {
       queryParams: {
+        tab: 'create',
         postId,
         reschedule: 'true',
         scheduledAt: newScheduledAt,
@@ -160,8 +161,8 @@ export class ContentCalendarComponent extends BaseComponent implements OnInit {
   }
 
   editPost(postId: string): void {
-    this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId, edit: 'true' },
+    this.router.navigate(['/dashboard/content-management'], {
+      queryParams: { tab: 'create', postId, edit: 'true' },
     });
   }
 }

@@ -1,19 +1,20 @@
-<div class="space-y-6">
-  <div class="mb-6">
-    <h2 class="text-lg sm:text-xl md:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">
-      Step 3: Crop & Edit for Each Platform
+<div class="space-y-4 sm:space-y-6">
+  <div class="mb-4 sm:mb-6">
+    <h2 class="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">
+      <span class="hidden sm:inline">Step 3: Crop & Edit for Each Platform</span>
+      <span class="sm:hidden">Step 3: Crop & Edit</span>
     </h2>
-    <p class="text-gray-600 text-xs sm:text-sm">
+    <p class="text-gray-600 text-[10px] sm:text-xs md:text-sm">
       Adjust the crop and positioning for each platform. Default configurations have been applied
       automatically.
     </p>
   </div>
 
-  <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-300px)]">
+  <div class="flex flex-col lg:flex-row gap-3 sm:gap-4 md:gap-6 h-auto lg:h-[calc(100vh-300px)] max-h-[calc(100vh-200px)] lg:max-h-none">
     <!-- Left Panel: Platform List -->
-    <div class="lg:w-64 border-r border-[#DDE3FF] bg-[#F9FAFF] overflow-y-auto rounded-xl p-4">
-      <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">Platforms</h3>
-      <div class="space-y-2">
+    <div class="lg:w-64 border-r-0 lg:border-r border-[#DDE3FF] bg-[#F9FAFF] overflow-x-auto lg:overflow-y-auto rounded-xl p-2.5 sm:p-3 md:p-4 flex lg:flex-col flex-row gap-2 lg:gap-0 lg:space-y-2">
+      <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-0 lg:mb-3 hidden lg:block">Platforms</h3>
+      <div class="flex lg:flex-col flex-row gap-2 lg:gap-0 lg:space-y-2">
         @for (
           platform of selectedPlatforms.length > 0 ? selectedPlatforms : allPlatforms;
           track platform
@@ -24,7 +25,7 @@
           <button
             type="button"
             (click)="selectPlatform(platform)"
-            class="w-full flex items-center gap-3 px-4 py-3 rounded-lg border transition text-left font-medium relative"
+            class="flex items-center gap-2 sm:gap-3 px-2.5 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg border transition text-left font-medium relative flex-shrink-0 lg:w-full touch-target min-h-[44px] sm:min-h-[48px]"
             [class.bg-[#4C6FFF]]="selectedPlatform() === platform"
             [class.text-white]="selectedPlatform() === platform"
             [class.border-[#4C6FFF]]="selectedPlatform() === platform"
@@ -34,20 +35,20 @@
             [class.opacity-60]="!isSelectedInStep2"
           >
             <i
-              [class]="meta.icon + ' text-lg'"
+              [class]="meta.icon + ' text-base sm:text-lg flex-shrink-0'"
               [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"
             ></i>
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="truncate">{{ meta.label }}</span>
+            <div class="flex-1 min-w-0 hidden sm:block">
+              <div class="flex items-center gap-1.5 sm:gap-2">
+                <span class="truncate text-xs sm:text-sm">{{ meta.label }}</span>
                 @if (!isSelectedInStep2) {
-                  <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600"
+                  <span class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded bg-gray-200 text-gray-600 whitespace-nowrap"
                     >Not Selected</span
                   >
                 }
               </div>
               @if (state) {
-                <div class="text-xs mt-1 opacity-75">
+                <div class="text-[10px] sm:text-xs mt-1 opacity-75">
                   {{ getPlatformAspect(platform).label }}
                 </div>
               }
@@ -60,21 +61,23 @@
     <!-- Middle: Image Area with Free-Form Crop -->
     @if (selectedPlatform()) {
       <div
-        class="flex-1 flex flex-col items-center justify-center bg-[#F4F6FF] px-4 py-6 relative rounded-xl"
+        class="flex-1 flex flex-col items-center justify-center bg-[#F4F6FF] px-2 sm:px-3 md:px-4 py-3 sm:py-4 md:py-6 relative rounded-xl min-h-[300px] sm:min-h-[400px]"
         (mousemove)="moveCropBox($event)"
         (mouseup)="stopDragCropBox()"
+        (touchmove)="moveCropBox($event)"
+        (touchend)="stopDragCropBox()"
       >
         @let platform = selectedPlatform()!;
         @let meta = platformMeta[platform];
         @let displayDims = getDisplayDimensions(platform);
         @let aspect = getPlatformAspect(platform);
 
-        <div class="text-center mb-6">
-          <p class="text-sm text-[#222222]/80">Aspect Ratio</p>
-          <p class="text-xl font-bold" [style.color]="meta.color">
+        <div class="text-center mb-3 sm:mb-4 md:mb-6">
+          <p class="text-xs sm:text-sm text-[#222222]/80">Aspect Ratio</p>
+          <p class="text-base sm:text-lg md:text-xl font-bold" [style.color]="meta.color">
             {{ aspect.label }}
           </p>
-          <p class="text-xs text-gray-500 mt-1">{{ aspect.description }}</p>
+          <p class="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1 px-2">{{ aspect.description }}</p>
         </div>
 
         <div
@@ -114,7 +117,7 @@
           <!-- Free-Form Crop Box (Draggable & Resizable) -->
           @if (mediaUrl) {
             <div
-              class="absolute border-2 rounded-lg border-[#4C6FFF] backdrop-blur-sm bg-[#4C6FFF]/10 cursor-move"
+              class="absolute border-2 rounded-lg border-[#4C6FFF] backdrop-blur-sm bg-[#4C6FFF]/10 cursor-move touch-target"
               [style.width.px]="cropBox().width"
               [style.height.px]="cropBox().height"
               [style.left.px]="cropBox().left"
@@ -124,63 +127,68 @@
             >
               <!-- Resize Handles -->
               <div
-                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -top-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-n-resize z-10"
+                class="absolute w-6 h-6 sm:w-8 sm:h-8 bg-white border-2 border-[#4C6FFF] -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2 rounded-full cursor-n-resize z-10 touch-target"
                 (mousedown)="startResize($event, 't')"
+                (touchstart)="startResize($event, 't')"
               ></div>
               <div
-                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -bottom-1/2 left-1/2 transform -translate-x-1/2 rounded-full cursor-s-resize z-10"
+                class="absolute w-6 h-6 sm:w-8 sm:h-8 bg-white border-2 border-[#4C6FFF] -bottom-3 sm:-bottom-4 left-1/2 transform -translate-x-1/2 rounded-full cursor-s-resize z-10 touch-target"
                 (mousedown)="startResize($event, 'b')"
+                (touchstart)="startResize($event, 'b')"
               ></div>
               <div
-                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -left-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-e-resize z-10"
+                class="absolute w-6 h-6 sm:w-8 sm:h-8 bg-white border-2 border-[#4C6FFF] -left-3 sm:-left-4 top-1/2 transform -translate-y-1/2 rounded-full cursor-e-resize z-10 touch-target"
                 (mousedown)="startResize($event, 'l')"
+                (touchstart)="startResize($event, 'l')"
               ></div>
               <div
-                class="absolute w-3 h-3 bg-white border border-[#4C6FFF] -right-1/2 top-1/2 transform -translate-y-1/2 rounded-full cursor-w-resize z-10"
+                class="absolute w-6 h-6 sm:w-8 sm:h-8 bg-white border-2 border-[#4C6FFF] -right-3 sm:-right-4 top-1/2 transform -translate-y-1/2 rounded-full cursor-w-resize z-10 touch-target"
                 (mousedown)="startResize($event, 'r')"
+                (touchstart)="startResize($event, 'r')"
               ></div>
               <div
-                class="absolute w-4 h-4 bg-white border border-[#4C6FFF] -right-2 -bottom-2 rounded-md cursor-se-resize z-10"
+                class="absolute w-8 h-8 sm:w-10 sm:h-10 bg-white border-2 border-[#4C6FFF] -right-4 sm:-right-5 -bottom-4 sm:-bottom-5 rounded-md cursor-se-resize z-10 touch-target"
                 (mousedown)="startResize($event, 'br')"
+                (touchstart)="startResize($event, 'br')"
               ></div>
             </div>
           }
         </div>
 
         <!-- Professional Editing Tools -->
-        <div class="mt-6 w-full max-w-4xl">
+        <div class="mt-3 sm:mt-4 md:mt-6 w-full max-w-4xl">
           <!-- Toolbar -->
-          <div class="bg-white rounded-xl border border-[#DDE3FF] p-4 shadow-sm">
-            <div class="flex items-center justify-center gap-4 flex-wrap mb-4">
+          <div class="bg-white rounded-xl border border-[#DDE3FF] p-2.5 sm:p-3 md:p-4 shadow-sm">
+            <div class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 flex-wrap mb-3 sm:mb-4">
               <!-- Rotate Left -->
               <button
                 type="button"
                 (click)="rotateImage(platform, -90)"
-                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                class="p-2 sm:p-2.5 md:p-3 rounded-lg border border-[#DDE3FF] active:bg-[#F4F6FF] active:border-[#4C6FFF] transition-all group touch-target min-h-[44px] sm:min-h-[48px] min-w-[44px] sm:min-w-[48px] flex items-center justify-center"
                 title="Rotate Left"
               >
-                <i class="fa-solid fa-rotate-left text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+                <i class="fa-solid fa-rotate-left text-[#4C6FFF] group-active:text-[#3B56CC] text-sm sm:text-base"></i>
               </button>
 
               <!-- Rotate Right -->
               <button
                 type="button"
                 (click)="rotateImage(platform, 90)"
-                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                class="p-2 sm:p-2.5 md:p-3 rounded-lg border border-[#DDE3FF] active:bg-[#F4F6FF] active:border-[#4C6FFF] transition-all group touch-target min-h-[44px] sm:min-h-[48px] min-w-[44px] sm:min-w-[48px] flex items-center justify-center"
                 title="Rotate Right"
               >
-                <i class="fa-solid fa-rotate-right text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+                <i class="fa-solid fa-rotate-right text-[#4C6FFF] group-active:text-[#3B56CC] text-sm sm:text-base"></i>
               </button>
 
               <!-- Flip Horizontal -->
               <button
                 type="button"
                 (click)="flipImage(platform, 'horizontal')"
-                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                class="p-2 sm:p-2.5 md:p-3 rounded-lg border border-[#DDE3FF] active:bg-[#F4F6FF] active:border-[#4C6FFF] transition-all group touch-target min-h-[44px] sm:min-h-[48px] min-w-[44px] sm:min-w-[48px] flex items-center justify-center"
                 title="Flip Horizontal"
               >
                 <i
-                  class="fa-solid fa-arrows-left-right text-[#4C6FFF] group-hover:text-[#3B56CC]"
+                  class="fa-solid fa-arrows-left-right text-[#4C6FFF] group-active:text-[#3B56CC] text-sm sm:text-base"
                 ></i>
               </button>
 
@@ -188,33 +196,33 @@
               <button
                 type="button"
                 (click)="flipImage(platform, 'vertical')"
-                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                class="p-2 sm:p-2.5 md:p-3 rounded-lg border border-[#DDE3FF] active:bg-[#F4F6FF] active:border-[#4C6FFF] transition-all group touch-target min-h-[44px] sm:min-h-[48px] min-w-[44px] sm:min-w-[48px] flex items-center justify-center"
                 title="Flip Vertical"
               >
-                <i class="fa-solid fa-arrows-up-down text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+                <i class="fa-solid fa-arrows-up-down text-[#4C6FFF] group-active:text-[#3B56CC] text-sm sm:text-base"></i>
               </button>
 
               <!-- Reset -->
               <button
                 type="button"
                 (click)="resetImage(platform)"
-                class="p-3 rounded-lg border border-[#DDE3FF] hover:bg-[#F4F6FF] hover:border-[#4C6FFF] transition-all group"
+                class="p-2 sm:p-2.5 md:p-3 rounded-lg border border-[#DDE3FF] active:bg-[#F4F6FF] active:border-[#4C6FFF] transition-all group touch-target min-h-[44px] sm:min-h-[48px] min-w-[44px] sm:min-w-[48px] flex items-center justify-center"
                 title="Reset"
               >
-                <i class="fa-solid fa-undo text-[#4C6FFF] group-hover:text-[#3B56CC]"></i>
+                <i class="fa-solid fa-undo text-[#4C6FFF] group-active:text-[#3B56CC] text-sm sm:text-base"></i>
               </button>
             </div>
 
             <!-- Adjustment Controls -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <!-- Zoom Control -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                    <i class="fa-solid fa-magnifying-glass text-[#4C6FFF]"></i>
-                    Zoom
+                <div class="flex items-center justify-between mb-1.5 sm:mb-2">
+                  <label class="text-xs sm:text-sm font-semibold text-[#1A1A1A] flex items-center gap-1.5 sm:gap-2">
+                    <i class="fa-solid fa-magnifying-glass text-[#4C6FFF] text-xs sm:text-sm"></i>
+                    <span>Zoom</span>
                   </label>
-                  <span class="text-sm text-gray-600 font-medium"
+                  <span class="text-xs sm:text-sm text-gray-600 font-medium"
                     >{{ getCrop(platform).zoom.toFixed(1) }}x</span
                   >
                 </div>
@@ -225,18 +233,18 @@
                   step="0.1"
                   [value]="getCrop(platform).zoom"
                   (input)="setZoom(platform, $any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                  class="w-full h-2 sm:h-2.5 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider touch-target"
                 />
               </div>
 
               <!-- Brightness Control -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                    <i class="fa-solid fa-sun text-[#4C6FFF]"></i>
-                    Brightness
+                <div class="flex items-center justify-between mb-1.5 sm:mb-2">
+                  <label class="text-xs sm:text-sm font-semibold text-[#1A1A1A] flex items-center gap-1.5 sm:gap-2">
+                    <i class="fa-solid fa-sun text-[#4C6FFF] text-xs sm:text-sm"></i>
+                    <span>Brightness</span>
                   </label>
-                  <span class="text-sm text-gray-600 font-medium"
+                  <span class="text-xs sm:text-sm text-gray-600 font-medium"
                     >{{ getBrightness(platform) }}%</span
                   >
                 </div>
@@ -247,18 +255,18 @@
                   step="1"
                   [value]="getBrightness(platform)"
                   (input)="setBrightness(platform, $any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                  class="w-full h-2 sm:h-2.5 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider touch-target"
                 />
               </div>
 
               <!-- Contrast Control -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                    <i class="fa-solid fa-circle-half-stroke text-[#4C6FFF]"></i>
-                    Contrast
+                <div class="flex items-center justify-between mb-1.5 sm:mb-2">
+                  <label class="text-xs sm:text-sm font-semibold text-[#1A1A1A] flex items-center gap-1.5 sm:gap-2">
+                    <i class="fa-solid fa-circle-half-stroke text-[#4C6FFF] text-xs sm:text-sm"></i>
+                    <span>Contrast</span>
                   </label>
-                  <span class="text-sm text-gray-600 font-medium"
+                  <span class="text-xs sm:text-sm text-gray-600 font-medium"
                     >{{ getContrast(platform) }}%</span
                   >
                 </div>
@@ -269,18 +277,18 @@
                   step="1"
                   [value]="getContrast(platform)"
                   (input)="setContrast(platform, $any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                  class="w-full h-2 sm:h-2.5 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider touch-target"
                 />
               </div>
 
               <!-- Saturation Control -->
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <label class="text-sm font-semibold text-[#1A1A1A] flex items-center gap-2">
-                    <i class="fa-solid fa-palette text-[#4C6FFF]"></i>
-                    Saturation
+                <div class="flex items-center justify-between mb-1.5 sm:mb-2">
+                  <label class="text-xs sm:text-sm font-semibold text-[#1A1A1A] flex items-center gap-1.5 sm:gap-2">
+                    <i class="fa-solid fa-palette text-[#4C6FFF] text-xs sm:text-sm"></i>
+                    <span>Saturation</span>
                   </label>
-                  <span class="text-sm text-gray-600 font-medium"
+                  <span class="text-xs sm:text-sm text-gray-600 font-medium"
                     >{{ getSaturation(platform) }}%</span
                   >
                 </div>
@@ -291,7 +299,7 @@
                   step="1"
                   [value]="getSaturation(platform)"
                   (input)="setSaturation(platform, $any($event.target).valueAsNumber)"
-                  class="w-full h-2 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider"
+                  class="w-full h-2 sm:h-2.5 bg-[#DDE3FF] rounded-lg appearance-none cursor-pointer slider touch-target"
                 />
               </div>
             </div>
@@ -302,10 +310,10 @@
         </div>
       </div>
     } @else {
-      <div class="flex-1 flex items-center justify-center bg-[#F4F6FF] rounded-xl">
-        <div class="text-center text-gray-500">
-          <i class="fa-solid fa-image text-4xl mb-4"></i>
-          <p>Select a platform to edit</p>
+      <div class="flex-1 flex items-center justify-center bg-[#F4F6FF] rounded-xl min-h-[300px] sm:min-h-[400px]">
+        <div class="text-center text-gray-500 px-4">
+          <i class="fa-solid fa-image text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3 md:mb-4"></i>
+          <p class="text-xs sm:text-sm md:text-base">Select a platform to edit</p>
         </div>
       </div>
     }
@@ -313,7 +321,7 @@
     <!-- Right Panel: Platform Specifications & Details -->
     @if (selectedPlatform()) {
       <div
-        class="lg:w-96 p-6 bg-[#FFFFFF] overflow-y-auto rounded-xl border border-[#DDE3FF] shadow-sm"
+        class="lg:w-96 p-3 sm:p-4 md:p-6 bg-[#FFFFFF] overflow-y-auto rounded-xl border border-[#DDE3FF] shadow-sm"
       >
         @let platform = selectedPlatform()!;
         @let state = getCropState(platform)!;
@@ -321,43 +329,44 @@
         @let aspect = getPlatformAspect(platform);
         @let displayDims = getDisplayDimensions(platform);
 
-        <h3 class="text-lg font-bold text-[#1A1A1A] mb-4 flex items-center gap-2">
-          <i [class]="meta.icon + ' text-xl'" [style.color]="meta.color"></i>
-          {{ meta.label }} Specifications
+        <h3 class="text-sm sm:text-base md:text-lg font-bold text-[#1A1A1A] mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+          <i [class]="meta.icon + ' text-base sm:text-lg md:text-xl'" [style.color]="meta.color"></i>
+          <span class="hidden sm:inline">{{ meta.label }} Specifications</span>
+          <span class="sm:hidden">Specs</span>
         </h3>
 
-        <div class="space-y-4">
+        <div class="space-y-3 sm:space-y-4">
           <!-- Platform Info Card -->
           <div
-            class="p-4 bg-gradient-to-br from-[#F4F6FF] to-white rounded-xl border-2 border-[#DDE3FF] shadow-sm"
+            class="p-3 sm:p-4 bg-gradient-to-br from-[#F4F6FF] to-white rounded-xl border-2 border-[#DDE3FF] shadow-sm"
           >
-            <div class="space-y-3">
+            <div class="space-y-2 sm:space-y-3">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-[#222222]/70">Current Format:</span>
-                <span class="text-sm font-bold text-[#4C6FFF]">{{ aspect.label }}</span>
+                <span class="text-xs sm:text-sm font-medium text-[#222222]/70">Current Format:</span>
+                <span class="text-xs sm:text-sm font-bold text-[#4C6FFF]">{{ aspect.label }}</span>
               </div>
 
-              <div class="grid grid-cols-2 gap-3 pt-2 border-t border-[#DDE3FF]">
+              <div class="grid grid-cols-2 gap-2 sm:gap-3 pt-2 border-t border-[#DDE3FF]">
                 <div>
-                  <span class="text-xs text-[#222222]/60 block mb-1">Aspect Ratio</span>
-                  <span class="text-sm font-semibold text-[#1A1A1A]">{{ aspect.label }}</span>
+                  <span class="text-[10px] sm:text-xs text-[#222222]/60 block mb-0.5 sm:mb-1">Aspect Ratio</span>
+                  <span class="text-xs sm:text-sm font-semibold text-[#1A1A1A]">{{ aspect.label }}</span>
                 </div>
                 <div>
-                  <span class="text-xs text-[#222222]/60 block mb-1">Dimensions</span>
-                  <span class="text-sm font-semibold text-[#1A1A1A]">
+                  <span class="text-[10px] sm:text-xs text-[#222222]/60 block mb-0.5 sm:mb-1">Dimensions</span>
+                  <span class="text-xs sm:text-sm font-semibold text-[#1A1A1A]">
                     {{ aspect.width }} × {{ aspect.height }}
                   </span>
                 </div>
                 <div>
-                  <span class="text-xs text-[#222222]/60 block mb-1">Display Size</span>
-                  <span class="text-sm font-semibold text-[#1A1A1A]">
+                  <span class="text-[10px] sm:text-xs text-[#222222]/60 block mb-0.5 sm:mb-1">Display Size</span>
+                  <span class="text-xs sm:text-sm font-semibold text-[#1A1A1A]">
                     {{ displayDims.width }} × {{ displayDims.height }}px
                   </span>
                 </div>
                 <div>
-                  <span class="text-xs text-[#222222]/60 block mb-1">Status</span>
+                  <span class="text-[10px] sm:text-xs text-[#222222]/60 block mb-0.5 sm:mb-1">Status</span>
                   <span
-                    class="text-xs px-2 py-1 rounded-full font-semibold inline-block"
+                    class="text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-semibold inline-block"
                     [class.bg-green-100]="state.isConnected"
                     [class.text-green-700]="state.isConnected"
                     [class.bg-gray-100]="!state.isConnected"
@@ -370,7 +379,7 @@
 
               <!-- Format Details -->
               <div class="pt-2 border-t border-[#DDE3FF]">
-                <div class="text-xs text-[#222222]/60 space-y-1">
+                <div class="text-[10px] sm:text-xs text-[#222222]/60 space-y-1">
                   <div class="flex justify-between">
                     <span>File Format:</span>
                     <span class="font-medium text-[#1A1A1A]">JPG, PNG</span>
@@ -379,9 +388,9 @@
                     <span>Max File Size:</span>
                     <span class="font-medium text-[#1A1A1A]">Up to 30MB</span>
                   </div>
-                  <div class="pt-2 text-[#222222]/70 italic text-xs">
-                    <i class="fa-solid fa-info-circle mr-1"></i>
-                    {{ aspect.description || 'Optimized for ' + meta.label }}
+                  <div class="pt-1 sm:pt-2 text-[#222222]/70 italic text-[10px] sm:text-xs">
+                    <i class="fa-solid fa-info-circle mr-1 text-[10px] sm:text-xs"></i>
+                    <span>{{ aspect.description || 'Optimized for ' + meta.label }}</span>
                   </div>
                 </div>
               </div>
@@ -389,38 +398,38 @@
           </div>
 
           <!-- Image Adjustments Summary -->
-          <div class="p-4 bg-[#F4F6FF] rounded-xl border border-[#DDE3FF]">
-            <h4 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
-              <i class="fa-solid fa-sliders text-[#4C6FFF]"></i>
-              Current Adjustments
+          <div class="p-3 sm:p-4 bg-[#F4F6FF] rounded-xl border border-[#DDE3FF]">
+            <h4 class="text-xs sm:text-sm font-semibold text-[#1A1A1A] mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
+              <i class="fa-solid fa-sliders text-[#4C6FFF] text-xs sm:text-sm"></i>
+              <span>Current Adjustments</span>
             </h4>
-            <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="grid grid-cols-2 gap-2 sm:gap-3 text-[10px] sm:text-xs">
               <div>
-                <span class="text-[#222222]/60 block mb-1">Rotation</span>
+                <span class="text-[#222222]/60 block mb-0.5 sm:mb-1">Rotation</span>
                 <span class="text-[#1A1A1A] font-semibold"
                   >{{ getAdjustments(platform).rotation }}°</span
                 >
               </div>
               <div>
-                <span class="text-[#222222]/60 block mb-1">Zoom</span>
+                <span class="text-[#222222]/60 block mb-0.5 sm:mb-1">Zoom</span>
                 <span class="text-[#1A1A1A] font-semibold"
                   >{{ getCrop(platform).zoom.toFixed(1) }}x</span
                 >
               </div>
               <div>
-                <span class="text-[#222222]/60 block mb-1">Brightness</span>
+                <span class="text-[#222222]/60 block mb-0.5 sm:mb-1">Brightness</span>
                 <span class="text-[#1A1A1A] font-semibold">{{ getBrightness(platform) }}%</span>
               </div>
               <div>
-                <span class="text-[#222222]/60 block mb-1">Contrast</span>
+                <span class="text-[#222222]/60 block mb-0.5 sm:mb-1">Contrast</span>
                 <span class="text-[#1A1A1A] font-semibold">{{ getContrast(platform) }}%</span>
               </div>
               <div>
-                <span class="text-[#222222]/60 block mb-1">Saturation</span>
+                <span class="text-[#222222]/60 block mb-0.5 sm:mb-1">Saturation</span>
                 <span class="text-[#1A1A1A] font-semibold">{{ getSaturation(platform) }}%</span>
               </div>
               <div>
-                <span class="text-[#222222]/60 block mb-1">Flip</span>
+                <span class="text-[#222222]/60 block mb-0.5 sm:mb-1">Flip</span>
                 <span class="text-[#1A1A1A] font-semibold">
                   @if (
                     getAdjustments(platform).flipHorizontal && getAdjustments(platform).flipVertical
@@ -440,12 +449,12 @@
 
           <!-- Caption Preview -->
           <div>
-            <h4 class="text-sm font-semibold text-[#1A1A1A] mb-2 flex items-center gap-2">
-              <i class="fa-solid fa-text-width text-[#4C6FFF]"></i>
-              Caption Preview
+            <h4 class="text-xs sm:text-sm font-semibold text-[#1A1A1A] mb-1.5 sm:mb-2 flex items-center gap-1.5 sm:gap-2">
+              <i class="fa-solid fa-text-width text-[#4C6FFF] text-xs sm:text-sm"></i>
+              <span>Caption Preview</span>
             </h4>
             <div
-              class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-4 text-[#222222] text-sm min-h-[80px] max-h-[200px] overflow-y-auto"
+              class="bg-[#F4F6FF] border border-[#DDE3FF] rounded-xl p-3 sm:p-4 text-[#222222] text-xs sm:text-sm min-h-[60px] sm:min-h-[80px] max-h-[150px] sm:max-h-[200px] overflow-y-auto"
             >
               @if (caption) {
                 <div class="whitespace-pre-wrap">{{ caption }}</div>

@@ -93,7 +93,19 @@ export class MediaService {
    * Get media by ID
    */
   getMedia(mediaId: string): Observable<MediaAssetResponse> {
-    return this.http.get<MediaAssetResponse>(`${this.baseUrl}/api/media/${mediaId}`);
+    return this.http.get<any>(`${this.baseUrl}/api/media/${mediaId}`).pipe(
+      map((response) => {
+        // Handle both direct response and wrapped ApiResponse
+        if (response.data) {
+          return response.data as MediaAssetResponse;
+        }
+        return response as MediaAssetResponse;
+      }),
+      catchError((error) => {
+        this.loggingService.error('Media get error', error, 'MediaService');
+        return throwError(() => error);
+      }),
+    );
   }
 
   /**
@@ -102,10 +114,48 @@ export class MediaService {
   getMediaByTenant(): Observable<MediaAssetResponse[]> {
     const user = this.authService.user();
     if (!user || !user.tenantId) {
+      this.loggingService.error('User not authenticated or tenant ID missing', null, 'MediaService');
       return throwError(() => new Error('User not authenticated or tenant ID missing'));
     }
 
-    return this.http.get<MediaAssetResponse[]>(`${this.baseUrl}/api/media/tenant/${user.tenantId}`);
+    this.loggingService.debug(`Fetching media for tenant: ${user.tenantId}`, null, 'MediaService');
+
+    return this.http.get<any>(`${this.baseUrl}/api/media/tenant/${user.tenantId}`).pipe(
+      tap((response) => {
+        this.loggingService.debug(`Media API response received`, { 
+          isArray: Array.isArray(response),
+          hasData: !!response?.data,
+          dataLength: response?.data?.length || response?.length || 0
+        }, 'MediaService');
+      }),
+      map((response) => {
+        // Handle both direct array and wrapped ApiResponse
+        if (Array.isArray(response)) {
+          this.loggingService.debug(`Returning direct array with ${response.length} items`, null, 'MediaService');
+          return response as MediaAssetResponse[];
+        }
+        // Handle camelCase (data) and PascalCase (Data) properties
+        const data = response?.data || response?.Data;
+        if (data && Array.isArray(data)) {
+          this.loggingService.debug(`Returning wrapped array with ${data.length} items`, null, 'MediaService');
+          return data as MediaAssetResponse[];
+        }
+        // Log the full response structure for debugging
+        this.loggingService.debug('No valid media data found in response', { 
+          response,
+          responseKeys: response ? Object.keys(response) : [],
+          hasData: !!response?.data,
+          hasDataPascal: !!response?.Data,
+          dataType: typeof response?.data,
+          dataPascalType: typeof response?.Data
+        }, 'MediaService');
+        return [];
+      }),
+      catchError((error) => {
+        this.loggingService.error('Media get by tenant error', error, 'MediaService');
+        return throwError(() => error);
+      }),
+    );
   }
 
   /**

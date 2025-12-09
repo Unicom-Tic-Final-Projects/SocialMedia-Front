@@ -93,123 +93,41 @@ body {
   position: relative;
 }
 
-/* Scroll Stack Effect */
-.scroll-stack-wrapper {
+/* Normal scrolling - no stack container */
+.landing-container {
   position: relative;
   width: 100%;
   overflow-x: hidden;
 }
 
-.scroll-stack-inner {
-  padding-top: 20vh;
-  padding-left: 2rem;
-  padding-right: 2rem;
-  padding-bottom: 50rem;
-  min-height: 100vh;
-}
-
-.scroll-stack-card {
-  position: relative;
-  width: 100%;
-  min-height: 80vh;
-  margin-bottom: 100px;
-  padding: 2rem;
-  border-radius: 40px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-  background: white;
-  transform-origin: top center;
-  will-change: transform, filter;
-  backface-visibility: hidden;
-  transform-style: preserve-3d;
-  perspective: 1000px;
-  transition: none; /* Disable CSS transitions for smooth manual control */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  border: 2px solid transparent;
-}
-
-/* Glowing border effect for active stack card */
-.scroll-stack-card.stack-card-active {
-  border: 2px solid #4c6fff;
-  box-shadow:
-    0 0 30px rgba(0, 0, 0, 0.1),
-    0 0 20px rgba(76, 111, 255, 0.3),
-    0 0 40px rgba(76, 111, 255, 0.2),
-    0 0 60px rgba(76, 111, 255, 0.1);
-  animation: borderGlow 2s ease-in-out infinite;
-}
-
-@keyframes borderGlow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 30px rgba(0, 0, 0, 0.1),
-      0 0 20px rgba(76, 111, 255, 0.3),
-      0 0 40px rgba(76, 111, 255, 0.2),
-      0 0 60px rgba(76, 111, 255, 0.1);
-  }
-  50% {
-    box-shadow:
-      0 0 30px rgba(0, 0, 0, 0.1),
-      0 0 30px rgba(76, 111, 255, 0.5),
-      0 0 50px rgba(76, 111, 255, 0.3),
-      0 0 80px rgba(76, 111, 255, 0.2);
-  }
-}
-
-.scroll-stack-card:first-child {
-  margin-top: 0;
-}
-
-.scroll-stack-end {
-  width: 100%;
-  height: 1px;
-  margin-top: 20vh;
-}
+/* Normal scrolling - sections flow naturally */
 
 /* Ensure header stays on top */
 app-app-header {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   z-index: 1000;
+  background: white;
 }
 
-/* Responsive adjustments for scroll stack */
-@media (max-width: 1024px) {
-  .scroll-stack-inner {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-    padding-top: 15vh;
-  }
-
-  .scroll-stack-card {
-    padding: 1.5rem;
-    border-radius: 30px;
-    min-height: 70vh;
-  }
+/* Add padding to first section to account for fixed header */
+.landing-container > app-hero-section {
+  padding-top: 80px;
 }
 
 @media (max-width: 768px) {
-  .scroll-stack-inner {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 10vh;
-    padding-bottom: 30rem;
-  }
-
-  .scroll-stack-card {
-    padding: 1rem;
-    border-radius: 24px;
-    min-height: 60vh;
-    margin-bottom: 60px;
+  .landing-container > app-hero-section {
+    padding-top: 60px;
   }
 }
 
-/* Smooth scrolling for seamless loop */
+/* Normal scrolling - responsive handled by sections themselves */
+
+/* Smooth scrolling */
 html {
-  scroll-behavior: auto; /* Disable default smooth scroll, we use custom */
+  scroll-behavior: smooth;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -218,22 +136,11 @@ html {
 body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  overscroll-behavior-x: none;
 }
 
 /* Smooth scroll performance optimizations */
 * {
   -webkit-tap-highlight-color: transparent;
-}
-
-.scroll-stack-card {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
 }
 
 /* Ensure sections flow naturally */
@@ -322,3 +229,18 @@ section {
   transform: translateZ(0);
   backface-visibility: hidden;
 }
+
+/* Content fade-in keyframes (for fallback) */
+@keyframes contentFadeIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 50px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Normal scrolling - no stack items needed */
+

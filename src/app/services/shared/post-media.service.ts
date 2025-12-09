@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
+import { MediaAssetResponse } from '../../models/post.models';
 import { MediaUploadService } from './media-upload.service';
 import { MediaService } from '../client/media.service';
 import { PostDraftService } from '../client/post-draft.service';
@@ -112,6 +113,8 @@ export class PostMediaService {
         if (response.mediaUrl) {
           this.mediaPreviewSignal.set(response.mediaUrl);
         }
+        // Save to draft immediately after upload to preserve mediaId
+        this.saveToDraft();
       }),
       map((response) => response.mediaId),
       catchError((error) => {
@@ -138,6 +141,50 @@ export class PostMediaService {
   setMediaPreview(url: string, isVideo: boolean = false): void {
     this.mediaPreviewSignal.set(url);
     this.isVideoSignal.set(isVideo);
+  }
+
+  /**
+   * Load media from media ID (from content library)
+   */
+  loadMediaFromId(mediaId: string): Observable<void> {
+    // Validate mediaId
+    if (!mediaId || 
+        mediaId === '00000000-0000-0000-0000-000000000000' ||
+        mediaId.trim() === '') {
+      return throwError(() => new Error('Invalid mediaId provided'));
+    }
+
+    return this.mediaService.getMedia(mediaId).pipe(
+      tap((media) => {
+        // MediaAssetResponse has both id and mediaId, use mediaId if available
+        const mediaIdToUse = media.mediaId || media.id || mediaId;
+        
+        this.mediaPreviewSignal.set(media.url);
+        this.uploadedMediaIdSignal.set(mediaIdToUse);
+        const isVideo = media.fileType?.startsWith('video/') || false;
+        this.isVideoSignal.set(isVideo);
+        
+        // Create uploaded file info for display
+        // Since this is from library (already uploaded), we create a minimal File object
+        const dummyFile = new File([''], media.fileName || 'Media', { type: media.fileType || '' });
+        const fileInfo: UploadedFile = {
+          id: mediaIdToUse,
+          file: dummyFile,
+          name: media.fileName || 'Media',
+          size: media.fileSize || 0,
+          type: media.fileType || '',
+          preview: media.thumbnailUrl || media.url,
+          progress: 100,
+          failed: false,
+        };
+        this.uploadedFilesSignal.set([fileInfo]);
+      }),
+      map(() => void 0),
+      catchError((error) => {
+        console.error('Error loading media from ID:', error);
+        return throwError(() => error);
+      }),
+    );
   }
 
   /**
@@ -194,6 +241,7 @@ export class PostMediaService {
 
     this.draftService.updateDraft({
       mediaUrl: this.mediaPreviewSignal() || undefined,
+      mediaId: this.uploadedMediaIdSignal() || undefined,
       mediaType: this.mediaPreviewSignal()
         ? this.isVideoSignal()
           ? 'video'
@@ -213,6 +261,50 @@ export class PostMediaService {
   loadFromDraft(draft: any): void {
     if (draft.mediaUrl) {
       this.mediaPreviewSignal.set(draft.mediaUrl);
+    }
+    if (draft.mediaId) {
+      // Restore the uploaded media ID
+      this.uploadedMediaIdSignal.set(draft.mediaId);
+      
+      // If we have mediaId, load full media details to populate uploadedFiles
+      // This ensures the UI shows the file info correctly
+      this.loadMediaFromId(draft.mediaId).subscribe({
+        next: () => {
+          // Media loaded successfully
+        },
+        error: (error) => {
+          // If loading by ID fails, at least we have the URL
+          // Create a minimal file info from the URL
+          if (draft.mediaUrl) {
+            const dummyFile = new File([''], 'Media', { type: draft.mediaType === 'video' ? 'video/*' : 'image/*' });
+            const fileInfo: UploadedFile = {
+              id: draft.mediaId || 'draft-media',
+              file: dummyFile,
+              name: 'Media from draft',
+              size: 0,
+              type: draft.mediaType === 'video' ? 'video/*' : 'image/*',
+              preview: draft.mediaUrl,
+              progress: 100,
+              failed: false,
+            };
+            this.uploadedFilesSignal.set([fileInfo]);
+          }
+        }
+      });
+    } else if (draft.mediaUrl) {
+      // If we only have URL but no mediaId, create minimal file info
+      const dummyFile = new File([''], 'Media', { type: draft.mediaType === 'video' ? 'video/*' : 'image/*' });
+      const fileInfo: UploadedFile = {
+        id: 'draft-media',
+        file: dummyFile,
+        name: 'Media from draft',
+        size: 0,
+        type: draft.mediaType === 'video' ? 'video/*' : 'image/*',
+        preview: draft.mediaUrl,
+        progress: 100,
+        failed: false,
+      };
+      this.uploadedFilesSignal.set([fileInfo]);
     }
     if (draft.mediaType) {
       this.isVideoSignal.set(draft.mediaType === 'video');

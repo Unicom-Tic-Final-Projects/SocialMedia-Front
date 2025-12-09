@@ -77,3 +77,48 @@
     #dde3ff 100%
   );
 }
+
+/* Touch Target Optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Responsive Slider Thumb Sizes */
+@media (max-width: 640px) {
+  .slider::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  /* Ensure crop box handles are touch-friendly */
+  .absolute.w-3.h-3,
+  .absolute.w-4.h-4 {
+    min-width: 32px;
+    min-height: 32px;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Very Small Phones */
+@media (max-width: 360px) {
+  .slider::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+}

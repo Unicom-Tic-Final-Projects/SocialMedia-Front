@@ -1,0 +1,44 @@
+/* Metrics Section Styles */
+.counter-value {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* Smooth counter animation */
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.counter-value {
+  animation: countUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Enhanced metric card hover effects */
+.group:hover .counter-value {
+  transform: scale(1.1);
+  color: var(--primary);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+}
+
+/* Icon pulse animation on hover */
+@keyframes icon-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.group:hover .w-14,
+.group:hover .w-16 {
+  animation: icon-pulse 1.5s ease-in-out infinite;
+}
+

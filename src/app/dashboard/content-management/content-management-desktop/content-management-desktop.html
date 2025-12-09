@@ -1,0 +1,261 @@
+<div class="content-management-desktop min-h-screen text-[#222222] animate-fadeIn">
+  <!-- Desktop Header Section -->
+  <div class="sticky top-0 z-30 bg-white border-b border-[#E5E7EB]">
+    <div class="px-6 lg:px-8 py-4 sm:py-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1
+            class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3"
+          >
+            <i class="fa-solid fa-folder-open text-[#4C6FFF]"></i>
+            Content Management
+          </h1>
+          <p class="text-gray-600 text-xs sm:text-sm">
+            Create, manage, and schedule your social media content
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Overview Bar -->
+  <div class="px-6 lg:px-8 py-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      @if (loadingStats()) {
+        @for (card of [1, 2, 3, 4]; track card) {
+          <div class="skeleton-stat-card">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <div class="skeleton skeleton-text w-20 mb-2" style="height: 0.875em"></div>
+                <div class="skeleton skeleton-text w-12 mb-2" style="height: 2em"></div>
+              </div>
+              <div class="skeleton skeleton-circle w-10 h-10"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">
+                Total Posts
+              </p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">
+                {{ totalPosts() }}
+              </p>
+            </div>
+            <div
+              class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-file-alt text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">Drafts</p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">
+                {{ draftCount() }}
+              </p>
+            </div>
+            <div
+              class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-edit text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">
+                Scheduled
+              </p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">
+                {{ scheduledCount() }}
+              </p>
+            </div>
+            <div
+              class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-clock text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card rounded-lg p-4 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-xs text-gray-600 mb-1.5 font-medium uppercase tracking-wide">
+                Media Files
+              </p>
+              <p class="text-2xl sm:text-3xl font-bold text-[#1A1A1A] animate-countUp">
+                {{ mediaCount() }}
+              </p>
+            </div>
+            <div
+              class="icon-wrapper w-12 h-12 bg-[#4C6FFF]/10 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-images text-xl text-[#4C6FFF]"></i>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Main Content Area with Sidebar Navigation -->
+  <div class="flex flex-col lg:flex-row gap-0 lg:gap-6 px-6 lg:px-8 py-6">
+    <!-- Sidebar Navigation -->
+    <aside class="content-management-sidebar flex-shrink-0 group">
+      <div class="p-2 sticky top-24 transition-all duration-300">
+        <nav class="space-y-1">
+          <button
+            type="button"
+            (click)="setActiveTab('create')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'create'"
+            [class.text-white]="activeTab() === 'create'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'create'"
+            [class.shadow-md]="activeTab() === 'create'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-plus-circle w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">Create Post</span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('library')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'library'"
+            [class.text-white]="activeTab() === 'library'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'library'"
+            [class.shadow-md]="activeTab() === 'library'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-images w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">Content Library</span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('drafts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'drafts'"
+            [class.text-white]="activeTab() === 'drafts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'drafts'"
+            [class.shadow-md]="activeTab() === 'drafts'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-edit w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">Drafts{{ draftCount() > 0 ? ' (' + draftCount() + ')' : '' }}</span>
+            @if (draftCount() > 0) {
+              <span
+                class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-[#4C6FFF] text-white rounded-full text-xs font-semibold min-w-[18px] text-center"
+                >{{ draftCount() }}</span
+              >
+            }
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('scheduled')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'scheduled'"
+            [class.text-white]="activeTab() === 'scheduled'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'scheduled'"
+            [class.shadow-md]="activeTab() === 'scheduled'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-calendar-check w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">Scheduled{{ scheduledCount() > 0 ? ' (' + scheduledCount() + ')' : '' }}</span>
+            @if (scheduledCount() > 0) {
+              <span
+                class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-[#4C6FFF] text-white rounded-full text-xs font-semibold min-w-[18px] text-center"
+                >{{ scheduledCount() }}</span
+              >
+            }
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('posts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'posts'"
+            [class.text-white]="activeTab() === 'posts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'posts'"
+            [class.shadow-md]="activeTab() === 'posts'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-file-alt w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">My Posts</span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('published-posts')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'published-posts'"
+            [class.text-white]="activeTab() === 'published-posts'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'published-posts'"
+            [class.shadow-md]="activeTab() === 'published-posts'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-check-circle w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">Published Posts{{ publishedCount() > 0 ? ' (' + publishedCount() + ')' : '' }}</span>
+            @if (publishedCount() > 0) {
+              <span
+                class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-[#4C6FFF] text-white rounded-full text-xs font-semibold min-w-[18px] text-center"
+                >{{ publishedCount() }}</span
+              >
+            }
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('calendar')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'calendar'"
+            [class.text-white]="activeTab() === 'calendar'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'calendar'"
+            [class.shadow-md]="activeTab() === 'calendar'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-calendar-alt w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">Calendar</span>
+          </button>
+          <button
+            type="button"
+            (click)="setActiveTab('ai-assistant')"
+            [class.bg-[#4C6FFF]]="activeTab() === 'ai-assistant'"
+            [class.text-white]="activeTab() === 'ai-assistant'"
+            [class.text-[#1A1A1A]]="activeTab() !== 'ai-assistant'"
+            [class.shadow-md]="activeTab() === 'ai-assistant'"
+            class="sidebar-nav-item w-full flex items-center justify-center px-4 py-3 rounded-lg font-medium transition-all duration-200 text-sm hover:bg-[#F5F7FF] group/item relative"
+          >
+            <i class="fa-solid fa-wand-magic-sparkles w-5 text-center flex-shrink-0"></i>
+            <span class="sidebar-tooltip">AI Assistant</span>
+          </button>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 min-w-0">
+      <div [class]="activeTab() === 'posts' ? 'animate-fadeIn' : 'p-4 sm:p-6 lg:p-8 animate-fadeIn'">
+        @if (activeTab() === 'create') {
+          <app-post-editor [embeddedMode]="true" class="animate-slideIn"></app-post-editor>
+        }
+        @if (activeTab() === 'library') {
+          <app-content-library class="animate-slideIn"></app-content-library>
+        }
+        @if (activeTab() === 'drafts') {
+          <app-draft-manager class="animate-slideIn"></app-draft-manager>
+        }
+        @if (activeTab() === 'scheduled') {
+          <app-scheduled-posts class="animate-slideIn"></app-scheduled-posts>
+        }
+        @if (activeTab() === 'posts') {
+          <app-posts-page [embeddedMode]="true" class="animate-slideIn w-full"></app-posts-page>
+        }
+        @if (activeTab() === 'published-posts') {
+          <app-published-posts class="animate-slideIn"></app-published-posts>
+        }
+        @if (activeTab() === 'calendar') {
+          <app-content-calendar class="animate-slideIn"></app-content-calendar>
+        }
+        @if (activeTab() === 'ai-assistant') {
+          <app-ai-assistant class="animate-slideIn"></app-ai-assistant>
+        }
+      </div>
+    </main>
+  </div>
+</div>

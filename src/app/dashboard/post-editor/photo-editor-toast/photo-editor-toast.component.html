@@ -1,0 +1,95 @@
+<div class="photo-editor-toast-container">
+  @if (isVideo()) {
+    <div class="text-center p-8 text-gray-500">
+      <i class="fa-solid fa-video text-4xl mb-4"></i>
+      <p>Video editing is handled separately. Please use the video editor component.</p>
+    </div>
+  } @else {
+    <div class="flex flex-col h-full">
+      <!-- Top Panel: Platform Selection -->
+      <div class="mb-4 bg-[#F9FAFF] rounded-xl p-3 border border-[#DDE3FF]">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">Platforms</h3>
+        <div class="flex flex-wrap gap-2">
+          @for (
+            platform of selectedPlatforms.length > 0 ? selectedPlatforms : allPlatforms;
+            track platform
+          ) {
+            @let meta = platformMeta[platform];
+            @let isSelectedInStep2 = selectedPlatforms.includes(platform);
+            <button
+              type="button"
+              (click)="selectPlatform(platform)"
+              class="flex items-center gap-2 px-4 py-2.5 rounded-lg border transition font-medium relative flex-shrink-0"
+              [class.bg-[#4C6FFF]]="selectedPlatform() === platform"
+              [class.text-white]="selectedPlatform() === platform"
+              [class.border-[#4C6FFF]]="selectedPlatform() === platform"
+              [class.text-[#1A1A1A]]="selectedPlatform() !== platform"
+              [class.bg-white]="selectedPlatform() !== platform"
+              [class.border-[#DDE3FF]]="selectedPlatform() !== platform"
+              [class.opacity-60]="!isSelectedInStep2"
+            >
+              <i
+                [class]="meta.icon + ' text-base flex-shrink-0'"
+                [style.color]="selectedPlatform() === platform ? '#FFFFFF' : meta.color"
+              ></i>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium">{{ meta.label }}</span>
+                @if (getCropState(platform)) {
+                  <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600 whitespace-nowrap">
+                    {{ getPlatformAspect(platform).label }} - Cropped
+                  </span>
+                }
+                @if (!isSelectedInStep2) {
+                  <span class="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600 whitespace-nowrap">
+                    Not Selected
+                  </span>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Aspect Ratio Info at Top -->
+      @if (selectedPlatform()) {
+        <div class="mb-4 bg-[#F9FAFF] rounded-xl p-4 border border-[#DDE3FF]">
+          <div class="text-center">
+            <p class="text-xs font-medium text-gray-600 mb-2">Aspect Ratio</p>
+            <p class="text-3xl font-bold mb-1" [style.color]="platformMeta[selectedPlatform()!].color">
+              {{ getPlatformAspect(selectedPlatform()!).label }}
+            </p>
+            <p class="text-sm text-gray-500">
+              {{ getPlatformAspect(selectedPlatform()!).description }}
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- Center: Editor (Full Width) -->
+      <div class="flex-1 flex flex-col min-h-0">
+        @if (loading()) {
+          <div class="flex items-center justify-center h-full">
+            <div class="text-center">
+              <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4C6FFF] mx-auto mb-4"></div>
+              <p class="text-gray-600">Loading editor...</p>
+            </div>
+          </div>
+        } @else {
+          <div #editorContainer class="editor-wrapper"></div>
+        }
+      </div>
+
+      <!-- Info Panel at Bottom -->
+      <div class="mt-4 bg-[#F9FAFF] rounded-xl p-4 border border-[#DDE3FF]">
+        <h3 class="text-xs font-bold uppercase tracking-wide text-[#222222]/60 mb-3">Info</h3>
+        <div class="text-sm text-gray-600 space-y-2">
+          <p>Use the editor tools below to crop and adjust your image.</p>
+          <p class="text-xs text-gray-500">
+            The image will be automatically saved for the selected platform.
+          </p>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

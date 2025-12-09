@@ -4,11 +4,11 @@
     <div class="fixed inset-0 bg-black/50 z-40 md:hidden" (click)="closeMobileMenu()"></div>
   }
 
-  <!-- Sidebar -->
+  <!-- Sidebar - Minimal Design -->
   <aside
-    class="fixed md:static inset-y-0 left-0 w-72 bg-[#F5F7FF] p-6 border-r border-[#D9E1FF] shadow-md flex flex-col z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0"
-    [class.translate-x-0]="showMobileMenu()"
-    [class.-translate-x-full]="!showMobileMenu()"
+    class="fixed md:static inset-y-0 left-0 w-72 bg-white p-6 border-r border-[#E5E7EB] flex flex-col z-50 transform transition-transform duration-300 ease-in-out md:translate-x-0"
+    [class.translate-x-0]="showMobileMenu() && !isNotifications()"
+    [class.-translate-x-full]="!showMobileMenu() || isNotifications()"
   >
     <!-- Logo -->
     <div class="mb-10">
@@ -22,9 +22,9 @@
     <nav class="flex flex-col gap-1 flex-1">
       <a
         routerLink="/dashboard"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
-        class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
         <i
           class="fa-solid fa-home w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"
@@ -36,9 +36,9 @@
       @if (isIndividual()) {
         <a
           routerLink="/dashboard/content-management"
-          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          routerLinkActive="bg-[#4C6FFF] text-white"
           (click)="closeMobileMenu()"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 text-[#222222] font-medium text-sm group"
         >
           <i
             class="fa-solid fa-folder-open w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"
@@ -51,9 +51,9 @@
       @if (isAgency()) {
         <a
           routerLink="/dashboard/clients"
-          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          routerLinkActive="bg-[#4C6FFF] text-white"
           (click)="closeMobileMenu()"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 text-[#222222] font-medium text-sm group"
         >
           <i
             class="fa-solid fa-briefcase w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"
@@ -62,9 +62,9 @@
         </a>
         <a
           routerLink="/dashboard/approvals"
-          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          routerLinkActive="bg-[#4C6FFF] text-white"
           (click)="closeMobileMenu()"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#F5F7FF] transition-all duration-200 text-[#222222] font-medium text-sm group"
         >
           <i
             class="fa-solid fa-check-circle w-5 text-center text-[#4C6FFF] group-hover:scale-110 transition-transform"
@@ -75,7 +75,7 @@
 
       <a
         routerLink="/dashboard/analytics"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -87,7 +87,7 @@
 
       <a
         routerLink="/dashboard/social-account"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -99,7 +99,7 @@
 
       <a
         routerLink="/dashboard/webhooks"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -111,7 +111,7 @@
 
       <a
         routerLink="/dashboard/notifications"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -123,7 +123,7 @@
 
       <a
         routerLink="/dashboard/billing"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -135,7 +135,7 @@
 
       <a
         routerLink="/dashboard/settings"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -147,7 +147,7 @@
 
       <a
         routerLink="/dashboard/profile"
-        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        routerLinkActive="bg-[#4C6FFF] text-white"
         (click)="closeMobileMenu()"
         class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#BFC9FF]/50 transition-all duration-200 text-[#222222] font-medium text-sm group"
       >
@@ -156,117 +156,293 @@
         ></i>
         Profile
       </a>
+
+      <!-- Logout - Desktop/Laptop View (Individual Users Only) -->
+      @if (isIndividual()) {
+        <button
+          type="button"
+          (click)="logout(); closeMobileMenu()"
+          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-all duration-200 text-red-600 font-medium text-sm group md:block hidden"
+        >
+          <i
+            class="fa-solid fa-sign-out-alt w-5 text-center group-hover:scale-110 transition-transform"
+          ></i>
+          Logout
+        </button>
+      }
     </nav>
 
-    <!-- User Section -->
-    <div class="mt-auto pt-6 border-t border-[#D9E1FF]">
-      <div class="flex items-center gap-3 mb-4">
-        <div
-          class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-semibold text-sm"
+    <!-- User Section - Desktop/Laptop View (Agency Only) -->
+    @if (isAgency()) {
+      <div class="mt-auto pt-6 border-t border-[#E5E7EB] hidden md:block">
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-semibold text-sm"
+          >
+            {{ getUserInitials() }}
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-[#1A1A1A] truncate">{{ getUserDisplayName() }}</p>
+            <p class="text-xs text-gray-600 truncate">{{ user()?.email }}</p>
+
+            @if (user()?.tenantType) {
+              <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-[#F5F7FF] text-[#4C6FFF] font-medium">
+                {{ user()?.tenantType }}
+              </span>
+            }
+          </div>
+        </div>
+
+        <button
+          type="button"
+          (click)="logout()"
+          class="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors text-sm font-medium"
         >
-          {{ getUserInitials() }}
-        </div>
-
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium text-[#1A1A1A] truncate">{{ getUserDisplayName() }}</p>
-          <p class="text-xs text-gray-600 truncate">{{ user()?.email }}</p>
-
-          @if (user()?.tenantType) {
-            <span class="inline-block mt-1 px-2 py-0.5 text-xs rounded bg-[#BFC9FF] text-[#1A1A1A]">
-              {{ user()?.tenantType }}
-            </span>
-          }
-        </div>
+          <i class="fa-solid fa-sign-out-alt"></i> Logout
+        </button>
       </div>
-
-      <button
-        type="button"
-        (click)="logout()"
-        class="w-full flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors text-sm font-medium"
-      >
-        <i class="fa-solid fa-sign-out-alt"></i> Logout
-      </button>
-    </div>
+    }
   </aside>
 
   <!-- Main Content -->
   <div class="flex-1 flex flex-col">
-    <!-- Mobile Header -->
+    <!-- Mobile Header - Sticky (Hidden on Content Management) -->
+    @if (!isContentManagement()) {
     <header
-      class="md:hidden bg-[#F5F7FF] border-b border-[#D9E1FF] p-4 flex items-center justify-between shadow-sm sticky top-0 z-30"
+      class="md:hidden bg-white/95 backdrop-blur-sm border-b border-[#E5E7EB] px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between sticky top-0 z-30 safe-area-top shadow-sm"
     >
-      <button
-        type="button"
-        (click)="toggleMobileMenu()"
-        class="p-2 rounded-lg hover:bg-[#BFC9FF]/50 transition"
-        aria-label="Toggle menu"
-      >
-        <i class="fa-solid fa-bars text-[#4C6FFF] text-xl"></i>
-      </button>
+      <!-- Onevo Logo - Left -->
+      <h2 class="text-lg sm:text-xl font-bold text-[#4C6FFF] flex-shrink-0">
+        One<span class="text-[#1A1A1A]">vo</span>
+      </h2>
 
-      <h2 class="text-xl font-bold text-[#4C6FFF]">One<span class="text-[#1A1A1A]">vo</span></h2>
-
-      <div class="relative">
+      <!-- User Avatar with Navigation Dropdown - Right -->
+      <div class="relative flex-shrink-0">
         <button
           type="button"
           (click)="toggleUserMenu()"
-          class="w-10 h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-semibold text-sm"
+          class="user-avatar-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-semibold text-xs sm:text-sm touch-target transition-all duration-300 active:scale-95"
+          [class.avatar-open]="showUserMenu()"
+          aria-label="User menu"
         >
-          {{ getUserInitials() }}
+          <!-- Avatar Initials (shown when closed) -->
+          <span class="avatar-initials" [class.avatar-hidden]="showUserMenu()">
+            {{ getUserInitials() }}
+          </span>
+          <!-- X Icon (shown when open) -->
+          <i class="fa-solid fa-times avatar-close-icon" [class.avatar-visible]="showUserMenu()"></i>
         </button>
 
         @if (showUserMenu()) {
+          <!-- Click outside to close -->
           <div
-            class="absolute right-0 mt-2 w-56 bg-white border border-[#D9E1FF] rounded-lg shadow-xl z-50"
+            class="fixed inset-0 z-40"
+            (click)="showUserMenu.set(false)"
+          ></div>
+          
+          <!-- Dropdown Menu -->
+          <div
+            class="user-dropdown-menu absolute right-0 mt-2 w-64 sm:w-72 bg-white border border-[#E5E7EB] rounded-xl shadow-xl z-50 flex flex-col"
+            style="max-height: calc(100vh - 100px);"
           >
-            <div class="p-4 border-b border-[#D9E1FF]">
-              <p class="text-sm font-medium text-[#1A1A1A]">{{ getUserDisplayName() }}</p>
-              <p class="text-xs text-gray-600 mt-1">{{ user()?.email }}</p>
+            <!-- User Info Section with Close Button - Fixed Header -->
+            <div class="p-3 sm:p-4 border-b border-[#E5E7EB] bg-[#F9FAFB] flex items-start justify-between flex-shrink-0">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm sm:text-base font-semibold text-[#1A1A1A]">{{ getUserDisplayName() }}</p>
+                <p class="text-xs sm:text-sm text-gray-600 mt-0.5 truncate">{{ user()?.email }}</p>
 
-              @if (user()?.tenantType) {
-                <span
-                  class="inline-block mt-2 px-2 py-0.5 text-xs rounded bg-[#BFC9FF] text-[#1A1A1A]"
-                >
-                  {{ user()?.tenantType }}
-                </span>
-              }
+                @if (user()?.tenantType) {
+                  <span
+                    class="inline-block mt-2 px-2 py-0.5 text-[10px] sm:text-xs rounded bg-[#F5F7FF] text-[#4C6FFF] font-medium"
+                  >
+                    {{ user()?.tenantType }}
+                  </span>
+                }
+              </div>
             </div>
 
-            <div class="p-2">
-              <a
-                routerLink="/dashboard/profile"
-                (click)="showUserMenu.set(false)"
-                class="block px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#BFC9FF]/40 rounded-lg transition"
-              >
-                <i class="fa-solid fa-user mr-2 text-[#4C6FFF]"></i> Profile
-              </a>
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-y-auto min-h-0 -webkit-overflow-scrolling-touch">
+              <!-- Additional Navigation Links (Not in Bottom Nav) -->
+              <div class="p-2">
+                <!-- Approvals (Agency only, not in bottom nav) -->
+                @if (isAgency()) {
+                  <a
+                    routerLink="/dashboard/approvals"
+                    routerLinkActive="bg-[#4C6FFF] text-white"
+                    (click)="showUserMenu.set(false)"
+                    class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                  >
+                    <i class="fa-solid fa-check-circle mr-3 text-[#4C6FFF] w-5"></i> Approvals
+                  </a>
+                }
 
-              <a
-                routerLink="/dashboard/settings"
-                (click)="showUserMenu.set(false)"
-                class="block px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#BFC9FF]/40 rounded-lg transition"
-              >
-                <i class="fa-solid fa-gear mr-2 text-[#4C6FFF]"></i> Settings
-              </a>
+                <!-- Social Accounts (Not in bottom nav) -->
+                <a
+                  routerLink="/dashboard/social-account"
+                  routerLinkActive="bg-[#4C6FFF] text-white"
+                  (click)="showUserMenu.set(false)"
+                  class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                >
+                  <i class="fa-solid fa-link mr-3 text-[#4C6FFF] w-5"></i> Social Accounts
+                </a>
 
-              <button
-                type="button"
-                (click)="logout(); showUserMenu.set(false)"
-                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-500/10 rounded-lg transition"
-              >
-                <i class="fa-solid fa-sign-out-alt mr-2"></i> Logout
-              </button>
+                <!-- Webhooks (Not in bottom nav) -->
+                <a
+                  routerLink="/dashboard/webhooks"
+                  routerLinkActive="bg-[#4C6FFF] text-white"
+                  (click)="showUserMenu.set(false)"
+                  class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                >
+                  <i class="fa-solid fa-webhook mr-3 text-[#4C6FFF] w-5"></i> Webhooks
+                </a>
+
+                <!-- Billing (Not in bottom nav) -->
+                <a
+                  routerLink="/dashboard/billing"
+                  routerLinkActive="bg-[#4C6FFF] text-white"
+                  (click)="showUserMenu.set(false)"
+                  class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                >
+                  <i class="fa-solid fa-credit-card mr-3 text-[#4C6FFF] w-5"></i> Billing
+                </a>
+              </div>
+
+              <!-- Divider -->
+              <div class="border-t border-[#E5E7EB] mx-2 my-1"></div>
+
+              <!-- Account Settings (Not in bottom nav) -->
+              <div class="p-2 pb-3">
+                <a
+                  routerLink="/dashboard/settings"
+                  (click)="showUserMenu.set(false)"
+                  class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                >
+                  <i class="fa-solid fa-gear mr-3 text-[#4C6FFF] w-5"></i> Settings
+                </a>
+
+                <button
+                  type="button"
+                  (click)="logout(); showUserMenu.set(false)"
+                  class="w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-red-600 hover:bg-red-500/10 rounded-lg transition touch-target"
+                >
+                  <i class="fa-solid fa-sign-out-alt mr-3 w-5"></i> Logout
+                </button>
+              </div>
             </div>
           </div>
         }
       </div>
     </header>
+    }
 
     <!-- Main Router Area -->
-    <main class="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 bg-[#FFFFFF] overflow-y-auto">
-      <div class="dashboard-content">
+    <main class="flex-1 p-6 sm:p-8 md:p-10 lg:p-12 bg-[#FFFFFF] overflow-y-auto pb-20 md:pb-6">
+      <div class="dashboard-content max-w-7xl mx-auto">
         <router-outlet></router-outlet>
       </div>
     </main>
   </div>
+
+  <!-- Bottom Navigation - Mobile/Tablet Only -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] z-50 lg:hidden safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+    <div class="flex justify-around items-center h-16 md:h-18 px-2 md:px-4">
+      <!-- Dashboard -->
+      <a
+        routerLink="/dashboard"
+        routerLinkActive="text-[#4C6FFF]"
+        [routerLinkActiveOptions]="{exact: true}"
+        class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fa-solid fa-home text-base sm:text-lg md:text-xl mb-0.5 md:mb-1"></i>
+        <span class="text-[10px] sm:text-xs font-medium">Home</span>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+          [class.opacity-0]="!isActiveRoute('/dashboard', true)"></div>
+      </a>
+
+      <!-- Content Management (Individual) or Clients (Agency) -->
+      @if (isIndividual()) {
+        <a
+          routerLink="/dashboard/content-management"
+          routerLinkActive="text-[#4C6FFF]"
+          class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200"
+          (click)="closeMobileMenu()"
+        >
+          <i class="fa-solid fa-folder-open text-base sm:text-lg md:text-xl mb-0.5 md:mb-1"></i>
+          <span class="text-[10px] sm:text-xs font-medium">Content</span>
+          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+            [class.opacity-0]="!isActiveRoute('/dashboard/content-management')"></div>
+        </a>
+      } @else if (isAgency()) {
+        <a
+          routerLink="/dashboard/clients"
+          routerLinkActive="text-[#4C6FFF]"
+          class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200"
+          (click)="closeMobileMenu()"
+        >
+          <i class="fa-solid fa-briefcase text-base sm:text-lg md:text-xl mb-0.5 md:mb-1"></i>
+          <span class="text-[10px] sm:text-xs font-medium">Clients</span>
+          <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+            [class.opacity-0]="!isActiveRoute('/dashboard/clients')"></div>
+        </a>
+      }
+
+      <!-- Analytics -->
+      <a
+        routerLink="/dashboard/analytics"
+        routerLinkActive="text-[#4C6FFF]"
+        class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200 relative"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fa-solid fa-chart-bar text-base sm:text-lg md:text-xl mb-0.5 md:mb-1"></i>
+        <span class="text-[10px] sm:text-xs font-medium">Analytics</span>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+          [class.opacity-0]="!isActiveRoute('/dashboard/analytics')"></div>
+      </a>
+
+      <!-- Notifications -->
+      <a
+        routerLink="/dashboard/notifications"
+        routerLinkActive="text-[#4C6FFF]"
+        class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200 relative"
+        (click)="closeMobileMenu()"
+      >
+        <div class="relative">
+          <i class="fa-solid fa-bell text-base sm:text-lg md:text-xl mb-0.5 md:mb-1"></i>
+          <!-- Badge for unread notifications - can be enhanced with actual count -->
+          <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </div>
+        <span class="text-[10px] sm:text-xs font-medium">Alerts</span>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+          [class.opacity-0]="!isActiveRoute('/dashboard/notifications')"></div>
+      </a>
+
+      <!-- Profile -->
+      <a
+        routerLink="/dashboard/profile"
+        routerLinkActive="text-[#4C6FFF]"
+        class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200"
+        (click)="closeMobileMenu()"
+      >
+        <i class="fa-solid fa-user text-base sm:text-lg md:text-xl mb-0.5 md:mb-1"></i>
+        <span class="text-[10px] sm:text-xs font-medium">Profile</span>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+          [class.opacity-0]="!isActiveRoute('/dashboard/profile')"></div>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Floating Action Button (FAB) - Mobile/Tablet Only (Hidden on Content Management) -->
+  @if (isIndividual() && !isContentManagement()) {
+    <button
+      type="button"
+      (click)="navigateToCreatePost()"
+      class="fab-button fixed bottom-20 right-4 lg:hidden bg-[#4C6FFF] text-white rounded-full shadow-lg hover:bg-[#3A56CC] active:scale-95 transition-all duration-200 flex items-center justify-center z-40 touch-target"
+      aria-label="Create new post"
+    >
+      <i class="fa-solid fa-plus text-xl"></i>
+    </button>
+  }
 </div>

@@ -1,29 +1,49 @@
-<div class="min-h-screen bg-[#F8F9FA] text-[#222222]">
+<div [class]="embeddedMode ? 'post-editor-embedded' : 'min-h-screen bg-[#F8F9FA] text-[#222222]'">
+  <!-- Unsaved Changes Dialog -->
+  <app-unsaved-changes-dialog
+    [isOpen]="showUnsavedChangesDialog()"
+    [saving]="isSavingDraft()"
+    (saveDraft)="onSaveDraftFromDialog()"
+    (continueWithoutSaving)="onContinueWithoutSavingFromDialog()"
+    (cancel)="onCancelDialog()"
+  />
+  
+  <!-- Media Library Modal -->
+  @if (showMediaLibraryModal()) {
+    <app-media-library-modal
+      (mediaSelected)="onMediaSelectedFromLibrary($event)"
+      (close)="showMediaLibraryModal.set(false)"
+    />
+  }
+  
   <!-- Enterprise Header Section -->
-  <div class="bg-white border-b border-[#D9E1FF] sticky top-0 z-30 shadow-sm">
-    <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-      <div class="flex items-center justify-between flex-wrap gap-4">
-        <div class="flex-1 min-w-0">
-          <h1
-            class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3"
+  @if (!embeddedMode) {
+    <div class="bg-white border-b border-[#D9E1FF] sticky top-0 z-30 shadow-sm">
+      <div class="px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div class="flex-1 min-w-0">
+            <h1
+              class="text-xl sm:text-2xl lg:text-3xl font-bold text-[#1A1A1A] mb-1 flex items-center gap-3"
+            >
+              <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
+              <span class="truncate">{{ isEditMode() ? 'Edit Post' : 'Create Post' }}</span>
+            </h1>
+            <p class="text-gray-600 text-xs sm:text-sm">
+              Follow the steps below to create and schedule your social media posts
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="handleCancel()"
+            class="flex items-center gap-2 text-gray-500 hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#F5F7FF]"
           >
-            <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
-            <span class="truncate">{{ isEditMode() ? 'Edit Post' : 'Create Post' }}</span>
-          </h1>
-          <p class="text-gray-600 text-xs sm:text-sm">
-            Follow the steps below to create and schedule your social media posts
-          </p>
+            <i class="fa-solid fa-times text-xl"></i>
+            <span class="hidden sm:inline">Cancel</span>
+          </button>
         </div>
-        <a
-          routerLink="/dashboard/posts"
-          class="flex items-center gap-2 text-gray-500 hover:text-[#4C6FFF] transition-colors p-2 rounded-lg hover:bg-[#F5F7FF]"
-        >
-          <i class="fa-solid fa-times text-xl"></i>
-          <span class="hidden sm:inline">Cancel</span>
-        </a>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Client Context Banner -->
   @if (isViewingClient() && selectedClient()) {
@@ -43,10 +63,10 @@
   }
 
   <!-- Main Content Area -->
-  <div class="px-4 sm:px-6 lg:px-8 py-6">
+  <div [class]="embeddedMode ? 'py-0' : 'px-4 sm:px-6 lg:px-8 py-6'">
     <!-- Enhanced Step Progress Indicator -->
-    <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-4 sm:p-6 mb-6">
-      <div class="flex items-center justify-between overflow-x-auto pb-2">
+    <div [class]="embeddedMode ? 'bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-2.5 sm:p-4 md:p-6 mb-3 sm:mb-4 md:mb-6' : 'bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-2.5 sm:p-4 md:p-6 mb-4 sm:mb-6'">
+      <div class="flex items-center justify-between overflow-x-auto pb-2 -mx-2 sm:mx-0 px-2 sm:px-0">
         @for (step of [1, 2, 3, 4, 5]; track step) {
           <div class="flex items-center flex-1 min-w-0">
             <!-- Step Circle -->
@@ -55,7 +75,7 @@
                 type="button"
                 (click)="goToStep(step)"
                 [disabled]="!canGoToStep(step)"
-                class="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full font-bold text-sm transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 hover:scale-110"
+                class="relative flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full font-bold text-[10px] sm:text-xs md:text-sm transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 touch-target min-h-[32px] sm:min-h-[40px] md:min-h-[48px]"
                 [class.bg-gradient-to-br]="currentStep() === step"
                 [class.from-[#4C6FFF]]="currentStep() === step"
                 [class.to-[#3A56CC]]="currentStep() === step"
@@ -70,7 +90,7 @@
                 [class.border-gray-300]="currentStep() !== step && !isStepComplete(step)"
               >
                 @if (isStepComplete(step) && currentStep() !== step) {
-                  <i class="fa-solid fa-check text-sm"></i>
+                  <i class="fa-solid fa-check text-[10px] sm:text-xs md:text-sm"></i>
                 } @else {
                   {{ step }}
                 }
@@ -78,7 +98,7 @@
 
               <!-- Step Label -->
               <span
-                class="mt-2 text-[10px] sm:text-xs font-medium text-center whitespace-nowrap max-w-[80px] sm:max-w-none truncate"
+                class="mt-1.5 sm:mt-2 text-[8px] sm:text-[10px] md:text-xs font-medium text-center whitespace-nowrap max-w-[60px] sm:max-w-[80px] md:max-w-none truncate px-0.5"
                 [class.text-[#4C6FFF]]="currentStep() === step"
                 [class.font-semibold]="currentStep() === step"
                 [class.text-gray-600]="currentStep() !== step && isStepComplete(step)"
@@ -86,24 +106,28 @@
               >
                 @switch (step) {
                   @case (1) {
-                    <span class="hidden sm:inline">Content & Media</span
-                    ><span class="sm:hidden">Content</span>
+                    <span class="hidden md:inline">Content & Media</span
+                    ><span class="hidden sm:inline md:hidden">Content</span
+                    ><span class="sm:hidden">C</span>
                   }
                   @case (2) {
-                    <span class="hidden sm:inline">Select Platforms</span
-                    ><span class="sm:hidden">Platforms</span>
+                    <span class="hidden md:inline">Select Platforms</span
+                    ><span class="hidden sm:inline md:hidden">Platforms</span
+                    ><span class="sm:hidden">P</span>
                   }
                   @case (3) {
-                    <span class="hidden sm:inline">Crop & Edit</span
-                    ><span class="sm:hidden">Crop</span>
+                    <span class="hidden md:inline">Crop & Edit</span
+                    ><span class="hidden sm:inline md:hidden">Crop</span
+                    ><span class="sm:hidden">E</span>
                   }
                   @case (4) {
                     <span class="hidden sm:inline">Preview</span
-                    ><span class="sm:hidden">Preview</span>
+                    ><span class="sm:hidden">V</span>
                   }
                   @case (5) {
-                    <span class="hidden sm:inline">Publish/Schedule</span
-                    ><span class="sm:hidden">Publish</span>
+                    <span class="hidden md:inline">Publish/Schedule</span
+                    ><span class="hidden sm:inline md:hidden">Publish</span
+                    ><span class="sm:hidden">S</span>
                   }
                 }
               </span>
@@ -112,7 +136,7 @@
             <!-- Connector Line -->
             @if (step < 5) {
               <div
-                class="flex-1 h-0.5 mx-2 sm:mx-4 -mt-6 transition-all duration-300"
+                class="flex-1 h-0.5 mx-1 sm:mx-2 md:mx-4 -mt-5 sm:-mt-6 transition-all duration-300"
                 [class.bg-gradient-to-r]="currentStep() > step"
                 [class.from-[#4C6FFF]]="currentStep() > step"
                 [class.to-[#3A56CC]]="currentStep() > step"
@@ -148,8 +172,8 @@
                 [value]="selectedClientId() ?? clients()[0]?.id"
                 (change)="selectClient($any($event.target).value)"
               >
-                @for (client of clients(); track client.id) {
-                  <option [value]="client.id">{{ client.name }}</option>
+                @for (client of clients(); track $index; let i = $index) {
+                  <option [value]="client.id || i">{{ client.name }}</option>
                 }
               </select>
             }
@@ -172,7 +196,7 @@
     }
 
     <!-- Step Content Container -->
-    <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-4 sm:p-6 md:p-8">
+    <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-3 sm:p-4 md:p-6 lg:p-8">
       <!-- STEP 1: Content & Media -->
       @if (currentStep() === 1) {
         <app-step1-content-media
@@ -187,6 +211,7 @@
           (fileDeleted)="onFileDeleted($event)"
           (fileRetry)="onFileRetry($event)"
           (removeMedia)="removeMedia()"
+          (selectFromLibrary)="showMediaLibraryModal.set(true)"
         />
       }
 
@@ -222,25 +247,27 @@
       }
 
       <!-- Navigation Buttons -->
-      <div class="flex items-center justify-between gap-4 mt-8 pt-6 border-t border-[#D9E1FF]">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-3 md:gap-4 mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-[#D9E1FF]">
         <button
           type="button"
           (click)="previousStep()"
           [disabled]="currentStep() === 1"
-          class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border-2 border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#F5F7FF] hover:border-[#4C6FFF]"
+          class="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-white border-2 border-[#D9E1FF] text-[#1A1A1A] active:bg-[#F5F7FF] active:border-[#4C6FFF] touch-target min-h-[44px] sm:min-h-[48px]"
         >
-          <i class="fa-solid fa-arrow-left"></i>
+          <i class="fa-solid fa-arrow-left text-xs sm:text-sm md:text-base"></i>
           <span class="hidden sm:inline">Previous</span>
+          <span class="sm:hidden">Prev</span>
         </button>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             (click)="saveDraft()"
-            class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all bg-[#F5F7FF] border-2 border-[#D9E1FF] text-[#1A1A1A] hover:bg-[#D9E1FF]"
+            class="flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base transition-all bg-[#F5F7FF] border-2 border-[#D9E1FF] text-[#1A1A1A] active:bg-[#D9E1FF] touch-target min-h-[44px] sm:min-h-[48px] flex-1 sm:flex-none"
           >
-            <i class="fa-solid fa-save"></i>
+            <i class="fa-solid fa-save text-xs sm:text-sm md:text-base"></i>
             <span class="hidden sm:inline">Save Draft</span>
+            <span class="sm:hidden">Save</span>
           </button>
 
           @if (currentStep() < 5) {
@@ -248,28 +275,33 @@
               type="button"
               (click)="nextStep()"
               [disabled]="!canGoToNextStep()"
-              class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white hover:shadow-lg hover:scale-105"
+              class="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white active:shadow-lg active:scale-95 touch-target min-h-[44px] sm:min-h-[48px] flex-1 sm:flex-none"
             >
               <span class="hidden sm:inline">Next</span>
-              <i class="fa-solid fa-arrow-right"></i>
+              <i class="fa-solid fa-arrow-right text-xs sm:text-sm md:text-base"></i>
             </button>
           } @else {
             <button
               type="button"
-              (click)="scheduleMode() === 'now' ? publishNow() : schedulePost()"
+              (click)="scheduleMode() === 'draft' ? saveDraft() : scheduleMode() === 'now' ? publishNow() : schedulePost()"
               [disabled]="saving()"
-              class="flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white hover:shadow-lg hover:scale-105"
+              class="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-xs sm:text-sm md:text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#4C6FFF] to-[#3A56CC] text-white active:shadow-lg active:scale-95 touch-target min-h-[44px] sm:min-h-[48px] flex-1 sm:flex-none"
             >
               @if (saving()) {
-                <i class="fa-solid fa-circle-notch animate-spin"></i>
-                <span>Processing...</span>
+                <i class="fa-solid fa-circle-notch animate-spin text-xs sm:text-sm md:text-base"></i>
+                <span class="text-xs sm:text-sm md:text-base">Processing...</span>
               } @else {
                 <i
                   [class]="
+                    scheduleMode() === 'draft' ? 'fa-solid fa-file-edit' :
                     scheduleMode() === 'now' ? 'fa-solid fa-paper-plane' : 'fa-solid fa-clock'
                   "
+                  class="text-xs sm:text-sm md:text-base"
                 ></i>
-                <span>{{ scheduleMode() === 'now' ? 'Publish Now' : 'Schedule Post' }}</span>
+                <span class="text-xs sm:text-sm md:text-base">
+                  <span class="hidden sm:inline">{{ scheduleMode() === 'draft' ? 'Create Post' : scheduleMode() === 'now' ? 'Publish Now' : 'Schedule Post' }}</span>
+                  <span class="sm:hidden">{{ scheduleMode() === 'draft' ? 'Create' : scheduleMode() === 'now' ? 'Publish' : 'Schedule' }}</span>
+                </span>
               }
             </button>
           }

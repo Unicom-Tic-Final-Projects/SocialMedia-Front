@@ -1,45 +1,45 @@
-<div class="min-h-screen p-4 sm:p-6 lg:p-8">
+<div class="min-h-screen p-2.5 sm:p-4 md:p-6 lg:p-8">
   <!-- Header -->
-  <div class="mb-6 animate-slideDown">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2">Published Posts</h1>
-        <p class="text-gray-600">Manage and view your posts published on social media platforms</p>
+  <div class="mb-4 sm:mb-6 animate-slideDown">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <div class="flex-1 min-w-0">
+        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 sm:mb-2">Published Posts</h1>
+        <p class="text-xs sm:text-sm text-gray-600">Manage and view your posts published on social media platforms</p>
       </div>
       <button
         type="button"
         (click)="loadPublishedPosts()"
-        class="px-4 py-2 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center gap-2 shadow-md hover:shadow-lg"
+        class="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] active:bg-[#3A56CC] transition-all duration-200 flex items-center justify-center gap-1.5 sm:gap-2 shadow-md hover:shadow-lg active:scale-95 text-xs sm:text-sm font-medium touch-target min-h-[44px]"
       >
-        <i class="fa-solid fa-sync-alt"></i>
+        <i class="fa-solid fa-sync-alt text-xs sm:text-sm"></i>
         <span>Refresh</span>
       </button>
     </div>
 
     <!-- Search and Filters -->
-    <div class="rounded-xl p-4">
+    <div class="bg-white rounded-xl shadow-sm border border-[#D9E1FF] p-3 sm:p-4 md:p-6">
       <!-- Search -->
-      <div class="mb-4">
+      <div class="mb-3 sm:mb-4">
         <div class="relative">
           <input
             type="text"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event); onSearchChange()"
             placeholder="Search posts by content or platform..."
-            class="w-full pl-10 pr-4 py-2 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent"
+            class="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2.5 sm:py-3 border border-[#D9E1FF] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] focus:border-transparent text-xs sm:text-sm touch-target"
           />
           <i
-            class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs sm:text-sm"
           ></i>
         </div>
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap gap-3">
+      <div class="flex flex-col gap-3 sm:gap-4">
         <!-- Platform Filter -->
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-700">Platform:</span>
-          <div class="flex gap-2 flex-wrap">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <span class="text-xs sm:text-sm font-medium text-gray-700 flex-shrink-0">Platform:</span>
+          <div class="flex gap-1.5 sm:gap-2 flex-wrap">
             @for (platform of platforms; track platform.value) {
               <button
                 type="button"
@@ -48,19 +48,19 @@
                 [class.text-white]="selectedPlatform() === platform.value"
                 [class.text-[#4C6FFF]]="selectedPlatform() !== platform.value"
                 [class.border-[#4C6FFF]]="selectedPlatform() === platform.value"
-                class="px-3 py-1.5 rounded-lg border transition-all duration-200 text-sm font-medium hover:scale-105"
+                class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border transition-all duration-200 text-xs sm:text-sm font-medium active:scale-95 touch-target min-h-[44px] flex items-center justify-center gap-1.5"
               >
-                <i [class]="platform.icon" class="mr-1.5"></i>
-                {{ platform.label }}
+                <i [class]="platform.icon" class="text-xs sm:text-sm"></i>
+                <span class="whitespace-nowrap">{{ platform.label }}</span>
               </button>
             }
           </div>
         </div>
 
         <!-- Status Filter -->
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-gray-700">Status:</span>
-          <div class="flex gap-2 flex-wrap">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <span class="text-xs sm:text-sm font-medium text-gray-700 flex-shrink-0">Status:</span>
+          <div class="flex gap-1.5 sm:gap-2 flex-wrap">
             @for (status of statusFilters; track status.value) {
               <button
                 type="button"
@@ -69,10 +69,10 @@
                 [class.text-white]="selectedStatus() === status.value"
                 [class.text-gray-700]="selectedStatus() !== status.value"
                 [class.border-[#4C6FFF]]="selectedStatus() === status.value"
-                class="px-3 py-1.5 rounded-lg border transition-all duration-200 text-sm font-medium hover:scale-105 flex items-center gap-1.5"
+                class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border transition-all duration-200 text-xs sm:text-sm font-medium active:scale-95 flex items-center gap-1.5 touch-target min-h-[44px]"
               >
-                <i [class]="status.icon" [class.text-white]="selectedStatus() === status.value"></i>
-                {{ status.label }}
+                <i [class]="status.icon" [class.text-white]="selectedStatus() === status.value" class="text-xs sm:text-sm"></i>
+                <span class="whitespace-nowrap">{{ status.label }}</span>
               </button>
             }
           </div>
@@ -83,10 +83,10 @@
           <button
             type="button"
             (click)="clearFilters()"
-            class="px-3 py-1.5 text-gray-600 hover:text-[#4C6FFF] transition-colors text-sm font-medium flex items-center gap-1.5"
+            class="w-full sm:w-auto px-3 sm:px-4 py-2 sm:py-2.5 text-gray-600 hover:text-[#4C6FFF] active:text-[#4C6FFF] transition-colors text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 touch-target min-h-[44px] border border-[#D9E1FF] rounded-lg hover:bg-[#F5F7FF]"
           >
-            <i class="fa-solid fa-times"></i>
-            Clear Filters
+            <i class="fa-solid fa-times text-xs sm:text-sm"></i>
+            <span>Clear Filters</span>
           </button>
         }
       </div>
@@ -110,10 +110,10 @@
   <!-- Posts List -->
   @if (!loading() && !error()) {
     @if (filteredPosts().length === 0) {
-      <div class="rounded-xl p-12 text-center">
-        <i class="fa-solid fa-inbox text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Published Posts Found</h3>
-        <p class="text-gray-500 mb-6">
+      <div class="rounded-xl p-8 sm:p-12 text-center">
+        <i class="fa-solid fa-inbox text-4xl sm:text-5xl md:text-6xl text-gray-300 mb-3 sm:mb-4"></i>
+        <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-2">No Published Posts Found</h3>
+        <p class="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 px-2">
           @if (searchQuery().trim() || selectedPlatform() !== 'all' || selectedStatus() !== 'all') {
             Try adjusting your filters to see more results.
           } @else {
@@ -123,29 +123,29 @@
         @if (!searchQuery().trim() && selectedPlatform() === 'all' && selectedStatus() === 'all') {
           <button
             type="button"
-            (click)="router.navigate(['/dashboard/post-editor'])"
-            class="px-6 py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] transition-all duration-200 shadow-md hover:shadow-lg"
+            (click)="router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'create' } })"
+            class="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] active:bg-[#3A56CC] transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 text-xs sm:text-sm font-medium touch-target min-h-[44px] flex items-center justify-center gap-1.5 sm:gap-2 mx-auto"
           >
-            <i class="fa-solid fa-plus mr-2"></i>
-            Create Your First Post
+            <i class="fa-solid fa-plus text-xs sm:text-sm"></i>
+            <span>Create Your First Post</span>
           </button>
         }
       </div>
     } @else {
-      <div class="grid gap-6">
+      <div class="grid gap-3 sm:gap-4 md:gap-6">
         @for (post of filteredPosts(); track post.id) {
           <div
-            class="rounded-xl hover:shadow-lg transition-all duration-300 overflow-hidden animate-slideUp"
+            class="bg-white rounded-xl border border-[#D9E1FF] hover:shadow-lg transition-all duration-300 overflow-hidden animate-slideUp"
           >
             <!-- Post Header -->
-            <div class="p-6 border-b border-[#D9E1FF]">
-              <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div class="p-3 sm:p-4 md:p-6 border-b border-[#D9E1FF]">
+              <div class="flex flex-col gap-3 sm:gap-4">
                 <!-- Post Content Preview -->
                 <div class="flex-1">
-                  <div class="flex items-start gap-4">
+                  <div class="flex items-start gap-2 sm:gap-3 md:gap-4">
                     @if (post.media) {
                       <div
-                        class="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border border-[#D9E1FF]"
+                        class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 border border-[#D9E1FF]"
                       >
                         @if (post.media.fileType.startsWith('video/')) {
                           <video
@@ -163,17 +163,16 @@
                       </div>
                     }
                     <div class="flex-1 min-w-0">
-                      <p class="text-gray-800 line-clamp-3 mb-3">{{ post.content }}</p>
-                      <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                        <span class="flex items-center gap-1.5">
-                          <i class="fa-solid fa-calendar"></i>
-                          {{ post.createdAt | date: 'medium' }}
+                      <p class="text-xs sm:text-sm text-gray-800 line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-3">{{ post.content }}</p>
+                      <div class="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-xs md:text-sm text-gray-500">
+                        <span class="flex items-center gap-1">
+                          <i class="fa-solid fa-calendar text-[10px] sm:text-xs"></i>
+                          <span class="hidden sm:inline">{{ post.createdAt | date: 'medium' }}</span>
+                          <span class="sm:hidden">{{ post.createdAt | date: 'short' }}</span>
                         </span>
-                        <span class="flex items-center gap-1.5">
-                          <i class="fa-solid fa-share"></i>
-                          {{ getTotalPlatforms(post) }} Platform{{
-                            getTotalPlatforms(post) !== 1 ? 's' : ''
-                          }}
+                        <span class="flex items-center gap-1">
+                          <i class="fa-solid fa-share text-[10px] sm:text-xs"></i>
+                          <span>{{ getTotalPlatforms(post) }} Platform{{ getTotalPlatforms(post) !== 1 ? 's' : '' }}</span>
                         </span>
                       </div>
                     </div>
@@ -181,68 +180,69 @@
                 </div>
 
                 <!-- Actions -->
-                <div class="flex gap-2 flex-shrink-0">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-2">
                   <button
                     type="button"
                     (click)="viewPost(post)"
-                    class="px-4 py-2 text-[#4C6FFF] border border-[#4C6FFF] rounded-lg hover:bg-[#4C6FFF] hover:text-white transition-all duration-200 text-sm font-medium"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-2.5 text-[#4C6FFF] border border-[#4C6FFF] rounded-lg hover:bg-[#4C6FFF] hover:text-white active:bg-[#4C6FFF] active:text-white transition-all duration-200 text-xs sm:text-sm font-medium touch-target min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    <i class="fa-solid fa-eye mr-1.5"></i>
-                    View
+                    <i class="fa-solid fa-eye text-xs sm:text-sm"></i>
+                    <span>View</span>
                   </button>
                   <button
                     type="button"
                     (click)="editPost(post)"
-                    class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm font-medium"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-2.5 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-50 transition-all duration-200 text-xs sm:text-sm font-medium touch-target min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    <i class="fa-solid fa-edit mr-1.5"></i>
-                    Edit
+                    <i class="fa-solid fa-edit text-xs sm:text-sm"></i>
+                    <span>Edit</span>
                   </button>
                   <button
                     type="button"
                     (click)="deletePost(post)"
-                    class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-all duration-200 text-sm font-medium"
+                    class="flex-1 sm:flex-none px-3 sm:px-4 py-2 sm:py-2.5 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 active:bg-red-50 transition-all duration-200 text-xs sm:text-sm font-medium touch-target min-h-[44px] flex items-center justify-center gap-1.5"
                   >
-                    <i class="fa-solid fa-trash mr-1.5"></i>
-                    Delete
+                    <i class="fa-solid fa-trash text-xs sm:text-sm"></i>
+                    <span>Delete</span>
                   </button>
                 </div>
               </div>
             </div>
 
             <!-- Social Media Details -->
-            <div class="p-6 bg-[#F5F7FF]">
-              <h3 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-share-nodes"></i>
-                Social Media Publishing Details
+            <div class="p-3 sm:p-4 md:p-6 bg-[#F5F7FF]">
+              <h3 class="text-xs sm:text-sm font-semibold text-gray-700 mb-3 sm:mb-4 flex items-center gap-1.5 sm:gap-2">
+                <i class="fa-solid fa-share-nodes text-xs sm:text-sm"></i>
+                <span>Social Media Publishing Details</span>
               </h3>
 
-              <div class="grid gap-3">
+              <div class="grid gap-2 sm:gap-3">
                 @for (detail of post.socialMediaDetails; track detail.publishLogId) {
                   <div
-                    class="rounded-lg p-4 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-200"
+                    class="rounded-lg p-3 sm:p-4 border border-[#D9E1FF] hover:border-[#4C6FFF]/40 transition-all duration-200 bg-white"
                   >
-                    <div class="flex items-start justify-between gap-4">
-                      <div class="flex items-start gap-3 flex-1">
+                    <div class="flex items-start justify-between gap-2 sm:gap-3 md:gap-4">
+                      <div class="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
                         <!-- Platform Icon -->
                         <div
-                          class="w-10 h-10 rounded-lg bg-[#E2E7FF] flex items-center justify-center flex-shrink-0"
+                          class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-[#E2E7FF] flex items-center justify-center flex-shrink-0"
                         >
                           <i
                             [class]="getPlatformIcon(detail.platform)"
                             [class]="getPlatformColor(detail.platform)"
+                            class="text-xs sm:text-sm"
                           ></i>
                         </div>
 
                         <!-- Platform Info -->
                         <div class="flex-1 min-w-0">
-                          <div class="flex items-center gap-2 mb-1">
-                            <span class="font-semibold text-gray-800 capitalize">{{
+                          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                            <span class="font-semibold text-gray-800 capitalize text-xs sm:text-sm">{{
                               detail.platform
                             }}</span>
                             <span
                               [class]="getStatusColor(detail.status)"
-                              class="px-2 py-0.5 rounded-full text-xs font-medium border"
+                              class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium border flex items-center gap-1"
                             >
                               <i
                                 [class]="
@@ -252,29 +252,29 @@
                                       ? 'fa-solid fa-times-circle'
                                       : 'fa-solid fa-clock'
                                 "
-                                class="mr-1"
+                                class="text-[10px] sm:text-xs"
                               ></i>
-                              {{ detail.status }}
+                              <span>{{ detail.status }}</span>
                             </span>
                           </div>
 
-                          <div class="text-sm text-gray-600 space-y-1">
-                            <div class="flex items-center gap-2">
-                              <i class="fa-solid fa-clock text-xs"></i>
-                              <span>Published: {{ detail.attemptedAt | date: 'short' }}</span>
+                          <div class="text-[10px] sm:text-xs md:text-sm text-gray-600 space-y-1">
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                              <i class="fa-solid fa-clock text-[10px] sm:text-xs"></i>
+                              <span>Published: <span class="hidden sm:inline">{{ detail.attemptedAt | date: 'short' }}</span><span class="sm:hidden">{{ detail.attemptedAt | date: 'M/d/yy' }}</span></span>
                             </div>
                             @if (detail.platformPostId) {
-                              <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-hashtag text-xs"></i>
-                                <span class="font-mono text-xs"
+                              <div class="flex items-center gap-1.5 sm:gap-2">
+                                <i class="fa-solid fa-hashtag text-[10px] sm:text-xs"></i>
+                                <span class="font-mono text-[10px] sm:text-xs truncate"
                                   >ID: {{ detail.platformPostId }}</span
                                 >
                               </div>
                             }
                             @if (detail.errorMessage) {
-                              <div class="text-red-600 text-xs mt-1">
+                              <div class="text-red-600 text-[10px] sm:text-xs mt-1">
                                 <i class="fa-solid fa-exclamation-circle mr-1"></i>
-                                {{ detail.errorMessage }}
+                                <span class="line-clamp-2">{{ detail.errorMessage }}</span>
                               </div>
                             }
                           </div>
@@ -282,15 +282,15 @@
                       </div>
 
                       <!-- Actions -->
-                      <div class="flex gap-2 flex-shrink-0">
+                      <div class="flex gap-1.5 sm:gap-2 flex-shrink-0">
                         @if (detail.platformUrl && detail.status === 'Success') {
                           <button
                             type="button"
                             (click)="openPlatformUrl(detail)"
-                            class="px-3 py-1.5 text-[#4C6FFF] border border-[#4C6FFF] rounded-lg hover:bg-[#4C6FFF] hover:text-white transition-all duration-200 text-xs font-medium"
-                            title="View on {{ detail.platform }}"
+                            class="px-2.5 sm:px-3 py-1.5 sm:py-2 text-[#4C6FFF] border border-[#4C6FFF] rounded-lg hover:bg-[#4C6FFF] hover:text-white active:bg-[#4C6FFF] active:text-white transition-all duration-200 text-xs font-medium touch-target min-h-[36px] sm:min-h-[40px] min-w-[36px] sm:min-w-[40px] flex items-center justify-center"
+                            [title]="'View on ' + detail.platform"
                           >
-                            <i class="fa-solid fa-external-link-alt"></i>
+                            <i class="fa-solid fa-external-link-alt text-xs sm:text-sm"></i>
                           </button>
                         }
                       </div>
@@ -300,14 +300,14 @@
               </div>
 
               <!-- Summary Stats -->
-              <div class="mt-4 pt-4 border-t border-[#D9E1FF] flex items-center gap-4 text-sm">
-                <div class="flex items-center gap-2 text-green-600">
-                  <i class="fa-solid fa-check-circle"></i>
+              <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-[#D9E1FF] flex flex-wrap items-center gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm">
+                <div class="flex items-center gap-1.5 sm:gap-2 text-green-600">
+                  <i class="fa-solid fa-check-circle text-xs sm:text-sm"></i>
                   <span class="font-medium">{{ getSuccessCount(post) }} Successful</span>
                 </div>
                 @if (getFailedCount(post) > 0) {
-                  <div class="flex items-center gap-2 text-red-600">
-                    <i class="fa-solid fa-times-circle"></i>
+                  <div class="flex items-center gap-1.5 sm:gap-2 text-red-600">
+                    <i class="fa-solid fa-times-circle text-xs sm:text-sm"></i>
                     <span class="font-medium">{{ getFailedCount(post) }} Failed</span>
                   </div>
                 }

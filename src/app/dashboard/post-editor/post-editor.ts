@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, signal, computed, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, ViewChild, Input, HostListener } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Observable, throwError, timer } from 'rxjs';
-import { switchMap, tap, catchError, map, takeUntil } from 'rxjs/operators';
+import { switchMap, tap, catchError, map, takeUntil, distinctUntilChanged, debounceTime } from 'rxjs/operators';
 import { PostsService } from '../../services/client/posts.service';
 import { MediaService } from '../../services/client/media.service';
 import { SocialAccountsService } from '../../services/client/social-accounts.service';
@@ -18,7 +18,7 @@ import { CreatePostRequest, UpdatePostRequest, SocialPost } from '../../models/p
 import { Platform, SocialAccount } from '../../models/social.models';
 import { Client } from '../../models/client.models';
 import { UploadedFile } from '../../shared/file-upload/file-upload.component';
-import { PhotoCropComponent } from './photo-crop/photo-crop.component';
+// PhotoCropComponent replaced with PhotoEditorToastComponent in Step3CropEditComponent
 import { Step1ContentMediaComponent } from './steps/step1-content-media/step1-content-media.component';
 import { Step2PlatformSelectionComponent } from './steps/step2-platform-selection/step2-platform-selection.component';
 import { Step3CropEditComponent } from './steps/step3-crop-edit/step3-crop-edit.component';
@@ -31,6 +31,8 @@ import { PostEditorWizardService } from '../../services/shared/post-editor-wizar
 import { PostMediaService } from '../../services/shared/post-media.service';
 import { PostPublishService } from '../../services/shared/post-publish.service';
 import { BaseComponent } from '../../core/base/base.component';
+import { UnsavedChangesDialogComponent } from './unsaved-changes-dialog/unsaved-changes-dialog.component';
+import { MediaLibraryModalComponent } from './media-library-modal/media-library-modal.component';
 
 @Component({
   selector: 'app-post-editor',
@@ -38,17 +40,20 @@ import { BaseComponent } from '../../core/base/base.component';
   imports: [
     ReactiveFormsModule,
     CommonModule,
-    RouterLink,
     Step1ContentMediaComponent,
     Step2PlatformSelectionComponent,
     Step3CropEditComponent,
     Step4PreviewComponent,
     Step5PublishScheduleComponent,
+    UnsavedChangesDialogComponent,
+    MediaLibraryModalComponent,
   ],
   templateUrl: './post-editor.html',
   styleUrl: './post-editor.css',
 })
 export class PostEditor extends BaseComponent implements OnInit {
+  @Input() embeddedMode: boolean = false;
+
   private readonly fb = inject(FormBuilder);
   private readonly postsService = inject(PostsService);
   private readonly mediaService = inject(MediaService);
@@ -68,6 +73,13 @@ export class PostEditor extends BaseComponent implements OnInit {
   private readonly wizardService = inject(PostEditorWizardService);
   private readonly postMediaService = inject(PostMediaService);
   private readonly publishService = inject(PostPublishService);
+  
+  // Track if there are unsaved changes
+  private hasUnsavedChanges = signal(false);
+  readonly isSavingDraft = signal(false);
+  showUnsavedChangesDialog = signal(false);
+  showMediaLibraryModal = signal(false);
+  private lastLoadedMediaId = signal<string | null>(null);
 
   postForm: FormGroup;
   loading = signal(false);
@@ -110,7 +122,7 @@ export class PostEditor extends BaseComponent implements OnInit {
   isEditMode = computed(() => this.postId() !== null);
 
   // Scheduling
-  scheduleMode = signal<'now' | 'later'>('now');
+  scheduleMode = signal<'now' | 'later' | 'draft'>('draft');
   scheduledDateTime = signal<string>('');
 
   // Multi-step wizard - use PostEditorWizardService
@@ -130,7 +142,7 @@ export class PostEditor extends BaseComponent implements OnInit {
   readonly platformCropConfigs = this.postMediaService.platformCropConfigs;
   readonly platformCroppedImages = this.postMediaService.platformCroppedImages;
 
-  @ViewChild(PhotoCropComponent) photoCropComponent?: PhotoCropComponent;
+  // PhotoCropComponent removed - now handled by Step3CropEditComponent
 
   // Step 1 validation: caption AND media must be present
   // Uses contentValue signal (updated on input) and mediaPreview signal for reactivity
@@ -158,10 +170,8 @@ export class PostEditor extends BaseComponent implements OnInit {
       async () => {
         // Step 3 complete callback (async - generate crops)
         this.saveStep3ToDraft();
-        if (this.photoCropComponent) {
-          await this.photoCropComponent.cropAllImages();
-          this.saveStep3ToDraft();
-        }
+        // Crop images are now handled automatically by PhotoEditorToastComponent
+        // No manual cropping needed
       },
     );
   }
@@ -235,6 +245,37 @@ export class PostEditor extends BaseComponent implements OnInit {
       this.postId.set(postId);
       this.loadPost(postId);
     } else {
+      // Watch for mediaId query parameter changes (from content library)
+      this.route.queryParams
+        .pipe(
+          distinctUntilChanged((prev, curr) => prev['mediaId'] === curr['mediaId']),
+          debounceTime(100), // Prevent rapid successive calls
+          takeUntil(this.destroy$)
+        )
+        .subscribe((params) => {
+          const mediaId = params['mediaId'];
+          // Validate mediaId is not empty GUID
+          const isValidMediaId = mediaId && 
+            mediaId !== '00000000-0000-0000-0000-000000000000' &&
+            mediaId.trim() !== '';
+          
+          if (isValidMediaId && !this.postId() && mediaId !== this.lastLoadedMediaId()) {
+            // Only load if we're not editing an existing post and it's a different media
+            this.loadMediaFromLibrary(mediaId);
+          } else if (!mediaId) {
+            // Clear the last loaded media ID when mediaId is removed from query params
+            this.lastLoadedMediaId.set(null);
+          }
+        });
+
+      // Check initial mediaId on load
+      const initialMediaId = this.route.snapshot.queryParamMap.get('mediaId');
+      if (initialMediaId && 
+          initialMediaId !== '00000000-0000-0000-0000-000000000000' &&
+          initialMediaId.trim() !== '') {
+        this.loadMediaFromLibrary(initialMediaId);
+      }
+
       // Create or load active draft for new post
       const activeDraft = this.postDraftService.getActiveDraft();
       if (!activeDraft) {
@@ -292,6 +333,54 @@ export class PostEditor extends BaseComponent implements OnInit {
     if (draft.platformCaptions) {
       this.platformCaptions.set(draft.platformCaptions);
     }
+    
+    // Don't mark as unsaved when loading existing draft
+    // Only mark as unsaved if user makes changes after loading
+    this.hasUnsavedChanges.set(false);
+  }
+
+  /**
+   * Load media from content library by media ID
+   */
+  loadMediaFromLibrary(mediaId: string): void {
+    // Validate mediaId
+    if (!mediaId || 
+        mediaId === '00000000-0000-0000-0000-000000000000' ||
+        mediaId.trim() === '') {
+      this.loggingService.error('Invalid mediaId provided', { mediaId }, 'PostEditor');
+      return;
+    }
+
+    // Prevent duplicate loads
+    if (this.lastLoadedMediaId() === mediaId) {
+      return;
+    }
+
+    this.loading.set(true);
+    this.postMediaService
+      .loadMediaFromId(mediaId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+          this.lastLoadedMediaId.set(mediaId);
+          this.toastService.success('Media loaded from library');
+          this.checkUnsavedChanges();
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.loggingService.error('Error loading media from library', error, 'PostEditor');
+          this.toastService.error('Failed to load media from library');
+        },
+      });
+  }
+
+  /**
+   * Handle media selection from library modal
+   */
+  onMediaSelectedFromLibrary(media: { id: string; url: string; fileType: string }): void {
+    this.showMediaLibraryModal.set(false);
+    this.loadMediaFromLibrary(media.id);
   }
 
   /**
@@ -299,8 +388,9 @@ export class PostEditor extends BaseComponent implements OnInit {
    */
   loadPost(postId: string): void {
     this.loading.set(true);
+    // Get raw PostResponse to access full media information
     this.postsService
-      .getPost(postId)
+      .getPostRaw(postId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (post) => {
@@ -314,12 +404,59 @@ export class PostEditor extends BaseComponent implements OnInit {
           this.contentValue.set(post.content);
         }
 
-        if (post.mediaUrl) {
-          this.postMediaService.setMediaPreview(post.mediaUrl, post.mediaType === 'video');
+        // Load media from post
+        // Priority: 1. mediaId (load full details), 2. media object, 3. mediaUrl
+        if (post.mediaId) {
+          // Load full media details by ID
+          this.postMediaService
+            .loadMediaFromId(post.mediaId)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: () => {
+                this.loggingService.debug('Media loaded from post mediaId', { mediaId: post.mediaId }, 'PostEditor');
+                // Also save to local draft to ensure it persists
+                this.postMediaService.saveToDraft();
+              },
+              error: (error) => {
+                this.loggingService.error('Failed to load media by ID, trying fallback', error, 'PostEditor');
+                // Fallback to media object or mediaUrl
+                this.loadMediaFromPostFallback(post);
+              }
+            });
+        } else if (post.media) {
+          // Use media object if available
+          const media = post.media;
+          const mediaIdToUse = media.mediaId || media.id;
+          if (mediaIdToUse) {
+            this.postMediaService.setUploadedMediaId(mediaIdToUse);
+          }
+          this.postMediaService.setMediaPreview(media.url, media.fileType?.startsWith('video/') || false);
+          
+          // Create uploaded file info
+          const dummyFile = new File([''], media.fileName || 'Media', { type: media.fileType || '' });
+          const fileInfo: UploadedFile = {
+            id: mediaIdToUse || 'post-media',
+            file: dummyFile,
+            name: media.fileName || 'Media from post',
+            size: media.fileSize || 0,
+            type: media.fileType || '',
+            preview: media.thumbnailUrl || media.url,
+            progress: 100,
+            failed: false,
+          };
+          this.postMediaService.setUploadedFiles([fileInfo]);
+          // Also save to local draft to ensure it persists
+          this.postMediaService.saveToDraft();
+        } else {
+          // Fallback to mediaUrl if available (from mapped SocialPost)
+          this.loadMediaFromPostFallback(post);
         }
 
         // Load selected accounts from postTargets
         // This would need to be implemented when we have the full post data
+        
+        // Don't mark as unsaved when loading existing post
+        this.hasUnsavedChanges.set(false);
         this.loading.set(false);
       },
       error: (_error) => {
@@ -327,6 +464,36 @@ export class PostEditor extends BaseComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  /**
+   * Fallback method to load media from post when mediaId is not available
+   */
+  private loadMediaFromPostFallback(post: any): void {
+    const mediaUrl = post.media?.url || post.mediaUrl;
+    if (mediaUrl) {
+      const isVideo = post.media?.fileType?.startsWith('video/') || 
+                     post.mediaType === 'video' || 
+                     mediaUrl?.includes('.mp4') || 
+                     mediaUrl?.includes('.mov');
+      this.postMediaService.setMediaPreview(mediaUrl, isVideo);
+      
+      // Create minimal file info
+      const dummyFile = new File([''], 'Media', { type: isVideo ? 'video/*' : 'image/*' });
+      const fileInfo: UploadedFile = {
+        id: post.mediaId || post.media?.id || 'post-media',
+        file: dummyFile,
+        name: 'Media from post',
+        size: 0,
+        type: isVideo ? 'video/*' : 'image/*',
+        preview: mediaUrl,
+        progress: 100,
+        failed: false,
+      };
+      this.postMediaService.setUploadedFiles([fileInfo]);
+      // Also save to local draft to ensure it persists
+      this.postMediaService.saveToDraft();
+    }
   }
 
   /**
@@ -370,6 +537,139 @@ export class PostEditor extends BaseComponent implements OnInit {
 
     // Trigger validation check
     formControl?.updateValueAndValidity();
+    
+    // Mark as having unsaved changes
+    this.checkUnsavedChanges();
+  }
+  
+  /**
+   * Check if there are unsaved changes
+   */
+  private checkUnsavedChanges(): void {
+    const hasContent = this.contentValue().trim().length > 0;
+    const hasMedia = !!this.mediaPreview();
+    const hasSelectedPlatforms = this.selectedAccountIds().length > 0;
+    
+    // Consider it unsaved if there's content or media, even if not saved yet
+    const unsaved = hasContent || hasMedia || hasSelectedPlatforms;
+    this.hasUnsavedChanges.set(unsaved);
+    
+    // Debug log
+    if (unsaved) {
+      console.log('Unsaved changes detected:', { hasContent, hasMedia, hasSelectedPlatforms });
+    }
+  }
+  
+  /**
+   * Handle browser refresh/close - show browser's default confirmation
+   */
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges() && !this.isSavingDraft()) {
+      // Browser will show its own confirmation dialog
+      event.preventDefault();
+      event.returnValue = ''; // Chrome requires returnValue to be set
+    }
+  }
+  
+  /**
+   * Check if user can leave (for route navigation)
+   * Returns a promise that resolves to true if user can leave, false otherwise
+   * This is used by the CanDeactivate guard
+   */
+  canLeave(): Promise<boolean> {
+    if (!this.hasUnsavedChanges() || this.isSavingDraft()) {
+      return Promise.resolve(true);
+    }
+    
+    // Show custom unsaved changes dialog
+    return new Promise<boolean>((resolve) => {
+      console.log('Showing unsaved changes dialog');
+      this.showUnsavedChangesDialog.set(true);
+      this.pendingNavigationResolve = resolve;
+    });
+  }
+  
+  private pendingNavigationResolve: ((value: boolean) => void) | null = null;
+  
+  /**
+   * Handle save draft from dialog
+   */
+  async onSaveDraftFromDialog(): Promise<void> {
+    const success = await this.saveDraftBeforeLeave();
+    if (success) {
+      this.showUnsavedChangesDialog.set(false);
+      if (this.pendingNavigationResolve) {
+        this.pendingNavigationResolve(true);
+        this.pendingNavigationResolve = null;
+      }
+    }
+  }
+  
+  /**
+   * Handle continue without saving from dialog
+   */
+  onContinueWithoutSavingFromDialog(): void {
+    this.hasUnsavedChanges.set(false);
+    this.showUnsavedChangesDialog.set(false);
+    if (this.pendingNavigationResolve) {
+      this.pendingNavigationResolve(true);
+      this.pendingNavigationResolve = null;
+    }
+  }
+  
+  /**
+   * Handle cancel from dialog
+   */
+  onCancelDialog(): void {
+    this.showUnsavedChangesDialog.set(false);
+    if (this.pendingNavigationResolve) {
+      this.pendingNavigationResolve(false);
+      this.pendingNavigationResolve = null;
+    }
+  }
+  
+  /**
+   * Handle cancel button click
+   */
+  async handleCancel(): Promise<void> {
+    const canLeave = await this.canLeave();
+    if (canLeave) {
+      this.router.navigate(['/dashboard/content-management']);
+    }
+  }
+  
+  /**
+   * Save draft before leaving
+   */
+  private async saveDraftBeforeLeave(): Promise<boolean> {
+    if (this.saving() || this.isSavingDraft()) {
+      return false; // Already saving, wait
+    }
+    
+    this.isSavingDraft.set(true);
+    
+    try {
+      // Save all current step data to the local draft service first
+      this.saveStep1ToDraft();
+      this.saveStep2ToDraft();
+      this.saveStep3ToDraft();
+      
+      // Save to backend
+      await this.createOrUpdatePost(false)
+        .pipe(takeUntil(this.destroy$))
+        .toPromise();
+      
+      this.hasUnsavedChanges.set(false);
+      this.isSavingDraft.set(false);
+      this.toastService.success('Draft saved successfully!');
+      return true;
+    } catch (error) {
+      this.isSavingDraft.set(false);
+      this.loggingService.error('Error saving draft before leave', error, 'PostEditor');
+      this.toastService.error('Failed to save draft. Please try again.');
+      return false; // Don't allow navigation if save failed
+    }
   }
 
   /**
@@ -400,6 +700,7 @@ export class PostEditor extends BaseComponent implements OnInit {
     if (files.length > 0) {
       const file = files[0]; // For now, handle single file
       this.handleFile(file);
+      this.checkUnsavedChanges();
     }
   }
 
@@ -407,8 +708,15 @@ export class PostEditor extends BaseComponent implements OnInit {
     this.toastService.error('Invalid file type. Please upload an image or video file.');
   }
 
-  onSizeLimitExceeded(_files: File[]): void {
-    this.toastService.error('File size exceeds 10MB limit. Please choose a smaller file.');
+  onSizeLimitExceeded(files: File[]): void {
+    if (files.length > 0) {
+      const file = files[0];
+      const isVideo = file.type.startsWith('video/');
+      const maxSize = isVideo ? 100 : 10;
+      this.toastService.error(`File size exceeds ${maxSize}MB limit. Please choose a smaller file.`);
+    } else {
+      this.toastService.error('File size exceeds the limit. Please choose a smaller file.');
+    }
   }
 
   onFileDeleted(fileId: string): void {
@@ -417,6 +725,7 @@ export class PostEditor extends BaseComponent implements OnInit {
     if (fileToDelete) {
       this.postMediaService.removeUploadedFile(fileId);
       this.removeMedia();
+      this.checkUnsavedChanges();
     }
   }
 
@@ -464,6 +773,7 @@ export class PostEditor extends BaseComponent implements OnInit {
     // CRITICAL: Clearing mediaPreview signal will trigger step1Valid to recalculate
     // The computed signal will automatically detect the change and update
     // No need to manually trigger validation - the signal reactivity handles it
+    this.checkUnsavedChanges();
   }
 
   /**
@@ -488,6 +798,7 @@ export class PostEditor extends BaseComponent implements OnInit {
     } else {
       this.selectedAccountIds.set([...current, accountId]);
     }
+    this.checkUnsavedChanges();
   }
 
   /**
@@ -757,8 +1068,28 @@ export class PostEditor extends BaseComponent implements OnInit {
           this.postId.set(post.id);
         }
 
+        // CRITICAL: After saving to backend, ensure the local draft service has the latest mediaId
+        // This ensures that if the user comes back to edit, the media is preserved
+        const currentMediaId = this.uploadedMediaId();
+        if (currentMediaId) {
+          this.postDraftService.updateMediaId(currentMediaId);
+          // Also ensure media state is saved to local draft
+          this.postMediaService.saveToDraft();
+        }
+
         // Log for debugging
-        this.loggingService.debug('Draft saved to backend', post, 'PostEditor');
+        this.loggingService.debug('Draft saved to backend', { post, mediaId: currentMediaId }, 'PostEditor');
+        
+        // Reset unsaved changes flag
+        this.hasUnsavedChanges.set(false);
+
+        // Navigate to drafts tab in content-management
+        if (this.embeddedMode) {
+          // If embedded, we're already in content-management, just switch tab
+          this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'drafts' } });
+        } else {
+          this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'drafts' } });
+        }
       },
       error: (error) => {
         this.saving.set(false);
@@ -815,9 +1146,7 @@ export class PostEditor extends BaseComponent implements OnInit {
       platformCroppedImages: this.platformCroppedImages(),
       isVideo: this.isVideo(),
       mediaType: this.detectedMediaType() || undefined,
-      onGenerateCrop: this.photoCropComponent
-        ? (platform: Platform) => this.photoCropComponent!.cropImageForPlatform(platform)
-        : undefined,
+      onGenerateCrop: undefined, // Cropping now handled by PhotoEditorToastComponent automatically
     };
 
     this.publishService
@@ -827,6 +1156,7 @@ export class PostEditor extends BaseComponent implements OnInit {
         next: (post) => {
           this.saving.set(false);
           this.wizardService.markStepComplete(5);
+          this.hasUnsavedChanges.set(false);
           this.publishService.handlePublishSuccess(post);
         },
         error: (error) => {
@@ -896,6 +1226,7 @@ export class PostEditor extends BaseComponent implements OnInit {
         next: () => {
         this.saving.set(false);
         this.wizardService.markStepComplete(5);
+        this.hasUnsavedChanges.set(false);
         this.publishService.handleScheduleSuccess();
       },
       error: (error) => {

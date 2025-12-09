@@ -1,18 +1,19 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6 animate-fadeIn">
-  <div class="mb-8 animate-slideDown">
-    <div class="flex items-center justify-between">
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
+  <!-- Header Section -->
+  <div class="mb-8 md:mb-12">
+    <div class="flex items-center justify-between flex-wrap gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+        <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
           <i class="fa-solid fa-webhook text-[#4C6FFF]"></i> Webhooks
         </h1>
-        <p class="text-gray-600 text-sm">
+        <p class="text-gray-600 text-sm sm:text-base">
           Connect your website to automatically post to social media
         </p>
       </div>
       <button
         type="button"
         (click)="openCreateModal()"
-        class="px-6 py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A5FEF] transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+        class="px-6 py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] transition-all duration-200 flex items-center gap-2 font-medium"
       >
         <i class="fa-solid fa-plus"></i> Create Webhook
       </button>
@@ -22,34 +23,36 @@
   @if (loading()) {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       @for (item of [1, 2, 3]; track item) {
-        <div class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] animate-pulse">
-          <div class="h-4 bg-gray-300 rounded w-3/4 mb-4"></div>
-          <div class="h-3 bg-gray-300 rounded w-1/2 mb-2"></div>
-          <div class="h-3 bg-gray-300 rounded w-2/3"></div>
+        <div class="skeleton-webhook-card">
+          <div class="skeleton skeleton-text w-3/4 h-4 mb-4"></div>
+          <div class="skeleton skeleton-text w-1/2 h-3 mb-2"></div>
+          <div class="skeleton skeleton-text w-2/3 h-3"></div>
         </div>
       }
     </div>
   } @else {
     @if (subscriptions().length === 0) {
-      <div class="bg-[#F5F7FF] rounded-xl p-12 border-2 border-dashed border-[#D9E1FF] text-center">
-        <i class="fa-solid fa-webhook text-6xl text-[#4C6FFF] mb-4 opacity-50"></i>
+      <div class="bg-white rounded-xl p-12 border-2 border-dashed border-[#E5E7EB] text-center">
+        <div class="w-20 h-20 bg-[#F5F7FF] rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-webhook text-3xl text-[#4C6FFF]"></i>
+        </div>
         <h3 class="text-xl font-semibold text-[#1A1A1A] mb-2">No Webhooks Yet</h3>
-        <p class="text-gray-600 mb-6">
+        <p class="text-sm text-gray-600 mb-6">
           Create your first webhook to automatically post from your website
         </p>
         <button
           type="button"
           (click)="openCreateModal()"
-          class="px-6 py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A5FEF] transition-all"
+          class="px-6 py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] transition-all duration-200 font-medium"
         >
           Create Webhook
         </button>
       </div>
     } @else {
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         @for (subscription of subscriptions(); track subscription.id) {
           <div
-            class="bg-[#F5F7FF] rounded-xl p-6 border border-[#D9E1FF] hover:shadow-lg transition-all"
+            class="bg-white rounded-xl p-6 border border-[#E5E7EB] hover:border-[#4C6FFF]/30 hover:shadow-md transition-all duration-200"
           >
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center gap-3">

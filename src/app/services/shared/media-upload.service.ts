@@ -43,8 +43,8 @@ export class MediaUploadService {
    * Validate file type and size
    */
   validateFile(file: File, options?: { maxImageSize?: number; maxVideoSize?: number }): FileValidationResult {
-    const maxImageSize = options?.maxImageSize ?? 10 * 1024 * 1024; // 10MB default
-    const maxVideoSize = options?.maxVideoSize ?? 100 * 1024 * 1024; // 100MB default
+    const maxImageSize = options?.maxImageSize ?? 10 * 1024 * 1024; // 10MB default for images
+    const maxVideoSize = options?.maxVideoSize ?? 100 * 1024 * 1024; // 100MB default for videos
 
     // Check file type
     const isImage = file.type.startsWith('image/');

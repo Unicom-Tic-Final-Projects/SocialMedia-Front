@@ -1,29 +1,58 @@
-/* Content Management Styles - Enterprise Layout */
+/* Content Management Styles - Mobile-First Layout */
 
 .content-tab-container {
   min-height: 400px;
 }
 
-/* Collapsible Sidebar - Icon Only by Default, Expand on Hover */
+/* Mobile-Optimized Styles */
+@media (max-width: 1023px) {
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile tab buttons */
+  .mobile-tab-btn {
+    min-height: 56px;
+    transition: all 0.2s ease;
+  }
+
+  .mobile-tab-btn:active {
+    transform: scale(0.95);
+  }
+
+  .mobile-tab-btn[class*='bg-\[#4C6FFF\]'] {
+    box-shadow: 0 2px 8px rgba(76, 111, 255, 0.2);
+  }
+
+  /* Better spacing for mobile content */
+  main {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 64px) !important;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1024px) {
+  /* Restore desktop padding */
+  main {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Icon-Only Sidebar with Tooltips */
 .content-management-sidebar {
   width: 80px;
-  transition: width 0.3s ease;
   position: relative;
   z-index: 10;
 }
 
-.content-management-sidebar:hover {
-  width: 256px;
-}
-
-.content-management-sidebar:hover .sidebar-nav-text,
-.content-management-sidebar:hover .sidebar-nav-badge {
-  opacity: 1 !important;
-}
-
 .content-management-sidebar > div {
   width: 100%;
-  transition: width 0.3s ease;
 }
 
 .sidebar-nav-item {
@@ -32,25 +61,78 @@
   min-width: fit-content;
 }
 
-.content-management-sidebar:hover .sidebar-nav-item {
-  justify-content: flex-start;
-}
-
-.sidebar-nav-text {
-  transition: opacity 0.3s ease;
-  overflow: hidden;
+/* Tooltip Styles - Theme Matching */
+.sidebar-tooltip {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 12px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #4C6FFF 0%, #3A56CC 100%);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
   white-space: nowrap;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 16px rgba(76, 111, 255, 0.3);
 }
 
-.sidebar-nav-badge {
-  transition: opacity 0.3s ease;
-  white-space: nowrap;
+.sidebar-tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: #4C6FFF;
 }
 
-/* Responsive improvements */
+.sidebar-nav-item:hover .sidebar-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.sidebar-nav-item:not(:hover) .sidebar-tooltip {
+  opacity: 0;
+  transform: translateY(-50%) translateX(-4px);
+}
+
+/* Mobile-First Responsive Improvements */
 @media (max-width: 640px) {
   .content-tab-container {
     min-height: 300px;
+  }
+
+  /* Compact mobile header */
+  .sticky.top-0 {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  /* Better touch targets */
+  button,
+  .mobile-tab-btn {
+    min-height: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Smooth scrolling for horizontal stats */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .mobile-tab-btn {
+    min-width: 70px;
+    padding: 0.75rem 1rem;
   }
 }
 

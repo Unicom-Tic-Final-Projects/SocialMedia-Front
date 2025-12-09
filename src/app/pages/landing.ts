@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { AppHeader } from '../shared/app-header/app-header';
 import { HeroSection } from './landing/hero-section/hero-section';
+import { TrustSection } from './landing/trust-section/trust-section';
+import { MetricsSection } from './landing/metrics-section/metrics-section';
 import { FeaturesSection } from './landing/features-section/features-section';
 import { TestimonialsSection } from './landing/testimonials-section/testimonials-section';
 import { PricingSection } from './landing/pricing-section/pricing-section';
@@ -17,6 +19,7 @@ import { WhyOnevo } from './landing/why-onevo/why-onevo';
 import { AppFooter } from '../shared/app-footer/app-footer';
 import { AosService } from '../shared/services/aos.service';
 import { ScrollStackService } from '../shared/services/scroll-stack.service';
+import { GsapScrollService } from '../shared/services/gsap-scroll.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -24,6 +27,8 @@ import { Subscription } from 'rxjs';
   imports: [
     AppHeader,
     HeroSection,
+    TrustSection,
+    MetricsSection,
     FeaturesSection,
     TestimonialsSection,
     PricingSection,
@@ -37,19 +42,12 @@ import { Subscription } from 'rxjs';
 export class Landing implements AfterViewInit, OnDestroy {
   @ViewChild('heroSection', { static: false }) heroSection!: ElementRef<HTMLElement>;
   @ViewChild('footerSection', { static: false }) footerSection!: ElementRef<HTMLElement>;
-  @ViewChild('heroCard', { static: false }) heroCard!: ElementRef<HTMLElement>;
-  @ViewChild('featuresCard', { static: false }) featuresCard!: ElementRef<HTMLElement>;
-  @ViewChild('testimonialsCard', { static: false }) testimonialsCard!: ElementRef<HTMLElement>;
-  @ViewChild('pricingCard', { static: false }) pricingCard!: ElementRef<HTMLElement>;
-  @ViewChild('ctaCard', { static: false }) ctaCard!: ElementRef<HTMLElement>;
-  @ViewChild('whyCard', { static: false }) whyCard!: ElementRef<HTMLElement>;
-  @ViewChild('footerCard', { static: false }) footerCard!: ElementRef<HTMLElement>;
   @ViewChild(AppHeader, { static: false }) appHeader!: AppHeader;
 
   private scrollSubscription?: Subscription;
   private isLooping = false;
   private lastScrollY = 0;
-  private stackCards: HTMLElement[] = [];
+  private scrollHandler = this.onScroll.bind(this);
   private sectionMap: Map<string, number> = new Map([
     ['hero', 0],
     ['features', 1],
@@ -60,12 +58,19 @@ export class Landing implements AfterViewInit, OnDestroy {
   private aosService = inject(AosService);
   private ngZone = inject(NgZone);
   private scrollStackService = inject(ScrollStackService);
+  private gsapScrollService = inject(GsapScrollService);
 
   ngAfterViewInit() {
     // Refresh AOS when landing page is rendered
     setTimeout(() => {
       this.aosService.refreshAos();
     }, 100);
+
+    // Initialize GSAP ScrollTrigger animations
+    setTimeout(() => {
+      this.gsapScrollService.initScrollAnimations();
+      this.gsapScrollService.refresh();
+    }, 300);
 
     // Initialize scroll stack
     this.initializeScrollStack();
@@ -81,58 +86,37 @@ export class Landing implements AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.scrollSubscription?.unsubscribe();
+    window.removeEventListener('scroll', this.scrollHandler);
+    this.gsapScrollService.ngOnDestroy();
   }
 
   private initializeScrollStack() {
+    // Normal scrolling with infinite loop
     setTimeout(() => {
-      // Get all stack cards
-      const cards = [
-        this.heroCard,
-        this.featuresCard,
-        this.testimonialsCard,
-        this.pricingCard,
-        this.ctaCard,
-        this.whyCard,
-        this.footerCard,
-      ]
-        .filter((card) => card?.nativeElement)
-        .map((card) => card!.nativeElement);
-
-      if (cards.length === 0) return;
-
-      this.stackCards = cards;
-
-      // Initialize cards with stack service
-      this.scrollStackService.initializeStackCards(cards, 100);
-
-      // Subscribe to scroll events and update transforms + handle infinite loop + update nav
+      // Subscribe to scroll events for nav updates and infinite loop
       this.scrollSubscription = this.scrollStackService.scroll$.subscribe(() => {
-        this.updateStackTransforms();
-        this.handleInfiniteLoop();
         this.updateActiveNavItem();
+        this.handleInfiniteLoop();
       });
 
-      // Initial update
-      this.updateStackTransforms();
+      // Also listen to native scroll events as fallback
+      this.ngZone.runOutsideAngular(() => {
+        window.addEventListener('scroll', this.scrollHandler, { passive: true });
+      });
+
+      // Initial nav update
+      this.updateActiveNavItem();
     }, 200);
   }
 
-  private updateStackTransforms() {
-    if (this.stackCards.length === 0) return;
-
-    this.scrollStackService.updateCardTransforms(this.stackCards, {
-      itemScale: 0.03,
-      itemStackDistance: 30,
-      stackPosition: '20%',
-      scaleEndPosition: '10%',
-      baseScale: 0.85,
-      rotationAmount: 0,
-      blurAmount: 0.5,
+  private onScroll() {
+    this.ngZone.run(() => {
+      this.handleInfiniteLoop();
     });
   }
 
   private setupInfiniteLoop() {
-    // Infinite loop is handled in the scroll subscription
+    // Infinite loop is handled in scroll subscription
   }
 
   private handleInfiniteLoop() {
@@ -194,20 +178,13 @@ export class Landing implements AfterViewInit, OnDestroy {
 
     this.isLooping = true;
 
-    const heroElement = this.heroSection?.nativeElement;
-    if (!heroElement) {
-      this.isLooping = false;
-      return;
-    }
+    // Smoothly scroll back to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const heroTop = heroElement.getBoundingClientRect().top + window.scrollY;
-
-    // Use Lenis for smooth scroll to hero
-    this.scrollStackService.scrollTo(heroTop, { immediate: true });
-
+    // Reset looping flag after scroll completes
     setTimeout(() => {
       this.isLooping = false;
-      this.lastScrollY = this.scrollStackService.getScrollY();
-    }, 100);
+      this.lastScrollY = window.scrollY || window.pageYOffset;
+    }, 1000); // Wait for smooth scroll to complete
   }
 }

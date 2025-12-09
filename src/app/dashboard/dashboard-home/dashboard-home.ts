@@ -31,6 +31,12 @@ interface DashboardStats {
   drafts: number;
 }
 
+interface StatTrend {
+  value: number;
+  trend: 'up' | 'down' | 'neutral';
+  percentage: number;
+}
+
 @Component({
   selector: 'app-dashboard-home',
   imports: [CommonModule],
@@ -56,6 +62,7 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
     drafts: 0,
   });
   recentActivity = signal<NotificationItem[]>([]);
+  previousStats = signal<DashboardStats | null>(null);
 
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
@@ -68,6 +75,14 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
   private mouseMoveListener?: (e: MouseEvent) => void;
   private mouseLeaveListener?: () => void;
   private isMobile: boolean = false;
+
+  // Pull-to-refresh state
+  pullToRefreshActive = signal(false);
+  pullToRefreshDistance = signal(0);
+  private pullStartY = 0;
+  private pullCurrentY = 0;
+  private readonly pullThreshold = 80;
+  private readonly maxPullDistance = 120;
 
   constructor() {
     super();
@@ -116,14 +131,67 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
   }
 
   ngAfterViewInit() {
-    this.ngZone.runOutsideAngular(() => {
-      setTimeout(() => {
-        if (!this.isMobile) {
-          this.initializeSpotlight();
-          this.setupCardEffects();
+    // Removed complex GSAP animations for minimal design
+    // Simple hover effects are handled via CSS
+    // Setup pull-to-refresh for mobile
+    if (this.isMobile) {
+      this.setupPullToRefresh();
+    }
+  }
+
+  private setupPullToRefresh(): void {
+    const mainContent = document.querySelector('main');
+    if (!mainContent) return;
+
+    let isPulling = false;
+    let startY = 0;
+    let currentY = 0;
+
+    mainContent.addEventListener('touchstart', (e: TouchEvent) => {
+      // Only trigger if at the top of the scrollable area
+      if (mainContent.scrollTop === 0) {
+        isPulling = true;
+        startY = e.touches[0].clientY;
+        currentY = startY;
+      }
+    }, { passive: true });
+
+    mainContent.addEventListener('touchmove', (e: TouchEvent) => {
+      if (!isPulling) return;
+      
+      currentY = e.touches[0].clientY;
+      const distance = currentY - startY;
+
+      if (distance > 0 && mainContent.scrollTop === 0) {
+        e.preventDefault();
+        const pullDistance = Math.min(distance, this.maxPullDistance);
+        this.pullToRefreshDistance.set(pullDistance);
+        
+        if (pullDistance > this.pullThreshold) {
+          this.pullToRefreshActive.set(true);
+        } else {
+          this.pullToRefreshActive.set(false);
         }
-      }, 300);
-    });
+      } else {
+        isPulling = false;
+        this.pullToRefreshDistance.set(0);
+        this.pullToRefreshActive.set(false);
+      }
+    }, { passive: false });
+
+    mainContent.addEventListener('touchend', () => {
+      if (isPulling && this.pullToRefreshActive()) {
+        this.refreshDashboardData();
+      }
+      
+      isPulling = false;
+      this.pullToRefreshDistance.set(0);
+      this.pullToRefreshActive.set(false);
+    }, { passive: true });
+  }
+
+  private refreshDashboardData(): void {
+    this.loadDashboardData();
   }
 
   override ngOnDestroy() {
@@ -546,6 +614,12 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
           drafts: allPosts.filter((p) => p.status === 'Draft').length,
         };
 
+        // Store previous stats for trend calculation
+        const currentStats = this.stats();
+        if (currentStats.totalPosts > 0) {
+          this.previousStats.set(currentStats);
+        }
+        
         this.stats.set(stats);
         this.recentActivity.set(notifications.slice(0, 5));
         this.loading.set(false);
@@ -599,5 +673,49 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
 
   getActivityMessage(notification: NotificationItem): string {
     return notification.message || notification.source;
+  }
+
+  // Quick Actions
+  navigateToCreatePost(): void {
+    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'create' } });
+  }
+
+  navigateToSchedulePost(): void {
+    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'scheduled' } });
+  }
+
+  navigateToAnalytics(): void {
+    this.router.navigate(['/dashboard/analytics']);
+  }
+
+  navigateToDrafts(): void {
+    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'drafts' } });
+  }
+
+  // Trend calculation
+  getTrend(statKey: keyof DashboardStats): StatTrend {
+    const current = this.stats();
+    const previous = this.previousStats();
+
+    if (!previous) {
+      return { value: current[statKey], trend: 'neutral', percentage: 0 };
+    }
+
+    const currentValue = current[statKey];
+    const previousValue = previous[statKey];
+
+    if (previousValue === 0) {
+      return { value: currentValue, trend: currentValue > 0 ? 'up' : 'neutral', percentage: currentValue > 0 ? 100 : 0 };
+    }
+
+    const percentage = Math.round(((currentValue - previousValue) / previousValue) * 100);
+    
+    if (percentage > 0) {
+      return { value: currentValue, trend: 'up', percentage: Math.abs(percentage) };
+    } else if (percentage < 0) {
+      return { value: currentValue, trend: 'down', percentage: Math.abs(percentage) };
+    } else {
+      return { value: currentValue, trend: 'neutral', percentage: 0 };
+    }
   }
 }

@@ -103,116 +103,28 @@ export class ScrollStackService implements OnDestroy {
 
     this.isUpdating = true;
 
-    const scrollTop = this.getScrollY();
-    const containerHeight = this.getWindowHeight();
-    const itemScale = options.itemScale ?? 0.03;
-    const itemStackDistance = options.itemStackDistance ?? 30;
-    const stackPosition = options.stackPosition ?? '20%';
-    const scaleEndPosition = options.scaleEndPosition ?? '10%';
-    const baseScale = options.baseScale ?? 0.85;
-    const rotationAmount = options.rotationAmount ?? 0;
-    const blurAmount = options.blurAmount ?? 0;
-
-    const stackPositionPx = this.parsePercentage(stackPosition, containerHeight);
-    const scaleEndPositionPx = this.parsePercentage(scaleEndPosition, containerHeight);
-
-    const endElement = document.querySelector('.scroll-stack-end') as HTMLElement | null;
-    const endElementTop = endElement ? this.getElementOffset(endElement) : 0;
-
+    // Keep cards fixed - no transforms applied
     cards.forEach((card, i) => {
       if (!card) return;
 
+      // Reset all transforms to keep cards fixed
+      card.style.transform = 'translate3d(0, 0, 0) scale(1) rotate(0deg)';
+      card.style.filter = '';
+
+      // Still track which card is in view for active state
+      const scrollTop = this.getScrollY();
       const cardTop = this.getElementOffset(card);
-      const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
-      const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
-      const pinEnd = endElementTop - containerHeight / 2;
+      const containerHeight = this.getWindowHeight();
+      const viewportThreshold = containerHeight * 0.3; // 30% from top
 
-      const scaleProgress = this.calculateProgress(scrollTop, triggerStart, triggerEnd);
-      const targetScale = baseScale + i * itemScale;
-      const scale = 1 - scaleProgress * (1 - targetScale);
-      const rotation = rotationAmount ? i * rotationAmount * scaleProgress : 0;
+      const cardRect = card.getBoundingClientRect();
+      const isInViewport = cardRect.top < viewportThreshold && cardRect.bottom > 0;
 
-      // Calculate which card is currently on top of the stack
-      let topCardIndex = 0;
-      for (let j = 0; j < cards.length; j++) {
-        const jCardTop = this.getElementOffset(cards[j]);
-        const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
-        if (scrollTop >= jTriggerStart) {
-          topCardIndex = j;
-        }
-      }
-
-      let blur = 0;
-      if (blurAmount && i < topCardIndex) {
-        const depthInStack = topCardIndex - i;
-        blur = Math.max(0, depthInStack * blurAmount);
-      }
-
-      // Add/remove active class for glowing border effect
-      if (i === topCardIndex) {
+      if (isInViewport) {
         card.classList.add('stack-card-active');
       } else {
         card.classList.remove('stack-card-active');
       }
-
-      let translateY = 0;
-      const isPinned = scrollTop >= pinStart && scrollTop <= pinEnd;
-
-      if (isPinned) {
-        translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i;
-      } else if (scrollTop > pinEnd) {
-        translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
-      }
-
-      const targetTransform = {
-        translateY: translateY,
-        scale: scale,
-        rotation: rotation,
-        blur: blur,
-      };
-
-      // Get current transform (for smooth interpolation)
-      const currentTransform = this.currentTransforms.get(i) || {
-        translateY: 0,
-        scale: 1,
-        rotation: 0,
-        blur: 0,
-      };
-
-      // Smooth interpolation (lerp) for all transform values
-      const newTransform = {
-        translateY:
-          currentTransform.translateY +
-          (targetTransform.translateY - currentTransform.translateY) * this.lerpFactor,
-        scale:
-          currentTransform.scale +
-          (targetTransform.scale - currentTransform.scale) * this.lerpFactor,
-        rotation:
-          currentTransform.rotation +
-          (targetTransform.rotation - currentTransform.rotation) * this.lerpFactor,
-        blur:
-          currentTransform.blur + (targetTransform.blur - currentTransform.blur) * this.lerpFactor,
-      };
-
-      // Round values for performance
-      const roundedTransform = {
-        translateY: Math.round(newTransform.translateY * 100) / 100,
-        scale: Math.round(newTransform.scale * 1000) / 1000,
-        rotation: Math.round(newTransform.rotation * 100) / 100,
-        blur: Math.round(newTransform.blur * 100) / 100,
-      };
-
-      // Always apply transforms for smooth animation
-      const transform = `translate3d(0, ${roundedTransform.translateY}px, 0) scale(${roundedTransform.scale}) rotate(${roundedTransform.rotation}deg)`;
-      const filter = roundedTransform.blur > 0 ? `blur(${roundedTransform.blur}px)` : '';
-
-      card.style.transform = transform;
-      card.style.filter = filter;
-
-      // Update stored transforms
-      this.currentTransforms.set(i, roundedTransform);
-      this.lastTransforms.set(i, targetTransform);
     });
 
     this.isUpdating = false;
@@ -223,14 +135,13 @@ export class ScrollStackService implements OnDestroy {
       if (i < cards.length - 1) {
         card.style.marginBottom = `${itemDistance}px`;
       }
-      card.style.willChange = 'transform, filter';
-      card.style.transformOrigin = 'top center';
-      card.style.backfaceVisibility = 'hidden';
-      card.style.transform = 'translate3d(0, 0, 0)';
-      card.style.perspective = '1000px';
-      card.style.transition = 'none'; // Disable CSS transitions for manual control
+      // Keep cards fixed - no transform animations needed
+      card.style.willChange = 'auto';
+      card.style.transform = 'none';
+      card.style.filter = '';
+      card.style.transition = 'none';
 
-      // Initialize current transforms
+      // Initialize current transforms (for compatibility)
       this.currentTransforms.set(i, {
         translateY: 0,
         scale: 1,
@@ -238,6 +149,137 @@ export class ScrollStackService implements OnDestroy {
         blur: 0,
       });
     });
+  }
+
+  /**
+   * Update content fade-in animations for elements inside cards
+   */
+  updateContentAnimations(
+    cards: HTMLElement[],
+    options: {
+      fadeStartOffset?: number; // Distance from viewport top to start fade (default: 20% of viewport)
+      fadeEndOffset?: number; // Distance from viewport top to end fade (default: 10% of viewport)
+      translateDistance?: number; // How far content moves up (default: 50px)
+    } = {},
+  ): void {
+    if (!cards.length || this.isUpdating) return;
+
+    this.isUpdating = true;
+
+    const scrollTop = this.getScrollY();
+    const containerHeight = this.getWindowHeight();
+    const fadeStartOffset = options.fadeStartOffset ?? containerHeight * 0.2; // 20% from top
+    const fadeEndOffset = options.fadeEndOffset ?? containerHeight * 0.1; // 10% from top
+    const translateDistance = options.translateDistance ?? 50;
+
+    cards.forEach((card) => {
+      if (!card) return;
+
+      const cardTop = this.getElementOffset(card);
+      const cardHeight = card.offsetHeight;
+      const cardBottom = cardTop + cardHeight;
+
+      // Calculate when card enters animation zone
+      const animationStart = cardTop - fadeStartOffset;
+      const animationEnd = cardTop - fadeEndOffset;
+      const animationRange = animationEnd - animationStart;
+
+      // Find all content elements with data-scroll-fade attribute
+      const contentElements = card.querySelectorAll<HTMLElement>('[data-scroll-fade]');
+
+      if (contentElements.length === 0) {
+        // If no marked elements, find the actual section/content elements
+        // Angular components render as custom elements, so we need to find their content
+        const sectionElements = card.querySelectorAll<HTMLElement>('section');
+        
+        if (sectionElements.length > 0) {
+          // Animate section elements
+          sectionElements.forEach((section, index) => {
+            this.animateContentElement(
+              section,
+              scrollTop,
+              animationStart,
+              animationEnd,
+              animationRange,
+              translateDistance,
+              index * 0.1, // Stagger delay
+            );
+          });
+        } else {
+          // Fallback: animate direct children (Angular components)
+          const children = Array.from(card.children) as HTMLElement[];
+          children.forEach((child, index) => {
+            // Find the first section or main content container within the component
+            const contentContainer = child.querySelector<HTMLElement>('section, [class*="content"], [class*="container"]') || child;
+            this.animateContentElement(
+              contentContainer,
+              scrollTop,
+              animationStart,
+              animationEnd,
+              animationRange,
+              translateDistance,
+              index * 0.1, // Stagger delay
+            );
+          });
+        }
+      } else {
+        // Animate marked content elements
+        contentElements.forEach((element, index) => {
+          this.animateContentElement(
+            element,
+            scrollTop,
+            animationStart,
+            animationEnd,
+            animationRange,
+            translateDistance,
+            index * 0.1, // Stagger delay
+          );
+        });
+      }
+    });
+
+    this.isUpdating = false;
+  }
+
+  private animateContentElement(
+    element: HTMLElement,
+    scrollTop: number,
+    animationStart: number,
+    animationEnd: number,
+    animationRange: number,
+    translateDistance: number,
+    staggerDelay: number = 0,
+  ): void {
+    // Adjust animation start/end with stagger
+    const adjustedStart = animationStart + staggerDelay * animationRange;
+    const adjustedEnd = animationEnd + staggerDelay * animationRange;
+
+    // Calculate progress (0 to 1)
+    let progress = this.calculateProgress(scrollTop, adjustedStart, adjustedEnd);
+    progress = Math.max(0, Math.min(1, progress)); // Clamp between 0 and 1
+
+    // Apply easing function for smooth animation
+    const easedProgress = this.easeOutCubic(progress);
+
+    // Calculate opacity and translateY
+    const opacity = easedProgress;
+    const translateY = (1 - easedProgress) * translateDistance;
+
+    // Apply styles
+    element.style.opacity = opacity.toString();
+    element.style.transform = `translate3d(0, ${translateY}px, 0)`;
+    element.style.willChange = 'opacity, transform';
+
+    // Add/remove visible class for CSS transitions
+    if (progress > 0.1) {
+      element.classList.add('content-fade-visible');
+    } else {
+      element.classList.remove('content-fade-visible');
+    }
+  }
+
+  private easeOutCubic(t: number): number {
+    return 1 - Math.pow(1 - t, 3);
   }
 
   scrollTo(targetY: number, options?: { immediate?: boolean }): void {

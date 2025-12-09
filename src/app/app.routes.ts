@@ -40,18 +40,9 @@ export const routes: Routes = [
           import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome),
       },
       {
-        path: 'posts',
-        loadComponent: () => import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage),
-      },
-      {
         path: 'clients',
         loadComponent: () =>
           import('./dashboard/clients-page/clients-page').then((m) => m.ClientsPage),
-      },
-      {
-        path: 'post-editor',
-        loadComponent: () =>
-          import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor),
       },
       {
         path: 'content-management',

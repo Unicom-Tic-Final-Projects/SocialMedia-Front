@@ -95,6 +95,10 @@
               <div class="file-progress-container">
                 @if (variant === 'progressBar') {
                   <div class="progress-bar-wrapper">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="text-xs text-gray-600 font-medium">Uploading...</span>
+                      <span class="text-xs text-[#4C6FFF] font-semibold">{{ file.progress }}%</span>
+                    </div>
                     <div
                       class="progress-bar"
                       [style.width.%]="file.progress"

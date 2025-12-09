@@ -10,11 +10,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { AosService } from '../../../shared/services/aos.service';
 import { ParallaxService } from '../../../shared/services/parallax.service';
+import { ScrollRevealComponent } from '../../../shared/scroll-reveal/scroll-reveal.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-testimonials-section',
-  imports: [CommonModule],
+  imports: [CommonModule, ScrollRevealComponent],
   templateUrl: './testimonials-section.html',
   styleUrl: './testimonials-section.css',
 })

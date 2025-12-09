@@ -106,18 +106,28 @@ export class FileUploadComponent {
     const filesToProcess = this.allowsMultiple ? files : files.slice(0, 1);
 
     filesToProcess.forEach((file) => {
-      // Check file size first
-      if (this.maxSize && file.size > this.maxSize) {
+      // Check file type first
+      if (!this.isFileTypeAccepted(file)) {
+        unacceptedFiles.push(file);
+        return;
+      }
+
+      // Then check file size - use different limits for images vs videos
+      const isVideo = file.type.startsWith('video/');
+      const isImage = file.type.startsWith('image/');
+      const maxImageSize = 10 * 1024 * 1024; // 10MB for images
+      const maxVideoSize = 100 * 1024 * 1024; // 100MB for videos
+      const maxSizeForFile = isVideo ? maxVideoSize : (isImage ? maxImageSize : this.maxSize || maxImageSize);
+      
+      // Use the provided maxSize if it's smaller than the type-specific limit
+      const effectiveMaxSize = this.maxSize ? Math.min(this.maxSize, maxSizeForFile) : maxSizeForFile;
+      
+      if (file.size > effectiveMaxSize) {
         oversizedFiles.push(file);
         return;
       }
 
-      // Then check file type
-      if (this.isFileTypeAccepted(file)) {
-        acceptedFiles.push(file);
-      } else {
-        unacceptedFiles.push(file);
-      }
+      acceptedFiles.push(file);
     });
 
     // Handle oversized files

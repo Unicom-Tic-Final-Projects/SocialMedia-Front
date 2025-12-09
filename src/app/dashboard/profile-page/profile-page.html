@@ -1,8 +1,8 @@
-<div class="min-h-screen bg-[#FFFFFF] text-[#222222] p-6">
+<div class="min-h-screen bg-[#FFFFFF] text-[#222222]">
   <!-- Client Context Banner -->
   @if (isViewingClient() && selectedClient()) {
     <div
-      class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-6 py-4 flex items-center justify-between"
+      class="mb-6 rounded-xl bg-blue-50 border border-blue-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between"
     >
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -18,51 +18,55 @@
     </div>
   }
 
-  <h2 class="text-2xl font-semibold mb-6 text-[#4C6FFF] flex items-center gap-2">
-    <i class="fa-solid fa-user"></i>
-    @if (isViewingClient() && selectedClient()) {
-      {{ selectedClient()?.name }}'s Profile
-    } @else {
-      Profile
-    }
-  </h2>
+  <!-- Header Section -->
+  <div class="mb-8 md:mb-12">
+    <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+      <i class="fa-solid fa-user text-[#4C6FFF]"></i>
+      @if (isViewingClient() && selectedClient()) {
+        {{ selectedClient()?.name }}'s Profile
+      } @else {
+        Profile
+      }
+    </h2>
+    <p class="text-gray-600 text-sm sm:text-base">Manage your profile information</p>
+  </div>
 
   @if (loading()) {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
       <!-- Skeleton Profile Card -->
-      <div class="skeleton-card flex flex-col items-center">
+      <div class="skeleton-profile-card flex flex-col items-center">
         <div class="skeleton skeleton-circle w-32 h-32 mb-4"></div>
-        <div class="skeleton skeleton-text w-32 mb-2"></div>
-        <div class="skeleton skeleton-text w-24" style="height: 0.875em"></div>
+        <div class="skeleton skeleton-text w-32 h-5 mb-2"></div>
+        <div class="skeleton skeleton-text w-24 h-4"></div>
       </div>
       <!-- Skeleton Form -->
-      <div class="lg:col-span-2 skeleton-card space-y-4">
+      <div class="lg:col-span-2 skeleton-form-card space-y-4">
         @for (field of [1, 2, 3, 4, 5]; track field) {
           <div class="space-y-2">
-            <div class="skeleton skeleton-text w-24" style="height: 0.875em"></div>
-            <div class="skeleton skeleton-text w-full" style="height: 2.5em"></div>
+            <div class="skeleton skeleton-text w-24 h-4"></div>
+            <div class="skeleton skeleton-text w-full h-12"></div>
           </div>
         }
       </div>
     </div>
   } @else {
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- LEFT PROFILE CARD -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+      <!-- LEFT PROFILE CARD - Minimal Design -->
       <div
-        class="bg-[#F5F7FF] p-6 rounded-2xl shadow-md flex flex-col items-center border border-[#D9E1FF]"
+        class="bg-white p-6 md:p-8 rounded-xl flex flex-col items-center border border-[#E5E7EB]"
       >
         <img
           [src]="getAvatarUrl()"
           [alt]="getDisplayName()"
-          class="w-32 h-32 rounded-full border-4 border-[#4C6FFF] mb-4 object-cover"
+          class="w-32 h-32 rounded-full border-2 border-[#E5E7EB] mb-4 object-cover"
         />
 
-        <h3 class="text-lg font-semibold text-[#1A1A1A]">{{ getDisplayName() }}</h3>
+        <h3 class="text-lg font-semibold text-[#1A1A1A] mb-1">{{ getDisplayName() }}</h3>
         <p class="text-sm text-gray-600">{{ getRole() }}</p>
       </div>
 
-      <!-- RIGHT FORM -->
-      <div class="lg:col-span-2 bg-[#F5F7FF] p-6 rounded-2xl shadow-md border border-[#D9E1FF]">
+      <!-- RIGHT FORM - Minimal Design -->
+      <div class="lg:col-span-2 bg-white p-6 md:p-8 rounded-xl border border-[#E5E7EB]">
         <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="space-y-4">
           @if (isViewingClient()) {
             <div
@@ -75,49 +79,51 @@
           }
 
           <!-- Name -->
-          <div class="input-group relative">
-            <i
-              class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
-            ></i>
-            <input
-              type="text"
-              formControlName="fullName"
-              placeholder=" "
-              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300 [&.ng-invalid.ng-touched]:border-red-500"
-              [readonly]="isViewingClient()"
-              [class.bg-gray-50]="isViewingClient()"
-              [class.cursor-not-allowed]="isViewingClient()"
-            />
+          <div class="input-group relative mb-6">
             <label
-              class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+              class="block text-sm font-medium text-[#1A1A1A] mb-2"
             >
               Full Name <span class="text-red-500">*</span>
             </label>
+            <div class="relative">
+              <i
+                class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
+              ></i>
+              <input
+                type="text"
+                formControlName="fullName"
+                placeholder="Enter your full name"
+                class="input-field w-full bg-white border border-[#E5E7EB] rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/10 text-[#222222] transition-all duration-200 [&.ng-invalid.ng-touched]:border-red-500"
+                [readonly]="isViewingClient()"
+                [class.bg-gray-50]="isViewingClient()"
+                [class.cursor-not-allowed]="isViewingClient()"
+              />
+            </div>
             @if (profileForm.get('fullName')?.invalid && profileForm.get('fullName')?.touched) {
-              <p class="mt-1 text-sm text-red-600 animate-shake">Full name is required</p>
+              <p class="mt-2 text-sm text-red-600">Full name is required</p>
             }
           </div>
 
           <!-- Email -->
-          <div class="input-group relative">
-            <i
-              class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
-            ></i>
-            <input
-              type="email"
-              formControlName="email"
-              placeholder=" "
-              class="input-field w-full bg-white border-2 border-[#D9E1FF] rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 text-[#222222] transition-all duration-300 [&.ng-invalid.ng-touched]:border-red-500"
-              [readonly]="true"
-              [class.bg-gray-50]="isViewingClient()"
-              [class.cursor-not-allowed]="isViewingClient()"
-            />
+          <div class="input-group relative mb-6">
             <label
-              class="input-label absolute left-12 top-3 text-gray-500 pointer-events-none transition-all duration-300"
+              class="block text-sm font-medium text-[#1A1A1A] mb-2"
             >
               Email
             </label>
-            <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
+            <div class="relative">
+              <i
+                class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none"
+              ></i>
+              <input
+                type="email"
+                formControlName="email"
+                placeholder="your.email@example.com"
+                class="input-field w-full bg-gray-50 border border-[#E5E7EB] rounded-xl pl-12 pr-4 py-3 text-[#222222] transition-all duration-200 cursor-not-allowed"
+                [readonly]="true"
+              />
+            </div>
+            <p class="mt-2 text-xs text-gray-500">Email cannot be changed</p>
           </div>
 
           <!-- Save Button -->
@@ -125,14 +131,14 @@
             <button
               type="submit"
               [disabled]="saving() || profileForm.invalid"
-              class="bg-[#4C6FFF] text-white px-5 py-2 rounded-lg hover:bg-[#3A56CC] transition font-medium flex items-center gap-2 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+              class="bg-[#4C6FFF] text-white px-6 py-3 rounded-xl hover:bg-[#3A56CC] transition-all duration-200 font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md"
             >
               @if (saving()) {
                 <i class="fa-solid fa-circle-notch animate-spin"></i>
                 <span>Saving...</span>
               } @else {
                 <i class="fa-solid fa-floppy-disk"></i>
-                <span>Save</span>
+                <span>Save Changes</span>
               }
             </button>
           }

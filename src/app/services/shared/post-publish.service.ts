@@ -15,6 +15,7 @@ import {
   CreatePostRequest,
   UpdatePostRequest,
   SocialPost,
+  SchedulePostRequest,
 } from '../../models/post.models';
 import { Platform, SocialAccount } from '../../models/social.models';
 import { Client } from '../../models/client.models';
@@ -113,22 +114,46 @@ export class PostPublishService {
     selectedFile: File | null,
     options: PublishOptions,
   ): Observable<string> {
-    // If media already uploaded, use it
-    if (uploadedMediaId) {
+    // If media already uploaded, use it (filter out empty GUID strings)
+    if (uploadedMediaId && 
+        uploadedMediaId.trim() !== '' && 
+        uploadedMediaId !== '00000000-0000-0000-0000-000000000000') {
+      console.log('[PostPublishService] Using existing uploaded mediaId:', uploadedMediaId);
       return of(uploadedMediaId);
     }
 
     // If file selected but not uploaded, upload it
     if (selectedFile) {
+      console.log('[PostPublishService] Uploading file for publish:', {
+        fileName: selectedFile.name,
+        fileSize: selectedFile.size,
+        fileType: selectedFile.type,
+        isVideo: options.isVideo || options.mediaType === 'video'
+      });
+      
       return this.mediaUploadService.uploadFile(selectedFile).pipe(
+        tap((response) => {
+          console.log('[PostPublishService] File uploaded successfully:', {
+            mediaId: response.mediaId,
+            mediaUrl: response.mediaUrl
+          });
+        }),
         map((response) => {
+          if (!response || !response.mediaId) {
+            throw new Error('Media upload failed - no mediaId returned');
+          }
           this.postMediaService.setUploadedMediaId(response.mediaId);
           return response.mediaId;
+        }),
+        catchError((error) => {
+          console.error('[PostPublishService] Error uploading file for publish:', error);
+          return throwError(() => error);
         }),
       );
     }
 
-    // No media
+    // No media - return empty string (will be converted to undefined in createOrUpdatePost)
+    console.warn('[PostPublishService] No media provided for publish');
     return of('');
   }
 
@@ -161,32 +186,66 @@ export class PostPublishService {
     }
 
     if (options.isEditMode && options.postId) {
+      // Build clean update request - only include fields that backend expects
+      // Filter out empty GUID strings for mediaId
+      const validMediaId = mediaId && 
+                           mediaId.trim() !== '' && 
+                           mediaId !== '00000000-0000-0000-0000-000000000000' 
+                           ? mediaId : undefined;
+      
       const updateRequest: UpdatePostRequest = {
-        content: options.content,
-        mediaId: mediaId || undefined,
-        socialAccountIds: options.accountIds,
+        content: options.content.trim(),
+        mediaId: validMediaId,
+        socialAccountIds: Array.isArray(options.accountIds) ? options.accountIds : [],
         scheduledAt: undefined,
-        platformCropConfigs:
-          options.platformCropConfigs &&
-          Object.keys(options.platformCropConfigs).length > 0
-            ? options.platformCropConfigs
-            : undefined,
+        // Note: platformCropConfigs is NOT part of backend UpdatePostRequest contract
+        // It's handled separately during media upload/cropping phase
       };
+      
+      console.log('[PostPublishService] Updating post:', {
+        postId: options.postId,
+        updateRequest,
+        updateRequestJson: JSON.stringify(updateRequest)
+      });
+      
       return this.postsService.updatePost(options.postId, updateRequest);
     } else {
+      // Validate required fields before building request
+      if (!activeClient?.id) {
+        return throwError(() => new Error('Client ID is required'));
+      }
+      if (!user?.userId) {
+        return throwError(() => new Error('User ID is required'));
+      }
+      if (!options.content || options.content.trim() === '') {
+        return throwError(() => new Error('Post content is required'));
+      }
+
+      // Build request object - only include fields that backend expects
+      // Filter out empty GUID strings for mediaId
+      const validMediaId = mediaId && 
+                           mediaId.trim() !== '' && 
+                           mediaId !== '00000000-0000-0000-0000-000000000000' 
+                           ? mediaId : undefined;
+      
+      console.log('[PostPublishService] Creating post with mediaId:', {
+        originalMediaId: mediaId,
+        validMediaId: validMediaId,
+        hasMediaId: !!validMediaId,
+        isVideo: options.isVideo || options.mediaType === 'video'
+      });
+      
       const createRequest: CreatePostRequest = {
         clientId: activeClient.id,
         createdByTeamMemberId: user.userId,
-        content: options.content,
-        mediaId: mediaId || undefined,
-        socialAccountIds: options.accountIds,
-        scheduledAt: undefined,
-        platformCropConfigs:
-          options.platformCropConfigs &&
-          Object.keys(options.platformCropConfigs).length > 0
-            ? options.platformCropConfigs
-            : undefined,
+        content: options.content.trim(),
+        mediaId: validMediaId,
+        socialAccountIds: Array.isArray(options.accountIds) ? options.accountIds : [],
+        scheduledAt: undefined, // Not scheduling, publishing immediately
+        // Note: platformCropConfigs is NOT part of backend CreatePostRequest contract
+        // It's handled separately during media upload/cropping phase
       };
+      
       return this.postsService.createPost(createRequest);
     }
   }
@@ -218,6 +277,15 @@ export class PostPublishService {
 
             // For videos, use original media
             if (options.isVideo || options.mediaType === 'video') {
+              // Validate mediaId for videos (required for YouTube)
+              if (!mediaId || mediaId.trim() === '' || mediaId === '00000000-0000-0000-0000-000000000000') {
+                const error = new Error('Video media is required for video posts. Please ensure the video is uploaded before publishing.');
+                console.error('[PostPublishService] Video post missing mediaId:', { mediaId, uploadedMediaId, selectedFile: !!selectedFile });
+                return throwError(() => error);
+              }
+              
+              console.log('[PostPublishService] Publishing video post with mediaId:', mediaId);
+              
               return this.createOrUpdatePost(
                 {
                   ...options,
@@ -255,19 +323,55 @@ export class PostPublishService {
                                 );
                               }),
                             )
-                            .subscribe(observer);
+                            .subscribe({
+                              next: (post) => observer.next(post),
+                              error: (err) => observer.error(err),
+                            });
                         } else {
-                          observer.error(new Error('Failed to generate cropped image'));
+                          // Failed to generate crop - use original media instead
+                          console.warn('Failed to generate cropped image, using original media');
+                          this.createOrUpdatePost(
+                            {
+                              ...options,
+                              platformCropConfigs,
+                            },
+                            activeClient,
+                            mediaId,
+                          ).subscribe({
+                            next: (post) => observer.next(post),
+                            error: (err) => observer.error(err),
+                          });
                         }
                       })
-                      .catch((err) => observer.error(err));
+                      .catch((err) => {
+                        // Error generating crop - use original media instead
+                        console.warn('Error generating cropped image, using original media:', err);
+                        this.createOrUpdatePost(
+                          {
+                            ...options,
+                            platformCropConfigs,
+                          },
+                          activeClient,
+                          mediaId,
+                        ).subscribe({
+                          next: (post) => observer.next(post),
+                          error: (err) => observer.error(err),
+                        });
+                        // Return a resolved promise to prevent unhandled rejection
+                        return Promise.resolve(null);
+                      });
                   });
                 } else {
-                  return throwError(
-                    () =>
-                      new Error(
-                        'Cropped images not found. Please go back to Step 3 and complete cropping before publishing.',
-                      ),
+                  // No crop callback available - use original media
+                  // This allows publishing without going through Step 3 cropping
+                  console.warn('Cropped images not found and no crop callback available, using original media');
+                  return this.createOrUpdatePost(
+                    {
+                      ...options,
+                      platformCropConfigs,
+                    },
+                    activeClient,
+                    mediaId,
                   );
                 }
               }
@@ -346,12 +450,58 @@ export class PostPublishService {
           mediaId || '',
         ).pipe(
           switchMap((post) => {
+            // Validate post was created successfully
+            if (!post || !post.id) {
+              return throwError(() => new Error('Post was not created successfully. Post ID is missing.'));
+            }
+
             // Schedule the post
-            const scheduleRequest = {
-              postId: post.id,
-              scheduledAt: options.scheduledAt,
-              socialAccountIds: options.accountIds,
+            // Note: postId is in the route, not in the request body
+            // Ensure scheduledAt is in ISO format for backend
+            if (!options.scheduledAt) {
+              return throwError(() => new Error('Scheduled date is required'));
+            }
+
+            const scheduledAt = new Date(options.scheduledAt);
+            if (isNaN(scheduledAt.getTime())) {
+              return throwError(() => new Error('Invalid scheduled date'));
+            }
+
+            const scheduledAtISO = scheduledAt.toISOString();
+            
+            // Ensure accountIds are properly formatted as strings (GUIDs)
+            const accountIds = (options.accountIds || [])
+              .map(id => typeof id === 'string' ? id : String(id))
+              .filter(id => id && id.trim() !== '' && id !== 'undefined' && id !== 'null');
+
+            // Validate we have at least one account
+            if (accountIds.length === 0) {
+              return throwError(() => new Error('At least one social account must be selected for scheduling'));
+            }
+
+            const scheduleRequest: SchedulePostRequest = {
+              scheduledAt: scheduledAtISO,
+              socialAccountIds: accountIds,
             };
+
+            // Validate request before sending
+            if (!scheduleRequest.scheduledAt || scheduleRequest.scheduledAt.trim() === '') {
+              return throwError(() => new Error('Scheduled date cannot be empty'));
+            }
+
+            if (!Array.isArray(scheduleRequest.socialAccountIds) || scheduleRequest.socialAccountIds.length === 0) {
+              return throwError(() => new Error('At least one social account ID is required'));
+            }
+
+            console.log('Schedule request object:', scheduleRequest);
+            console.log('Schedule request JSON:', JSON.stringify(scheduleRequest));
+            console.log('Post ID:', post.id);
+            console.log('Post ID type:', typeof post.id);
+            console.log('Post ID valid:', post.id && post.id.trim() !== '');
+
+            if (!post.id || post.id.trim() === '') {
+              return throwError(() => new Error('Post ID is missing or invalid after creation'));
+            }
 
             return this.postsService.schedulePost(post.id, scheduleRequest).pipe(
               map(() => post),
@@ -440,7 +590,7 @@ export class PostPublishService {
   /**
    * Handle publish success
    */
-  handlePublishSuccess(post: SocialPost, navigateTo: string = '/dashboard/posts'): void {
+  handlePublishSuccess(post: SocialPost, navigateTo: string = '/dashboard/content-management'): void {
     const publishMessage = (post as any)?.publishMessage;
     if (publishMessage && publishMessage.includes('out of')) {
       if (publishMessage.includes('Failed to publish to')) {
@@ -451,7 +601,19 @@ export class PostPublishService {
     } else {
       this.toastService.success('Post published successfully!');
     }
-    this.router.navigate([navigateTo]);
+    // Parse navigateTo to handle query params properly
+    if (navigateTo.includes('?')) {
+      const [path, queryString] = navigateTo.split('?');
+      const queryParams: any = {};
+      queryString.split('&').forEach(param => {
+        const [key, value] = param.split('=');
+        queryParams[key] = value;
+      });
+      this.router.navigate([path], { queryParams });
+    } else {
+      // Navigate to published-posts tab after publishing
+      this.router.navigate([navigateTo], { queryParams: { tab: 'published-posts' } });
+    }
   }
 
   /**
@@ -465,9 +627,21 @@ export class PostPublishService {
   /**
    * Handle schedule success
    */
-  handleScheduleSuccess(navigateTo: string = '/dashboard/posts'): void {
+  handleScheduleSuccess(navigateTo: string = '/dashboard/content-management'): void {
     this.toastService.success('Post scheduled successfully!');
-    this.router.navigate([navigateTo]);
+    // Parse navigateTo to handle query params properly
+    if (navigateTo.includes('?')) {
+      const [path, queryString] = navigateTo.split('?');
+      const queryParams: any = {};
+      queryString.split('&').forEach(param => {
+        const [key, value] = param.split('=');
+        queryParams[key] = value;
+      });
+      this.router.navigate([path], { queryParams });
+    } else {
+      // Navigate to scheduled tab after scheduling
+      this.router.navigate([navigateTo], { queryParams: { tab: 'scheduled' } });
+    }
   }
 
   /**

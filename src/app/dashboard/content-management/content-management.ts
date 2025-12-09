@@ -1,163 +1,29 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { forkJoin, of } from 'rxjs';
-import { catchError, takeUntil } from 'rxjs/operators';
-import { PostsService } from '../../services/client/posts.service';
-import { MediaService } from '../../services/client/media.service';
-import { Subject } from 'rxjs';
-import { LoggingService } from '../../core/services/logging.service';
-import { BaseComponent } from '../../core/base/base.component';
-import { ContentLibraryComponent } from './content-library/content-library';
-import { DraftManagerComponent } from './draft-manager/draft-manager';
-import { ScheduledPostsComponent } from './scheduled-posts/scheduled-posts';
-import { ContentCalendarComponent } from './content-calendar/content-calendar';
-import { AIAssistantComponent } from './ai-assistant/ai-assistant';
-import { PostCreatorComponent } from './post-creator/post-creator';
-import { PostsPage } from '../posts-page/posts-page';
-import { PublishedPostsComponent } from '../published-posts/published-posts';
-
-type ContentManagementTab =
-  | 'create'
-  | 'library'
-  | 'drafts'
-  | 'scheduled'
-  | 'calendar'
-  | 'ai-assistant'
-  | 'posts'
-  | 'published-posts';
+import { ScreenSizeService } from '../../core/services/screen-size.service';
+import { ContentManagementMobile } from './content-management-mobile/content-management-mobile';
+import { ContentManagementDesktop } from './content-management-desktop/content-management-desktop';
 
 @Component({
   selector: 'app-content-management',
   standalone: true,
   imports: [
     CommonModule,
-    ContentLibraryComponent,
-    DraftManagerComponent,
-    ScheduledPostsComponent,
-    ContentCalendarComponent,
-    AIAssistantComponent,
-    PostCreatorComponent,
-    PostsPage,
-    PublishedPostsComponent,
+    ContentManagementMobile,
+    ContentManagementDesktop,
   ],
   templateUrl: './content-management.html',
   styleUrl: './content-management.css',
 })
-export class ContentManagementComponent extends BaseComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-  private readonly postsService = inject(PostsService);
-  private readonly mediaService = inject(MediaService);
-  private readonly loggingService = inject(LoggingService);
+export class ContentManagementComponent implements OnInit {
+  private readonly screenSizeService = inject(ScreenSizeService);
 
-  // Active tab
-  activeTab = signal<ContentManagementTab>('create');
-
-  // Statistics
-  totalPosts = signal(0);
-  draftCount = signal(0);
-  scheduledCount = signal(0);
-  publishedCount = signal(0);
-  mediaCount = signal(0);
-  loadingStats = signal(false);
+  // Use screen size service to determine which component to render
+  readonly isMobile = this.screenSizeService.isMobile;
+  readonly isTablet = this.screenSizeService.isTablet;
+  readonly isDesktop = this.screenSizeService.isDesktop;
 
   ngOnInit(): void {
-    // Load initial statistics
-    this.loadStatistics();
-
-    // Check query params for tab and media selection
-    this.route.queryParams
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((params) => {
-      if (params['tab']) {
-        const tab = params['tab'] as ContentManagementTab;
-        if (
-          [
-            'create',
-            'library',
-            'drafts',
-            'scheduled',
-            'calendar',
-            'ai-assistant',
-            'posts',
-            'published-posts',
-          ].includes(tab)
-        ) {
-          this.setActiveTab(tab);
-        }
-      }
-    });
+    // Component initialization if needed
   }
-
-  setActiveTab(tab: ContentManagementTab): void {
-    this.activeTab.set(tab);
-    // Update URL without reloading
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { tab },
-      queryParamsHandling: 'merge',
-    });
-    // Reload statistics when switching tabs to keep data fresh
-    if (tab === 'create' || tab === 'library') {
-      this.loadStatistics();
-    }
-  }
-
-  private loadStatistics(): void {
-    this.loadingStats.set(true);
-
-    // Load all statistics in parallel with proper error handling
-    forkJoin({
-      drafts: this.postsService.getPostsByStatus('Draft').pipe(
-        catchError((error: HttpErrorResponse) => {
-          this.loggingService.error('Error loading drafts', error, 'ContentManagement');
-          return of([]);
-        }),
-      ),
-      scheduled: this.postsService.getPostsByStatus('Scheduled').pipe(
-        catchError((error: HttpErrorResponse) => {
-          this.loggingService.error('Error loading scheduled posts', error, 'ContentManagement');
-          return of([]);
-        }),
-      ),
-      published: this.postsService.getPostsByStatus('Published').pipe(
-        catchError((error: HttpErrorResponse) => {
-          this.loggingService.error('Error loading published posts', error, 'ContentManagement');
-          return of([]);
-        }),
-      ),
-      media: this.mediaService.getMediaByTenant().pipe(
-        catchError((error: HttpErrorResponse) => {
-          this.loggingService.error('Error loading media', error, 'ContentManagement');
-          return of([]);
-        }),
-      ),
-    })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-      next: (results) => {
-        this.draftCount.set(results.drafts.length);
-        this.scheduledCount.set(results.scheduled.length);
-        this.publishedCount.set(results.published.length);
-        this.mediaCount.set(results.media.length);
-        this.totalPosts.set(
-          results.drafts.length + results.scheduled.length + results.published.length,
-        );
-        this.loadingStats.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.loggingService.error('Error loading statistics', error, 'ContentManagement');
-        // Set all to 0 on complete failure
-        this.draftCount.set(0);
-        this.scheduledCount.set(0);
-        this.publishedCount.set(0);
-        this.mediaCount.set(0);
-        this.totalPosts.set(0);
-        this.loadingStats.set(false);
-      },
-    });
-  }
-
 }

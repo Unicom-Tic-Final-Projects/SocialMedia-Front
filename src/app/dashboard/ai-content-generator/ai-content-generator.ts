@@ -347,7 +347,7 @@ export class AIContentGenerator extends BaseComponent implements OnInit {
       queryParams.mediaUrl = encodeURIComponent(formValue.mediaUrl);
     }
 
-    this.router.navigate(['/dashboard/post-editor'], { queryParams });
+    this.router.navigate(['/dashboard/content-management'], { queryParams: { ...queryParams, tab: 'create' } });
     this.showPostCreator.set(false);
   }
 

@@ -1,4 +1,4 @@
-/* Dashboard Home Styles */
+/* Dashboard Home - Minimal Design Styles */
 
 /* Animation Keyframes */
 @keyframes fadeIn {
@@ -7,17 +7,6 @@
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -32,14 +21,12 @@
   }
 }
 
-@keyframes countUp {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  100% {
+    background-position: 1000px 0;
   }
 }
 
@@ -48,104 +35,317 @@
   animation: fadeIn 0.5s ease-out;
 }
 
-.animate-slideDown {
-  animation: slideDown 0.6s ease-out;
-}
-
 .animate-slideUp {
   animation: slideUp 0.6s ease-out;
 }
 
-.animate-countUp {
-  animation: countUp 0.5s ease-out;
-}
-
-/* Stat Card Hover Effects */
-.stat-card {
+/* Minimal Stat Card Styles */
+.stat-card-minimal {
   position: relative;
-  overflow: hidden;
+  transition: all 200ms ease-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(76, 111, 255, 0.1), transparent);
-  transition: left 0.5s;
+.stat-card-minimal:hover {
+  box-shadow: 0 4px 12px rgba(76, 111, 255, 0.08);
 }
 
-.stat-card:hover::before {
-  left: 100%;
+/* Quick Action Button Styles */
+.quick-action-btn {
+  transition: all 200ms ease-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.stat-card .icon-wrapper {
-  transition: transform 0.3s ease;
+.quick-action-btn:hover {
+  box-shadow: 0 4px 12px rgba(76, 111, 255, 0.08);
 }
 
-.stat-card:hover .icon-wrapper {
-  transform: scale(1.1) rotate(5deg);
+.quick-action-btn:active {
+  transform: translateY(0);
 }
 
-/* Activity Item Animations */
-.activity-item {
-  transition: all 0.3s ease;
+/* Activity Item Minimal Styles */
+.activity-item-minimal {
+  transition: all 200ms ease-out;
 }
 
-.activity-item:hover {
-  transform: translateX(4px);
-}
-
-/* Magic Bento Effects for Stat Cards */
-.magic-bento-card {
-  --glow-x: 50%;
-  --glow-y: 50%;
-  --glow-intensity: 0;
-  --glow-radius: 200px;
-  --glow-color: 76, 111, 255;
-  position: relative;
-}
-
-.magic-bento-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  padding: 2px;
-  background: radial-gradient(
-    var(--glow-radius) circle at var(--glow-x) var(--glow-y),
-    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.8)) 0%,
-    rgba(var(--glow-color), calc(var(--glow-intensity) * 0.4)) 30%,
-    transparent 60%
+/* Loading Skeleton Styles - Minimal */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
   );
-  border-radius: inherit;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: subtract;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-  opacity: var(--glow-intensity);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
 }
 
-.magic-bento-card:hover::after {
-  opacity: 1;
+.skeleton-stat-card-minimal {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.magic-bento-card:hover {
-  box-shadow:
-    0 4px 20px rgba(46, 24, 78, 0.4),
-    0 0 30px rgba(var(--glow-color), 0.2);
+.skeleton-quick-actions {
+  background: transparent;
+}
+
+.skeleton-activity-feed {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-activity-item-minimal {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  height: 1.5em;
+  border-radius: 4px;
+}
+
+/* Responsive Adjustments - Screen Size Specific */
+/* Very Small Phones (320px - 360px) */
+@media (max-width: 360px) {
+  .stat-card-minimal {
+    padding: 14px;
+  }
+
+  .stat-card-minimal p[class*="text-4xl"] {
+    font-size: 1.75rem;
+  }
+
+  .quick-action-btn {
+    padding: 12px;
+    min-height: 68px;
+  }
+
+  .quick-action-btn p:first-of-type {
+    font-size: 0.8125rem;
+  }
+
+  .quick-action-btn p:last-of-type {
+    font-size: 0.6875rem;
+  }
+
+  .quick-action-btn .w-10 {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+/* Small Phones (361px - 375px) */
+@media (min-width: 361px) and (max-width: 375px) {
+  .stat-card-minimal {
+    padding: 16px;
+  }
+
+  .stat-card-minimal p[class*="text-4xl"] {
+    font-size: 2rem;
+  }
+
+  .quick-action-btn {
+    padding: 14px;
+    min-height: 72px;
+  }
+
+  .quick-action-btn p:first-of-type {
+    font-size: 0.875rem;
+  }
+
+  .quick-action-btn p:last-of-type {
+    font-size: 0.75rem;
+  }
+}
+
+/* Medium Phones (376px - 428px) */
+@media (min-width: 376px) and (max-width: 428px) {
+  .stat-card-minimal {
+    padding: 18px;
+  }
+
+  .stat-card-minimal p[class*="text-4xl"] {
+    font-size: 2.25rem;
+  }
+
+  .quick-action-btn {
+    padding: 16px;
+    min-height: 76px;
+  }
+}
+
+/* Large Phones (429px - 640px) */
+@media (min-width: 429px) and (max-width: 640px) {
+  .stat-card-minimal {
+    padding: 20px;
+  }
+
+  .stat-card-minimal p[class*="text-4xl"] {
+    font-size: 2.5rem;
+  }
+
+  .quick-action-btn {
+    padding: 16px;
+    min-height: 80px;
+  }
+}
+
+/* Standard Mobile (up to 640px) */
+@media (max-width: 640px) {
+  .stat-card-minimal {
+    padding: 20px;
+  }
+
+  .quick-action-btn {
+    padding: 16px;
+  }
+
+  .quick-action-btn p:first-of-type {
+    font-size: 0.875rem;
+}
+
+  .quick-action-btn p:last-of-type {
+    font-size: 0.75rem;
+}
+}
+
+/* Remove old complex animations for minimal design */
+.magic-bento-card,
+.magic-bento-cards {
+  /* Keep for backward compatibility but disable complex effects */
 }
 
 .particle {
-  position: absolute;
-  pointer-events: none;
-  z-index: 100;
+  display: none; /* Disable particles for minimal design */
 }
+
+/* Smooth transitions for all interactive elements */
+button,
+a {
+  transition: all 200ms ease-out;
+}
+
+/* Focus states for accessibility */
+.quick-action-btn:focus,
+.stat-card-minimal:focus {
+  outline: 2px solid #4c6fff;
+  outline-offset: 2px;
+}
+
+/* Touch Target Optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Touch Optimization for Mobile */
+@media (max-width: 1024px) {
+  .quick-action-btn {
+    min-height: 80px;
+  }
+
+  .stat-card-minimal {
+    min-height: 100px;
+  }
+
+  .activity-item-minimal {
+    min-height: 64px;
+  }
+
+  /* Better touch feedback */
+  .quick-action-btn:active,
+  .stat-card-minimal:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* Responsive Breakpoints for Very Small Screens */
+@media (max-width: 320px) {
+  .stat-card-minimal {
+    padding: 12px !important;
+  }
+  
+  .stat-card-minimal p[class*="text-2xl"] {
+    font-size: 1.5rem;
+  }
+  
+  .quick-action-btn {
+    padding: 10px !important;
+    min-height: 70px;
+  }
+}
+
+/* Pull-to-Refresh Styles */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+/* Smooth pull-to-refresh transition */
+main {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Native-like card animations */
+.stat-card-minimal {
+  animation: fadeIn 0.4s ease-out;
+  animation-fill-mode: both;
+}
+
+.stat-card-minimal:nth-child(1) { animation-delay: 0.05s; }
+.stat-card-minimal:nth-child(2) { animation-delay: 0.1s; }
+.stat-card-minimal:nth-child(3) { animation-delay: 0.15s; }
+.stat-card-minimal:nth-child(4) { animation-delay: 0.2s; }
+
+.quick-action-btn {
+  animation: fadeIn 0.4s ease-out;
+  animation-fill-mode: both;
+}
+
+.quick-action-btn:nth-child(1) { animation-delay: 0.1s; }
+.quick-action-btn:nth-child(2) { animation-delay: 0.15s; }
+.quick-action-btn:nth-child(3) { animation-delay: 0.2s; }
+.quick-action-btn:nth-child(4) { animation-delay: 0.25s; }
+
+.activity-item-minimal {
+  animation: slideInRight 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.activity-item-minimal:nth-child(1) { animation-delay: 0.05s; }
+.activity-item-minimal:nth-child(2) { animation-delay: 0.1s; }
+.activity-item-minimal:nth-child(3) { animation-delay: 0.15s; }
+.activity-item-minimal:nth-child(4) { animation-delay: 0.2s; }
+.activity-item-minimal:nth-child(5) { animation-delay: 0.25s; }

@@ -1,59 +1,65 @@
-/* Profile Page Styles */
+/* Profile Page - Minimal Design Styles */
 
-/* Floating Label Input Styles */
+/* Input Styles - Minimal */
 .input-group {
   position: relative;
 }
 
 .input-field {
-  transition: all 0.3s ease;
+  transition: all 200ms ease-out;
 }
 
-.input-field:focus,
-.input-field:not(:placeholder-shown) {
-  padding-top: 1.5rem;
-  padding-bottom: 0.75rem;
-}
-
-.input-field:focus ~ .input-label,
-.input-field:not(:placeholder-shown) ~ .input-label {
-  top: 0.5rem;
-  font-size: 0.75rem;
-  color: #4c6fff;
-  transform: translateY(0);
-}
-
-.input-label {
-  top: 1rem;
-  font-size: 0.875rem;
-  transform: translateY(0);
-  background: white;
-  padding: 0 0.25rem;
-  margin-left: -0.25rem;
-  z-index: 5;
-}
-
-/* Shake Animation for Errors */
-@keyframes shake {
-  0%,
+/* Loading Skeleton Styles - Minimal */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
   100% {
-    transform: translateX(0);
-  }
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translateX(-5px);
-  }
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translateX(5px);
+    background-position: 1000px 0;
   }
 }
 
-.animate-shake {
-  animation: shake 0.5s ease-in-out;
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 0%,
+    #e5e7eb 50%,
+    #f3f4f6 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-profile-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-form-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 4px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+  .skeleton-profile-card,
+  .skeleton-form-card {
+    padding: 24px;
+  }
 }

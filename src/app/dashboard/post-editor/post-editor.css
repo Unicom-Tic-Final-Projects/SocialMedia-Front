@@ -1,5 +1,17 @@
 /* Post Editor Enterprise Styles */
 
+/* Embedded Mode Styles - for use within content-management */
+.post-editor-embedded {
+  width: 100%;
+  background: transparent;
+  min-height: auto;
+}
+
+.post-editor-embedded > div {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 /* Floating Label Input Styles */
 .input-group-float {
   position: relative;
@@ -90,6 +102,14 @@ button[class*='bg-gradient']:not(:disabled):hover {
   box-shadow: 0 4px 12px rgba(76, 111, 255, 0.4);
 }
 
+/* Touch Target Optimization */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 640px) {
   .input-label-float {
@@ -99,6 +119,22 @@ button[class*='bg-gradient']:not(:disabled):hover {
   .input-field-float:focus ~ .input-label-float,
   .input-field-float:not(:placeholder-shown) ~ .input-label-float {
     font-size: 0.7rem;
+  }
+}
+
+/* Step Indicator Mobile Optimizations */
+@media (max-width: 360px) {
+  /* Very small phones - extra compact step indicators */
+  .step-indicator-container {
+    padding: 0.5rem;
+  }
+}
+
+/* Navigation Buttons Mobile Optimizations */
+@media (max-width: 640px) {
+  /* Stack buttons vertically on very small screens if needed */
+  .navigation-buttons-mobile {
+    flex-direction: column;
   }
 }
 

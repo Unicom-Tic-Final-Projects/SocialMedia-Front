@@ -26,11 +26,36 @@
       class="absolute bottom-1/3 right-1/3 w-96 h-96 bg-[#FFD6E8] rounded-full mix-blend-multiply filter blur-3xl opacity-15 animate-blob animation-delay-4000"
     ></div>
   </div>
-  <h2
-    class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-8 sm:mb-12 md:mb-16 lg:mb-20 px-4"
-  >
-    What Users Are Saying?
-  </h2>
+  <div class="text-center mb-8 sm:mb-12 md:mb-16 lg:mb-20 px-4" data-aos="fade-up" data-scroll-fade>
+    <div
+      class="inline-flex items-center gap-2 bg-[#F8FAFF] border border-[#BFC9FF]/30 text-[#4C6FFF] px-4 py-2 rounded-full text-sm font-semibold mb-6"
+    >
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.834a1 1 0 001.477.854l4-2.666a1 1 0 00.523-.854v-3.168a1 1 0 00-.523-.854l-4-2.666a1 1 0 00-1.477.854zM12 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM16 10.333v5.834a1 1 0 001.477.854l4-2.666a1 1 0 00.523-.854v-3.168a1 1 0 00-.523-.854l-4-2.666a1 1 0 00-1.477.854z" />
+      </svg>
+      <span>Trusted by Thousands</span>
+    </div>
+    <app-scroll-reveal
+      [enableBlur]="true"
+      [baseOpacity]="0.15"
+      [baseRotation]="2"
+      [blurStrength]="5"
+      containerClassName="mb-4"
+      textClassName="text-headline font-black text-center"
+    >
+      What Our <span class="gradient-text">Users Say</span>
+    </app-scroll-reveal>
+    <app-scroll-reveal
+      [enableBlur]="true"
+      [baseOpacity]="0.2"
+      [baseRotation]="1"
+      [blurStrength]="4"
+      containerClassName=""
+      textClassName="text-body-large text-[#222222]/80 max-w-2xl mx-auto"
+    >
+      Join thousands of creators, brands, and agencies who trust Onevo to grow their social media presence
+    </app-scroll-reveal>
+  </div>
 
   <div class="relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[690px] overflow-hidden">
     <div

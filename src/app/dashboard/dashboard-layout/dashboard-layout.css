@@ -1,45 +1,451 @@
-/* Dashboard Layout Styles */
+/* Dashboard Layout Styles - Minimal Design */
 
-/* Mobile Responsive with Zoom-Out Approach (Facebook-style) */
-@media (max-width: 768px) {
-  /* Zoom-out approach: Scale down the entire dashboard content */
-  .dashboard-content {
-    transform: scale(0.95);
-    transform-origin: top center;
-    width: 100%;
-    max-width: 100vw;
-    overflow-x: hidden;
+.dashboard-content {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Mobile Header Optimizations */
+@media (max-width: 1023px) {
+  /* User Avatar Button Animation */
+  .user-avatar-btn {
+    position: relative;
+    overflow: visible;
   }
 
-  /* Ensure proper spacing on mobile */
+  .avatar-initials {
+    display: inline-block;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+
+  .avatar-initials.avatar-hidden {
+    opacity: 0;
+    transform: scale(0.8) rotate(-90deg);
+    pointer-events: none;
+  }
+
+  .avatar-close-icon {
+    font-size: 1rem;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.8);
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .avatar-close-icon.avatar-visible {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) rotate(90deg) scale(1) !important;
+    pointer-events: auto;
+  }
+
+  .user-avatar-btn.avatar-open {
+    background: #EF4444 !important;
+    animation: avatarToX 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .user-avatar-btn.avatar-open:hover {
+    background: #DC2626 !important;
+  }
+
+  @keyframes avatarToX {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Mobile Navigation Items in Dropdown */
+  .mobile-nav-item {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.98);
+  }
+
+  .mobile-nav-item[class*="bg-\[#4C6FFF\]"] {
+    color: white !important;
+  }
+
+  .mobile-nav-item[class*="bg-\[#4C6FFF\]"] i {
+    color: white !important;
+  }
+
+  /* User dropdown menu optimizations */
+  .user-dropdown-menu {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Scrollable content area */
+  .user-dropdown-menu > div:nth-child(2) {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    flex: 1;
+    min-height: 0;
+    scroll-behavior: smooth;
+  }
+
+  /* Scrollbar styling for dropdown */
+  .user-dropdown-menu > div:nth-child(2)::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .user-dropdown-menu > div:nth-child(2)::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 2px;
+  }
+
+  .user-dropdown-menu > div:nth-child(2)::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+  }
+
+  /* Ensure header is fixed */
+  .user-dropdown-menu > div:first-child {
+    flex-shrink: 0;
+  }
+
+  /* Add padding at bottom for better scroll to logout */
+  .user-dropdown-menu > div:nth-child(2) > div:last-child {
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+  }
+}
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Very Small Phones (320px - 360px) - iPhone SE, small Android */
+@media (max-width: 360px) {
   main {
     padding: 0.75rem !important;
   }
 
-  /* Prevent horizontal scroll */
-  body {
-    overflow-x: hidden;
+  aside {
+    width: 100%;
+    padding: 1rem !important;
   }
 
-  /* User menu overlay */
-  .user-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 40;
+  aside h2 {
+    font-size: 1.125rem !important;
   }
 
-  /* Sidebar adjustments for mobile */
+  nav a {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.8125rem !important;
+    min-height: 44px;
+  }
+
+  /* Bottom nav - smaller icons and text */
+  nav[class*="fixed bottom-0"] {
+    height: 60px;
+    padding: 0.5rem 0.25rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.625rem;
+  }
+
+  /* FAB - smaller on very small screens */
+  button[class*="fixed bottom-20"] {
+    width: 48px;
+    height: 48px;
+    bottom: 72px;
+    right: 0.75rem;
+  }
+
+  button[class*="fixed bottom-20"] i {
+    font-size: 1.25rem;
+  }
+
+  /* Header adjustments */
+  header[class*="sticky top-0"] {
+    padding: 0.625rem 0.75rem;
+  }
+
+  header[class*="sticky top-0"] h2 {
+    font-size: 0.9375rem;
+  }
+
+  /* User avatar smaller */
+  header button[class*="rounded-full"] {
+    width: 32px;
+    height: 32px;
+    font-size: 0.625rem;
+  }
+
+  /* Dropdown menu smaller */
+  header .absolute[class*="w-64"] {
+    width: 240px;
+    max-height: calc(100vh - 80px);
+  }
+
+  header .mobile-nav-item {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  header .mobile-nav-item i {
+    font-size: 0.875rem;
+    width: 18px;
+    margin-right: 0.5rem;
+  }
+}
+
+/* Small Phones (361px - 375px) - iPhone 6/7/8, standard Android */
+@media (min-width: 361px) and (max-width: 375px) {
+  main {
+    padding: 0.875rem !important;
+  }
+
   aside {
     padding: 1rem !important;
   }
 
-  /* Navigation items smaller on mobile */
   nav a {
     padding: 0.75rem 1rem !important;
     font-size: 0.875rem !important;
+    min-height: 44px;
+  }
+
+  /* Bottom nav */
+  nav[class*="fixed bottom-0"] {
+    height: 64px;
+    padding: 0.5rem 0.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.125rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.6875rem;
+  }
+
+  /* FAB */
+  button[class*="fixed bottom-20"] {
+    width: 52px;
+    height: 52px;
+    bottom: 76px;
+    right: 1rem;
+  }
+
+  /* Header optimizations */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.0625rem;
+  }
+
+  header .user-avatar-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.6875rem;
+  }
+
+  header .avatar-close-icon {
+    font-size: 0.9375rem;
+  }
+
+  header .absolute[class*="w-64"] {
+    width: 260px;
+  }
+
+  header .mobile-nav-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Medium Phones (376px - 428px) - iPhone 12/13/14 Pro Max, large Android */
+@media (min-width: 376px) and (max-width: 428px) {
+  main {
+    padding: 1rem !important;
+  }
+
+  aside {
+    padding: 1.25rem !important;
+  }
+
+  nav a {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: 48px;
+  }
+
+  /* Bottom nav */
+  nav[class*="fixed bottom-0"] {
+    height: 64px;
+    padding: 0.625rem 0.75rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.25rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.75rem;
+  }
+
+  /* FAB */
+  button[class*="fixed bottom-20"] {
+    width: 56px;
+    height: 56px;
+    bottom: 80px;
+    right: 1rem;
+  }
+
+  /* Header optimizations */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.125rem;
+  }
+
+  header .user-avatar-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 0.75rem;
+  }
+
+  header .avatar-close-icon {
+    font-size: 1rem;
+  }
+
+  header .absolute[class*="w-64"] {
+    width: 280px;
+  }
+
+  header .mobile-nav-item {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+  }
+}
+
+/* Large Phones (429px - 640px) - iPhone 14 Plus, large Android phones */
+@media (min-width: 429px) and (max-width: 640px) {
+  main {
+    padding: 1rem !important;
+  }
+
+  aside {
+    padding: 1.5rem !important;
+  }
+
+  nav a {
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.875rem !important;
+    min-height: 48px;
+  }
+
+  /* Bottom nav */
+  nav[class*="fixed bottom-0"] {
+    height: 64px;
+    padding: 0.75rem 1rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.375rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.75rem;
+  }
+
+  /* FAB */
+  button[class*="fixed bottom-20"] {
+    width: 56px;
+    height: 56px;
+    bottom: 80px;
+    right: 1.25rem;
+  }
+
+  /* Header optimizations */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.1875rem;
+  }
+
+  header .user-avatar-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8125rem;
+  }
+
+  header .avatar-close-icon {
+    font-size: 1.0625rem;
+  }
+
+  header .absolute[class*="w-64"] {
+    width: 300px;
+  }
+
+  header .mobile-nav-item {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Standard Mobile (up to 640px) - Common breakpoint */
+@media (max-width: 640px) {
+  .dashboard-content {
+    padding: 0;
+  }
+
+  /* Single column layouts on mobile */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Better spacing on mobile */
+  .gap-6 {
+    gap: 0.75rem;
+  }
+
+  .gap-4 {
+    gap: 0.625rem;
+  }
+
+  /* Full width cards on mobile */
+  .stat-card-minimal,
+  .quick-action-btn {
+    width: 100%;
+  }
+
+  /* Optimized padding */
+  .p-6 {
+    padding: 1rem;
+  }
+
+  .p-8 {
+    padding: 1.25rem;
+  }
+
+  /* Better text sizes */
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
   }
 
   /* Logo smaller on mobile */
@@ -48,23 +454,123 @@
   }
 }
 
-/* Tablet adjustments */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .dashboard-content {
-    transform: scale(0.98);
-    transform-origin: top center;
+/* Small Tablets (641px - 768px) - iPad Mini, small tablets */
+@media (min-width: 641px) and (max-width: 768px) {
+  main {
+    padding: 1.25rem 1.5rem !important;
+  }
+
+  aside {
+    padding: 1.5rem !important;
+  }
+
+  /* Bottom nav - slightly larger */
+  nav[class*="fixed bottom-0"] {
+    height: 68px;
+    padding: 0.75rem 1.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.8125rem;
+  }
+
+  /* FAB */
+  button[class*="fixed bottom-20"] {
+    width: 60px;
+    height: 60px;
+    bottom: 88px;
+    right: 1.5rem;
+  }
+
+  button[class*="fixed bottom-20"] i {
+    font-size: 1.5rem;
+  }
+
+  /* Header optimizations for small tablets */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.25rem;
+  }
+
+  header .user-avatar-btn {
+    width: 42px;
+    height: 42px;
+    font-size: 0.875rem;
+  }
+
+  header .avatar-close-icon {
+    font-size: 1.125rem;
+  }
+
+  header .absolute[class*="w-64"] {
+    width: 320px;
+  }
+
+  header .mobile-nav-item {
+    padding: 1rem 1.25rem;
+    font-size: 1.0625rem;
+  }
+
+  /* 2-column grids on small tablets */
+  .grid-cols-1.sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* Small mobile devices */
-@media (max-width: 480px) {
-  .dashboard-content {
-    transform: scale(0.92);
-    transform-origin: top center;
+/* Tablet adjustments (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    padding: 1.5rem 2rem !important;
   }
 
+  /* Bottom nav - optional on tablets, can be hidden */
+  nav[class*="fixed bottom-0"] {
+    height: 72px;
+    padding: 0.875rem 2rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.875rem;
+  }
+
+  /* FAB - larger on tablets */
+  button[class*="fixed bottom-20"] {
+    width: 64px;
+    height: 64px;
+    bottom: 96px;
+    right: 2rem;
+  }
+
+  button[class*="fixed bottom-20"] i {
+    font-size: 1.75rem;
+  }
+}
+
+/* Desktop - Better spacing */
+@media (min-width: 1025px) {
   main {
-    padding: 0.5rem !important;
+    padding: 2.5rem 3rem !important;
+  }
+
+  /* Hide bottom nav on desktop */
+  nav[class*="fixed bottom-0"] {
+    display: none;
+  }
+  
+  main {
+    padding-bottom: 0 !important;
+  }
+
+  /* Hide FAB on desktop */
+  button[class*="fixed bottom-20"] {
+    display: none;
   }
 }
 
@@ -72,9 +578,480 @@
 @media (max-width: 768px) {
   aside {
     transform: translateX(-100%);
+    width: 85vw;
+    max-width: 320px;
   }
 
   aside.translate-x-0 {
     transform: translateX(0);
+  }
+}
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+}
+
+/* User menu overlay */
+.user-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+}
+
+/* Bottom Navigation Styles */
+nav[class*="fixed bottom-0"] {
+  /* Safe area support for notched devices */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Safe area support for sticky header */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Safe area support for bottom navigation */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Touch target optimization - minimum 44px */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Bottom nav active state */
+nav[class*="fixed bottom-0"] a {
+  color: #6b7280;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+nav[class*="fixed bottom-0"] a.router-link-active,
+nav[class*="fixed bottom-0"] a[class*="text-\[#4C6FFF\]"] {
+  color: #4c6fff;
+}
+
+nav[class*="fixed bottom-0"] a i {
+  transition: transform 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+nav[class*="fixed bottom-0"] a:active i {
+  transform: scale(0.9);
+}
+
+/* Active indicator */
+nav[class*="fixed bottom-0"] a > div[class*="absolute bottom-0"] {
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Prevent text selection on touch */
+nav[class*="fixed bottom-0"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Floating Action Button (FAB) */
+.fab-button,
+button[class*="fixed bottom-20"] {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  max-width: 48px;
+  max-height: 48px;
+  box-shadow: 0 4px 12px rgba(76, 111, 255, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 40;
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+.fab-button:active,
+button[class*="fixed bottom-20"]:active {
+  transform: scale(0.9);
+  box-shadow: 0 2px 8px rgba(76, 111, 255, 0.2);
+}
+
+/* Ensure FAB is always circular */
+.fab-button i,
+button[class*="fixed bottom-20"] i {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Touch Optimization - Global Styles */
+@media (max-width: 1024px) {
+  /* Minimum touch target size - 44px (Apple HIG) / 48px (Material) */
+  button,
+  a[role="button"],
+  input[type="button"],
+  input[type="submit"],
+  .btn,
+  [class*="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Better spacing between interactive elements */
+  button + button,
+  a + a,
+  .btn + .btn {
+    margin-left: 12px;
+  }
+
+  /* Form inputs - larger on mobile */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Cards and interactive elements - better spacing */
+  .stat-card-minimal,
+  .quick-action-btn,
+  .activity-item-minimal {
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* Quick action buttons - larger on mobile */
+  .quick-action-btn {
+    min-height: 80px;
+    padding: 16px;
+  }
+
+  /* Navigation items - larger touch targets */
+  nav a {
+    min-height: 48px;
+    padding: 12px 16px !important;
+  }
+
+  /* Icon buttons - ensure minimum size */
+  button[class*="icon"],
+  a[class*="icon"] {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  /* Remove tap highlight on all interactive elements */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Better spacing for lists */
+  .space-y-3 > * + *,
+  .space-y-4 > * + * {
+    margin-top: 16px;
+  }
+}
+
+/* Screen-size specific optimizations */
+@media (max-width: 360px) {
+  /* Very small phones - compact everything */
+  .stat-card-minimal {
+    padding: 14px;
+    min-height: 100px;
+  }
+
+  .quick-action-btn {
+    padding: 12px;
+    min-height: 68px;
+  }
+
+  .activity-item-minimal {
+    padding: 12px;
+    min-height: 56px;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 361px) and (max-width: 375px) {
+  .stat-card-minimal {
+    padding: 16px;
+    min-height: 110px;
+  }
+
+  .quick-action-btn {
+    padding: 14px;
+    min-height: 72px;
+  }
+}
+
+@media (min-width: 376px) and (max-width: 428px) {
+  .stat-card-minimal {
+    padding: 18px;
+    min-height: 120px;
+  }
+
+  .quick-action-btn {
+    padding: 16px;
+    min-height: 76px;
+  }
+}
+
+@media (min-width: 429px) and (max-width: 640px) {
+  .stat-card-minimal {
+    padding: 20px;
+    min-height: 120px;
+  }
+
+  .quick-action-btn {
+    padding: 16px;
+    min-height: 80px;
+  }
+}
+
+/* Swipe Gesture Styles */
+aside {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth sidebar transitions */
+aside {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Native-like Page Transitions */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Page transition animation */
+router-outlet + * {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Card micro-interactions */
+.stat-card-minimal,
+.quick-action-btn,
+.activity-item-minimal {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.stat-card-minimal:active,
+.quick-action-btn:active {
+  transform: scale(0.97);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Safe Area Support for Notched Devices */
+@supports (padding: max(0px)) {
+  /* Top safe area */
+  header[class*="sticky top-0"],
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 1rem);
+  }
+
+  /* Bottom safe area */
+  nav[class*="fixed bottom-0"],
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem);
+  }
+
+  /* Left/Right safe area */
+  main,
+  .dashboard-content {
+    padding-left: max(env(safe-area-inset-left, 0px), 1rem);
+    padding-right: max(env(safe-area-inset-right, 0px), 1rem);
+  }
+
+  /* FAB safe area */
+  button[class*="fixed bottom-20"] {
+    margin-bottom: max(env(safe-area-inset-bottom, 0px), 64px);
+  }
+}
+
+/* Viewport height adjustments for mobile browsers */
+@media (max-width: 1024px) {
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Prevent address bar from affecting layout */
+  main {
+    min-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Mobile table optimizations */
+@media (max-width: 768px) {
+  /* Make tables horizontally scrollable on mobile */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Or convert tables to card view */
+  .table-mobile-card {
+    display: block;
+  }
+
+  .table-mobile-card thead {
+    display: none;
+  }
+
+  .table-mobile-card tbody,
+  .table-mobile-card tr,
+  .table-mobile-card td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-mobile-card tr {
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    background: white;
+  }
+
+  .table-mobile-card td {
+    border: none;
+    padding: 0.5rem 0;
+    text-align: left;
+  }
+
+  .table-mobile-card td::before {
+    content: attr(data-label) ': ';
+    font-weight: 600;
+    color: #6b7280;
+    display: inline-block;
+    width: 40%;
+  }
+}
+
+/* Form optimizations for mobile */
+@media (max-width: 768px) {
+  /* Stack form fields vertically */
+  form .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Full width inputs on mobile */
+  input,
+  textarea,
+  select {
+    width: 100%;
+  }
+
+  /* Better button spacing */
+  button[type="submit"],
+  button[type="button"] {
+    width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 1024px) and (orientation: landscape) {
+  /* Reduce padding in landscape */
+  main {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Smaller bottom nav in landscape */
+  nav[class*="fixed bottom-0"] {
+    height: 56px;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.125rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.625rem;
+  }
+
+  /* Adjust FAB */
+  button[class*="fixed bottom-20"] {
+    bottom: 64px;
+    width: 52px;
+    height: 52px;
   }
 }

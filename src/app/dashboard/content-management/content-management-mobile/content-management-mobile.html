@@ -1,0 +1,223 @@
+<div class="content-management-mobile min-h-screen bg-white text-[#222222] pb-20 safe-area-bottom">
+  <!-- Mobile Header - Compact -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#E5E7EB] safe-area-top shadow-sm">
+    <div class="px-3 sm:px-4 py-2.5 sm:py-3 flex items-center justify-between">
+      <!-- Onevo Logo - Left -->
+      <h2 class="text-lg sm:text-xl font-bold text-[#4C6FFF] flex-shrink-0">
+        One<span class="text-[#1A1A1A]">vo</span>
+      </h2>
+
+      <!-- Right Side: User Avatar -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- User Avatar with Navigation Dropdown - Right -->
+        <div class="relative">
+          <button
+            type="button"
+            (click)="toggleUserMenu()"
+            class="user-avatar-btn w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#4C6FFF] flex items-center justify-center text-white font-semibold text-xs sm:text-sm touch-target transition-all duration-300 active:scale-95"
+            [class.avatar-open]="showUserMenu()"
+            aria-label="User menu"
+          >
+            <!-- Avatar Initials (shown when closed) -->
+            <span class="avatar-initials" [class.avatar-hidden]="showUserMenu()">
+              {{ getUserInitials() }}
+            </span>
+            <!-- X Icon (shown when open) -->
+            <i class="fa-solid fa-times avatar-close-icon" [class.avatar-visible]="showUserMenu()"></i>
+          </button>
+
+          @if (showUserMenu()) {
+            <!-- Click outside to close -->
+            <div
+              class="fixed inset-0 z-40"
+              (click)="showUserMenu.set(false)"
+            ></div>
+            
+            <!-- Dropdown Menu -->
+            <div
+              class="user-dropdown-menu absolute right-0 mt-2 w-64 sm:w-72 bg-white border border-[#E5E7EB] rounded-xl shadow-xl z-50 flex flex-col"
+              style="max-height: calc(100vh - 100px);"
+            >
+              <!-- User Info Section - Fixed Header -->
+              <div class="p-3 sm:p-4 border-b border-[#E5E7EB] bg-[#F9FAFB] flex-shrink-0">
+                <div>
+                  <p class="text-sm sm:text-base font-semibold text-[#1A1A1A]">{{ getUserDisplayName() }}</p>
+                  <p class="text-xs sm:text-sm text-gray-600 mt-0.5 truncate">{{ user()?.email }}</p>
+
+                  @if (user()?.tenantType) {
+                    <span
+                      class="inline-block mt-2 px-2 py-0.5 text-[10px] sm:text-xs rounded bg-[#F5F7FF] text-[#4C6FFF] font-medium"
+                    >
+                      {{ user()?.tenantType }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Scrollable Content Area -->
+              <div class="flex-1 overflow-y-auto min-h-0 -webkit-overflow-scrolling-touch">
+                <!-- Additional Navigation Links (Not in Bottom Nav) -->
+                <div class="p-2">
+                  <!-- Approvals (Agency only, not in bottom nav) -->
+                  @if (isAgency()) {
+                    <a
+                      routerLink="/dashboard/approvals"
+                      routerLinkActive="bg-[#4C6FFF] text-white"
+                      (click)="showUserMenu.set(false)"
+                      class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                    >
+                      <i class="fa-solid fa-check-circle mr-3 text-[#4C6FFF] w-5"></i> Approvals
+                    </a>
+                  }
+
+                  <!-- Social Accounts (Not in bottom nav) -->
+                  <a
+                    routerLink="/dashboard/social-account"
+                    routerLinkActive="bg-[#4C6FFF] text-white"
+                    (click)="showUserMenu.set(false)"
+                    class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                  >
+                    <i class="fa-solid fa-link mr-3 text-[#4C6FFF] w-5"></i> Social Accounts
+                  </a>
+
+                  <!-- Webhooks (Not in bottom nav) -->
+                  <a
+                    routerLink="/dashboard/webhooks"
+                    routerLinkActive="bg-[#4C6FFF] text-white"
+                    (click)="showUserMenu.set(false)"
+                    class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                  >
+                    <i class="fa-solid fa-webhook mr-3 text-[#4C6FFF] w-5"></i> Webhooks
+                  </a>
+
+                  <!-- Billing (Not in bottom nav) -->
+                  <a
+                    routerLink="/dashboard/billing"
+                    routerLinkActive="bg-[#4C6FFF] text-white"
+                    (click)="showUserMenu.set(false)"
+                    class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                  >
+                    <i class="fa-solid fa-credit-card mr-3 text-[#4C6FFF] w-5"></i> Billing
+                  </a>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-[#E5E7EB] mx-2 my-1"></div>
+
+                <!-- Account Settings (Not in bottom nav) -->
+                <div class="p-2 pb-3">
+                  <a
+                    routerLink="/dashboard/settings"
+                    (click)="showUserMenu.set(false)"
+                    class="mobile-nav-item block px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-[#1A1A1A] hover:bg-[#F5F7FF] rounded-lg transition touch-target"
+                  >
+                    <i class="fa-solid fa-gear mr-3 text-[#4C6FFF] w-5"></i> Settings
+                  </a>
+
+                  <button
+                    type="button"
+                    (click)="logout(); showUserMenu.set(false)"
+                    class="w-full text-left px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-red-600 hover:bg-red-500/10 rounded-lg transition touch-target"
+                  >
+                    <i class="fa-solid fa-sign-out-alt mr-3 w-5"></i> Logout
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Statistics - Compact, Horizontal Scroll -->
+    <div class="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-[#E5E7EB] bg-[#F9FAFB]">
+      <div class="flex gap-2 sm:gap-3 overflow-x-auto -mx-3 sm:-mx-4 px-3 sm:px-4 scrollbar-hide">
+        @if (loadingStats()) {
+          @for (card of [1, 2, 3, 4]; track card) {
+            <div class="flex-shrink-0 w-24">
+              <div class="skeleton skeleton-text w-16 h-3 mb-2"></div>
+              <div class="skeleton skeleton-text w-12 h-6"></div>
+            </div>
+          }
+        } @else {
+          <div class="flex-shrink-0 text-center min-w-[70px] sm:min-w-[80px] md:min-w-[90px]">
+            <p class="text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wide mb-0.5 sm:mb-1">Total</p>
+            <p class="text-lg sm:text-xl font-bold text-[#1A1A1A] leading-tight">{{ totalPosts() }}</p>
+          </div>
+          <div class="flex-shrink-0 text-center min-w-[70px] sm:min-w-[80px] md:min-w-[90px]">
+            <p class="text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wide mb-0.5 sm:mb-1">Drafts</p>
+            <p class="text-lg sm:text-xl font-bold text-[#1A1A1A] leading-tight">{{ draftCount() }}</p>
+          </div>
+          <div class="flex-shrink-0 text-center min-w-[70px] sm:min-w-[80px] md:min-w-[90px]">
+            <p class="text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wide mb-0.5 sm:mb-1">Scheduled</p>
+            <p class="text-lg sm:text-xl font-bold text-[#1A1A1A] leading-tight">{{ scheduledCount() }}</p>
+          </div>
+          <div class="flex-shrink-0 text-center min-w-[70px] sm:min-w-[80px] md:min-w-[90px]">
+            <p class="text-[9px] sm:text-[10px] text-gray-500 uppercase tracking-wide mb-0.5 sm:mb-1">Media</p>
+            <p class="text-lg sm:text-xl font-bold text-[#1A1A1A] leading-tight">{{ mediaCount() }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6 pb-32 sm:pb-36 min-h-[calc(100vh-200px)]">
+    <div class="animate-fadeIn">
+      @if (activeTab() === 'create') {
+        <app-post-editor [embeddedMode]="true" class="animate-slideIn"></app-post-editor>
+      }
+      @if (activeTab() === 'library') {
+        <app-content-library class="animate-slideIn"></app-content-library>
+      }
+      @if (activeTab() === 'drafts') {
+        <app-draft-manager class="animate-slideIn"></app-draft-manager>
+      }
+      @if (activeTab() === 'scheduled') {
+        <app-scheduled-posts class="animate-slideIn"></app-scheduled-posts>
+      }
+      @if (activeTab() === 'posts') {
+        <app-posts-page [embeddedMode]="true" class="animate-slideIn w-full"></app-posts-page>
+      }
+      @if (activeTab() === 'published-posts') {
+        <app-published-posts class="animate-slideIn"></app-published-posts>
+      }
+      @if (activeTab() === 'calendar') {
+        <app-content-calendar class="animate-slideIn"></app-content-calendar>
+      }
+      @if (activeTab() === 'ai-assistant') {
+        <app-ai-assistant class="animate-slideIn"></app-ai-assistant>
+      }
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Sheet Navigation - Icons Only (Right Aligned) -->
+  <div class="fixed bottom-16 left-0 right-0 z-40 bg-white border-t border-[#E5E7EB] shadow-[0_-2px_10px_rgba(0,0,0,0.05)] safe-area-bottom backdrop-blur-sm">
+    <div class="flex justify-end px-3 sm:px-4 py-2.5 sm:py-3">
+      <div class="flex gap-2 sm:gap-3">
+        @for (tab of getTabsList(); track tab) {
+          <button
+            type="button"
+            (click)="setActiveTab(tab)"
+            [class.bg-[#4C6FFF]]="activeTab() === tab"
+            [class.text-white]="activeTab() === tab"
+            [class.text-[#4C6FFF]]="activeTab() !== tab"
+            class="mobile-tab-icon-btn flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl font-medium transition-all duration-200 touch-target relative flex-shrink-0"
+            [class.bg-[#F5F7FF]]="activeTab() === tab"
+          >
+            <i class="fa-solid {{ getTabIcon(tab) }} text-lg sm:text-xl"></i>
+            @if (tab === 'drafts' && draftCount() > 0) {
+              <span class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-[8px] sm:text-[9px] text-white flex items-center justify-center font-bold leading-none">{{ draftCount() > 9 ? '9+' : draftCount() }}</span>
+            }
+            @if (tab === 'scheduled' && scheduledCount() > 0) {
+              <span class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-[8px] sm:text-[9px] text-white flex items-center justify-center font-bold leading-none">{{ scheduledCount() > 9 ? '9+' : scheduledCount() }}</span>
+            }
+            @if (tab === 'published-posts' && publishedCount() > 0) {
+              <span class="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 rounded-full text-[8px] sm:text-[9px] text-white flex items-center justify-center font-bold leading-none">{{ publishedCount() > 9 ? '9+' : publishedCount() }}</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</div>

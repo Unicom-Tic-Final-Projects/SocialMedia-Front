@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, effect, inject, signal, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -21,6 +21,7 @@ import { BaseComponent } from '../../core/base/base.component';
   styleUrl: './posts-page.css',
 })
 export class PostsPage extends BaseComponent implements OnInit {
+  @Input() embeddedMode = false;
   private readonly postsService = inject(PostsService);
   private readonly clientsService = inject(ClientsService);
   readonly clientContextService = inject(ClientContextService); // Public for template access
@@ -37,6 +38,7 @@ export class PostsPage extends BaseComponent implements OnInit {
   readonly loadingClients = this.clientsService.loading;
   readonly clientsError = this.clientsService.error;
   readonly isAgency = this.authService.isAgency;
+  readonly isIndividual = this.authService.isIndividual;
 
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
@@ -61,9 +63,22 @@ export class PostsPage extends BaseComponent implements OnInit {
     },
   ];
 
+  // Pagination state
+  currentPage = signal(1);
+  itemsPerPage = signal(10);
+
   // Filtered and sorted posts
   filteredPosts = computed(() => {
     let result = [...this.posts()];
+
+    // For individual users, ensure we only show posts from their client
+    // This is a safety filter in case the backend returns posts from other clients
+    if (this.isIndividual() && !this.isViewingClient()) {
+      const userClient = this.clientsService.getSelectedClient();
+      if (userClient) {
+        result = result.filter((post) => post.clientId === userClient.id);
+      }
+    }
 
     // Filter by status
     if (this.selectedStatusFilter() !== 'all') {
@@ -110,6 +125,31 @@ export class PostsPage extends BaseComponent implements OnInit {
     });
 
     return result;
+  });
+
+  // Pagination computed values
+  totalPages = computed(() => {
+    const total = this.filteredPosts().length;
+    const perPage = this.itemsPerPage();
+    return Math.max(1, Math.ceil(total / perPage));
+  });
+
+  paginatedPosts = computed(() => {
+    const allPosts = this.filteredPosts();
+    const page = this.currentPage();
+    const perPage = this.itemsPerPage();
+    const startIndex = (page - 1) * perPage;
+    const endIndex = startIndex + perPage;
+    return allPosts.slice(startIndex, endIndex);
+  });
+
+  paginationInfo = computed(() => {
+    const total = this.filteredPosts().length;
+    const page = this.currentPage();
+    const perPage = this.itemsPerPage();
+    const startIndex = (page - 1) * perPage + 1;
+    const endIndex = Math.min(page * perPage, total);
+    return { startIndex, endIndex, total };
   });
 
   private readonly toastService = inject(ToastService);
@@ -247,10 +287,12 @@ export class PostsPage extends BaseComponent implements OnInit {
 
   setStatusFilter(filter: PostStatus | 'all'): void {
     this.selectedStatusFilter.set(filter);
+    this.currentPage.set(1); // Reset to first page when filter changes
   }
 
   onSearchChange(): void {
     // Search is reactive via computed signal
+    this.currentPage.set(1); // Reset to first page when search changes
   }
 
   toggleSort(field: 'title' | 'status' | 'scheduledAt'): void {
@@ -265,6 +307,66 @@ export class PostsPage extends BaseComponent implements OnInit {
   clearFilters(): void {
     this.searchQuery.set('');
     this.selectedStatusFilter.set('all');
+    this.currentPage.set(1);
+  }
+
+  // Pagination methods
+  goToPage(page: number): void {
+    const totalPages = this.totalPages();
+    if (page >= 1 && page <= totalPages) {
+      this.currentPage.set(page);
+      // Scroll to top of posts section
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  nextPage(): void {
+    const current = this.currentPage();
+    const total = this.totalPages();
+    if (current < total) {
+      this.goToPage(current + 1);
+    }
+  }
+
+  previousPage(): void {
+    const current = this.currentPage();
+    if (current > 1) {
+      this.goToPage(current - 1);
+    }
+  }
+
+  setItemsPerPage(count: number): void {
+    this.itemsPerPage.set(count);
+    this.currentPage.set(1); // Reset to first page when changing items per page
+  }
+
+  getPageNumbers(): (number | string)[] {
+    const current = this.currentPage();
+    const total = this.totalPages();
+    const pages: (number | string)[] = [];
+
+    if (total <= 7) {
+      // Show all pages if 7 or fewer
+      for (let i = 1; i <= total; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+
+      if (current <= 3) {
+        // Near the beginning
+        pages.push(2, 3, 4, '...', total);
+      } else if (current >= total - 2) {
+        // Near the end
+        pages.push('...', total - 3, total - 2, total - 1, total);
+      } else {
+        // In the middle
+        pages.push('...', current - 1, current, current + 1, '...', total);
+      }
+    }
+
+    return pages;
   }
 
   selectClient(clientId: string): void {

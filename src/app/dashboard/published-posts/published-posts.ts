@@ -149,12 +149,12 @@ export class PublishedPostsComponent extends BaseComponent implements OnInit {
   }
 
   viewPost(post: PublishedPostResponse): void {
-    this.router.navigate(['/dashboard/posts'], { queryParams: { id: post.id } });
+    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'posts', id: post.id } });
   }
 
   editPost(post: PublishedPostResponse): void {
-    this.router.navigate(['/dashboard/post-editor'], {
-      queryParams: { postId: post.id, edit: 'true' },
+    this.router.navigate(['/dashboard/content-management'], {
+      queryParams: { tab: 'create', postId: post.id, edit: 'true' },
     });
   }
 
