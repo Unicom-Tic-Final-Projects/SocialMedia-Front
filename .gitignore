@@ -42,4 +42,15 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 .vercel
+
+# Markdown documentation files
 *.md
+**/*.md
+docs/
+
+# App settings / configuration files
+appsettings*.json
+**/appsettings*.json
+.env
+.env.local
+.env.*.local
