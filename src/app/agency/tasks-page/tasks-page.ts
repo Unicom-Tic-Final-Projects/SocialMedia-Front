@@ -1,15 +1,19 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AgencyTasksService } from '../../services/agency/tasks.service';
 import { TeamMembersService } from '../../services/agency/team-members.service';
 import { ClientsService } from '../../services/client/clients.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ClientContextService } from '../../services/client/client-context.service';
 import {
   Task,
   CreateTaskRequest,
   UpdateTaskRequest,
   TaskStatus,
   TaskPriority,
+  TaskApprovalRequest,
+  ReviewTaskApprovalRequest,
 } from '../../models/task.models';
 import { Subscription, forkJoin } from 'rxjs';
 
@@ -25,12 +29,32 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
   private readonly tasksService = inject(AgencyTasksService);
   private readonly teamMembersService = inject(TeamMembersService);
   private readonly clientsService = inject(ClientsService);
+  private readonly authService = inject(AuthService);
+  private readonly clientContextService = inject(ClientContextService);
 
   readonly tasks = this.tasksService.tasks;
   readonly loading = this.tasksService.loading;
   readonly error = this.tasksService.error;
   readonly teamMembers = this.teamMembersService.teamMembers;
   readonly clients = this.clientsService.clients;
+  readonly pendingApprovals = this.tasksService.pendingApprovals;
+
+  // Filter team members to only show Editor role users for assignment
+  readonly editorTeamMembers = computed(() => {
+    return this.teamMembers().filter(member => {
+      if (!member.role) return false;
+      const role = member.role.toLowerCase().trim();
+      return role === 'editor';
+    });
+  });
+
+  // Check if current user is Owner or Admin
+  readonly canApprove = computed(() => {
+    const user = this.authService.user();
+    if (!user || !user.role) return false;
+    const role = user.role.toLowerCase();
+    return role === 'owner' || role === 'admin';
+  });
 
   showModal = signal(false);
   isEditing = signal(false);
@@ -92,6 +116,7 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
       tasks: this.tasksService.loadTasks(),
       teamMembers: this.teamMembersService.loadTeamMembers(),
       clients: this.clientsService.loadClients(),
+      approvals: this.tasksService.loadPendingApprovals(),
     }).subscribe({
       next: () => {
         this.updateLanes();
@@ -105,13 +130,20 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
 
     this.subscriptions.push(loadSub);
 
-    // Auto-refresh tasks every 10 seconds to show updates from team members
+    // Auto-refresh tasks and approvals every 10 seconds to show updates from team members
     this.refreshInterval = setInterval(() => {
       this.tasksService.loadTasks().subscribe({
         error: (error) => {
           console.error('Failed to refresh tasks', error);
         },
       });
+      if (this.canApprove()) {
+        this.tasksService.loadPendingApprovals().subscribe({
+          error: (error) => {
+            console.error('Failed to refresh approvals', error);
+          },
+        });
+      }
     }, 10000); // Refresh every 10 seconds
   }
 
@@ -241,6 +273,13 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
       next: () => {
         this.successMessage.set('Task status updated successfully');
         setTimeout(() => this.successMessage.set(null), 3000);
+        // Reload tasks to reflect status changes
+        this.tasksService.loadTasks().subscribe();
+        // If status is Completed and user can approve, reload approvals
+        if (newStatus === 'Completed' && this.canApprove()) {
+          const clientId = this.clientContextService.getCurrentClientId();
+          this.tasksService.loadPendingApprovals(clientId || undefined).subscribe();
+        }
       },
       error: (error) => {
         console.error('Failed to update task status', error);
@@ -274,5 +313,80 @@ export class AgencyTasksPage implements OnInit, OnDestroy {
 
   trackTaskById(_: number, task: Task): string {
     return task.id;
+  }
+
+  approveTask(approval: TaskApprovalRequest): void {
+    if (!confirm(`Are you sure you want to approve the completion of task "${approval.taskTitle}"?`)) {
+      return;
+    }
+
+    const user = this.authService.user();
+    if (!user || !user.userId) {
+      this.errorMessage.set('User not authenticated');
+      return;
+    }
+
+    const request: ReviewTaskApprovalRequest = {
+      requestId: approval.id,
+      reviewerId: user.userId,
+      status: 'Approved',
+      comment: 'Task completion approved by admin/owner.',
+    };
+
+    this.tasksService.reviewTaskApproval(approval.id, request).subscribe({
+      next: () => {
+        this.successMessage.set('Task completion approved successfully! Task marked as Completed.');
+        setTimeout(() => this.successMessage.set(null), 3000);
+        // Reload approvals and tasks
+        const clientId = this.clientContextService.getCurrentClientId();
+        this.tasksService.loadPendingApprovals(clientId || undefined).subscribe();
+        this.tasksService.loadTasks().subscribe();
+      },
+      error: (error) => {
+        console.error('Failed to approve task completion', error);
+        this.errorMessage.set(error?.message || 'Failed to approve task completion. Please try again.');
+        setTimeout(() => this.errorMessage.set(null), 5000);
+      },
+    });
+  }
+
+  rejectTask(approval: TaskApprovalRequest): void {
+    const comment = prompt(`Are you sure you want to reject the completion of task "${approval.taskTitle}"? Please provide a reason:`);
+    if (comment === null) { // User cancelled prompt
+      return;
+    }
+
+    const user = this.authService.user();
+    if (!user || !user.userId) {
+      this.errorMessage.set('User not authenticated');
+      return;
+    }
+
+    const request: ReviewTaskApprovalRequest = {
+      requestId: approval.id,
+      reviewerId: user.userId,
+      status: 'Rejected',
+      comment: comment || 'Task completion rejected by admin/owner.',
+    };
+
+    this.tasksService.reviewTaskApproval(approval.id, request).subscribe({
+      next: () => {
+        this.successMessage.set('Task completion rejected. Task remains in progress.');
+        setTimeout(() => this.successMessage.set(null), 3000);
+        // Reload approvals and tasks
+        const clientId = this.clientContextService.getCurrentClientId();
+        this.tasksService.loadPendingApprovals(clientId || undefined).subscribe();
+        this.tasksService.loadTasks().subscribe();
+      },
+      error: (error) => {
+        console.error('Failed to reject task completion', error);
+        this.errorMessage.set(error?.message || 'Failed to reject task completion. Please try again.');
+        setTimeout(() => this.errorMessage.set(null), 5000);
+      },
+    });
+  }
+
+  trackApprovalById(_: number, approval: TaskApprovalRequest): string {
+    return approval.id;
   }
 }

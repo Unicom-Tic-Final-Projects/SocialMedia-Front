@@ -10,6 +10,8 @@ import { PostsService } from '../../../services/client/posts.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmationService } from '../../../core/services/confirmation.service';
 import { MediaUploadService } from '../../../services/shared/media-upload.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ClientContextService } from '../../../services/client/client-context.service';
 import { BaseComponent } from '../../../core/base/base.component';
 
 interface MediaItem {
@@ -38,6 +40,8 @@ export class ContentLibraryComponent extends BaseComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly mediaUploadService = inject(MediaUploadService);
   private readonly loggingService = inject(LoggingService);
+  private readonly authService = inject(AuthService);
+  private readonly clientContextService = inject(ClientContextService);
 
   mediaItems = signal<MediaItem[]>([]);
   allMediaItems = signal<MediaItem[]>([]); // Store all items for pagination
@@ -121,13 +125,13 @@ export class ContentLibraryComponent extends BaseComponent implements OnInit {
             
             return {
               id: mediaId,
-              url: asset.url || '',
-              thumbnailUrl: asset.thumbnailUrl || asset.url || '',
+            url: asset.url || '',
+            thumbnailUrl: asset.thumbnailUrl || asset.url || '',
               fileName: fileName,
-              fileType: asset.fileType || '',
-              fileSize: asset.fileSize || 0,
-              uploadedAt: asset.uploadedAt ? new Date(asset.uploadedAt) : new Date(),
-              usedInPosts: 0, // TODO: Get actual usage count from posts
+            fileType: asset.fileType || '',
+            fileSize: asset.fileSize || 0,
+            uploadedAt: asset.uploadedAt ? new Date(asset.uploadedAt) : new Date(),
+            usedInPosts: 0, // TODO: Get actual usage count from posts
             };
           })
           .filter((item) => {
@@ -410,13 +414,23 @@ export class ContentLibraryComponent extends BaseComponent implements OnInit {
 
 
   useInPost(mediaId: string): void {
-    // Navigate to content-management with this media pre-selected
-    this.router.navigate(['/dashboard/content-management'], {
-      queryParams: {
-        tab: 'create',
-        mediaId,
-      },
-    });
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    // Build query params with media ID
+    const queryParams: any = {
+      tab: 'create',
+      mediaId,
+    };
+
+    if (isAgencyClient) {
+      // Navigate to agency-client content management
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      // Navigate to individual user content management
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 
   formatFileSize(bytes: number): string {

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, effect, HostListener, Ele
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { ClientContextService } from '../../services/client/client-context.service';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { BaseComponent } from '../../core/base/base.component';
@@ -17,6 +18,7 @@ export class DashboardLayout extends BaseComponent implements OnInit, AfterViewI
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly elementRef = inject(ElementRef);
+  private readonly clientContextService = inject(ClientContextService);
 
   // Expose auth service signals directly
   readonly user = this.authService.user;
@@ -270,7 +272,15 @@ export class DashboardLayout extends BaseComponent implements OnInit, AfterViewI
 
   // Navigate to create post
   navigateToCreatePost(): void {
-    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'create' } });
+    const queryParams = { tab: 'create' };
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
     this.closeMobileMenu();
   }
 }

@@ -11,17 +11,20 @@ import {
   ElementRef,
   NgZone,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, TitleCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
-import { catchError, takeUntil } from 'rxjs/operators';
+import { catchError, takeUntil, map } from 'rxjs/operators';
 import { LoggingService } from '../../core/services/logging.service';
 import { BaseComponent } from '../../core/base/base.component';
 import { PostsService } from '../../services/client/posts.service';
 import { NotificationsService } from '../../services/client/notifications.service';
 import { ClientContextService } from '../../services/client/client-context.service';
+import { AnalyticsService } from '../../services/client/analytics.service';
+import { SocialAccountsService } from '../../services/client/social-accounts.service';
+import { AuthService } from '../../core/services/auth.service';
 import { SocialPost, PostStatus } from '../../models/post.models';
-import { NotificationItem } from '../../models/social.models';
+import { NotificationItem, SocialAccount, AnalyticsSummary } from '../../models/social.models';
 import { gsap } from 'gsap';
 
 interface DashboardStats {
@@ -39,17 +42,20 @@ interface StatTrend {
 
 @Component({
   selector: 'app-dashboard-home',
-  imports: [CommonModule],
+  imports: [CommonModule, TitleCasePipe],
   templateUrl: './dashboard-home.html',
   styleUrl: './dashboard-home.css',
 })
 export class DashboardHome extends BaseComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly postsService = inject(PostsService);
   private readonly notificationsService = inject(NotificationsService);
+  private readonly analyticsService = inject(AnalyticsService);
+  private readonly socialAccountsService = inject(SocialAccountsService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly ngZone = inject(NgZone);
   readonly clientContextService = inject(ClientContextService);
+  private readonly authService = inject(AuthService);
   private readonly loggingService = inject(LoggingService);
 
   @ViewChildren('statCard') statCards!: QueryList<ElementRef<HTMLElement>>;
@@ -63,6 +69,13 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
   });
   recentActivity = signal<NotificationItem[]>([]);
   previousStats = signal<DashboardStats | null>(null);
+  
+  // Enhanced dashboard data
+  analyticsSummary = signal<AnalyticsSummary | null>(null);
+  socialAccounts = signal<SocialAccount[]>([]);
+  recentPosts = signal<SocialPost[]>([]);
+  scheduledPosts = signal<SocialPost[]>([]);
+  topPerformingPosts = signal<SocialPost[]>([]);
 
   // Client context
   readonly isViewingClient = this.clientContextService.isViewingClientDashboard;
@@ -594,13 +607,48 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
       .refresh(5)
       .pipe(catchError(() => of([] as NotificationItem[])));
 
+    // Fetch analytics summary
+    const analyticsRequest = this.analyticsService
+      .loadSummary()
+      .pipe(catchError(() => of({
+        totalPosts: 0,
+        totalEngagement: 0,
+        followerGrowth: 0,
+        conversionRate: 0,
+      })));
+
+    // Fetch social accounts
+    const socialAccountsRequest = this.socialAccountsService
+      .getSocialAccounts()
+      .pipe(catchError(() => of([] as SocialAccount[])));
+
+    // Fetch recent published posts
+    const recentPostsRequest = this.postsService
+      .getPostsByStatus('Published')
+      .pipe(
+        map((posts) => posts.slice(0, 5)),
+        catchError(() => of([] as SocialPost[]))
+      );
+
+    // Fetch scheduled posts
+    const scheduledPostsRequest = this.postsService
+      .getPostsByStatus('Scheduled')
+      .pipe(
+        map((posts) => posts.slice(0, 5)),
+        catchError(() => of([] as SocialPost[]))
+      );
+
     forkJoin({
       posts: forkJoin(postRequests),
       notifications: notificationsRequest,
+      analytics: analyticsRequest,
+      socialAccounts: socialAccountsRequest,
+      recentPosts: recentPostsRequest,
+      scheduledPosts: scheduledPostsRequest,
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-      next: ({ posts, notifications }) => {
+      next: ({ posts, notifications, analytics, socialAccounts, recentPosts, scheduledPosts }) => {
         // Flatten all posts from different statuses
         const allPosts = posts.flat();
 
@@ -622,6 +670,14 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
         
         this.stats.set(stats);
         this.recentActivity.set(notifications.slice(0, 5));
+        this.analyticsSummary.set(analytics);
+        this.socialAccounts.set(socialAccounts);
+        this.recentPosts.set(recentPosts);
+        this.scheduledPosts.set(scheduledPosts);
+        
+        // Get top performing posts (for now, just take recent published posts)
+        this.topPerformingPosts.set(recentPosts.slice(0, 3));
+        
         this.loading.set(false);
       },
       error: (error) => {
@@ -677,11 +733,27 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
 
   // Quick Actions
   navigateToCreatePost(): void {
-    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'create' } });
+    const queryParams = { tab: 'create' };
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 
   navigateToSchedulePost(): void {
-    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'scheduled' } });
+    const queryParams = { tab: 'scheduled' };
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 
   navigateToAnalytics(): void {
@@ -689,7 +761,103 @@ export class DashboardHome extends BaseComponent implements OnInit, AfterViewIni
   }
 
   navigateToDrafts(): void {
-    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'drafts' } });
+    const queryParams = { tab: 'drafts' };
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
+  }
+
+  navigateToPosts(): void {
+    const basePath = this.isViewingClient() 
+      ? ['/agency/client', this.selectedClient()?.id, 'content-management']
+      : ['/dashboard/content-management'];
+    this.router.navigate(basePath);
+  }
+
+  navigateToSocialAccounts(): void {
+    const basePath = this.isViewingClient()
+      ? ['/agency/client', this.selectedClient()?.id, 'social-account']
+      : ['/dashboard/social-account'];
+    this.router.navigate(basePath);
+  }
+
+  getConnectedAccountsCount(): number {
+    return this.socialAccounts().filter(acc => acc.status === 'connected').length;
+  }
+
+  getPlatformIcon(platform: string): string {
+    const icons: Record<string, string> = {
+      facebook: 'fa-brands fa-facebook-f',
+      instagram: 'fa-brands fa-instagram',
+      twitter: 'fa-brands fa-x-twitter',
+      linkedin: 'fa-brands fa-linkedin-in',
+      youtube: 'fa-brands fa-youtube',
+      tiktok: 'fa-brands fa-tiktok',
+      pinterest: 'fa-brands fa-pinterest',
+    };
+    return icons[platform.toLowerCase()] || 'fa-link';
+  }
+
+  getPlatformColor(platform: string): string {
+    const colors: Record<string, string> = {
+      facebook: '#1877F2',
+      instagram: '#E1306C',
+      twitter: '#1DA1F2',
+      linkedin: '#0A66C2',
+      youtube: '#FF0000',
+      tiktok: '#000000',
+      pinterest: '#E60023',
+    };
+    return colors[platform.toLowerCase()] || '#4C6FFF';
+  }
+
+  formatNumber(num: number): string {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    return num.toString();
+  }
+
+  getUpcomingScheduleCount(): number {
+    return this.scheduledPosts().length;
+  }
+
+  getNextScheduledPost(): SocialPost | null {
+    const scheduled = this.scheduledPosts();
+    if (scheduled.length === 0) return null;
+    
+    // Sort by scheduled date and get the next one
+    const sorted = [...scheduled].sort((a, b) => {
+      const dateA = a.scheduledAt ? new Date(a.scheduledAt).getTime() : 0;
+      const dateB = b.scheduledAt ? new Date(b.scheduledAt).getTime() : 0;
+      return dateA - dateB;
+    });
+    
+    return sorted[0] || null;
+  }
+
+  formatScheduledDate(dateString: string | null | undefined): string {
+    if (!dateString) return 'Scheduled';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    } catch {
+      return 'Scheduled';
+    }
+  }
+
+  formatScheduledTime(dateString: string | null | undefined): string {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
   }
 
   // Trend calculation

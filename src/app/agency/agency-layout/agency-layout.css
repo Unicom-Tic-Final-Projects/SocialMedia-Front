@@ -1,1 +1,537 @@
-/* Tailwind utility classes are used for styling this component. */
+/* Agency Layout Styles - Mobile First Design */
+
+/* Mobile Header Optimizations */
+@media (max-width: 1023px) {
+  /* Ensure header is fixed */
+  header[class*="sticky top-0"] {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+}
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Very Small Phones (320px - 360px) - iPhone SE, small Android */
+@media (max-width: 360px) {
+  main {
+    padding: 0.75rem !important;
+  }
+
+  aside {
+    width: 85vw;
+    max-width: 320px;
+    padding: 1rem !important;
+  }
+
+  aside h2 {
+    font-size: 1.125rem !important;
+  }
+
+  nav a {
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.8125rem !important;
+    min-height: 44px;
+  }
+
+  /* Bottom nav - smaller icons and text */
+  nav[class*="fixed bottom-0"] {
+    height: 60px;
+    padding: 0.5rem 0.25rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.625rem;
+  }
+
+  /* Header adjustments */
+  header[class*="sticky top-0"] {
+    padding: 0.625rem 0.75rem;
+  }
+
+  header[class*="sticky top-0"] h2 {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Small Phones (361px - 375px) - iPhone 6/7/8, standard Android */
+@media (min-width: 361px) and (max-width: 375px) {
+  main {
+    padding: 0.875rem !important;
+  }
+
+  aside {
+    padding: 1rem !important;
+  }
+
+  nav a {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: 44px;
+  }
+
+  /* Bottom nav */
+  nav[class*="fixed bottom-0"] {
+    height: 64px;
+    padding: 0.5rem 0.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.125rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.6875rem;
+  }
+
+  /* Header optimizations */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.0625rem;
+  }
+}
+
+/* Medium Phones (376px - 428px) - iPhone 12/13/14 Pro Max, large Android */
+@media (min-width: 376px) and (max-width: 428px) {
+  main {
+    padding: 1rem !important;
+  }
+
+  aside {
+    padding: 1.25rem !important;
+  }
+
+  nav a {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.875rem !important;
+    min-height: 48px;
+  }
+
+  /* Bottom nav */
+  nav[class*="fixed bottom-0"] {
+    height: 64px;
+    padding: 0.625rem 0.75rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.25rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.75rem;
+  }
+
+  /* Header optimizations */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.125rem;
+  }
+}
+
+/* Large Phones (429px - 640px) - iPhone 14 Plus, large Android phones */
+@media (min-width: 429px) and (max-width: 640px) {
+  main {
+    padding: 1rem !important;
+  }
+
+  aside {
+    padding: 1.5rem !important;
+  }
+
+  nav a {
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.875rem !important;
+    min-height: 48px;
+  }
+
+  /* Bottom nav */
+  nav[class*="fixed bottom-0"] {
+    height: 64px;
+    padding: 0.75rem 1rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.375rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.75rem;
+  }
+
+  /* Header optimizations */
+  header[class*="sticky top-0"] h2 {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Standard Mobile (up to 640px) - Common breakpoint */
+@media (max-width: 640px) {
+  .dashboard-content {
+    padding: 0;
+  }
+
+  /* Single column layouts on mobile */
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Better spacing on mobile */
+  .gap-6 {
+    gap: 0.75rem;
+  }
+
+  .gap-4 {
+    gap: 0.625rem;
+  }
+
+  /* Full width cards on mobile */
+  .stat-card-minimal,
+  .quick-action-btn {
+    width: 100%;
+  }
+
+  /* Optimized padding */
+  .p-6 {
+    padding: 1rem;
+  }
+
+  .p-8 {
+    padding: 1.25rem;
+  }
+
+  /* Better text sizes */
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  /* Logo smaller on mobile */
+  aside h2 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Small Tablets (641px - 768px) - iPad Mini, small tablets */
+@media (min-width: 641px) and (max-width: 768px) {
+  main {
+    padding: 1.25rem 1.5rem !important;
+  }
+
+  aside {
+    padding: 1.5rem !important;
+  }
+
+  /* Bottom nav - slightly larger */
+  nav[class*="fixed bottom-0"] {
+    height: 68px;
+    padding: 0.75rem 1.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.8125rem;
+  }
+
+  /* 2-column grids on small tablets */
+  .grid-cols-1.sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Tablet adjustments (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  main {
+    padding: 1.5rem 2rem !important;
+  }
+
+  /* Bottom nav - optional on tablets, can be hidden */
+  nav[class*="fixed bottom-0"] {
+    height: 72px;
+    padding: 0.875rem 2rem;
+  }
+
+  nav[class*="fixed bottom-0"] a i {
+    font-size: 1.5rem;
+  }
+
+  nav[class*="fixed bottom-0"] a span {
+    font-size: 0.875rem;
+  }
+}
+
+/* Desktop - Better spacing */
+@media (min-width: 1025px) {
+  main {
+    padding: 2.5rem 3rem !important;
+  }
+
+  /* Hide bottom nav on desktop */
+  nav[class*="fixed bottom-0"] {
+    display: none;
+  }
+  
+  main {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* Ensure sidebar is hidden by default on mobile */
+@media (max-width: 768px) {
+  aside {
+    transform: translateX(-100%);
+    width: 85vw;
+    max-width: 320px;
+  }
+
+  aside.translate-x-0 {
+    transform: translateX(0);
+  }
+}
+
+/* Prevent horizontal scroll */
+body {
+  overflow-x: hidden;
+}
+
+/* Bottom Navigation Styles */
+nav[class*="fixed bottom-0"] {
+  /* Safe area support for notched devices */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Safe area support for sticky header */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Safe area support for bottom navigation */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+/* Touch target optimization - minimum 44px */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Bottom nav active state */
+nav[class*="fixed bottom-0"] a {
+  color: #6b7280;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
+nav[class*="fixed bottom-0"] a.router-link-active,
+nav[class*="fixed bottom-0"] a[class*="text-\[#4C6FFF\]"] {
+  color: #4c6fff;
+}
+
+nav[class*="fixed bottom-0"] a i {
+  transition: transform 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+nav[class*="fixed bottom-0"] a:active i {
+  transform: scale(0.9);
+}
+
+/* Active indicator */
+nav[class*="fixed bottom-0"] a > div[class*="absolute bottom-0"] {
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+
+/* Prevent text selection on touch */
+nav[class*="fixed bottom-0"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Touch Optimization - Global Styles */
+@media (max-width: 1024px) {
+  /* Minimum touch target size - 44px (Apple HIG) / 48px (Material) */
+  button,
+  a[role="button"],
+  input[type="button"],
+  input[type="submit"],
+  .btn,
+  [class*="button"] {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  /* Better spacing between interactive elements */
+  button + button,
+  a + a,
+  .btn + .btn {
+    margin-left: 12px;
+  }
+
+  /* Form inputs - larger on mobile */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Cards and interactive elements - better spacing */
+  .stat-card-minimal,
+  .quick-action-btn,
+  .activity-item-minimal {
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* Quick action buttons - larger on mobile */
+  .quick-action-btn {
+    min-height: 80px;
+    padding: 16px;
+  }
+
+  /* Navigation items - larger touch targets */
+  nav a {
+    min-height: 48px;
+    padding: 12px 16px !important;
+  }
+
+  /* Icon buttons - ensure minimum size */
+  button[class*="icon"],
+  a[class*="icon"] {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  /* Remove tap highlight on all interactive elements */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Better spacing for lists */
+  .space-y-3 > * + *,
+  .space-y-4 > * + * {
+    margin-top: 16px;
+  }
+}
+
+/* Swipe Gesture Styles */
+aside {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth sidebar transitions */
+aside {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* More Menu Bottom Sheet Styles */
+div[class*="fixed bottom-0"][class*="rounded-t-2xl"] {
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* More menu items */
+div[class*="fixed bottom-0"][class*="rounded-t-2xl"] a {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+div[class*="fixed bottom-0"][class*="rounded-t-2xl"] a:active {
+  transform: scale(0.98);
+}
+
+/* Viewport height adjustments for mobile browsers */
+@media (max-width: 1024px) {
+  html {
+    height: -webkit-fill-available;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  /* Prevent address bar from affecting layout */
+  main {
+    min-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* Safe Area Support for Notched Devices */
+@supports (padding: max(0px)) {
+  /* Top safe area */
+  header[class*="sticky top-0"],
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top, 0px), 1rem);
+  }
+
+  /* Bottom safe area */
+  nav[class*="fixed bottom-0"],
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0.5rem);
+  }
+
+  /* Left/Right safe area */
+  main,
+  .dashboard-content {
+    padding-left: max(env(safe-area-inset-left, 0px), 1rem);
+    padding-right: max(env(safe-area-inset-right, 0px), 1rem);
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

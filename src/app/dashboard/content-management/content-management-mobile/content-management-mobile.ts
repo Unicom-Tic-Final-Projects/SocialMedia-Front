@@ -15,6 +15,7 @@ import { DraftManagerComponent } from '../draft-manager/draft-manager';
 import { ScheduledPostsComponent } from '../scheduled-posts/scheduled-posts';
 import { ContentCalendarComponent } from '../content-calendar/content-calendar';
 import { AIAssistantComponent } from '../ai-assistant/ai-assistant';
+import { SavedContentComponent } from '../saved-content/saved-content';
 import { PostEditor } from '../../post-editor/post-editor';
 import { PostsPage } from '../../posts-page/posts-page';
 import { PublishedPostsComponent } from '../../published-posts/published-posts';
@@ -26,6 +27,7 @@ type ContentManagementTab =
   | 'scheduled'
   | 'calendar'
   | 'ai-assistant'
+  | 'saved-content'
   | 'posts'
   | 'published-posts';
 
@@ -40,6 +42,7 @@ type ContentManagementTab =
     ScheduledPostsComponent,
     ContentCalendarComponent,
     AIAssistantComponent,
+    SavedContentComponent,
     PostEditor,
     PostsPage,
     PublishedPostsComponent,
@@ -93,6 +96,7 @@ export class ContentManagementMobile extends BaseComponent implements OnInit {
               'scheduled',
               'calendar',
               'ai-assistant',
+              'saved-content',
               'posts',
               'published-posts',
             ].includes(tab)
@@ -126,6 +130,7 @@ export class ContentManagementMobile extends BaseComponent implements OnInit {
       'scheduled': 'Schedule',
       'calendar': 'Calendar',
       'ai-assistant': 'AI Assistant',
+      'saved-content': 'Saved',
       'posts': 'Posts',
       'published-posts': 'Published',
     };
@@ -140,6 +145,7 @@ export class ContentManagementMobile extends BaseComponent implements OnInit {
       'scheduled': 'fa-calendar-check',
       'calendar': 'fa-calendar',
       'ai-assistant': 'fa-robot',
+      'saved-content': 'fa-bookmark',
       'posts': 'fa-file-alt',
       'published-posts': 'fa-check-circle',
     };
@@ -147,7 +153,7 @@ export class ContentManagementMobile extends BaseComponent implements OnInit {
   }
 
   getTabsList(): ContentManagementTab[] {
-    return ['create', 'library', 'drafts', 'scheduled', 'posts', 'published-posts'];
+    return ['create', 'library', 'drafts', 'scheduled', 'posts', 'published-posts', 'saved-content'];
   }
 
   private loadStatistics(): void {

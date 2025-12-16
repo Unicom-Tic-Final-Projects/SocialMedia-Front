@@ -10,6 +10,8 @@ import {
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmationService } from '../../core/services/confirmation.service';
 import { PostsService } from '../../services/client/posts.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ClientContextService } from '../../services/client/client-context.service';
 import { takeUntil } from 'rxjs/operators';
 import { LoggingService } from '../../core/services/logging.service';
 import { BaseComponent } from '../../core/base/base.component';
@@ -26,6 +28,8 @@ export class PublishedPostsComponent extends BaseComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   readonly router = inject(Router); // Made public for template access
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly clientContextService = inject(ClientContextService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly loggingService = inject(LoggingService);
 
@@ -114,17 +118,23 @@ export class PublishedPostsComponent extends BaseComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
+    // Get clientId if in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
     this.publishedPostsService
-      .getPublishedPosts()
+      .getPublishedPosts(isAgencyClient ? clientId : undefined)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
       next: (posts) => {
         this.publishedPosts.set(posts);
         this.loading.set(false);
+        this.loggingService.debug(`Loaded ${posts.length} published posts${isAgencyClient ? ` for client ${clientId}` : ''}`, { postsCount: posts.length, clientId }, 'PublishedPosts');
       },
       error: (err) => {
         this.error.set(err.message || 'Failed to load published posts');
         this.loading.set(false);
+        this.loggingService.error('Failed to load published posts', err, 'PublishedPosts');
         this.toastService.error('Failed to load published posts', err.message || 'Unknown error');
       },
     });
@@ -149,13 +159,31 @@ export class PublishedPostsComponent extends BaseComponent implements OnInit {
   }
 
   viewPost(post: PublishedPostResponse): void {
-    this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'posts', id: post.id } });
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams: { tab: 'posts', id: post.id } });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'posts', id: post.id } });
+    }
   }
 
   editPost(post: PublishedPostResponse): void {
-    this.router.navigate(['/dashboard/content-management'], {
-      queryParams: { tab: 'create', postId: post.id, edit: 'true' },
-    });
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], {
+        queryParams: { tab: 'create', postId: post.id, edit: 'true' },
+      });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], {
+        queryParams: { tab: 'create', postId: post.id, edit: 'true' },
+      });
+    }
   }
 
   async deletePost(post: PublishedPostResponse): Promise<void> {
@@ -237,5 +265,17 @@ export class PublishedPostsComponent extends BaseComponent implements OnInit {
 
   getTotalPlatforms(post: PublishedPostResponse): number {
     return post.socialMediaDetails.length;
+  }
+
+  navigateToCreatePost(): void {
+    const queryParams = { tab: 'create' };
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 }

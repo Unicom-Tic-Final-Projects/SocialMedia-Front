@@ -75,9 +75,11 @@ export class SocialAccountsDataService {
     // If viewing a client dashboard (agency or team context), load accounts for that client
     const isViewingClient = this.clientContextService.isViewingClientDashboard();
     const clientId = this.clientContextService.getCurrentClientId();
+    const clientUserId = this.clientContextService.getCurrentClientUserId();
 
+    // Only use client-specific endpoint if client has a user account
     let url = `${this.baseUrl}/api/socialaccount`;
-    if (isViewingClient && clientId) {
+    if (isViewingClient && clientId && clientUserId) {
       url = `${this.baseUrl}/api/socialaccount/client/${clientId}`;
     }
 
@@ -136,6 +138,40 @@ export class SocialAccountsDataService {
       }),
       catchError((error) => {
         this.loadingSignal.set(false);
+        
+        // If 404 and we were trying to use client-specific endpoint, fall back to regular endpoint
+        if (error?.status === 404 && isViewingClient && clientId) {
+          this.loggingService.warn(
+            'Client-specific social accounts endpoint returned 404, falling back to regular endpoint',
+            { clientId, error },
+            'SocialAccountsDataService'
+          );
+          
+          // Fall back to regular endpoint (agency user's accounts)
+          return this.http.get<unknown>(`${this.baseUrl}/api/socialaccount`).pipe(
+            map((response) => {
+              let accounts: SocialAccountResponse[] = [];
+              if (Array.isArray(response)) {
+                accounts = response as SocialAccountResponse[];
+              } else if (response && typeof response === 'object' && 'data' in response) {
+                const data = (response as { data: unknown }).data;
+                if (Array.isArray(data)) {
+                  accounts = data as SocialAccountResponse[];
+                }
+              }
+              return accounts.map((acc) => this.mapToSocialAccount(acc));
+            }),
+            tap((accounts) => {
+              this.accountsSignal.set(accounts);
+              this.loadingSignal.set(false);
+            }),
+            catchError((fallbackError) => {
+              this.loggingService.error('Error loading social accounts (fallback)', fallbackError, 'SocialAccountsDataService');
+              return throwError(() => fallbackError);
+            })
+          );
+        }
+        
         this.loggingService.error('Error loading social accounts', error, 'SocialAccountsDataService');
         this.loggingService.error('Error details', {
           status: error?.status,
@@ -263,6 +299,50 @@ export class SocialAccountsDataService {
       profilePictureUrl: response.profilePictureUrl,
       platformUsername: response.platformUsername,
     };
+  }
+
+  /**
+   * Get social account statistics
+   */
+  getAccountStatistics(accountId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/socialaccount/${accountId}/statistics`).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Test social account connection
+   */
+  testConnection(accountId: string): Observable<boolean> {
+    return this.http.post<boolean>(`${this.baseUrl}/api/socialaccount/${accountId}/test`, {}).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Refresh social account token
+   */
+  refreshToken(accountId: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/socialaccount/${accountId}/refresh-token`, {}).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Get social account pages (for Facebook/Instagram)
+   */
+  getAccountPages(accountId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/socialaccount/${accountId}/pages`).pipe(
+      catchError((error) => {
+        return throwError(() => error);
+      }),
+    );
   }
 }
 

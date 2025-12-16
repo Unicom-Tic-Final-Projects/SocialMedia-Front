@@ -37,7 +37,7 @@
         <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-2 text-primary-500"></i>
         <p>Loading team members...</p>
       </div>
-    } @else if (teamMembers().length === 0) {
+    } @else if (filteredTeamMembers().length === 0) {
       <div class="px-6 py-10 text-center text-sm font-semibold text-slate-400">
         <i class="fa-solid fa-users-slash text-3xl mb-3 text-slate-300"></i>
         <p>No team members yet. Add your first team member to get started.</p>
@@ -55,7 +55,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 text-sm">
-          @for (member of teamMembers(); track trackMemberById($index, member)) {
+          @for (member of filteredTeamMembers(); track trackMemberById($index, member)) {
             <tr class="hover:bg-slate-50/70 transition">
               <td class="px-6 py-4 font-medium text-slate-900">{{ member.email }}</td>
               <td class="px-6 py-4">

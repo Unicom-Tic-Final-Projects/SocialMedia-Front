@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../../config/api.config';
 import { AuthService } from '../../core/services/auth.service';
 import { Platform, SocialAccount } from '../../models/social.models';
 import { SocialAccountsDataService } from './social-accounts-data.service';
+import { ClientContextService } from './client-context.service';
 
 /**
  * Service responsible for OAuth flow operations
@@ -19,6 +20,7 @@ export class SocialAccountOAuthService {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly dataService = inject(SocialAccountsDataService);
+  private readonly clientContextService = inject(ClientContextService);
 
   /**
    * Connect a social account (initiates OAuth flow)
@@ -71,11 +73,14 @@ export class SocialAccountOAuthService {
 
     // Call backend to get authorization URL
     // If we're in an agency or team client dashboard, initiate connect for that clientId
+    // Only use client-specific endpoint if client has a user account
     let connectUrl = `${this.baseUrl}/api/socialaccount/connect`;
-    const clientIdForConnectMatch = currentUrl.match(/\/(?:agency|team)\/client\/([^/]+)/);
-    if (clientIdForConnectMatch) {
-      const clientIdForConnect = clientIdForConnectMatch[1];
-      connectUrl = `${this.baseUrl}/api/socialaccount/client/${clientIdForConnect}/connect`;
+    const isViewingClient = this.clientContextService.isViewingClientDashboard();
+    const clientId = this.clientContextService.getCurrentClientId();
+    const clientUserId = this.clientContextService.getCurrentClientUserId();
+    
+    if (isViewingClient && clientId && clientUserId) {
+      connectUrl = `${this.baseUrl}/api/socialaccount/client/${clientId}/connect`;
     }
 
     // Response interceptor unwraps ApiResponse<T>, so we get the string directly

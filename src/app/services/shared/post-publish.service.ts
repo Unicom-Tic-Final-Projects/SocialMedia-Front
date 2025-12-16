@@ -11,6 +11,7 @@ import { PostDraftService } from '../client/post-draft.service';
 import { PlatformSelectionService } from './platform-selection.service';
 import { PostMediaService } from './post-media.service';
 import { MediaUploadService } from './media-upload.service';
+import { ClientContextService } from '../client/client-context.service';
 import {
   CreatePostRequest,
   UpdatePostRequest,
@@ -59,6 +60,7 @@ export class PostPublishService {
   private readonly platformSelectionService = inject(PlatformSelectionService);
   private readonly postMediaService = inject(PostMediaService);
   private readonly mediaUploadService = inject(MediaUploadService);
+  private readonly clientContextService = inject(ClientContextService);
 
   /**
    * Ensure active client is available (for agencies)
@@ -197,7 +199,7 @@ export class PostPublishService {
         content: options.content.trim(),
         mediaId: validMediaId,
         socialAccountIds: Array.isArray(options.accountIds) ? options.accountIds : [],
-        scheduledAt: undefined,
+        // Note: scheduledAt should NOT be included - use /api/posts/{postId}/schedule endpoint instead
         // Note: platformCropConfigs is NOT part of backend UpdatePostRequest contract
         // It's handled separately during media upload/cropping phase
       };
@@ -601,6 +603,16 @@ export class PostPublishService {
     } else {
       this.toastService.success('Post published successfully!');
     }
+    
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+    
+    // Determine the base path
+    const basePath = isAgencyClient 
+      ? `/agency/client/${clientId}/content-management`
+      : '/dashboard/content-management';
+    
     // Parse navigateTo to handle query params properly
     if (navigateTo.includes('?')) {
       const [path, queryString] = navigateTo.split('?');
@@ -609,10 +621,11 @@ export class PostPublishService {
         const [key, value] = param.split('=');
         queryParams[key] = value;
       });
-      this.router.navigate([path], { queryParams });
+      // Use the context-aware base path instead of the parsed path
+      this.router.navigate([basePath], { queryParams: { ...queryParams, tab: 'published-posts' } });
     } else {
       // Navigate to published-posts tab after publishing
-      this.router.navigate([navigateTo], { queryParams: { tab: 'published-posts' } });
+      this.router.navigate([basePath], { queryParams: { tab: 'published-posts' } });
     }
   }
 
@@ -629,6 +642,16 @@ export class PostPublishService {
    */
   handleScheduleSuccess(navigateTo: string = '/dashboard/content-management'): void {
     this.toastService.success('Post scheduled successfully!');
+    
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+    
+    // Determine the base path
+    const basePath = isAgencyClient 
+      ? `/agency/client/${clientId}/content-management`
+      : '/dashboard/content-management';
+    
     // Parse navigateTo to handle query params properly
     if (navigateTo.includes('?')) {
       const [path, queryString] = navigateTo.split('?');
@@ -637,10 +660,11 @@ export class PostPublishService {
         const [key, value] = param.split('=');
         queryParams[key] = value;
       });
-      this.router.navigate([path], { queryParams });
+      // Use the context-aware base path instead of the parsed path
+      this.router.navigate([basePath], { queryParams: { ...queryParams, tab: 'scheduled' } });
     } else {
       // Navigate to scheduled tab after scheduling
-      this.router.navigate([navigateTo], { queryParams: { tab: 'scheduled' } });
+      this.router.navigate([basePath], { queryParams: { tab: 'scheduled' } });
     }
   }
 

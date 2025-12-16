@@ -1,12 +1,14 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError, tap, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { catchError, tap, throwError, map } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import {
   Task,
   CreateTaskRequest,
   UpdateTaskRequest,
   UpdateTaskStatusRequest,
+  TaskApprovalRequest,
+  ReviewTaskApprovalRequest,
 } from '../../models/task.models';
 
 @Injectable({
@@ -24,6 +26,9 @@ export class AgencyTasksService {
 
   private readonly errorSignal = signal<string | null>(null);
   readonly error = this.errorSignal.asReadonly();
+
+  private readonly pendingApprovalsSignal = signal<TaskApprovalRequest[]>([]);
+  readonly pendingApprovals = this.pendingApprovalsSignal.asReadonly();
 
   /**
    * Load all tasks for the current tenant (agency)
@@ -123,6 +128,76 @@ export class AgencyTasksService {
       }),
       catchError((error) => {
         this.errorSignal.set(error?.message || 'Failed to delete task');
+        this.loadingSignal.set(false);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Load pending task approvals
+   */
+  loadPendingApprovals(clientId?: string) {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    let params = new HttpParams();
+    if (clientId) {
+      params = params.set('clientId', clientId);
+    }
+
+    return this.http.get<{ data: TaskApprovalRequest[] } | TaskApprovalRequest[]>(`${this.baseUrl}/api/tasks/approvals/pending`, { params }).pipe(
+      map((response) => {
+        // Handle both wrapped (ApiResponse) and unwrapped responses
+        let approvals: TaskApprovalRequest[] = [];
+        if (Array.isArray(response)) {
+          approvals = response;
+        } else if ((response as { data: TaskApprovalRequest[] }).data) {
+          approvals = (response as { data: TaskApprovalRequest[] }).data;
+        }
+        // Ensure all approvals have the correct type structure
+        return approvals.map((approval) => ({
+          ...approval,
+          assignedToUserId: approval.assignedToUserId,
+          assignedToEmail: approval.assignedToEmail,
+        } as TaskApprovalRequest));
+      }),
+      tap((approvals) => {
+        this.pendingApprovalsSignal.set(approvals);
+        this.loadingSignal.set(false);
+      }),
+      catchError((error) => {
+        this.errorSignal.set(error?.message || 'Failed to load pending approvals');
+        this.loadingSignal.set(false);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Review a task approval (approve or reject)
+   */
+  reviewTaskApproval(requestId: string, request: ReviewTaskApprovalRequest) {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.post<{ data: TaskApprovalRequest } | TaskApprovalRequest>(`${this.baseUrl}/api/tasks/approvals/${requestId}/review`, request).pipe(
+      map((response) => {
+        // Handle both wrapped (ApiResponse) and unwrapped responses
+        if ((response as { data: TaskApprovalRequest }).data) {
+          return (response as { data: TaskApprovalRequest }).data;
+        }
+        return response as TaskApprovalRequest;
+      }),
+      tap((approved) => {
+        // Remove from pending approvals
+        this.pendingApprovalsSignal.update((approvals) =>
+          approvals.filter((a) => a.id !== requestId),
+        );
+        this.loadingSignal.set(false);
+      }),
+      catchError((error) => {
+        this.errorSignal.set(error?.message || 'Failed to review approval');
         this.loadingSignal.set(false);
         return throwError(() => error);
       }),

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient, HttpEventType, HttpEvent } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpEvent, HttpParams } from '@angular/common/http';
 import { Observable, catchError, throwError, tap, map, filter } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
 import { AuthService } from '../../core/services/auth.service';
@@ -165,6 +165,47 @@ export class MediaService {
     return this.http.delete<void>(`${this.baseUrl}/api/media/${mediaId}`).pipe(
       catchError((error) => {
         this.loggingService.error('Media delete error', error, 'MediaService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Bulk delete media
+   */
+  bulkDeleteMedia(mediaIds: string[]): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/api/media/bulk-delete`, { mediaIds }).pipe(
+      catchError((error) => {
+        this.loggingService.error('Media bulk delete error', error, 'MediaService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Search media by query
+   */
+  searchMedia(query: string): Observable<MediaAssetResponse[]> {
+    const params = new HttpParams().set('query', query);
+    return this.http.get<any>(`${this.baseUrl}/api/media/search`, { params }).pipe(
+      map((response) => {
+        if (Array.isArray(response)) return response;
+        return response?.data || [];
+      }),
+      catchError((error) => {
+        this.loggingService.error('Media search error', error, 'MediaService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Get media statistics
+   */
+  getMediaStatistics(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/media/statistics`).pipe(
+      catchError((error) => {
+        this.loggingService.error('Media statistics error', error, 'MediaService');
         return throwError(() => error);
       }),
     );

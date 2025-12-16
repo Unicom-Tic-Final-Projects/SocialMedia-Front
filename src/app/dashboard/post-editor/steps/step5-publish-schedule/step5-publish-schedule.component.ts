@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -15,6 +15,19 @@ export class Step5PublishScheduleComponent {
 
   @Output() scheduleModeChange = new EventEmitter<'now' | 'later' | 'draft'>();
   @Output() scheduledDateTimeChange = new EventEmitter<string>();
+
+  // Get minimum date/time (current date/time) for datetime-local input
+  // Format: YYYY-MM-DDTHH:mm (required format for datetime-local input)
+  readonly minDateTime = computed(() => {
+    const now = new Date();
+    // Format as YYYY-MM-DDTHH:mm for datetime-local input
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  });
 
   onScheduleModeChange(mode: 'now' | 'later' | 'draft'): void {
     this.scheduleModeChange.emit(mode);

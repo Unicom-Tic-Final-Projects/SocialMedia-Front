@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import {
   FormBuilder,
@@ -29,6 +29,15 @@ export class AgencyTeamMembersPage implements OnInit, OnDestroy {
   readonly teamMembers = this.teamMembersService.teamMembers;
   readonly loading = this.teamMembersService.loading;
   readonly error = this.teamMembersService.error;
+
+  // Filter out Owner and Member roles from display
+  readonly filteredTeamMembers = computed(() => {
+    return this.teamMembers().filter(
+      (member) =>
+        member.role?.toLowerCase() !== 'owner' &&
+        member.role?.toLowerCase() !== 'member'
+    );
+  });
 
   showModal = signal(false);
   isEditing = signal(false);

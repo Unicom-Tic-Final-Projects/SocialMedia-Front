@@ -45,3 +45,29 @@ export interface UpdateTaskStatusRequest {
 
 export type TaskStatus = 'Pending' | 'InProgress' | 'Completed' | 'Cancelled';
 export type TaskPriority = 'Low' | 'Normal' | 'High';
+
+export interface TaskApprovalRequest {
+  id: string;
+  taskId: string;
+  taskTitle?: string;
+  requestedById: string;
+  requestedByEmail?: string;
+  assignedToUserId?: string;
+  assignedToEmail?: string; // Email of the user assigned to the task
+  reviewerId?: string;
+  reviewerEmail?: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  comment?: string;
+  requestedAt: string;
+  reviewedAt?: string;
+  tenantId: string;
+  clientId?: string;
+  clientName?: string;
+}
+
+export interface ReviewTaskApprovalRequest {
+  requestId: string;
+  reviewerId: string;
+  status: 'Approved' | 'Rejected';
+  comment?: string;
+}

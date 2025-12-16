@@ -1,15 +1,11 @@
-<div
-  class="min-h-screen bg-[#FFFFFF] text-[#1A1A1A] md:grid"
-  [ngClass]="{
-    'md:grid-cols-[72px,1fr]': isAgencySidebarCollapsed() && !showClientSidebar(),
-    'md:grid-cols-[72px,260px,1fr]': isAgencySidebarCollapsed() && showClientSidebar(),
-    'md:grid-cols-[260px,1fr]': !isAgencySidebarCollapsed() && !showClientSidebar(),
-    'md:grid-cols-[260px,260px,1fr]': !isAgencySidebarCollapsed() && showClientSidebar(),
-  }"
->
-  <!-- Main Agency Sidebar -->
+<div class="flex min-h-screen bg-[#FFFFFF] text-[#1A1A1A] relative overflow-x-hidden">
+  <!-- Mobile Menu Overlay -->
+  @if (showMenu()) {
+    <div class="fixed inset-0 bg-black/50 z-40 md:hidden" (click)="closeMenu()"></div>
+  }
+  <!-- Main Agency Sidebar - Hidden on mobile when viewing client dashboard -->
   <aside
-    class="fixed inset-y-0 left-0 z-30 flex flex-col gap-10 bg-[#F5F7FF] border-r border-[#D9E1FF] text-[#1A1A1A] shadow-xl transition-all duration-300 md:static md:translate-x-0 md:shadow-none group"
+    class="fixed md:static inset-y-0 left-0 z-50 flex flex-col gap-10 bg-[#F5F7FF] border-r border-[#D9E1FF] text-[#1A1A1A] shadow-xl transition-all duration-300 md:translate-x-0 md:shadow-none group transform"
     [class.w-72]="!isAgencySidebarCollapsed()"
     [class.w-[72px]]="isAgencySidebarCollapsed()"
     [class.px-6]="!isAgencySidebarCollapsed()"
@@ -18,6 +14,8 @@
     [class.py-6]="isAgencySidebarCollapsed()"
     [class.-translate-x-full]="!showMenu()"
     [class.translate-x-0]="showMenu()"
+    [class.hidden]="isClientDashboard()"
+    [class.lg:flex]="true"
     (mouseenter)="isAgencySidebarCollapsed() && isAgencySidebarCollapsed.set(false)"
     (mouseleave)="selectedClient() && isAgencySidebarCollapsed.set(true)"
   >
@@ -52,7 +50,7 @@
         [class.justify-start]="!isAgencySidebarCollapsed()"
         [class.py-3]="!isAgencySidebarCollapsed()"
         [class.py-2.5]="isAgencySidebarCollapsed()"
-        (click)="showMenu.set(false)"
+        (click)="closeMenu()"
         [title]="isAgencySidebarCollapsed() ? 'Overview' : ''"
       >
         <i class="fa-solid fa-gauge w-5 text-center text-[#4C6FFF]"></i>
@@ -72,7 +70,7 @@
         [class.justify-start]="!isAgencySidebarCollapsed()"
         [class.py-3]="!isAgencySidebarCollapsed()"
         [class.py-2.5]="isAgencySidebarCollapsed()"
-        (click)="showMenu.set(false)"
+        (click)="closeMenu()"
         [title]="isAgencySidebarCollapsed() ? 'Clients' : ''"
       >
         <i class="fa-solid fa-users w-5 text-center text-[#4C6FFF]"></i>
@@ -92,7 +90,7 @@
         [class.justify-start]="!isAgencySidebarCollapsed()"
         [class.py-3]="!isAgencySidebarCollapsed()"
         [class.py-2.5]="isAgencySidebarCollapsed()"
-        (click)="showMenu.set(false)"
+        (click)="closeMenu()"
         [title]="isAgencySidebarCollapsed() ? 'Team Members' : ''"
       >
         <i class="fa-solid fa-user-group w-5 text-center text-[#4C6FFF]"></i>
@@ -112,12 +110,32 @@
         [class.justify-start]="!isAgencySidebarCollapsed()"
         [class.py-3]="!isAgencySidebarCollapsed()"
         [class.py-2.5]="isAgencySidebarCollapsed()"
-        (click)="showMenu.set(false)"
+        (click)="closeMenu()"
         [title]="isAgencySidebarCollapsed() ? 'Tasks' : ''"
       >
         <i class="fa-solid fa-list-check w-5 text-center text-[#4C6FFF]"></i>
         @if (!isAgencySidebarCollapsed()) {
           <span>Tasks</span>
+        }
+      </a>
+      <a
+        routerLink="/agency/task-approvals"
+        routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+        class="flex items-center rounded-xl text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF] relative"
+        [class.gap-3]="!isAgencySidebarCollapsed()"
+        [class.gap-0]="isAgencySidebarCollapsed()"
+        [class.px-4]="!isAgencySidebarCollapsed()"
+        [class.px-0]="isAgencySidebarCollapsed()"
+        [class.justify-center]="isAgencySidebarCollapsed()"
+        [class.justify-start]="!isAgencySidebarCollapsed()"
+        [class.py-3]="!isAgencySidebarCollapsed()"
+        [class.py-2.5]="isAgencySidebarCollapsed()"
+        (click)="closeMenu()"
+        [title]="isAgencySidebarCollapsed() ? 'Task Approvals' : ''"
+      >
+        <i class="fa-solid fa-clipboard-check w-5 text-center text-[#4C6FFF]"></i>
+        @if (!isAgencySidebarCollapsed()) {
+          <span>Task Approvals</span>
         }
       </a>
     </nav>
@@ -190,13 +208,12 @@
     </button>
   </aside>
 
-  <!-- Client Dashboard Sub-Sidebar -->
+  <!-- Client Dashboard Sub-Sidebar - Hidden on mobile (use bottom nav instead) -->
   @if (showClientSidebar() && selectedClient()) {
     <aside
-      class="fixed inset-y-0 z-20 flex w-72 -translate-x-full flex-col gap-6 bg-[#F0F4FF] border-r border-[#D9E1FF] px-6 py-8 text-[#1A1A1A] shadow-xl transition-all duration-300 md:static md:translate-x-0 md:shadow-none"
+      class="hidden lg:flex fixed lg:static inset-y-0 z-20 w-72 flex-col gap-6 bg-[#F0F4FF] border-r border-[#D9E1FF] px-6 py-8 text-[#1A1A1A] shadow-xl transition-all duration-300 lg:translate-x-0 lg:shadow-none"
       [class.left-72]="!isAgencySidebarCollapsed()"
       [class.left-[72px]]="isAgencySidebarCollapsed()"
-      [class.translate-x-0]="showMenu()"
     >
       <!-- Client Header -->
       <div class="flex flex-col gap-2 pb-4 border-b border-[#D9E1FF]">
@@ -228,12 +245,20 @@
           Dashboard
         </a>
         <a
-          [routerLink]="['/agency/client', selectedClient()?.id, 'posts']"
+          [routerLink]="['/agency/client', selectedClient()?.id, 'content-management']"
           routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
           class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
         >
-          <i class="fa-solid fa-file-lines w-5 text-center text-[#4C6FFF]"></i>
-          Posts
+          <i class="fa-solid fa-folder-open w-5 text-center text-[#4C6FFF]"></i>
+          Content Management
+        </a>
+        <a
+          [routerLink]="['/agency/client', selectedClient()?.id, 'media']"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        >
+          <i class="fa-solid fa-images w-5 text-center text-[#4C6FFF]"></i>
+          Media Library
         </a>
         <a
           [routerLink]="['/agency/client', selectedClient()?.id, 'analytics']"
@@ -252,6 +277,14 @@
           Social Accounts
         </a>
         <a
+          [routerLink]="['/agency/client', selectedClient()?.id, 'webhooks']"
+          routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
+        >
+          <i class="fa-solid fa-webhook w-5 text-center text-[#4C6FFF]"></i>
+          Webhooks
+        </a>
+        <a
           [routerLink]="['/agency/client', selectedClient()?.id, 'notifications']"
           routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
           class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
@@ -268,17 +301,9 @@
           Settings
         </a>
         <a
-          routerLink="/agency/billing"
+          [routerLink]="['/agency/client', selectedClient()?.id, 'billing']"
           routerLinkActive="bg-[#4C6FFF] text-white shadow-md"
-          class="flex items-center rounded-xl text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
-          [class.gap-3]="!isAgencySidebarCollapsed()"
-          [class.gap-0]="isAgencySidebarCollapsed()"
-          [class.px-4]="!isAgencySidebarCollapsed()"
-          [class.px-0]="isAgencySidebarCollapsed()"
-          [class.justify-center]="isAgencySidebarCollapsed()"
-          [class.justify-start]="!isAgencySidebarCollapsed()"
-          [class.py-3]="!isAgencySidebarCollapsed()"
-          [class.py-2.5]="isAgencySidebarCollapsed()"
+          class="flex items-center gap-3 rounded-xl px-4 py-3 text-[#222222] transition hover:bg-[#BFC9FF]/50 hover:text-[#4C6FFF]"
         >
           <i class="fa-solid fa-credit-card w-5 text-center text-[#4C6FFF]"></i>
           Billing
@@ -295,25 +320,107 @@
     </aside>
   }
 
-  <div class="flex min-h-screen flex-col">
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Mobile Header - Simple (No Hamburger) -->
     <header
-      class="flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-6 py-4 md:px-10 md:py-6"
+      class="md:hidden bg-white/95 backdrop-blur-sm border-b border-[#D9E1FF] px-4 py-3 flex items-center justify-between sticky top-0 z-30 safe-area-top shadow-sm"
     >
-      <button
-        type="button"
-        class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#F5F7FF] text-[#4C6FFF] border border-[#D9E1FF] md:hidden hover:bg-[#BFC9FF]/50 transition"
-        (click)="toggleMenu()"
-      >
-        <i class="fa-solid fa-bars text-lg"></i>
-      </button>
+      <!-- Logo - Left -->
+      <h2 class="text-lg font-bold text-[#4C6FFF] flex-shrink-0">
+        One<span class="text-[#1A1A1A]">vo</span>
+      </h2>
 
-      <div class="ml-auto text-sm font-medium text-[#222222] md:text-base">
+      <!-- User Email - Right -->
+      <div class="text-sm font-medium text-[#222222] truncate ml-4">
         {{ getUserEmail() }}
       </div>
     </header>
 
-    <main class="flex-1 px-6 py-6 md:px-10 md:py-10 bg-[#FFFFFF]">
+    <!-- Desktop Header -->
+    <header
+      class="hidden md:flex items-center justify-between gap-4 border-b border-[#D9E1FF] bg-white px-10 py-6"
+    >
+      <div class="text-base font-medium text-[#222222]">
+        {{ getUserEmail() }}
+      </div>
+    </header>
+
+    <!-- Main Router Area -->
+    <main class="flex-1 px-6 py-6 md:px-10 md:py-10 bg-[#FFFFFF] overflow-y-auto pb-20 md:pb-6">
       <router-outlet></router-outlet>
     </main>
   </div>
+
+  <!-- Bottom Navigation Dock - Mobile/Tablet Only -->
+  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] z-50 lg:hidden safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+    <div class="flex justify-around items-center h-16 px-2">
+      <!-- Main Items (4) -->
+      @for (item of bottomDockItems(); track $index) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="text-[#4C6FFF]"
+          [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
+          class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200"
+          (click)="closeMenu()"
+        >
+          <i class="fa-solid {{item.icon}} text-base sm:text-lg mb-0.5"></i>
+          <span class="text-[10px] sm:text-xs font-medium">{{item.label}}</span>
+          <div
+            class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#4C6FFF] rounded-full transition-opacity duration-200"
+            [class.opacity-0]="!isActiveRoute(item.route)"
+          ></div>
+        </a>
+      }
+
+      <!-- More Button (3 dots) - Only show if there are more items -->
+      @if (moreMenuItems().length > 0) {
+        <button
+          type="button"
+          (click)="toggleMoreMenu()"
+          class="flex flex-col items-center justify-center flex-1 min-h-[44px] touch-target transition-colors duration-200"
+          [class.text-[#4C6FFF]]="showMoreMenu()"
+        >
+          <i class="fa-solid fa-ellipsis text-base sm:text-lg mb-0.5"></i>
+          <span class="text-[10px] sm:text-xs font-medium">More</span>
+        </button>
+      }
+    </div>
+  </nav>
+
+  <!-- More Menu Bottom Sheet -->
+  @if (showMoreMenu()) {
+    <div class="fixed inset-0 bg-black/50 z-60" (click)="closeMoreMenu()"></div>
+    <div
+      class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl z-70 max-h-[60vh] overflow-y-auto safe-area-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.1)]"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="sticky top-0 bg-white border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between rounded-t-2xl">
+        <h3 class="text-lg font-semibold text-[#1A1A1A]">More Options</h3>
+        <button
+          type="button"
+          (click)="closeMoreMenu()"
+          class="text-gray-400 hover:text-gray-600 transition"
+        >
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Menu Items -->
+      <div class="px-4 py-4 space-y-1">
+        @for (item of moreMenuItems(); track $index) {
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="bg-[#4C6FFF] text-white"
+            (click)="navigateToMoreItem(item.route)"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl text-[#1A1A1A] hover:bg-[#F5F7FF] transition touch-target"
+          >
+            <i class="fa-solid {{item.icon}} w-5 text-center text-[#4C6FFF]"></i>
+            <span class="text-sm font-medium">{{item.label}}</span>
+          </a>
+        }
+      </div>
+    </div>
+  }
 </div>

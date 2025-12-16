@@ -41,14 +41,8 @@ export interface UpdatePostRequest {
   content: string;
   mediaId?: string; // GUID as string
   socialAccountIds: string[]; // GUIDs as strings
-  scheduledAt?: string; // ISO date string
-  platformCropConfigs?: Record<
-    string,
-    {
-      crop: { zoom: number; offsetX: number; offsetY: number };
-      cropBox: { width: number; height: number; left: number; top: number };
-    }
-  >;
+  // Note: scheduledAt should NOT be included here - use /api/posts/{postId}/schedule endpoint instead
+  // Note: platformCropConfigs should NOT be included here - backend UpdatePostRequest doesn't support it
 }
 
 export interface SchedulePostRequest {

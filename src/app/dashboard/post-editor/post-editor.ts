@@ -276,7 +276,7 @@ export class PostEditor extends BaseComponent implements OnInit {
         this.loadMediaFromLibrary(initialMediaId);
       }
 
-      // Create or load active draft for new post
+      // Create or load active draft for new post first
       const activeDraft = this.postDraftService.getActiveDraft();
       if (!activeDraft) {
         // Create a new draft
@@ -285,8 +285,53 @@ export class PostEditor extends BaseComponent implements OnInit {
           selectedPlatforms: [],
         });
       } else {
-        // Load existing draft
+        // Load existing draft first
         this.loadDraft(activeDraft);
+      }
+
+      // Check for content query parameter (from AI Assistant or Saved Content)
+      // This should override any existing draft content
+      const contentParam = this.route.snapshot.queryParamMap.get('content');
+      if (contentParam) {
+        try {
+          const decodedContent = decodeURIComponent(contentParam);
+          if (decodedContent && decodedContent.trim()) {
+            // Set content in form and signal
+            this.postForm.patchValue({ content: decodedContent });
+            this.contentValue.set(decodedContent);
+            // Update draft with the content from query param
+            const currentDraft = this.postDraftService.getActiveDraft();
+            if (currentDraft) {
+              this.postDraftService.updateDraft({
+                ...currentDraft,
+                caption: decodedContent,
+              });
+            }
+          }
+        } catch (error) {
+          this.loggingService.error('Failed to decode content from query params', error, 'PostEditor');
+        }
+      }
+
+      // Check for imageBase64 or mediaUrl query parameter (from AI Image Generator or Image Editor)
+      const imageBase64 = this.route.snapshot.queryParamMap.get('imageBase64');
+      const mediaUrl = this.route.snapshot.queryParamMap.get('mediaUrl');
+      if (imageBase64) {
+        try {
+          const decodedImage = decodeURIComponent(imageBase64);
+          // Convert base64 to blob and upload
+          this.handleBase64Image(decodedImage);
+        } catch (error) {
+          this.loggingService.error('Failed to decode imageBase64 from query params', error, 'PostEditor');
+        }
+      } else if (mediaUrl) {
+        try {
+          const decodedUrl = decodeURIComponent(mediaUrl);
+          // Set media preview from URL directly
+          this.postMediaService.setMediaPreview(decodedUrl);
+        } catch (error) {
+          this.loggingService.error('Failed to decode mediaUrl from query params', error, 'PostEditor');
+        }
       }
       // Reset step completion flags for new post
       this.wizardService.initialize();
@@ -337,6 +382,58 @@ export class PostEditor extends BaseComponent implements OnInit {
     // Don't mark as unsaved when loading existing draft
     // Only mark as unsaved if user makes changes after loading
     this.hasUnsavedChanges.set(false);
+  }
+
+  /**
+   * Handle base64 image from query parameter (from AI Image Generator or Image Editor)
+   */
+  private handleBase64Image(base64String: string): void {
+    try {
+      // Check if it's already a data URL
+      let base64Data = base64String;
+      if (!base64Data.startsWith('data:')) {
+        base64Data = `data:image/jpeg;base64,${base64Data}`;
+      }
+
+      // Set preview directly
+      this.postMediaService.setMediaPreview(base64Data);
+      
+      // Convert to blob and upload to get media ID
+      const base64Content = base64Data.split(',')[1];
+      const byteCharacters = atob(base64Content);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/jpeg' });
+      const file = new File([blob], `ai-generated-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+      // Upload to get media ID
+      this.loading.set(true);
+      this.mediaService
+        .uploadMedia(file)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response) => {
+            this.loading.set(false);
+            if (response.id) {
+              this.postMediaService.setUploadedMediaId(response.id);
+            }
+            this.toastService.success('Image loaded successfully');
+            this.checkUnsavedChanges();
+          },
+          error: (error) => {
+            this.loading.set(false);
+            this.loggingService.error('Error uploading base64 image', error, 'PostEditor');
+            // Still keep the preview even if upload fails
+            this.toastService.warning('Image preview loaded, but upload failed');
+          },
+        });
+    } catch (error) {
+      this.loggingService.error('Error processing base64 image', error, 'PostEditor');
+      this.toastService.error('Failed to process image');
+    }
   }
 
   /**
@@ -635,7 +732,15 @@ export class PostEditor extends BaseComponent implements OnInit {
   async handleCancel(): Promise<void> {
     const canLeave = await this.canLeave();
     if (canLeave) {
-      this.router.navigate(['/dashboard/content-management']);
+      // Check if we're in agency-client context
+      const clientId = this.clientContextService.getCurrentClientId();
+      const isAgencyClient = this.authService.isAgency() && clientId;
+
+      if (isAgencyClient) {
+        this.router.navigate(['/agency/client', clientId, 'content-management']);
+      } else {
+        this.router.navigate(['/dashboard/content-management']);
+      }
     }
   }
   
@@ -1084,11 +1189,16 @@ export class PostEditor extends BaseComponent implements OnInit {
         this.hasUnsavedChanges.set(false);
 
         // Navigate to drafts tab in content-management
-        if (this.embeddedMode) {
-          // If embedded, we're already in content-management, just switch tab
-          this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'drafts' } });
+        const queryParams = { tab: 'drafts' };
+        
+        // Check if we're in agency-client context
+        const clientId = this.clientContextService.getCurrentClientId();
+        const isAgencyClient = this.authService.isAgency() && clientId;
+
+        if (isAgencyClient) {
+          this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
         } else {
-          this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'drafts' } });
+          this.router.navigate(['/dashboard/content-management'], { queryParams });
         }
       },
       error: (error) => {
@@ -1182,6 +1292,14 @@ export class PostEditor extends BaseComponent implements OnInit {
 
     if (!this.scheduledDateTime()) {
       this.toastService.warning('Please select a date and time for scheduling');
+      return;
+    }
+
+    // Validate that scheduled date is in the future
+    const scheduledDate = new Date(this.scheduledDateTime());
+    const now = new Date();
+    if (scheduledDate <= now) {
+      this.toastService.error('Cannot schedule posts in the past. Please select a future date and time.');
       return;
     }
 
@@ -1304,13 +1422,14 @@ export class PostEditor extends BaseComponent implements OnInit {
 
     if (this.isEditMode()) {
       // Update existing post
+      // Note: Don't include scheduledAt in update request - it will be set via schedule endpoint
+      // Note: Don't include platformCropConfigs in update request - backend doesn't support it
       const updateRequest: UpdatePostRequest = {
         content: formValue.content,
         mediaId: mediaId,
         socialAccountIds: accountIds.length > 0 ? accountIds : this.selectedAccountIds(),
-        scheduledAt: isScheduled ? this.scheduledDateTime() : undefined,
-        platformCropConfigs:
-          Object.keys(platformCropConfigs).length > 0 ? platformCropConfigs : undefined,
+        // scheduledAt should NOT be included here - it will be set via /api/posts/{postId}/schedule
+        // platformCropConfigs should NOT be included here - backend UpdatePostRequest doesn't support it
       };
 
       console.log('Update post request:', JSON.stringify(updateRequest, null, 2));

@@ -10,6 +10,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoggingService } from '../../../core/services/logging.service';
 import { BaseComponent } from '../../../core/base/base.component';
+import { ClientContextService } from '../../../services/client/client-context.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-scheduled-posts',
@@ -24,6 +26,8 @@ export class ScheduledPostsComponent extends BaseComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly loggingService = inject(LoggingService);
+  private readonly clientContextService = inject(ClientContextService);
+  private readonly authService = inject(AuthService);
 
   scheduledPosts = signal<SocialPost[]>([]);
   loading = signal(false);
@@ -53,9 +57,17 @@ export class ScheduledPostsComponent extends BaseComponent implements OnInit {
   }
 
   editScheduled(postId: string): void {
-    this.router.navigate(['/dashboard/content-management'], {
-      queryParams: { tab: 'create', postId, edit: 'true' },
-    });
+    const queryParams = { tab: 'create', postId, edit: 'true' };
+    
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 
   cancelSchedule(_postId: string): void {

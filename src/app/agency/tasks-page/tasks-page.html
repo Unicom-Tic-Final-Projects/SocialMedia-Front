@@ -30,6 +30,63 @@
     </div>
   }
 
+  <!-- Pending Task Completion Approvals (Only for Owner/Admin) -->
+  @if (canApprove() && pendingApprovals().length > 0) {
+    <div class="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-amber-900 flex items-center gap-2">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          Pending Task Completion Approvals ({{ pendingApprovals().length }})
+        </h2>
+      </div>
+      <p class="text-sm text-amber-800 mb-4">
+        <i class="fa-solid fa-info-circle mr-1"></i>
+        Tasks that have been marked as completed by editors/clients and are awaiting your approval.
+      </p>
+      <div class="space-y-3">
+        @for (approval of pendingApprovals(); track trackApprovalById($index, approval)) {
+          <div class="bg-white rounded-lg border border-amber-300 p-4 flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <h3 class="font-semibold text-slate-900 mb-1">{{ approval.taskTitle }}</h3>
+              <p class="text-sm text-slate-600 mb-2">
+                Completion requested by: <span class="font-medium">{{ approval.requestedByEmail }}</span>
+              </p>
+              @if (approval.assignedToEmail) {
+                <p class="text-xs text-slate-600 mb-1">
+                  Assigned to: <span class="font-medium">{{ approval.assignedToEmail }}</span>
+                </p>
+              }
+              @if (approval.clientName) {
+                <p class="text-xs text-slate-500">Client: {{ approval.clientName }}</p>
+              }
+              <p class="text-xs text-slate-500 mt-1">
+                Requested: {{ approval.requestedAt | date: 'short' }}
+              </p>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <button
+                type="button"
+                (click)="approveTask(approval)"
+                class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition"
+              >
+                <i class="fa-solid fa-check mr-1"></i>
+                Approve
+              </button>
+              <button
+                type="button"
+                (click)="rejectTask(approval)"
+                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition"
+              >
+                <i class="fa-solid fa-times mr-1"></i>
+                Reject
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
   @if (loading()) {
     <div class="px-6 py-12 text-center text-sm text-slate-500">
       <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-2 text-primary-500"></i>
@@ -239,7 +296,7 @@
                 class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="">Unassigned</option>
-                @for (member of teamMembers(); track member.userId) {
+                @for (member of editorTeamMembers(); track member.userId) {
                   <option [value]="member.userId">{{ member.email }} ({{ member.role }})</option>
                 }
               </select>

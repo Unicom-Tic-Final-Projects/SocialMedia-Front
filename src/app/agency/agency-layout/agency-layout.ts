@@ -1,4 +1,4 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, AfterViewInit, HostListener, ElementRef, effect, inject, signal, computed } from '@angular/core';
 import {
   Router,
   RouterLink,
@@ -20,10 +20,11 @@ import { ClientsService } from '../../services/client/clients.service';
   templateUrl: './agency-layout.html',
   styleUrl: './agency-layout.css',
 })
-export class AgencyLayout implements OnInit {
+export class AgencyLayout implements OnInit, AfterViewInit {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly elementRef = inject(ElementRef);
   readonly clientContextService = inject(ClientContextService); // Public for template access
   private readonly clientsService = inject(ClientsService);
 
@@ -31,11 +32,69 @@ export class AgencyLayout implements OnInit {
   readonly showMenu = signal(false);
   readonly showClientSidebar = signal(false);
   readonly isAgencySidebarCollapsed = signal(false);
+  readonly showMoreMenu = signal(false);
 
   // Client context
   readonly selectedClient = this.clientContextService.selectedClient;
   readonly clientUser = this.clientContextService.clientUser;
   readonly clientsWithAccounts = this.clientContextService.clientsWithAccounts;
+
+  // Swipe gesture state
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private touchEndX = 0;
+  private touchEndY = 0;
+
+  // Adaptive swipe threshold based on screen size
+  private getSwipeThreshold(): number {
+    const width = window.innerWidth;
+    if (width <= 360) return 40; // Very small phones
+    if (width <= 428) return 45; // Small to medium phones
+    if (width <= 640) return 50; // Large phones
+    return 60; // Tablets
+  }
+
+  // Detect if we're in client dashboard context
+  readonly isClientDashboard = computed(() => this.selectedClient() !== null);
+
+  // Bottom dock items - context aware
+  readonly bottomDockItems = computed((): Array<{ route: string[]; icon: string; label: string; exact: boolean }> => {
+    if (this.isClientDashboard()) {
+      const clientId = this.selectedClient()?.id;
+      if (!clientId) return [];
+      return [
+        { route: ['/agency/client', clientId, 'dashboard'], icon: 'fa-home', label: 'Home', exact: false },
+        { route: ['/agency/client', clientId, 'content-management'], icon: 'fa-folder-open', label: 'Content', exact: false },
+        { route: ['/agency/client', clientId, 'analytics'], icon: 'fa-chart-bar', label: 'Analytics', exact: false },
+        { route: ['/agency/client', clientId, 'notifications'], icon: 'fa-bell', label: 'Alerts', exact: false },
+      ];
+    } else {
+      return [
+        { route: ['/agency'], icon: 'fa-gauge', label: 'Overview', exact: true },
+        { route: ['/agency/clients'], icon: 'fa-users', label: 'Clients', exact: false },
+        { route: ['/agency/team-members'], icon: 'fa-user-group', label: 'Team', exact: false },
+        { route: ['/agency/tasks'], icon: 'fa-list-check', label: 'Tasks', exact: false },
+      ];
+    }
+  });
+
+  // More menu items - context aware
+  readonly moreMenuItems = computed((): Array<{ route: string[]; icon: string; label: string }> => {
+    if (this.isClientDashboard()) {
+      const clientId = this.selectedClient()?.id;
+      if (!clientId) return [];
+      return [
+        { route: ['/agency/client', clientId, 'media'], icon: 'fa-images', label: 'Media Library' },
+        { route: ['/agency/client', clientId, 'social-account'], icon: 'fa-link', label: 'Social Accounts' },
+        { route: ['/agency/client', clientId, 'webhooks'], icon: 'fa-webhook', label: 'Webhooks' },
+        { route: ['/agency/client', clientId, 'settings'], icon: 'fa-gear', label: 'Settings' },
+        { route: ['/agency/client', clientId, 'billing'], icon: 'fa-credit-card', label: 'Billing' },
+        { route: ['/agency/client', clientId, 'profile'], icon: 'fa-user', label: 'Profile' },
+      ];
+    } else {
+      return []; // No more items for agency view (all 4 main items are shown)
+    }
+  });
 
   constructor() {
     effect(() => {
@@ -85,6 +144,96 @@ export class AgencyLayout implements OnInit {
         this.updateClientContextFromRoute();
       },
     });
+
+    // Watch for route changes
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.updateClientContextFromRoute();
+        // Close menus on navigation
+        this.showMenu.set(false);
+        this.showMoreMenu.set(false);
+      });
+  }
+
+  ngAfterViewInit(): void {
+    // Setup swipe gesture listeners for mobile
+    if (window.innerWidth <= 1024) {
+      this.setupSwipeGestures();
+    }
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    // Re-setup swipe gestures if switching to mobile
+    if (window.innerWidth <= 1024) {
+      this.setupSwipeGestures();
+    }
+  }
+
+  private setupSwipeGestures(): void {
+    const sidebar = this.elementRef.nativeElement.querySelector('aside');
+    if (!sidebar) return;
+
+    // Touch start
+    sidebar.addEventListener('touchstart', (e: TouchEvent) => {
+      this.touchStartX = e.changedTouches[0].screenX;
+      this.touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    // Touch end - detect swipe
+    sidebar.addEventListener('touchend', (e: TouchEvent) => {
+      this.touchEndX = e.changedTouches[0].screenX;
+      this.touchEndY = e.changedTouches[0].screenY;
+      this.handleSwipe();
+    }, { passive: true });
+  }
+
+  @HostListener('touchstart', ['$event'])
+  onTouchStart(e: TouchEvent): void {
+    if (window.innerWidth <= 1024 && e.touches[0].clientX < 20 && !this.showMenu()) {
+      this.touchStartX = e.touches[0].clientX;
+      this.touchStartY = e.touches[0].clientY;
+    }
+  }
+
+  @HostListener('touchmove', ['$event'])
+  onTouchMove(e: TouchEvent): void {
+    if (window.innerWidth <= 1024) {
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      const deltaX = currentX - this.touchStartX;
+      const deltaY = currentY - this.touchStartY;
+
+      // If horizontal swipe is greater than vertical, it's a horizontal swipe
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+        // Swipe from left edge to open
+        if (this.touchStartX < 20 && deltaX > 0 && !this.showMenu()) {
+          e.preventDefault();
+        }
+        // Swipe right to close
+        if (this.showMenu() && deltaX < 0) {
+          e.preventDefault();
+        }
+      }
+    }
+  }
+
+  private handleSwipe(): void {
+    const deltaX = this.touchEndX - this.touchStartX;
+    const deltaY = this.touchEndY - this.touchStartY;
+    const threshold = this.getSwipeThreshold();
+
+    // Check if it's a horizontal swipe
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
+      if (deltaX > 0 && this.touchStartX < 20) {
+        // Swipe right from left edge - open menu
+        this.showMenu.set(true);
+      } else if (deltaX < 0 && this.showMenu()) {
+        // Swipe left - close menu
+        this.showMenu.set(false);
+      }
+    }
   }
 
   private updateClientContextFromRoute(): void {
@@ -151,6 +300,42 @@ export class AgencyLayout implements OnInit {
 
   toggleMenu(): void {
     this.showMenu.update((value) => !value);
+  }
+
+  closeMenu(): void {
+    this.showMenu.set(false);
+  }
+
+  toggleMoreMenu(): void {
+    this.showMoreMenu.update((value) => !value);
+  }
+
+  closeMoreMenu(): void {
+    this.showMoreMenu.set(false);
+  }
+
+  navigateToMoreItem(route: string[]): void {
+    this.router.navigate(route);
+    this.closeMoreMenu();
+  }
+
+  // Check if route is active for bottom navigation
+  isActiveRoute(route: string[]): boolean {
+    const currentUrl = this.router.url;
+    // Filter out null/undefined values and join
+    const routePath = route.filter(r => r != null).join('/');
+    
+    // Handle exact match for overview
+    if (routePath === '/agency') {
+      return currentUrl === '/agency' || currentUrl === '/agency/';
+    }
+    
+    // For client dashboard routes, check if URL starts with the route path
+    if (routePath.includes('/agency/client/')) {
+      return currentUrl.startsWith(routePath);
+    }
+    
+    return currentUrl.startsWith(routePath);
   }
 
   logout(): void {

@@ -12,9 +12,15 @@ import { ClientsService } from '../../services/client/clients.service';
 import { ClientUserService } from '../../services/client/client-user.service';
 import { ClientContextService } from '../../services/client/client-context.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Client, CreateClientRequest, UpdateClientRequest } from '../../models/client.models';
+import { ExcelService } from '../../services/client/excel.service';
+import {
+  Client,
+  CreateClientRequest,
+  UpdateClientRequest,
+  BulkCreateClientsRequest,
+} from '../../models/client.models';
 import { CreateClientUserRequest } from '../../models/client-user.models';
-import { forkJoin, Subscription, of } from 'rxjs';
+import { forkJoin, Subscription, of, firstValueFrom } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Component({
@@ -30,6 +36,7 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
   private readonly clientUserService = inject(ClientUserService);
   private readonly clientContextService = inject(ClientContextService);
   private readonly authService = inject(AuthService);
+  private readonly excelService = inject(ExcelService);
   private readonly router = inject(Router);
 
   readonly clients = this.clientsService.clients;
@@ -41,12 +48,21 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
 
   showModal = signal(false);
   showClientUserModal = signal(false);
+  showBulkUploadModal = signal(false);
   selectedClientForUser = signal<Client | null>(null);
   isEditing = signal(false);
   editingClient = signal<Client | null>(null);
   successMessage = signal<string | null>(null);
   errorMessage = signal<string | null>(null);
   generatedPassword = signal<string | null>(null);
+  selectedFile = signal<File | null>(null);
+  uploading = signal(false);
+  uploadProgress = signal<{ total: number; success: number; failed: number }>({
+    total: 0,
+    success: 0,
+    failed: 0,
+  });
+  uploadErrors = signal<string[]>([]);
 
   clientForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
@@ -333,6 +349,124 @@ export class AgencyClientsPage implements OnInit, OnDestroy {
     this.clientContextService.selectClient(client);
     // Navigate to client dashboard
     this.router.navigate(['/agency/client', client.id, 'dashboard']);
+  }
+
+  downloadTemplate(): void {
+    this.excelService.generateTemplate();
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        this.errorMessage.set('Please select a valid Excel file (.xlsx or .xls)');
+        this.selectedFile.set(null);
+        return;
+      }
+      this.selectedFile.set(file);
+      this.errorMessage.set(null);
+      this.uploadErrors.set([]);
+    }
+  }
+
+  async uploadClients(): Promise<void> {
+    const file = this.selectedFile();
+    if (!file) {
+      this.errorMessage.set('Please select a file');
+      return;
+    }
+
+    this.uploading.set(true);
+    this.errorMessage.set(null);
+    this.uploadErrors.set([]);
+    this.uploadProgress.set({ total: 0, success: 0, failed: 0 });
+
+    try {
+      const clients = await this.excelService.parseExcelFile(file);
+      this.uploadProgress.set({ ...this.uploadProgress(), total: clients.length });
+
+      // Use bulk endpoint for better performance
+      // NOTE: This only creates clients, NOT user accounts/dashboards.
+      // User accounts must be created manually by the agency owner after client creation,
+      // same as single client creation workflow.
+      const bulkRequest: BulkCreateClientsRequest = {
+        clients: clients,
+      };
+
+      const response = await firstValueFrom(this.clientsService.bulkCreateClients(bulkRequest));
+
+      // Update progress from response
+      this.uploadProgress.set({
+        total: response.totalCount,
+        success: response.successCount,
+        failed: response.failureCount,
+      });
+
+      // Collect errors from failed results
+      const errors: string[] = [];
+      response.results.forEach((result) => {
+        if (!result.success) {
+          const clientName = clients[result.index]?.name || `Row ${result.index + 1}`;
+          errors.push(`${clientName}: ${result.errorMessage || 'Failed to create client'}`);
+        }
+      });
+
+      if (errors.length > 0) {
+        this.uploadErrors.set(errors);
+      }
+
+      if (response.successCount > 0) {
+        this.successMessage.set(
+          `Successfully created ${response.successCount} out of ${response.totalCount} clients`,
+        );
+        // Refresh the clients list
+        this.clientsService.loadClients().subscribe({
+          next: () => {
+            this.checkClientUserAccounts();
+          },
+        });
+      }
+
+      if (response.failureCount > 0) {
+        this.errorMessage.set(
+          `Failed to create ${response.failureCount} client(s). Check errors below.`,
+        );
+      }
+
+      // Close modal if all succeeded
+      if (response.failureCount === 0) {
+        setTimeout(() => {
+          this.closeBulkUploadModal();
+        }, 2000);
+      }
+    } catch (error: any) {
+      const errorMsg =
+        error?.userMessage ||
+        error?.error?.message ||
+        error?.error?.errors?.[0] ||
+        error?.message ||
+        'Failed to upload clients';
+      this.errorMessage.set(errorMsg);
+    } finally {
+      this.uploading.set(false);
+    }
+  }
+
+  openBulkUploadModal(): void {
+    this.showBulkUploadModal.set(true);
+    this.selectedFile.set(null);
+    this.uploadErrors.set([]);
+    this.uploadProgress.set({ total: 0, success: 0, failed: 0 });
+    this.errorMessage.set(null);
+  }
+
+  closeBulkUploadModal(): void {
+    this.showBulkUploadModal.set(false);
+    this.selectedFile.set(null);
+    this.uploadErrors.set([]);
+    this.uploadProgress.set({ total: 0, success: 0, failed: 0 });
+    this.errorMessage.set(null);
   }
 
   private urlValidator(control: AbstractControl): ValidationErrors | null {

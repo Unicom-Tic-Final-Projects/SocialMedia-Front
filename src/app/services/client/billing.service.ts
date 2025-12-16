@@ -250,4 +250,53 @@ export class BillingService {
         }),
       );
   }
+
+  /**
+   * Get billing history
+   */
+  getBillingHistory(tenantId: string): Observable<any> {
+    const params = new HttpParams().set('tenantId', tenantId);
+    return this.http.get<any>(`${this.baseUrl}/api/billing/history`, { params }).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to load billing history', error, 'BillingService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Update payment method
+   */
+  updatePaymentMethod(paymentMethodId: string, data: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/api/paymentmethods/${paymentMethodId}`, data).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to update payment method', error, 'BillingService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Add payment method
+   */
+  addPaymentMethod(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/paymentmethods`, data).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to add payment method', error, 'BillingService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Remove payment method
+   */
+  removePaymentMethod(paymentMethodId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/api/paymentmethods/${paymentMethodId}`).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to remove payment method', error, 'BillingService');
+        return throwError(() => error);
+      }),
+    );
+  }
 }

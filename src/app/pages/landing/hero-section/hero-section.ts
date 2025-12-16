@@ -12,12 +12,11 @@ import { CommonModule } from '@angular/common';
 import { AosService } from '../../../shared/services/aos.service';
 import { ParallaxService } from '../../../shared/services/parallax.service';
 import { ClickSparkComponent } from '../../../shared/click-spark/click-spark.component';
-import { RotatingTextComponent } from '../../../shared/rotating-text/rotating-text.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-hero-section',
-  imports: [CommonModule, ClickSparkComponent, RotatingTextComponent],
+  imports: [CommonModule, ClickSparkComponent],
   templateUrl: './hero-section.html',
   styleUrl: './hero-section.css',
 })

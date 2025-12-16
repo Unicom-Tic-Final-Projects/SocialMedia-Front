@@ -159,6 +159,11 @@ export const routes: Routes = [
           import('./agency/tasks-page/tasks-page').then((m) => m.AgencyTasksPage),
       },
       {
+        path: 'task-approvals',
+        loadComponent: () =>
+          import('./agency/task-approvals-page/task-approvals-page').then((m) => m.AgencyTaskApprovalsPage),
+      },
+      {
         path: 'billing',
         loadComponent: () =>
           import('./agency/billing-page/billing-page').then((m) => m.AgencyBillingPage),
@@ -173,14 +178,22 @@ export const routes: Routes = [
               import('./dashboard/dashboard-home/dashboard-home').then((m) => m.DashboardHome),
           },
           {
-            path: 'posts',
-            loadComponent: () =>
-              import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage),
-          },
-          {
             path: 'post-editor',
             loadComponent: () =>
               import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor),
+          },
+          {
+            path: 'content-management',
+            loadComponent: () =>
+              import('./dashboard/content-management/content-management').then(
+                (m) => m.ContentManagementComponent,
+              ),
+          },
+          { path: 'ai-content', redirectTo: 'content-management', pathMatch: 'full' },
+          {
+            path: 'media',
+            loadComponent: () =>
+              import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary),
           },
           {
             path: 'analytics',
@@ -195,11 +208,42 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'social-account/connect',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/connect-account/connect-account').then(
+                (m) => m.ConnectAccount,
+              ),
+          },
+          {
             path: 'social-account/callback',
             loadComponent: () =>
               import('./dashboard/social-account-page/auth-success/auth-success').then(
                 (m) => m.AuthSuccess,
               ),
+          },
+          {
+            path: 'social-account/success',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/auth-success/auth-success').then(
+                (m) => m.AuthSuccess,
+              ),
+          },
+          {
+            path: 'social-account/connected',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/connected-accounts/connected-accounts').then(
+                (m) => m.ConnectedAccounts,
+              ),
+          },
+          {
+            path: 'webhooks',
+            loadComponent: () =>
+              import('./dashboard/webhooks-page/webhooks-page').then((m) => m.WebhooksPage),
+          },
+          {
+            path: 'billing',
+            loadComponent: () =>
+              import('./dashboard/billing-page/billing-page').then((m) => m.BillingPage),
           },
           {
             path: 'notifications',
@@ -251,6 +295,24 @@ export const routes: Routes = [
               import('./dashboard/posts-page/posts-page').then((m) => m.PostsPage),
           },
           {
+            path: 'post-editor',
+            loadComponent: () =>
+              import('./dashboard/post-editor/post-editor').then((m) => m.PostEditor),
+          },
+          {
+            path: 'content-management',
+            loadComponent: () =>
+              import('./dashboard/content-management/content-management').then(
+                (m) => m.ContentManagementComponent,
+              ),
+          },
+          { path: 'ai-content', redirectTo: 'content-management', pathMatch: 'full' },
+          {
+            path: 'media',
+            loadComponent: () =>
+              import('./dashboard/media-library/media-library').then((m) => m.MediaLibrary),
+          },
+          {
             path: 'analytics',
             loadComponent: () =>
               import('./dashboard/analytics-page/analytics-page').then((m) => m.AnalyticsPage),
@@ -261,6 +323,44 @@ export const routes: Routes = [
               import('./dashboard/social-account-page/social-account-page').then(
                 (m) => m.SocialAccountPage,
               ),
+          },
+          {
+            path: 'social-account/connect',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/connect-account/connect-account').then(
+                (m) => m.ConnectAccount,
+              ),
+          },
+          {
+            path: 'social-account/callback',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/auth-success/auth-success').then(
+                (m) => m.AuthSuccess,
+              ),
+          },
+          {
+            path: 'social-account/success',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/auth-success/auth-success').then(
+                (m) => m.AuthSuccess,
+              ),
+          },
+          {
+            path: 'social-account/connected',
+            loadComponent: () =>
+              import('./dashboard/social-account-page/connected-accounts/connected-accounts').then(
+                (m) => m.ConnectedAccounts,
+              ),
+          },
+          {
+            path: 'webhooks',
+            loadComponent: () =>
+              import('./dashboard/webhooks-page/webhooks-page').then((m) => m.WebhooksPage),
+          },
+          {
+            path: 'billing',
+            loadComponent: () =>
+              import('./dashboard/billing-page/billing-page').then((m) => m.BillingPage),
           },
           {
             path: 'notifications',

@@ -1,19 +1,31 @@
-<section class="flex flex-col gap-8">
-  <header class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-    <div class="space-y-2">
-      <h1 class="text-3xl font-semibold text-slate-900">Agency Clients</h1>
-      <p class="text-sm text-slate-500 md:text-base">
+<section class="flex flex-col gap-4 sm:gap-6 md:gap-8">
+  <header class="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="space-y-1 sm:space-y-2">
+      <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900">Agency Clients</h1>
+      <p class="text-xs sm:text-sm text-slate-500 md:text-base">
         Centralize client profiles, branding assets, and collaboration preferences.
       </p>
     </div>
-    <button
-      type="button"
-      (click)="openCreateModal()"
-      class="inline-flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600"
-    >
-      <i class="fa-solid fa-user-plus"></i>
-      Add Client
-    </button>
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+      <button
+        type="button"
+        (click)="openBulkUploadModal()"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-green-500 px-4 sm:px-5 py-2.5 sm:py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-green-600 active:scale-95 touch-target min-h-[44px]"
+      >
+        <i class="fa-solid fa-file-excel"></i>
+        <span class="hidden sm:inline">Bulk Upload</span>
+        <span class="sm:hidden">Bulk</span>
+      </button>
+      <button
+        type="button"
+        (click)="openCreateModal()"
+        class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-500 px-4 sm:px-5 py-2.5 sm:py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-600 active:scale-95 touch-target min-h-[44px]"
+      >
+        <i class="fa-solid fa-user-plus"></i>
+        <span class="hidden sm:inline">Add Client</span>
+        <span class="sm:hidden">Add</span>
+      </button>
+    </div>
   </header>
 
   @if (successMessage()) {
@@ -30,115 +42,223 @@
     </div>
   }
 
-  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+  <div class="overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl border border-slate-200 bg-white shadow-sm">
     @if (loading()) {
-      <div class="px-6 py-12 text-center text-sm text-slate-500">
+      <div class="px-4 sm:px-6 py-8 sm:py-12 text-center text-sm text-slate-500">
         <i class="fa-solid fa-circle-notch animate-spin text-2xl mb-2 text-primary-500"></i>
         <p>Loading clients...</p>
       </div>
     } @else if (clients().length === 0) {
-      <div class="px-6 py-10 text-center text-sm font-semibold text-slate-400">
+      <div class="px-4 sm:px-6 py-8 sm:py-10 text-center text-sm font-semibold text-slate-400">
         <i class="fa-solid fa-users-slash text-3xl mb-3 text-slate-300"></i>
         <p>No clients yet. Start by adding your first client profile.</p>
       </div>
     } @else {
-      <table class="min-w-full divide-y divide-slate-200">
-        <thead
-          class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
-        >
-          <tr>
-            <th class="px-6 py-4">Name</th>
-            <th class="px-6 py-4">Industry</th>
-            <th class="px-6 py-4">Contact</th>
-            <th class="px-6 py-4">Status</th>
-            <th class="px-6 py-4 text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 text-sm">
-          @for (client of clients(); track trackClientById($index, client)) {
-            <tr class="hover:bg-slate-50/70 transition">
-              <td class="px-6 py-4 font-medium text-slate-900">{{ client.name }}</td>
-              <td class="px-6 py-4 text-slate-600">{{ client.industry || '—' }}</td>
-              <td class="px-6 py-4 text-slate-600">
-                @if (client.primaryContactName || client.primaryContactEmail) {
-                  <div class="flex flex-col">
-                    @if (client.primaryContactName) {
-                      <span class="font-medium">{{ client.primaryContactName }}</span>
-                    }
-                    @if (client.primaryContactEmail) {
-                      <span class="text-xs text-slate-500">{{ client.primaryContactEmail }}</span>
-                    }
-                  </div>
-                } @else {
-                  <span class="text-slate-400">—</span>
-                }
-              </td>
-              <td class="px-6 py-4">
-                <span
-                  class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
-                  [ngClass]="{
-                    'bg-green-50 text-green-600': client.status === 'Active',
-                    'bg-amber-50 text-amber-600': client.status === 'Inactive',
-                    'bg-slate-50 text-slate-600': client.status === 'Archived',
-                  }"
-                >
-                  {{ client.status }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <div class="flex items-center justify-end gap-2">
-                  @if (hasUserAccount(client.id)) {
-                    <span
-                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded-lg"
-                      title="Account created"
-                    >
-                      <i class="fa-solid fa-check-circle"></i>
-                      Account Created
-                    </span>
-                    <button
-                      type="button"
-                      (click)="accessClientDashboard(client)"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition"
-                      title="Access client dashboard"
-                    >
-                      <i class="fa-solid fa-external-link-alt"></i>
-                      Access Dashboard
-                    </button>
-                  } @else {
-                    <button
-                      type="button"
-                      (click)="openCreateClientUserModal(client)"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition"
-                      title="Create account for client"
-                    >
-                      <i class="fa-solid fa-user-plus"></i>
-                      Create Account
-                    </button>
-                  }
-                  <button
-                    type="button"
-                    (click)="openEditModal(client)"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
-                    title="Edit client"
-                  >
-                    <i class="fa-solid fa-edit"></i>
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    (click)="deleteClient(client)"
-                    class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition"
-                    title="Delete client"
-                  >
-                    <i class="fa-solid fa-trash"></i>
-                    Delete
-                  </button>
-                </div>
-              </td>
+      <!-- Desktop Table View -->
+      <div class="hidden md:block overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead
+            class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            <tr>
+              <th class="px-6 py-4">Name</th>
+              <th class="px-6 py-4">Industry</th>
+              <th class="px-6 py-4">Contact</th>
+              <th class="px-6 py-4">Status</th>
+              <th class="px-6 py-4 text-right">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-sm">
+            @for (client of clients(); track trackClientById($index, client)) {
+              <tr class="hover:bg-slate-50/70 transition">
+                <td class="px-6 py-4 font-medium text-slate-900">{{ client.name }}</td>
+                <td class="px-6 py-4 text-slate-600">{{ client.industry || '—' }}</td>
+                <td class="px-6 py-4 text-slate-600">
+                  @if (client.primaryContactName || client.primaryContactEmail) {
+                    <div class="flex flex-col">
+                      @if (client.primaryContactName) {
+                        <span class="font-medium">{{ client.primaryContactName }}</span>
+                      }
+                      @if (client.primaryContactEmail) {
+                        <span class="text-xs text-slate-500">{{ client.primaryContactEmail }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-slate-400">—</span>
+                  }
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+                    [ngClass]="{
+                      'bg-green-50 text-green-600': client.status === 'Active',
+                      'bg-amber-50 text-amber-600': client.status === 'Inactive',
+                      'bg-slate-50 text-slate-600': client.status === 'Archived',
+                    }"
+                  >
+                    {{ client.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    @if (hasUserAccount(client.id)) {
+                      <span
+                        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded-lg"
+                        title="Account created"
+                      >
+                        <i class="fa-solid fa-check-circle"></i>
+                        Account Created
+                      </span>
+                      <button
+                        type="button"
+                        (click)="accessClientDashboard(client)"
+                        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition touch-target"
+                        title="Access client dashboard"
+                      >
+                        <i class="fa-solid fa-external-link-alt"></i>
+                        Access Dashboard
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        (click)="openCreateClientUserModal(client)"
+                        class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition touch-target"
+                        title="Create account for client"
+                      >
+                        <i class="fa-solid fa-user-plus"></i>
+                        Create Account
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      (click)="openEditModal(client)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition touch-target"
+                      title="Edit client"
+                    >
+                      <i class="fa-solid fa-edit"></i>
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      (click)="deleteClient(client)"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition touch-target"
+                      title="Delete client"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Card View -->
+      <div class="md:hidden divide-y divide-slate-200">
+        @for (client of clients(); track trackClientById($index, client)) {
+          <div class="p-4 sm:p-6 hover:bg-slate-50/70 transition">
+            <!-- Client Header -->
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div class="flex-1 min-w-0">
+                <h3 class="text-base sm:text-lg font-semibold text-slate-900 truncate">
+                  {{ client.name }}
+                </h3>
+                @if (client.industry) {
+                  <p class="text-sm text-slate-600 mt-0.5">{{ client.industry }}</p>
+                }
+              </div>
+              <span
+                class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold flex-shrink-0"
+                [ngClass]="{
+                  'bg-green-50 text-green-600': client.status === 'Active',
+                  'bg-amber-50 text-amber-600': client.status === 'Inactive',
+                  'bg-slate-50 text-slate-600': client.status === 'Archived',
+                }"
+              >
+                {{ client.status }}
+              </span>
+            </div>
+
+            <!-- Contact Info -->
+            @if (client.primaryContactName || client.primaryContactEmail) {
+              <div class="mb-3 pb-3 border-b border-slate-100">
+                <div class="flex flex-col gap-1">
+                  @if (client.primaryContactName) {
+                    <div class="flex items-center gap-2 text-sm">
+                      <i class="fa-solid fa-user text-slate-400 w-4"></i>
+                      <span class="font-medium text-slate-700">{{ client.primaryContactName }}</span>
+                    </div>
+                  }
+                  @if (client.primaryContactEmail) {
+                    <div class="flex items-center gap-2 text-sm">
+                      <i class="fa-solid fa-envelope text-slate-400 w-4"></i>
+                      <a
+                        [href]="'mailto:' + client.primaryContactEmail"
+                        class="text-slate-600 truncate"
+                      >
+                        {{ client.primaryContactEmail }}
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <!-- Account Status -->
+            @if (hasUserAccount(client.id)) {
+              <div class="mb-3">
+                <span
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 rounded-lg"
+                >
+                  <i class="fa-solid fa-check-circle"></i>
+                  Account Created
+                </span>
+              </div>
+            }
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-2">
+              @if (hasUserAccount(client.id)) {
+                <button
+                  type="button"
+                  (click)="accessClientDashboard(client)"
+                  class="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition active:scale-95 touch-target min-h-[44px]"
+                >
+                  <i class="fa-solid fa-external-link-alt"></i>
+                  <span>Access Dashboard</span>
+                </button>
+              } @else {
+                <button
+                  type="button"
+                  (click)="openCreateClientUserModal(client)"
+                  class="flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition active:scale-95 touch-target min-h-[44px]"
+                >
+                  <i class="fa-solid fa-user-plus"></i>
+                  <span>Create Account</span>
+                </button>
+              }
+              <button
+                type="button"
+                (click)="openEditModal(client)"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition active:scale-95 touch-target min-h-[44px] min-w-[80px]"
+              >
+                <i class="fa-solid fa-edit"></i>
+                <span class="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                type="button"
+                (click)="deleteClient(client)"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition active:scale-95 touch-target min-h-[44px] min-w-[80px]"
+              >
+                <i class="fa-solid fa-trash"></i>
+                <span class="hidden sm:inline">Delete</span>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
     }
   </div>
 
@@ -149,13 +269,13 @@
       (click)="closeModal()"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full mx-2 sm:mx-4 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
         (click)="$event.stopPropagation()"
       >
         <div
-          class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between"
+          class="sticky top-0 bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between"
         >
-          <h2 class="text-xl font-semibold text-slate-900">
+          <h2 class="text-lg sm:text-xl font-semibold text-slate-900">
             {{ isEditing() ? 'Edit Client' : 'Add New Client' }}
           </h2>
           <button
@@ -167,7 +287,7 @@
           </button>
         </div>
 
-        <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="p-6 space-y-5">
+        <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="p-4 sm:p-6 space-y-4 sm:space-y-5">
           @if (errorMessage()) {
             <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
               <i class="fa-solid fa-exclamation-circle mr-2"></i>
@@ -217,7 +337,7 @@
             }
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
               <label for="industry" class="block text-sm font-medium text-slate-700 mb-2">
                 Industry
@@ -257,7 +377,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
             <div>
               <label for="primaryContactName" class="block text-sm font-medium text-slate-700 mb-2">
                 Primary Contact Name
@@ -308,18 +428,18 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               (click)="closeModal()"
-              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition active:scale-95 touch-target min-h-[44px]"
             >
               Cancel
             </button>
             <button
               type="submit"
               [disabled]="clientForm.invalid || loading()"
-              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 touch-target min-h-[44px]"
             >
               @if (loading()) {
                 <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
@@ -342,13 +462,13 @@
       (click)="closeClientUserModal()"
     >
       <div
-        class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4"
+        class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-md w-full mx-2 sm:mx-4 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
         (click)="$event.stopPropagation()"
       >
         <div
-          class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between"
+          class="sticky top-0 bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between"
         >
-          <h2 class="text-xl font-semibold text-slate-900">
+          <h2 class="text-lg sm:text-xl font-semibold text-slate-900">
             Create Account for {{ selectedClientForUser()?.name }}
           </h2>
           <button
@@ -360,7 +480,7 @@
           </button>
         </div>
 
-        <form [formGroup]="clientUserForm" (ngSubmit)="createClientUser()" class="p-6 space-y-5">
+        <form [formGroup]="clientUserForm" (ngSubmit)="createClientUser()" class="p-4 sm:p-6 space-y-4 sm:space-y-5">
           @if (errorMessage()) {
             <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
               <i class="fa-solid fa-exclamation-circle mr-2"></i>
@@ -451,24 +571,159 @@
             </div>
           }
 
-          <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
             <button
               type="button"
               (click)="closeClientUserModal()"
-              class="px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition active:scale-95 touch-target min-h-[44px]"
             >
               Cancel
             </button>
             <button
               type="submit"
               [disabled]="clientUserForm.invalid || loading()"
-              class="px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 touch-target min-h-[44px]"
             >
               <i class="fa-solid fa-user-plus mr-2"></i>
               Create Account
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  }
+
+  <!-- Bulk Upload Modal -->
+  @if (showBulkUploadModal()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      (click)="closeBulkUploadModal()"
+    >
+      <div
+        class="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl w-full mx-2 sm:mx-4 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="sticky top-0 bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <h2 class="text-lg sm:text-xl font-semibold text-slate-900">Bulk Upload Clients</h2>
+          <button
+            type="button"
+            (click)="closeBulkUploadModal()"
+            class="text-slate-400 hover:text-slate-600 transition"
+          >
+            <i class="fa-solid fa-times text-xl"></i>
+          </button>
+        </div>
+
+        <div class="p-4 sm:p-6 space-y-4 sm:space-y-5">
+          <div class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700 text-sm">
+            <i class="fa-solid fa-info-circle mr-2"></i>
+            Upload an Excel file with client data.
+            <strong>Name, Primary Contact Name, and Primary Contact Email are required.</strong> Download
+            the template to see the required format.
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button
+              type="button"
+              (click)="downloadTemplate()"
+              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+            >
+              <i class="fa-solid fa-download"></i>
+              Download Template
+            </button>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2">
+              Select Excel File <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              (change)="onFileSelected($event)"
+              class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+            />
+            @if (selectedFile()) {
+              <p class="mt-2 text-sm text-green-600">
+                <i class="fa-solid fa-check-circle mr-2"></i>
+                Selected: {{ selectedFile()?.name }}
+              </p>
+            }
+          </div>
+
+          @if (uploadProgress().total > 0) {
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-sm">
+                <span>Progress:</span>
+                <span
+                  >{{ uploadProgress().success + uploadProgress().failed }} /
+                  {{ uploadProgress().total }}</span
+                >
+              </div>
+              <div class="w-full bg-slate-200 rounded-full h-2">
+                <div
+                  class="bg-green-500 h-2 rounded-full transition-all"
+                  [style.width.%]="
+                    ((uploadProgress().success + uploadProgress().failed) / uploadProgress().total) *
+                    100
+                  "
+                ></div>
+              </div>
+              <div class="flex items-center gap-4 text-sm">
+                <span class="text-green-600">
+                  <i class="fa-solid fa-check-circle mr-1"></i>
+                  Success: {{ uploadProgress().success }}
+                </span>
+                <span class="text-red-600">
+                  <i class="fa-solid fa-times-circle mr-1"></i>
+                  Failed: {{ uploadProgress().failed }}
+                </span>
+              </div>
+            </div>
+          }
+
+          @if (uploadErrors().length > 0) {
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 max-h-40 overflow-y-auto">
+              <p class="text-sm font-semibold text-red-700 mb-2">Errors:</p>
+              <ul class="text-sm text-red-600 space-y-1">
+                @for (error of uploadErrors(); track $index) {
+                  <li>• {{ error }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (errorMessage()) {
+            <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-600 text-sm">
+              <i class="fa-solid fa-exclamation-circle mr-2"></i>
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 border-t border-slate-200">
+            <button
+              type="button"
+              (click)="closeBulkUploadModal()"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition active:scale-95 touch-target min-h-[44px]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              (click)="uploadClients()"
+              [disabled]="!selectedFile() || uploading()"
+              class="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 touch-target min-h-[44px]"
+            >
+              @if (uploading()) {
+                <i class="fa-solid fa-circle-notch animate-spin mr-2"></i>
+                Uploading...
+              } @else {
+                <i class="fa-solid fa-upload mr-2"></i>
+                Upload Clients
+              }
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   }

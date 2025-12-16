@@ -6,6 +6,8 @@ import { SocialPost } from '../../../models/post.models';
 import { takeUntil } from 'rxjs/operators';
 import { LoggingService } from '../../../core/services/logging.service';
 import { BaseComponent } from '../../../core/base/base.component';
+import { ClientContextService } from '../../../services/client/client-context.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-content-calendar',
@@ -18,11 +20,17 @@ export class ContentCalendarComponent extends BaseComponent implements OnInit {
   private readonly postsService = inject(PostsService);
   private readonly router = inject(Router);
   private readonly loggingService = inject(LoggingService);
+  private readonly clientContextService = inject(ClientContextService);
+  private readonly authService = inject(AuthService);
 
   currentDate = signal(new Date());
   scheduledPosts = signal<SocialPost[]>([]);
   loading = signal(false);
   draggedPost = signal<SocialPost | null>(null);
+
+  constructor() {
+    super();
+  }
 
   ngOnInit(): void {
     this.loadScheduledPosts();
@@ -38,7 +46,8 @@ export class ContentCalendarComponent extends BaseComponent implements OnInit {
         this.scheduledPosts.set(posts);
         this.loading.set(false);
       },
-      error: () => {
+      error: (error) => {
+        this.loggingService.error('Error loading scheduled posts', error, 'ContentCalendar');
         this.loading.set(false);
       },
     });
@@ -148,21 +157,37 @@ export class ContentCalendarComponent extends BaseComponent implements OnInit {
 
     // Navigate to content-management to reschedule
     // In a full implementation, you might want to call an API directly
-    this.router.navigate(['/dashboard/content-management'], {
-      queryParams: {
-        tab: 'create',
-        postId,
-        reschedule: 'true',
-        scheduledAt: newScheduledAt,
-      },
-    });
+    const queryParams = {
+      tab: 'create',
+      postId,
+      reschedule: 'true',
+      scheduledAt: newScheduledAt,
+    };
+
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
 
     this.loading.set(false);
   }
 
   editPost(postId: string): void {
-    this.router.navigate(['/dashboard/content-management'], {
-      queryParams: { tab: 'create', postId, edit: 'true' },
-    });
+    const queryParams = { tab: 'create', postId, edit: 'true' };
+    
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 }

@@ -20,9 +20,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { CreatePostRequest } from '../../models/post.models';
 import { AIImageEditorComponent } from '../ai-image-editor/ai-image-editor';
+import { MediaService } from '../../services/client/media.service';
 import { takeUntil } from 'rxjs/operators';
 import { LoggingService } from '../../core/services/logging.service';
 import { BaseComponent } from '../../core/base/base.component';
+import { ClientContextService } from '../../services/client/client-context.service';
 
 @Component({
   selector: 'app-ai-content-generator',
@@ -39,6 +41,8 @@ export class AIContentGenerator extends BaseComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly loggingService = inject(LoggingService);
+  private readonly mediaService = inject(MediaService);
+  private readonly clientContextService = inject(ClientContextService);
 
   // Active tab
   activeTab = signal<'captions' | 'content-plan' | 'best-time' | 'image' | 'image-editor'>(
@@ -290,8 +294,202 @@ export class AIContentGenerator extends BaseComponent implements OnInit {
       });
   }
 
+  /**
+   * Download the generated image
+   */
+  downloadGeneratedImage(): void {
+    const image = this.generatedImage();
+    if (!image) {
+      this.toastService.error('No image to download');
+      return;
+    }
+
+    try {
+      let imageUrl = image.imageUrl;
+      let imageData = image.imageBase64;
+
+      // If we have base64 data, use it; otherwise use URL
+      if (imageData) {
+        // Convert base64 to blob
+        const base64Data = imageData.startsWith('data:') 
+          ? imageData.split(',')[1] 
+          : imageData;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'image/jpeg' });
+        imageUrl = URL.createObjectURL(blob);
+      }
+
+      if (!imageUrl) {
+        this.toastService.error('No image data available');
+        return;
+      }
+
+      // Create download link
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `ai-generated-image-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up object URL if we created one
+      if (imageData && imageUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imageUrl);
+      }
+
+      this.toastService.success('Image downloaded successfully!');
+    } catch (error) {
+      this.loggingService.error('Error downloading image', error, 'AIContentGenerator');
+      this.toastService.error('Failed to download image');
+    }
+  }
+
+  /**
+   * Add generated image to media library (upload to Cloudinary)
+   */
+  addToLibrary(): void {
+    const image = this.generatedImage();
+    if (!image) {
+      this.toastService.error('No image to add to library');
+      return;
+    }
+
+    const user = this.authService.user();
+    if (!user || !user.tenantId) {
+      this.toastService.error('User not authenticated');
+      return;
+    }
+
+    this.loading.set(true);
+
+    try {
+      let imageData = image.imageBase64;
+      let imageUrl = image.imageUrl;
+
+      // If we have base64, convert to blob; otherwise fetch from URL
+      let blob: Blob;
+      
+      if (imageData) {
+        // Convert base64 to blob
+        const base64Data = imageData.startsWith('data:') 
+          ? imageData.split(',')[1] 
+          : imageData;
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        blob = new Blob([byteArray], { type: 'image/jpeg' });
+      } else if (imageUrl) {
+        // Fetch image from URL and convert to blob
+        fetch(imageUrl)
+          .then((response) => response.blob())
+          .then((fetchedBlob) => {
+            this.uploadBlobToLibrary(fetchedBlob);
+          })
+          .catch((error) => {
+            this.loggingService.error('Error fetching image for upload', error, 'AIContentGenerator');
+            this.toastService.error('Failed to fetch image for upload');
+            this.loading.set(false);
+          });
+        return;
+      } else {
+        this.toastService.error('No image data available');
+        this.loading.set(false);
+        return;
+      }
+
+      this.uploadBlobToLibrary(blob);
+    } catch (error) {
+      this.loggingService.error('Error preparing image for upload', error, 'AIContentGenerator');
+      this.toastService.error('Failed to prepare image for upload');
+      this.loading.set(false);
+    }
+  }
+
+  /**
+   * Upload blob to media library
+   */
+  private uploadBlobToLibrary(blob: Blob): void {
+    // Create a File object from the blob
+    const file = new File([blob], `ai-generated-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+    this.mediaService
+      .uploadMedia(file)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.loading.set(false);
+          this.toastService.success('Image added to library successfully!');
+          this.loggingService.debug('Image uploaded to library', response, 'AIContentGenerator');
+        },
+        error: (error) => {
+          this.loggingService.error('Error uploading image to library', error, 'AIContentGenerator');
+          const errorMsg =
+            error?.error?.message || error?.message || 'Failed to upload image to library';
+          this.toastService.error(errorMsg);
+          this.loading.set(false);
+        },
+      });
+  }
+
+  /**
+   * Get the image source URL for display
+   */
+  getGeneratedImageSrc(): string {
+    const image = this.generatedImage();
+    if (!image) return '';
+
+    // Prefer base64 if available
+    if (image.imageBase64) {
+      return image.imageBase64.startsWith('data:')
+        ? image.imageBase64
+        : `data:image/jpeg;base64,${image.imageBase64}`;
+    }
+
+    // Fallback to URL
+    return image.imageUrl || '';
+  }
+
+  /**
+   * Navigate to content management create tab with the generated image
+   */
   useGeneratedImage(): void {
-    this.showPostCreator.set(true);
+    const image = this.generatedImage();
+    if (!image) {
+      this.toastService.error('No image to use');
+      return;
+    }
+
+    // Navigate to content management with image URL/base64
+    const queryParams: any = { tab: 'create' };
+    
+    // Prefer base64 if available, otherwise use URL
+    if (image.imageBase64) {
+      const base64Data = image.imageBase64.startsWith('data:') 
+        ? image.imageBase64 
+        : `data:image/jpeg;base64,${image.imageBase64}`;
+      queryParams.imageBase64 = encodeURIComponent(base64Data);
+    } else if (image.imageUrl) {
+      queryParams.mediaUrl = encodeURIComponent(image.imageUrl);
+    }
+
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
+    this.toastService.success('Navigating to create post...');
   }
 
   // Post Creation
@@ -347,7 +545,15 @@ export class AIContentGenerator extends BaseComponent implements OnInit {
       queryParams.mediaUrl = encodeURIComponent(formValue.mediaUrl);
     }
 
-    this.router.navigate(['/dashboard/content-management'], { queryParams: { ...queryParams, tab: 'create' } });
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams: { ...queryParams, tab: 'create' } });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams: { ...queryParams, tab: 'create' } });
+    }
     this.showPostCreator.set(false);
   }
 

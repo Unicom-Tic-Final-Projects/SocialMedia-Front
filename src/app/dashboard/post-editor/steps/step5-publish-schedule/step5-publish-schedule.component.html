@@ -72,9 +72,14 @@
         <input
           type="datetime-local"
           [value]="scheduledDateTime"
+          [min]="minDateTime()"
           (input)="onScheduledDateTimeChange($any($event.target).value)"
           class="w-full bg-white border-2 border-[#D9E1FF] rounded-lg px-4 py-3 text-[#222222] focus:outline-none focus:border-[#4C6FFF] focus:ring-2 focus:ring-[#4C6FFF]/20 transition-all"
         />
+        <p class="mt-2 text-xs text-gray-500">
+          <i class="fa-solid fa-info-circle mr-1"></i>
+          You cannot schedule posts in the past. Please select a future date and time.
+        </p>
       </div>
     }
   </div>

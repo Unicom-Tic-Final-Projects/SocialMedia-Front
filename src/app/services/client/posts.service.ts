@@ -332,18 +332,24 @@ export class PostsService {
     }
 
     // Build clean request object, explicitly including only defined properties
-    const finalRequest: UpdatePostRequest = {
+    // Note: scheduledAt should NOT be included - use /api/posts/{postId}/schedule endpoint instead
+    // Ensure socialAccountIds is always an array (even if empty)
+    const socialAccountIds = Array.isArray(request.socialAccountIds) 
+      ? request.socialAccountIds.filter(id => id && id.trim() !== '' && id !== 'null' && id !== 'undefined')
+      : [];
+
+    const finalRequest: any = {
       content: request.content.trim(),
-      socialAccountIds: Array.isArray(request.socialAccountIds) ? request.socialAccountIds : [],
+      socialAccountIds: socialAccountIds,
     };
 
     // Conditionally add optional fields if they are defined
-    if (request.mediaId && request.mediaId !== '00000000-0000-0000-0000-000000000000') {
+    if (request.mediaId && 
+        request.mediaId !== '00000000-0000-0000-0000-000000000000' &&
+        request.mediaId.trim() !== '') {
       finalRequest.mediaId = request.mediaId;
     }
-    if (request.scheduledAt) {
-      finalRequest.scheduledAt = request.scheduledAt;
-    }
+    // Note: scheduledAt is NOT included here - it should be set via the schedule endpoint
 
     // Log the final request for debugging
     const requestJson = JSON.stringify(finalRequest);
@@ -366,14 +372,56 @@ export class PostsService {
       return throwError(() => error);
     }
 
-    return this.http.put<PostResponse>(`${this.baseUrl}/api/posts/${postId}`, finalRequest).pipe(
+    return this.http.put<PostResponse>(`${this.baseUrl}/api/posts/${postId}`, finalRequest, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).pipe(
       map((post) => this.mappingService.mapPostResponse(post)),
       tap((post) => {
         this.postsSignal.update((posts) => posts.map((p) => (p.id === postId ? post : p)));
         this.loadingSignal.set(false);
       }),
       catchError((error) => {
-        this.errorSignal.set(error?.userMessage || 'Failed to update post');
+        // Log full error details for debugging
+        this.loggingService.error('Failed to update post', {
+          error,
+          errorStatus: error?.status,
+          errorStatusText: error?.statusText,
+          errorMessage: error?.message,
+          errorError: error?.error,
+          errorUrl: error?.url,
+          postId,
+          finalRequest,
+          finalRequestJson: JSON.stringify(finalRequest)
+        }, 'PostsService');
+        
+        // Extract detailed error message
+        let errorMessage = 'Failed to update post';
+        if (error?.error) {
+          if (error.error.errors && typeof error.error.errors === 'object') {
+            // Validation errors
+            const validationErrors: string[] = [];
+            for (const [key, value] of Object.entries(error.error.errors)) {
+              if (Array.isArray(value)) {
+                validationErrors.push(`${key}: ${value.join(', ')}`);
+              } else if (typeof value === 'string') {
+                validationErrors.push(`${key}: ${value}`);
+              }
+            }
+            if (validationErrors.length > 0) {
+              errorMessage = validationErrors.join('; ');
+            }
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          } else if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          }
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+        
+        this.errorSignal.set(errorMessage);
         this.loadingSignal.set(false);
         return throwError(() => error);
       }),
@@ -543,5 +591,108 @@ export class PostsService {
     return this.clientsService
       .loadClients()
       .pipe(map(() => this.clientsService.getSelectedClient() ?? null));
+  }
+
+  /**
+   * Get post analytics by post ID
+   */
+  getPostAnalytics(postId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/posts/${postId}/analytics`).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to load post analytics', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Get post engagement metrics
+   */
+  getPostEngagement(postId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/posts/${postId}/engagement`).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to load post engagement', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Bulk update posts
+   */
+  bulkUpdatePosts(ids: string[], data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/posts/bulk-update`, { ids, data }).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to bulk update posts', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Bulk delete posts
+   */
+  bulkDeletePosts(ids: string[]): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/posts/bulk-delete`, { ids }).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to bulk delete posts', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Duplicate a post
+   */
+  duplicatePost(postId: string): Observable<SocialPost> {
+    return this.http.post<PostResponse>(`${this.baseUrl}/api/posts/${postId}/duplicate`, {}).pipe(
+      map((post) => this.mappingService.mapPostResponse(post)),
+      catchError((error) => {
+        this.loggingService.error('Failed to duplicate post', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Archive a post
+   */
+  archivePost(postId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/api/posts/${postId}/archive`, {}).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to archive post', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Restore archived post
+   */
+  restorePost(postId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/api/posts/${postId}/restore`, {}).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to restore post', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Get archived posts
+   */
+  getArchivedPosts(): Observable<SocialPost[]> {
+    return this.http.get<any>(`${this.baseUrl}/api/posts/archived`).pipe(
+      map((response) => {
+        const posts = response?.data || response || [];
+        return Array.isArray(posts)
+          ? this.mappingService.mapPostResponseArray(posts as PostResponse[])
+          : [];
+      }),
+      catchError((error) => {
+        this.loggingService.error('Failed to load archived posts', error, 'PostsService');
+        return throwError(() => error);
+      }),
+    );
   }
 }

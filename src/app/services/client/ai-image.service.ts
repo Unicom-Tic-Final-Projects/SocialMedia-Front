@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, catchError, throwError } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
+import { ApiResponse } from '../../models/auth.models';
 
 // Request interfaces
 export interface GenerateImageRequest {
@@ -65,12 +66,18 @@ export class AIImageService {
    * Generate image using AI (Gemini)
    */
   generateImage(request: GenerateImageRequest): Observable<GenerateImageResponse> {
+    const url = `${this.baseUrl}/api/ai/generate-image`;
+    
     return this.http
-      .post<GenerateImageResponse>(`${this.baseUrl}/api/ai/generate-image`, request)
+      .post<ApiResponse<GenerateImageResponse> | GenerateImageResponse>(url, request)
       .pipe(
         map((response) => {
+          // Handle both wrapped (ApiResponse) and unwrapped responses
+          if ((response as ApiResponse<GenerateImageResponse>).data) {
+            return (response as ApiResponse<GenerateImageResponse>).data!;
+          }
           if (response) {
-            return response;
+            return response as GenerateImageResponse;
           }
           throw new Error('Invalid response from server');
         }),
@@ -79,7 +86,7 @@ export class AIImageService {
             error?.error?.message ||
             error?.error?.Message ||
             error?.message ||
-            'Failed to generate image';
+            `Failed to generate image. Status: ${error?.status || 'Unknown'}, URL: ${url}`;
           return throwError(() => new Error(errorMsg));
         }),
       );
@@ -89,10 +96,14 @@ export class AIImageService {
    * Edit image using AI (Gemini)
    */
   editImage(request: EditImageRequest): Observable<EditImageResponse> {
-    return this.http.post<EditImageResponse>(`${this.baseUrl}/api/ai/edit-image`, request).pipe(
+    return this.http.post<ApiResponse<EditImageResponse> | EditImageResponse>(`${this.baseUrl}/api/ai/edit-image`, request).pipe(
       map((response) => {
+        // Handle both wrapped (ApiResponse) and unwrapped responses
+        if ((response as ApiResponse<EditImageResponse>).data) {
+          return (response as ApiResponse<EditImageResponse>).data!;
+        }
         if (response) {
-          return response;
+          return response as EditImageResponse;
         }
         throw new Error('Invalid response from server');
       }),

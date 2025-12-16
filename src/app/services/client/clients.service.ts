@@ -1,8 +1,14 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError, tap, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { API_BASE_URL } from '../../config/api.config';
-import { Client, CreateClientRequest, UpdateClientRequest } from '../../models/client.models';
+import {
+  Client,
+  CreateClientRequest,
+  UpdateClientRequest,
+  BulkCreateClientsRequest,
+  BulkCreateClientsResponse,
+} from '../../models/client.models';
 import { AuthService } from '../../core/services/auth.service';
 import { LoggingService } from '../../core/services/logging.service';
 
@@ -103,6 +109,40 @@ export class ClientsService {
   }
 
   /**
+   * Bulk create clients
+   */
+  bulkCreateClients(request: BulkCreateClientsRequest) {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    return this.http.post<BulkCreateClientsResponse>(`${this.baseUrl}/api/clients/bulk`, request).pipe(
+      tap((response) => {
+        // Add successfully created clients to the list
+        const successfulClients = response.results
+          .filter((r) => r.success && r.client)
+          .map((r) => r.client!);
+        
+        if (successfulClients.length > 0) {
+          this.clientsSignal.update((clients) =>
+            [...clients, ...successfulClients].sort((a, b) => a.name.localeCompare(b.name)),
+          );
+          
+          // Select the first successfully created client
+          if (successfulClients.length > 0) {
+            this.setSelectedClient(successfulClients[0].id);
+          }
+        }
+        this.loadingSignal.set(false);
+      }),
+      catchError((error) => {
+        this.errorSignal.set(error?.userMessage || 'Failed to bulk create clients');
+        this.loadingSignal.set(false);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
    * Update existing client
    */
   updateClient(clientId: string, request: UpdateClientRequest) {
@@ -185,5 +225,69 @@ export class ClientsService {
       this.loggingService.warn('Unable to access localStorage for selected client', error, 'ClientsService');
       return null;
     }
+  }
+
+  /**
+   * Get client statistics
+   */
+  getClientStatistics(clientId: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/clients/${clientId}/statistics`).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to load client statistics', error, 'ClientsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Get client activity logs
+   */
+  getClientActivity(clientId: string, pageNumber: number = 1, pageSize: number = 50): Observable<any> {
+    const params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+    return this.http.get<any>(`${this.baseUrl}/api/clients/${clientId}/activity`, { params }).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to load client activity', error, 'ClientsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Archive client
+   */
+  archiveClient(clientId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/api/clients/${clientId}/archive`, {}).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to archive client', error, 'ClientsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Restore archived client
+   */
+  restoreClient(clientId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/api/clients/${clientId}/restore`, {}).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to restore client', error, 'ClientsService');
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Search clients
+   */
+  searchClients(query: string): Observable<Client[]> {
+    const params = new HttpParams().set('query', query);
+    return this.http.get<Client[]>(`${this.baseUrl}/api/clients/search`, { params }).pipe(
+      catchError((error) => {
+        this.loggingService.error('Failed to search clients', error, 'ClientsService');
+        return throwError(() => error);
+      }),
+    );
   }
 }

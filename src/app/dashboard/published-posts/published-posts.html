@@ -123,7 +123,7 @@
         @if (!searchQuery().trim() && selectedPlatform() === 'all' && selectedStatus() === 'all') {
           <button
             type="button"
-            (click)="router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'create' } })"
+            (click)="navigateToCreatePost()"
             class="px-4 sm:px-6 py-2.5 sm:py-3 bg-[#4C6FFF] text-white rounded-xl hover:bg-[#3A56CC] active:bg-[#3A56CC] transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 text-xs sm:text-sm font-medium touch-target min-h-[44px] flex items-center justify-center gap-1.5 sm:gap-2 mx-auto"
           >
             <i class="fa-solid fa-plus text-xs sm:text-sm"></i>

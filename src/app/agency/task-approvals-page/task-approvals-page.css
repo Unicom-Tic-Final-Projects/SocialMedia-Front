@@ -1,0 +1,37 @@
+/* Task Approvals Page Styles */
+
+section {
+  padding: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  section {
+    padding: 2rem;
+  }
+}
+
+/* Table responsive styles */
+@media (max-width: 768px) {
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 800px;
+  }
+}
+
+/* Animation for row hover */
+tr {
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+

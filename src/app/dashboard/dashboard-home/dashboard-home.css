@@ -281,6 +281,23 @@ a {
     transform: scale(0.98);
     opacity: 0.9;
   }
+
+  /* Enhanced engagement cards on mobile */
+  .stat-card-minimal[class*="bg-gradient"] {
+    min-height: 110px;
+  }
+
+  /* Social accounts chips */
+  .flex.flex-wrap.gap-2 > div {
+    min-height: 36px;
+    touch-action: manipulation;
+  }
+
+  /* Recent posts and scheduled posts cards */
+  .space-y-2 > div,
+  .space-y-3 > div {
+    min-height: 56px;
+  }
 }
 
 /* Responsive Breakpoints for Very Small Screens */
@@ -349,3 +366,71 @@ main {
 .activity-item-minimal:nth-child(3) { animation-delay: 0.15s; }
 .activity-item-minimal:nth-child(4) { animation-delay: 0.2s; }
 .activity-item-minimal:nth-child(5) { animation-delay: 0.25s; }
+
+/* Enhanced gradient card animations */
+.stat-card-minimal[class*="bg-gradient"] {
+  animation: fadeIn 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+.stat-card-minimal[class*="bg-gradient"]:nth-child(1) { animation-delay: 0.1s; }
+.stat-card-minimal[class*="bg-gradient"]:nth-child(2) { animation-delay: 0.15s; }
+.stat-card-minimal[class*="bg-gradient"]:nth-child(3) { animation-delay: 0.2s; }
+.stat-card-minimal[class*="bg-gradient"]:nth-child(4) { animation-delay: 0.25s; }
+
+/* Social account status chips hover effect */
+.flex.flex-wrap.gap-2 > div,
+.flex.flex-wrap.gap-3 > div {
+  transition: all 0.2s ease-out;
+  cursor: pointer;
+}
+
+.flex.flex-wrap.gap-2 > div:hover,
+.flex.flex-wrap.gap-3 > div:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Recent posts and scheduled posts styling */
+.space-y-2 > div,
+.space-y-3 > div {
+  transition: all 0.2s ease-out;
+}
+
+.space-y-2 > div:active,
+.space-y-3 > div:active {
+  transform: scale(0.98);
+}
+
+/* Mobile-specific adjustments for new sections */
+@media (max-width: 640px) {
+  /* Stack engagement cards in single column on very small screens */
+  .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Reduce padding in cards on mobile */
+  .bg-white.rounded-xl.p-3 {
+    padding: 1rem;
+  }
+
+  /* Make social account chips smaller on mobile */
+  .flex.flex-wrap.gap-2 > div {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Adjust recent posts grid on mobile */
+  .grid.grid-cols-1.lg\:grid-cols-2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* 2 columns for engagement cards on tablets */
+  .grid.grid-cols-1.sm\:grid-cols-2.lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -21,8 +21,9 @@ export class PublishedPostsService {
 
   /**
    * Get all published posts with social media details
+   * @param clientId Optional client ID to filter posts (for agency-client context)
    */
-  getPublishedPosts(): Observable<PublishedPostResponse[]> {
+  getPublishedPosts(clientId?: string): Observable<PublishedPostResponse[]> {
     this.loading.set(true);
     this.error.set(null);
 
@@ -36,8 +37,13 @@ export class PublishedPostsService {
         map((response) => {
           this.loading.set(false);
           if (response.success && response.data) {
-            this.publishedPosts.set(response.data);
-            return response.data;
+            // Filter by clientId if provided (for agency-client context)
+            let filteredData = response.data;
+            if (clientId) {
+              filteredData = response.data.filter((post) => post.clientId === clientId);
+            }
+            this.publishedPosts.set(filteredData);
+            return filteredData;
           }
           throw new Error(response.message || 'Failed to load published posts');
         }),
@@ -105,8 +111,9 @@ export class PublishedPostsService {
 
   /**
    * Refresh published posts list
+   * @param clientId Optional client ID to filter posts (for agency-client context)
    */
-  refresh(): void {
-    this.getPublishedPosts().subscribe();
+  refresh(clientId?: string): void {
+    this.getPublishedPosts(clientId).subscribe();
   }
 }

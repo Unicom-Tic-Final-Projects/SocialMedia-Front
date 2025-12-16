@@ -127,7 +127,7 @@ export class FileUploadComponent {
         return;
       }
 
-      acceptedFiles.push(file);
+        acceptedFiles.push(file);
     });
 
     // Handle oversized files

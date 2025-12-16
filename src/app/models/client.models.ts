@@ -26,3 +26,21 @@ export interface CreateClientRequest {
 export interface UpdateClientRequest extends CreateClientRequest {
   status?: 'Active' | 'Inactive' | 'Archived';
 }
+
+export interface BulkCreateClientsRequest {
+  clients: CreateClientRequest[];
+}
+
+export interface BulkClientResult {
+  success: boolean;
+  client?: Client;
+  errorMessage?: string;
+  index: number;
+}
+
+export interface BulkCreateClientsResponse {
+  results: BulkClientResult[];
+  totalCount: number;
+  successCount: number;
+  failureCount: number;
+}

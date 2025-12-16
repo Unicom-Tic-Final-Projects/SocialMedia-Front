@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule, KeyValuePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Subscription, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subscription, Subject, of } from 'rxjs';
+import { takeUntil, switchMap, map, catchError } from 'rxjs/operators';
 import { PostsService } from '../../../services/client/posts.service';
 import { MediaService } from '../../../services/client/media.service';
 import { SocialAccountsService } from '../../../services/client/social-accounts.service';
@@ -12,7 +12,8 @@ import { AIService } from '../../../services/client/ai.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { LoggingService } from '../../../core/services/logging.service';
-import { CreatePostRequest } from '../../../models/post.models';
+import { ClientContextService } from '../../../services/client/client-context.service';
+import { CreatePostRequest, SchedulePostRequest } from '../../../models/post.models';
 import { SocialAccount } from '../../../models/social.models';
 import { AIAssistantComponent } from '../ai-assistant/ai-assistant';
 import { MediaSelectorComponent } from './media-selector/media-selector';
@@ -59,6 +60,7 @@ export class PostCreatorComponent extends BaseComponent implements OnInit {
   private readonly loggingService = inject(LoggingService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly clientContextService = inject(ClientContextService);
   readonly mediaUploadService = inject(MediaUploadService); // Public for template access
   private readonly platformSelectionService = inject(PlatformSelectionService);
   private readonly formValidator = inject(PostFormValidatorService);
@@ -119,7 +121,93 @@ export class PostCreatorComponent extends BaseComponent implements OnInit {
       if (params['content']) {
         this.postForm.patchValue({ content: decodeURIComponent(params['content']) });
       }
+
+      // Handle image from AI generation (base64)
+      if (params['imageBase64']) {
+        this.loadImageFromBase64(decodeURIComponent(params['imageBase64']));
+      }
+      // Handle image URL from AI generation
+      else if (params['mediaUrl']) {
+        this.loadImageFromUrl(decodeURIComponent(params['mediaUrl']));
+      }
     });
+  }
+
+  /**
+   * Load image from base64 data (from AI generation)
+   */
+  private loadImageFromBase64(base64Data: string): void {
+    try {
+      // Ensure base64 data has data URL prefix
+      const imageData = base64Data.startsWith('data:') 
+        ? base64Data 
+        : `data:image/jpeg;base64,${base64Data}`;
+
+      // Convert base64 to blob and create a file
+      const base64String = imageData.split(',')[1];
+      const byteCharacters = atob(base64String);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/jpeg' });
+      const file = new File([blob], `ai-generated-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+      // Create uploaded file info
+      const fileInfo: PostCreatorUploadedFile = {
+        id: `ai-${Date.now()}`,
+        file: file,
+        name: `AI Generated Image`,
+        size: file.size,
+        type: 'image/jpeg',
+        preview: imageData,
+        progress: 0,
+        failed: false,
+      };
+
+      // Upload to Cloudinary
+      this.uploadMedia(file, fileInfo.id);
+    } catch (error) {
+      this.loggingService.error('Error loading image from base64', error, 'PostCreator');
+      this.toastService.error('Failed to load image from AI generation');
+    }
+  }
+
+  /**
+   * Load image from URL (from AI generation)
+   */
+  private loadImageFromUrl(imageUrl: string): void {
+    try {
+      // Fetch image and convert to file
+      fetch(imageUrl)
+        .then((response) => response.blob())
+        .then((blob) => {
+          const file = new File([blob], `ai-generated-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+          // Create uploaded file info
+          const fileInfo: PostCreatorUploadedFile = {
+            id: `ai-${Date.now()}`,
+            file: file,
+            name: `AI Generated Image`,
+            size: file.size,
+            type: 'image/jpeg',
+            preview: imageUrl,
+            progress: 0,
+            failed: false,
+          };
+
+          // Upload to Cloudinary
+          this.uploadMedia(file, fileInfo.id);
+        })
+        .catch((error) => {
+          this.loggingService.error('Error fetching image from URL', error, 'PostCreator');
+          this.toastService.error('Failed to load image from URL');
+        });
+    } catch (error) {
+      this.loggingService.error('Error loading image from URL', error, 'PostCreator');
+      this.toastService.error('Failed to load image from URL');
+    }
   }
 
   private loadMediaById(mediaId: string): void {
@@ -346,14 +434,22 @@ export class PostCreatorComponent extends BaseComponent implements OnInit {
 
     // TODO: Implement draft saving
     // For now, navigate to content-management with draft flag
-    this.router.navigate(['/dashboard/content-management'], {
-      queryParams: {
-        tab: 'create',
-        draft: 'true',
-        content: formValue.content,
-        mediaId: this.uploadedMediaId() || undefined,
-      },
-    });
+    const queryParams: any = {
+      tab: 'create',
+      draft: 'true',
+      content: formValue.content,
+      mediaId: this.uploadedMediaId() || undefined,
+    };
+
+    // Check if we're in agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+
+    if (isAgencyClient) {
+      this.router.navigate(['/agency/client', clientId, 'content-management'], { queryParams });
+    } else {
+      this.router.navigate(['/dashboard/content-management'], { queryParams });
+    }
   }
 
   createPost(): void {
@@ -391,27 +487,80 @@ export class PostCreatorComponent extends BaseComponent implements OnInit {
       return;
     }
 
+    // Get the correct clientId for agency-client context
+    const clientId = this.clientContextService.getCurrentClientId();
+    const isAgencyClient = this.authService.isAgency() && clientId;
+    const targetClientId = isAgencyClient ? clientId : user.tenantId!;
+
     const request: CreatePostRequest = {
-      clientId: user.tenantId!,
+      clientId: targetClientId,
       createdByTeamMemberId: user.userId,
       content: formValue.content,
       mediaId: this.uploadedMediaId() || undefined,
       socialAccountIds: this.selectedAccountIds(),
-      scheduledAt: formValue.scheduledAt
-        ? new Date(formValue.scheduledAt).toISOString()
-        : undefined,
+      // Don't include scheduledAt in create request - we'll schedule separately
+      scheduledAt: undefined,
     };
+
+    const scheduledAt = formValue.scheduledAt
+      ? new Date(formValue.scheduledAt).toISOString()
+      : null;
 
     this.postsService
       .createPost(request)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap((post) => {
+          // If scheduledAt is provided, schedule the post
+          if (scheduledAt && post?.id) {
+            const scheduleRequest: SchedulePostRequest = {
+              scheduledAt: scheduledAt,
+              socialAccountIds: this.selectedAccountIds(),
+            };
+
+            return this.postsService.schedulePost(post.id, scheduleRequest).pipe(
+              map(() => post),
+              catchError((scheduleError: HttpErrorResponse) => {
+                this.loggingService.error('Failed to schedule post', scheduleError, 'PostCreator');
+                // Post was created but scheduling failed - still show success but warn user
+                this.toastService.warning(
+                  'Post created but scheduling failed: ' + 
+                  (scheduleError?.error?.message || 'Please try scheduling again')
+                );
+                return of(post); // Return the post even if scheduling failed
+              })
+            );
+          }
+          return of(post);
+        })
+      )
       .subscribe({
-        next: () => {
+        next: (post) => {
         this.loading.set(false);
-        this.toastService.success('Post created successfully!');
-        this.router.navigate(['/dashboard/content-management'], { queryParams: { tab: 'posts' } });
+        
+        if (scheduledAt) {
+          this.toastService.success('Post scheduled successfully!');
+        } else {
+          this.toastService.success('Post created successfully!');
+        }
+        
+        // Check if we're in agency-client context
+        const navClientId = this.clientContextService.getCurrentClientId();
+        const isAgencyClientNav = this.authService.isAgency() && navClientId;
+
+        // Navigate to posts tab (not published-posts)
+        const queryParams: any = { tab: 'posts' };
+        
+        if (isAgencyClientNav) {
+          // Navigate to agency-client content management
+          this.router.navigate(['/agency/client', navClientId, 'content-management'], { queryParams });
+        } else {
+          // Navigate to individual user content management
+          this.router.navigate(['/dashboard/content-management'], { queryParams });
+        }
       },
       error: (error: HttpErrorResponse) => {
+        this.loggingService.error('Failed to create post', error, 'PostCreator');
         this.toastService.error(error?.error?.message || 'Failed to create post');
         this.loading.set(false);
       },

@@ -181,56 +181,12 @@
         class="bg-[#F5F7FF] rounded-xl shadow-md p-4 sm:p-6 border border-[#D9E1FF] sticky top-6"
       >
         <form [formGroup]="editForm" (ngSubmit)="editImage()" class="space-y-6">
-          <!-- Quick Prompts -->
-          <div>
-            <h3 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
-              <i class="fa-solid fa-bolt text-[#4C6FFF]"></i>
-              Quick Prompts
-            </h3>
-            <div class="grid grid-cols-1 gap-2">
-              @for (quickPrompt of quickPrompts; track quickPrompt.text) {
-                <button
-                  type="button"
-                  class="flex items-center gap-2 p-2.5 bg-white border border-[#D9E1FF] rounded-lg hover:bg-[#E8EDFF] hover:border-[#4C6FFF] transition text-xs text-left"
-                  (click)="useQuickPrompt(quickPrompt.text)"
-                >
-                  <i class="fa-solid {{ quickPrompt.icon }} text-[#4C6FFF]"></i>
-                  <span class="text-[#1A1A1A] truncate">{{ quickPrompt.text }}</span>
-                </button>
-              }
-            </div>
-          </div>
-
-          <!-- Custom Prompt -->
-          <div>
-            <h3 class="text-sm font-semibold text-[#1A1A1A] mb-3 flex items-center gap-2">
-              <i class="fa-solid fa-pen-to-square text-[#4C6FFF]"></i>
-              Custom Prompt
-            </h3>
-            <textarea
-              formControlName="prompt"
-              placeholder="Describe how you want to edit the image (e.g., 'make it vintage', 'remove background person')"
-              rows="4"
-              class="w-full border border-[#D9E1FF] rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#4C6FFF] text-sm resize-none"
-            ></textarea>
-            @if (editForm.get('prompt')?.invalid && editForm.get('prompt')?.touched) {
-              <div class="text-xs text-red-600 mt-1">
-                @if (editForm.get('prompt')?.errors?.['required']) {
-                  Prompt is required
-                }
-                @if (editForm.get('prompt')?.errors?.['maxlength']) {
-                  Prompt must be less than 2000 characters
-                }
-              </div>
-            }
-          </div>
-
           <!-- Action Buttons -->
           <div class="space-y-3 pt-2">
             <button
               type="submit"
               class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-4 py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              [disabled]="editForm.invalid || !currentImageUrl() || loading()"
+              [disabled]="!currentImageUrl() || loading()"
             >
               @if (loading()) {
                 <i class="fa-solid fa-circle-notch animate-spin"></i>
@@ -242,14 +198,38 @@
             </button>
 
             @if (currentImageUrl()) {
-              <button
-                type="button"
-                class="w-full bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium px-4 py-3 rounded-lg transition border border-[#D9E1FF] flex items-center justify-center gap-2"
-                (click)="downloadImage()"
-              >
-                <i class="fa-solid fa-download text-[#4C6FFF]"></i>
-                Download Image
-              </button>
+              <div class="space-y-2">
+                <button
+                  type="button"
+                  class="w-full bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium px-4 py-3 rounded-lg transition border border-[#D9E1FF] flex items-center justify-center gap-2"
+                  (click)="downloadImage()"
+                >
+                  <i class="fa-solid fa-download text-[#4C6FFF]"></i>
+                  Download Image
+                </button>
+                <button
+                  type="button"
+                  [disabled]="loading()"
+                  class="w-full bg-white hover:bg-gray-50 text-[#1A1A1A] font-medium px-4 py-3 rounded-lg transition border border-[#D9E1FF] flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  (click)="addToLibrary()"
+                >
+                  @if (loading()) {
+                    <i class="fa-solid fa-circle-notch animate-spin text-[#4C6FFF]"></i>
+                    Uploading...
+                  } @else {
+                    <i class="fa-solid fa-cloud-arrow-up text-[#4C6FFF]"></i>
+                    Add to Library
+                  }
+                </button>
+                <button
+                  type="button"
+                  class="w-full bg-[#4C6FFF] hover:bg-[#3A56CC] text-white font-medium px-4 py-3 rounded-lg transition flex items-center justify-center gap-2"
+                  (click)="useEditedImage()"
+                >
+                  <i class="fa-solid fa-check"></i>
+                  Use This Image
+                </button>
+              </div>
             }
           </div>
         </form>
